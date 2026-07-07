@@ -23,5 +23,8 @@ docs/
 ├── decisions/                   # 架构决策记录（ADR）
 │   ├── 0001-why-single-node-tree.md
 │   └── 0002-why-not-two-schema-uischema.md
+├── audit/                       # 过程性审计与迭代记录（NNNN-YYYY-MM-DD-）
+│   ├── 0001-2026-07-07-review.md    # 第 1 次审计报告
+│   └── 0001-2026-07-07-checklist.md # 配套修复跟踪清单
 └── CHANGELOG.md
 ```

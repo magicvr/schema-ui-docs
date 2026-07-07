@@ -34,6 +34,7 @@ applies_to: schema-ui-protocol v0.1
 | [06-validation.md](./06-validation.md) | 前后端开发者 / AI | 校验规则与工具链 |
 | [schemas/](./schemas/) | 工具 / AI | 机器可读的 JSON Schema |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
+| [audit/](./audit/) | 维护者 / AI | 过程性审计与迭代记录，编号规则：`NNNN-YYYY-MM-DD-{review,checklist}` |
 | [CHANGELOG.md](./CHANGELOG.md) | 所有人 | 协议版本变更记录 |
 
 **阅读建议：**
@@ -41,6 +42,8 @@ applies_to: schema-ui-protocol v0.1
 - 只想抄一个现成配置 → 直接看 `05-scenarios/`。
 - 要给协议写校验工具 / 训练 AI 生成配置 → 直接读 `schemas/*.json`。
 - 想扩展协议、新增字段 → 先读 `decisions/`，确认没有历史上被否决过的类似方案。
+- 查阅审计/迭代记录 → 直接看 `audit/`。
+- 想了解版本变更历史 → 直接看 `CHANGELOG.md`。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
 
