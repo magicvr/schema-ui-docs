@@ -1,5 +1,5 @@
 ---
-status: draft
+status: stable
 owner: 前端架构组
 date: 2026-07-07
 applies_to: schema-ui-protocol v0.2

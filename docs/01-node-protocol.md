@@ -110,6 +110,7 @@ reactions:
     when: string                 # 条件表达式
     fulfill: StateMap             # 条件为真时应用的状态
     otherwise: StateMap             # 【可选】条件为假时应用的状态
+    scope: form | row              # 【可选，since 0.2】表达式求值作用域，form（默认）或 row
 ```
 
 `StateMap` 只能包含以下语义级状态键：`visible`、`required`、`disabled`、`value`。
@@ -197,6 +198,8 @@ permissions:
 1. 三者均为 AND 语义，只能收紧不能放宽——任一环节为 `false`，后续环节即使为 `true` 也无法"救回"可见性。
 2. `reactions` 始终求值，不因 `permissions.view` 或 `visibleWhen` 结果为 `false` 而跳过（保证赋值/校验等副作用正常执行）。
 3. 三者均未声明时，节点默认可见。
+
+> **注意：** `visibleWhen.when` 和 `reactions[].when` 中使用的 `$deps.*` 变量必须在对应位置的 `dependencies` 数组中显式声明，否则表达式无法正确求值。详见 [02-reaction-expression.md §8](./02-reaction-expression.md#8-校验建议)。
 
 **容器节点级联**：容器（`section`/`grid`/`form` 等）最终 `visible` 为 `false` 时，其子树不展示，但子树内各节点的 `reactions` 仍按各自声明正常求值。子节点无需、也不应自行判断祖先可见性——级联隐藏是渲染层职责。
 
