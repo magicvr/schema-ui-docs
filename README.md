@@ -25,6 +25,7 @@ docs/
 │   └── 0002-why-not-two-schema-uischema.md
 ├── audit/                       # 过程性审计与迭代记录（NNNN-YYYY-MM-DD-）
 │   ├── 0001-2026-07-07-review.md    # 第 1 次审计报告
+│   ├── 0001-2026-07-07-plan.md      # 变更计划（基于审计报告）
 │   └── 0001-2026-07-07-checklist.md # 配套修复跟踪清单
 └── CHANGELOG.md
 ```
