@@ -5,6 +5,24 @@
 
 ---
 
+## 0005 — 2026-07-07 — ajv 实测校验 + 交叉比对发现的隐性缺陷
+
+**主题：** 首次引入 ajv 编译运行实测校验 JSON Schema，发现 `action.schema.json` `additionalProperties` 结构性缺陷（🔴）、最小页面示例缺少 `protocolVersion`（🔴）、CHANGELOG 审计编号断链（🟡）、未定义插值语法孤例（🟢）。
+**性质：** 实测校验审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0005-2026-07-07-review.md](./0005-2026-07-07-review.md) | 审视报告 — M1–M4 四个新发现的问题（2🔴 + 1🟡 + 1🟢） |
+| [0005-2026-07-07-checklist.md](./0005-2026-07-07-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- M1: `action.schema.json` 中将所有字段提至顶层 `properties`，修复 `additionalProperties: false` 误报
+- M2: `01-node-protocol.md §5` 最小可用页面示例补加 `protocolVersion: "0.2"`
+- M3: `CHANGELOG.md` v0.2.2 引用断链通过本审计记录弥合
+- M4: `07-actions-contract.md §5.1` 示例移除未定义 `#{$deps.*}` 插值语法
+
+---
+
 ## 0004 — 2026-07-07 — 残余不一致项修复
 
 **主题：** Schema 与文档同步一致性审计——聚焦"文档说了但 Schema 没写"和"Schema 写了但文档没提"的同步遗漏。
