@@ -83,8 +83,9 @@ data:
   source: static | ref | api
   value: any        # source=static 时的字面量
   ref: string        # source=ref 时，指向 datasources 中的 key
-  url: string        # source=api 时，独立请求的地址（method/params 见 04 文档）
+  url: string        # source=api 时，独立请求的地址
   method: GET | POST
+  params: map        # 【可选】请求参数映射，值可引用 $deps.*，空值规则见 04-datasource-contract.md §8
 ```
 
 | source | 含义 |

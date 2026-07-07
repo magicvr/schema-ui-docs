@@ -15,7 +15,7 @@ applies_to: schema-ui-protocol v0.2
 ```yaml
 datasources:
   orderStats:
-    type: api
+    source: api
     method: GET
     url: /api/stats/order-count
     params:

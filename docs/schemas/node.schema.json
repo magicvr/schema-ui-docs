@@ -76,6 +76,10 @@
           "type": "string",
           "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
           "description": "与 action.schema.json 的 method 枚举保持一致。GET/POST 覆盖常见场景，PUT/DELETE/PATCH 预留用于扩展（如编辑表单场景）"
+        },
+        "params": {
+          "type": "object",
+          "description": "【可选】请求参数映射，值可引用 $deps.*（仅做值替换，不做条件判断），见 docs/08-renderer-spec.md §2.3"
         }
       },
       "required": ["source"],

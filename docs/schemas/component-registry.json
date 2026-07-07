@@ -134,8 +134,8 @@
             "type": "object",
             "properties": {
               "key": { "type": "string", "required": true },
-              "label": { "type": "string" },
-              "labelKey": { "type": "string" },
+              "label": { "type": "string", "description": "操作文案，与 labelKey 至少提供一个" },
+              "labelKey": { "type": "string", "description": "操作文案 i18n key，与 label 至少提供一个" },
               "confirm": { "type": "string" },
               "visibleField": {
                 "type": "string",
@@ -147,6 +147,10 @@
               "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "行级操作权限控制（since 0.2）" }
             },
             "required": ["key"],
+            "anyOf": [
+              { "required": ["label"] },
+              { "required": ["labelKey"] }
+            ],
             "additionalProperties": false
           }
         },
@@ -271,7 +275,15 @@
         "options": {
           "type": "array",
           "required": false,
-          "description": "与 optionsSource 二选一"
+          "description": "与 optionsSource 二选一",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string", "description": "选项文案" },
+              "value": { "description": "选项值" }
+            },
+            "required": ["label", "value"]
+          }
         },
         "optionsSource": {
           "type": "object",

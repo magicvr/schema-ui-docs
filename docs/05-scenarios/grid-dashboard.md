@@ -20,7 +20,7 @@ meta:
 
 datasources:
   orderCountStats:
-    type: api
+    source: api
     method: GET
     url: /api/stats/order-count
 

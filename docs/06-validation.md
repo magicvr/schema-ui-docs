@@ -120,4 +120,9 @@ Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
 - [ ] `props` 中是否混入了 CSS 属性？
 - [ ] `data.source` 是否为三选一之一，且对应字段齐全？
 - [ ] `reactions[].dependencies` 是否覆盖了 `when` 中用到的所有 `$deps.*` 变量？
+- [ ] 表格 `columns`/`actions` 中的表达式是否正确地声明了 `scope: form` 或 `scope: row`？
+- [ ] `scope: row` 的 `fulfill`/`otherwise` 中是否误用了 `required`/`value`（仅允许 `visible`/`disabled`）？
+- [ ] `permissions.*` 表达式中是否混入了 `$deps.*`（只应使用 `$context.*`）？
+- [ ] 非表单节点的 `visibleWhen` 中是否误用了 `$deps.*`？
+- [ ] `data.source: api` 的节点是否在 `data.params` 中正确声明了请求参数？
 - [ ] 表格类 Node 的 `columns[].field` 是否与后端响应体字段名一致？
