@@ -9,14 +9,30 @@
       "type": "string",
       "description": "组件类型标识，需存在于 component-registry.json 中"
     },
+    "id": {
+      "type": "string",
+      "description": "【可选，since 0.2】页面内唯一标识，用于定位/埋点/增量 patch，Renderer 需校验重复"
+    },
     "props": {
       "type": "object",
       "description": "业务级配置参数，禁止出现 CSS 属性名",
       "not": {
-        "required": [
-          "margin", "padding", "color", "background", "fontSize",
-          "fontWeight", "border", "borderRadius", "width", "height",
-          "zIndex", "boxShadow", "lineHeight", "letterSpacing", "textAlign"
+        "anyOf": [
+          { "required": ["margin"] },
+          { "required": ["padding"] },
+          { "required": ["color"] },
+          { "required": ["background"] },
+          { "required": ["fontSize"] },
+          { "required": ["fontWeight"] },
+          { "required": ["border"] },
+          { "required": ["borderRadius"] },
+          { "required": ["width"] },
+          { "required": ["height"] },
+          { "required": ["zIndex"] },
+          { "required": ["boxShadow"] },
+          { "required": ["lineHeight"] },
+          { "required": ["letterSpacing"] },
+          { "required": ["textAlign"] }
         ]
       }
     },
@@ -30,6 +46,9 @@
     "reactions": {
       "type": "array",
       "items": { "$ref": "reaction.schema.json" }
+    },
+    "states": {
+      "$ref": "#/definitions/StatesMap"
     }
   },
   "required": ["type"],
@@ -48,8 +67,7 @@
         "method": {
           "type": "string",
           "enum": ["GET", "POST"]
-        },
-        "valueField": { "type": "string" }
+        }
       },
       "required": ["source"],
       "allOf": [
@@ -66,6 +84,26 @@
           "then": { "required": ["url"] }
         }
       ]
+    },
+    "StatesMap": {
+      "type": "object",
+      "description": "组件级空态/加载态/错误态定制（since 0.2），仅对 component-registry.json 中 supportsStates: true 的组件有效",
+      "properties": {
+        "loading": { "$ref": "#/definitions/StateContent" },
+        "empty": { "$ref": "#/definitions/StateContent" },
+        "error": { "$ref": "#/definitions/StateContent" }
+      },
+      "additionalProperties": false
+    },
+    "StateContent": {
+      "type": "object",
+      "description": "仅允许语义级文案/插画标识，不允许样式类字段",
+      "properties": {
+        "text": { "type": "string" },
+        "illustration": { "type": "string" },
+        "fallbackText": { "type": "string" }
+      },
+      "additionalProperties": false
     }
   }
 }

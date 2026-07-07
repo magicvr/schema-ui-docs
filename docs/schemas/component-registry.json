@@ -6,6 +6,7 @@
     "grid": {
       "supportsChildren": true,
       "supportsData": false,
+      "supportsStates": false,
       "props": {
         "columns": { "type": "number", "required": true }
       }
@@ -13,59 +14,117 @@
     "section": {
       "supportsChildren": true,
       "supportsData": false,
+      "supportsStates": false,
       "props": {
         "title": { "type": "string", "required": false },
+        "titleKey": { "type": "string", "required": false },
         "span": { "type": "number", "required": false }
       }
     },
     "tabs": {
-      "supportsChildren": true,
+      "supportsChildren": false,
       "supportsData": false,
+      "supportsStates": false,
       "props": {
-        "items": { "type": "array", "required": true }
+        "items": {
+          "type": "array",
+          "required": true,
+          "description": "since 0.2：每项内嵌 content（完整 Node），不再依赖顶层 children 按 key 匹配（见方案 A，审计 §2.4）",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "type": "string", "required": true },
+              "label": { "type": "string" },
+              "labelKey": { "type": "string" },
+              "content": { "type": "object", "description": "完整 Node" }
+            }
+          }
+        }
       }
     },
     "statCard": {
       "supportsChildren": false,
       "supportsData": true,
+      "supportsStates": true,
       "props": {
         "label": { "type": "string", "required": true },
+        "labelKey": { "type": "string", "required": false },
         "unit": { "type": "string", "required": false },
-        "format": { "type": "string", "enum": ["plain", "currency", "percent"], "required": false }
+        "format": { "type": "string", "enum": ["plain", "currency", "percent"], "required": false },
+        "valueField": {
+          "type": "string",
+          "required": true,
+          "since": "0.2",
+          "description": "since 0.2：由 data.valueField 迁移而来（审计 §2.1），指定从 API 响应中取哪个字段作为展示值"
+        },
+        "span": { "type": "number", "required": false, "since": "0.2" }
       }
     },
     "chart": {
       "supportsChildren": false,
       "supportsData": true,
+      "supportsStates": true,
       "props": {
         "chartType": { "type": "string", "enum": ["line", "bar", "pie"], "required": true },
         "xField": { "type": "string", "required": true },
-        "yField": { "type": "string", "required": true }
+        "yField": { "type": "string", "required": true },
+        "span": { "type": "number", "required": false, "since": "0.2" }
       }
     },
     "text": {
       "supportsChildren": false,
-      "supportsData": false,
+      "supportsData": true,
+      "supportsStates": true,
       "props": {
-        "content": { "type": "string", "required": true }
+        "content": { "type": "string", "required": true },
+        "contentKey": { "type": "string", "required": false },
+        "valueField": {
+          "type": "string",
+          "required": false,
+          "since": "0.2",
+          "description": "since 0.2：data.source 为 api 时，指定取哪个字段作为展示文本（审计 §4.3，与 statCard 保持一致的取值方式）"
+        },
+        "span": { "type": "number", "required": false, "since": "0.2" }
       }
     },
     "table": {
       "supportsChildren": false,
       "supportsData": true,
+      "supportsStates": true,
       "props": {
         "title": { "type": "string", "required": false },
         "rowKey": { "type": "string", "required": true },
         "pagination": { "type": "object", "required": true },
         "columns": { "type": "array", "required": true },
-        "actions": { "type": "array", "required": false }
+        "actions": {
+          "type": "array",
+          "required": false,
+          "description": "行内操作，每项支持 visibleField（since 0.2，审计 §3.6 过渡方案，数据驱动显隐）",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "type": "string", "required": true },
+              "label": { "type": "string" },
+              "labelKey": { "type": "string" },
+              "confirm": { "type": "string" },
+              "visibleField": {
+                "type": "string",
+                "since": "0.2",
+                "description": "取当前行数据中的同名布尔字段作为显隐依据，不引入 $row 表达式"
+              }
+            }
+          }
+        },
+        "span": { "type": "number", "required": false, "since": "0.2" }
       }
     },
     "form": {
       "supportsChildren": true,
       "supportsData": false,
+      "supportsStates": false,
       "props": {
         "title": { "type": "string", "required": false },
+        "titleKey": { "type": "string", "required": false },
         "submitAction": { "type": "string", "required": true }
       }
     },
@@ -73,32 +132,64 @@
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": true,
+      "supportsStates": false,
       "props": {
         "field": { "type": "string", "required": true },
         "label": { "type": "string", "required": true },
+        "labelKey": { "type": "string", "required": false },
         "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false }
+        "defaultVisible": { "type": "boolean", "required": false },
+        "placeholder": { "type": "string", "required": false, "since": "0.2" },
+        "description": { "type": "string", "required": false, "since": "0.2" },
+        "tooltip": { "type": "string", "required": false, "since": "0.2" }
       }
     },
     "inputNumber": {
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": true,
+      "supportsStates": false,
       "props": {
         "field": { "type": "string", "required": true },
         "label": { "type": "string", "required": true },
+        "labelKey": { "type": "string", "required": false },
         "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false }
+        "defaultVisible": { "type": "boolean", "required": false },
+        "placeholder": { "type": "string", "required": false, "since": "0.2" },
+        "description": { "type": "string", "required": false, "since": "0.2" },
+        "tooltip": { "type": "string", "required": false, "since": "0.2" }
       }
     },
     "select": {
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": true,
+      "supportsStates": false,
       "props": {
         "field": { "type": "string", "required": true },
         "label": { "type": "string", "required": true },
-        "options": { "type": "array", "required": true }
+        "labelKey": { "type": "string", "required": false },
+        "options": {
+          "type": "array",
+          "required": false,
+          "description": "与 optionsSource 二选一"
+        },
+        "optionsSource": {
+          "type": "object",
+          "required": false,
+          "since": "0.2",
+          "description": "与 options 二选一，远程动态选项（审计 §3.4）。params 可引用 $deps.*，值为 null/undefined 时该参数整体省略",
+          "properties": {
+            "url": { "type": "string", "required": true },
+            "params": { "type": "object", "required": false },
+            "labelField": { "type": "string", "required": true },
+            "valueField": { "type": "string", "required": true },
+            "searchable": { "type": "boolean", "required": false }
+          }
+        },
+        "placeholder": { "type": "string", "required": false, "since": "0.2" },
+        "description": { "type": "string", "required": false, "since": "0.2" },
+        "tooltip": { "type": "string", "required": false, "since": "0.2" }
       }
     }
   }

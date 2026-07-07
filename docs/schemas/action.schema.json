@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/schema-ui/action.schema.json",
+  "title": "Schema-UI Action",
+  "description": "参见 docs/07-actions-contract.md，本文件是其权威机器可读版本（since 0.2）",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["request", "navigate", "modal", "custom"]
+    }
+  },
+  "required": ["type"],
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "request" } } },
+      "then": {
+        "properties": {
+          "method": { "type": "string", "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"] },
+          "url": { "type": "string" },
+          "bodyMapping": {
+            "type": "object",
+            "description": "表单字段名 -> 请求体字段名的映射，缺省时按字段名原样传递"
+          },
+          "onSuccess": { "$ref": "#/definitions/OutcomeBehavior" },
+          "onError": { "$ref": "#/definitions/OutcomeBehavior" }
+        },
+        "required": ["method", "url"]
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "navigate" } } },
+      "then": {
+        "properties": {
+          "url": { "type": "string" }
+        },
+        "required": ["url"]
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "modal" } } },
+      "then": {
+        "properties": {
+          "modalId": { "type": "string", "description": "引用前端预注册的弹窗标识" }
+        },
+        "required": ["modalId"]
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "custom" } } },
+      "then": {
+        "properties": {
+          "handler": {
+            "type": "string",
+            "description": "仅允许引用前端白名单预注册的处理函数名，不接受任意代码/表达式"
+          }
+        },
+        "required": ["handler"]
+      }
+    }
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "OutcomeBehavior": {
+      "type": "object",
+      "description": "action 执行结束后的语义级行为，仅允许以下四种",
+      "properties": {
+        "behavior": {
+          "type": "string",
+          "enum": ["toast", "navigate", "reload", "closeModal"]
+        },
+        "message": { "type": "string", "description": "behavior: toast 时的提示文案" },
+        "url": { "type": "string", "description": "behavior: navigate 时的目标地址" }
+      },
+      "required": ["behavior"],
+      "additionalProperties": false
+    }
+  }
+}

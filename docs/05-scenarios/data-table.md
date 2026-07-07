@@ -1,6 +1,6 @@
 ---
 status: example
-protocol_version: v0.1
+protocol_version: v0.2
 last_updated: 2026-07-07
 ---
 
@@ -8,10 +8,14 @@ last_updated: 2026-07-07
 
 对应组件：`table`，字段说明见 [03-component-registry.md](../03-component-registry.md)。
 
+> **v0.2 变更提示：** `actions[].visibleField`（见计划 B10）演示"数据驱动显隐"——由后端在行数据中下发
+> 语义化布尔字段（如 `canRefund`），前端据此判断行内操作是否展示，不引入 `$row` 表达式。
+
 ```yaml
 meta:
   pageId: order_list
   title: 订单列表
+  protocolVersion: "0.2"
 
 body:
   type: table
@@ -45,11 +49,18 @@ body:
       - key: refund
         label: 退款
         confirm: 确认发起退款吗？
+        visibleField: canRefund
   data:
     source: api
     method: GET
     url: /api/orders
 ```
+
+## `visibleField` 行级显隐说明（B10）
+
+`refund` 操作仅在当前行数据的 `canRefund` 字段为 `true` 时展示，后端需要在列表接口的每一行数据中
+下发该字段（见下方接口契约）。这是数据驱动显隐，不依赖 `reactions`/`when` 表达式，也不引入 `$row`
+变量；行级表达式联动（`$row`）仍在 ADR 评审中（见 [decisions/](../decisions/) 及计划 C3）。
 
 ## 对应后端接口契约
 
@@ -58,7 +69,7 @@ body:
 ```json
 {
   "list": [
-    { "orderId": "1001", "customerName": "张三", "amount": 99.5, "status": "PAID", "createdAt": "2026-07-01T10:00:00Z" }
+    { "orderId": "1001", "customerName": "张三", "amount": 99.5, "status": "PAID", "createdAt": "2026-07-01T10:00:00Z", "canRefund": true }
   ],
   "total": 128
 }

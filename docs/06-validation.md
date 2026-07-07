@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-07
-applies_to: schema-ui-protocol v0.1
+applies_to: schema-ui-protocol v0.2
 ---
 
 # 校验规则与工具链
@@ -14,7 +14,12 @@ applies_to: schema-ui-protocol v0.1
 | L1 结构校验 | [`schemas/node.schema.json`](./schemas/node.schema.json) | 后端 CI / 提交前 | Node 结构是否合法（字段名、类型） |
 | L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约 |
 | L3 联动表达式校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + 白名单解析器 | 前端 Renderer 运行时 | `when` 表达式语法、变量是否在 `dependencies` 声明范围内 |
-| L4 语义禁用词校验 | 自定义 lint 脚本 | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`） |
+| L4 语义禁用词校验 | 自定义 lint 脚本 | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`），可覆盖 Schema 表达力之外的场景（如深层嵌套结构） |
+
+> **v0.2 变更（A1，双轨策略）：** L1（`node.schema.json` 的 `not`+`anyOf`）与 L4（lint 脚本）是**两层独立防线**，而非同一规则的重复实现：
+> - **L1** 通过 JSON Schema 的 `not: { anyOf: [...] }` 逐一禁止每个 CSS 属性名单独出现在 `props` 中，随 CI 自动挂载生效，无需额外配置，是**自动生效的基础防线**。
+> - **L4** 是更细致的深度补充，可覆盖 Schema 表达力之外的场景（如嵌套对象内部、`reactions[].fulfill` 中的禁用词），但需要团队额外接入 lint 流程才会生效。
+> - **同步要求：** L1 的 `anyOf` 清单与 L4 的禁用词清单必须保持一致，任一方新增禁用词时需同步更新另一方，避免两层防线出现漂移。
 
 ## 2. CI 建议流程
 
@@ -37,7 +42,7 @@ border, borderRadius, width, height, zIndex, boxShadow,
 lineHeight, letterSpacing, textAlign
 ```
 
-任何 `props` 或 `reactions[].fulfill` 中出现以上键名，CI 直接判定失败。
+任何 `props` 或 `reactions[].fulfill` 中出现以上键名，CI 直接判定失败。该清单必须与 `schemas/node.schema.json` 中 `props.not.anyOf` 声明的字段列表保持一致（见 §1 双轨策略说明）。
 
 ## 4. 给 AI 助手生成配置时的建议提示词片段
 

@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-07
-applies_to: schema-ui-protocol v0.1
+applies_to: schema-ui-protocol v0.2
 ---
 
 # Schema-Driven UI 协议总纲
@@ -32,6 +32,7 @@ applies_to: schema-ui-protocol v0.1
 | [04-datasource-contract.md](./04-datasource-contract.md) | 后端开发者 / AI | API 数据契约（分页、响应结构） |
 | [05-scenarios/](./05-scenarios/) | 所有人 / AI | 可复制的完整场景示例 |
 | [06-validation.md](./06-validation.md) | 前后端开发者 / AI | 校验规则与工具链 |
+| [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
 | [schemas/](./schemas/) | 工具 / AI | 机器可读的 JSON Schema |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
 | [audit/](./audit/) | 维护者 / AI | 过程性审计与迭代记录，编号规则：`NNNN-YYYY-MM-DD-{review,checklist}` |
@@ -73,7 +74,7 @@ applies_to: schema-ui-protocol v0.1
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v0.1`（初版，见 [CHANGELOG.md](./CHANGELOG.md)）。
+当前协议版本：`v0.2`（见 [CHANGELOG.md](./CHANGELOG.md)）。
 
 本协议目前覆盖三类场景：网格布局、数据表格、表单联动。后续新增场景类型时，
 应遵循同一套 Node 结构（`type`/`props`/`data`/`children`/`reactions`），

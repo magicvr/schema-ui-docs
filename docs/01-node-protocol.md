@@ -25,33 +25,38 @@ meta:            # 页面元信息
   pageId: string
   title: string
   description: string
+  protocolVersion: string   # 必填（since 0.2）。如 "0.2"，Renderer 版本兼容锚点
 
 datasources:     # 【可选】页面级预声明数据源，供 body 内节点通过 ref 引用
   <sourceId>: DataSourceDef
 
 body: Node        # 页面主体，根 Node
 
-actions:          # 【可选】页面级可复用动作定义
+actions:          # 【可选】页面级可复用动作定义（完整契约见 07-actions-contract.md）
   <actionId>: ActionDef
 ```
 
 | 字段 | 必填 | 说明 |
 |---|---|---|
-| `meta` | 是 | 页面元信息，`pageId` 全局唯一 |
+| `meta` | 是 | 页面元信息，`pageId` 全局唯一；`protocolVersion` 必填（since 0.2） |
 | `datasources` | 否 | 见 [04-datasource-contract.md](./04-datasource-contract.md) |
 | `body` | 是 | 页面主体的根 Node |
-| `actions` | 否 | 供 Node 内按钮/表单提交等引用的动作定义 |
+| `actions` | 否 | 供 Node 内按钮/表单提交等引用的动作定义，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
+
+> **`meta.protocolVersion`（since 0.2）：** 必填字符串（如 `"0.2"`），Renderer 据此判断按哪套解析规则处理该页面文档，是协议后续演进做版本兼容判断的锚点。旧文档（v0.1）缺少该字段时，Renderer 应视为 `"0.1"` 并按兼容模式处理，但新建/修改的文档必须显式声明。
 
 ## 3. Node 结构（核心）
 
-一个 Node 只有以下 5 个字段，不允许出现协议之外的自定义字段（前端可拒绝解析）：
+一个 Node 只包含以下字段，不允许出现协议之外的自定义字段（前端可拒绝解析）：
 
 ```yaml
 type: string          # 必填。渲染成什么组件
+id: string             # 可选（since 0.2）。页面内唯一标识
 props: map             # 可选。业务级配置参数
 data: DataRef           # 可选。数据来源描述
 children: [Node]         # 可选。子节点数组
 reactions: [Reaction]     # 可选。联动规则数组（仅字段类 Node 可用）
+states: StatesMap        # 可选（since 0.2）。空态/加载态/错误态定制
 ```
 
 ### 3.1 `type`（必填）
@@ -107,6 +112,34 @@ reactions:
 `StateMap` 只能包含以下语义级状态键：`visible`、`required`、`disabled`、`value`。
 不允许声明组件私有 props 或任何样式相关的键。
 
+### 3.6 `id`（可选，since 0.2）
+
+页面内唯一标识，用于滚动定位、埋点、增量更新/局部 patch 的锚点。Renderer 侧需对同一页面内的重复 `id` 做校验并报错。
+
+```yaml
+type: statCard
+id: order_count_card
+props:
+  label: 今日订单数
+```
+
+### 3.7 `states`（可选，since 0.2）
+
+组件级空态/加载态/错误态定制，仅对组件注册表中标注 `supportsStates: true` 的组件有效（详见 [03-component-registry.md](./03-component-registry.md)）。仅允许语义级文案/插画标识，不允许样式类字段：
+
+```yaml
+states:
+  loading:
+    text: 加载中...
+  empty:
+    text: 暂无数据
+    illustration: empty-box
+  error:
+    fallbackText: 加载失败，请重试
+```
+
+对不支持 `states` 的组件（如 `section`/`grid`/`tabs`）声明该字段时，Renderer 与 CI 校验应直接拒绝，而不是静默忽略。
+
 ## 4. 与参考协议的概念对照
 
 | 本协议 | Formily | RJSF | 说明 |
@@ -134,3 +167,16 @@ body:
 ```
 
 更多完整场景请见 [05-scenarios/](./05-scenarios/)。
+
+## 6. 国际化（i18n）字段约定（since 0.2）
+
+`props` 中语义为展示文案的字段（如 `label`/`title`/`content`）均可用对应的 `xxxKey` 形式替代（如 `labelKey`/`titleKey`/`contentKey`）：
+
+```yaml
+type: input
+props:
+  field: customerName
+  labelKey: form.customerName.label   # 替代 label
+```
+
+Renderer 优先按 `xxxKey` 查询 i18n 词典，查不到时 fallback 到未加 `Key` 后缀的原字段（若同时提供）。`xxxKey` 与原字段互为可选，二者至少提供一个。具体哪些字段支持 `xxxKey` 形式，见各组件在 [03-component-registry.md](./03-component-registry.md) 中的契约说明。
