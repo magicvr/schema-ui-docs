@@ -64,7 +64,9 @@ body:
             yField: value
           data:
             source: api
-            url: /api/stats/trend?range=7d
+            url: /api/stats/trend
+            params:
+              range: "7d"
 ```
 
 ## `datasources` + `ref` 引用说明（A4）

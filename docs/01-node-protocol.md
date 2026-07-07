@@ -147,6 +147,8 @@ states:
 
 对不支持 `states` 的组件（如 `section`/`grid`/`tabs`）声明该字段时，Renderer 与 CI 校验应直接拒绝，而不是静默忽略。
 
+> **校验实现说明：** `node.schema.json` 中 `states` 为通用可选字段，不包含基于 `supportsStates` 的条件约束。因此 L1（Node 结构校验）无法自动拒绝非支持组件上的 `states` 声明——此校验需要由 L2（组件契约校验）或 CI 自定义脚本实现，检查 `component-registry.json` 中该组件的 `supportsStates` 值。
+
 ### 3.8 `visibleWhen`（节点级条件渲染，可选，since 0.2）
 
 控制整个节点（而非字段）是否渲染，独立于 `reactions` 的字段级联动。任何 Node 类型均可声明。

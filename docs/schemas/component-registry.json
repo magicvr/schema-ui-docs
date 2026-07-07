@@ -96,7 +96,24 @@
       "props": {
         "title": { "type": "string", "required": false },
         "rowKey": { "type": "string", "required": true },
-        "pagination": { "type": "object", "required": true },
+        "pagination": {
+          "type": "object",
+          "required": true,
+          "description": "分页配置",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["server", "client", "none"],
+              "required": true,
+              "description": "分页模式：server（服务端分页）/ client（客户端分页）/ none（不分页）"
+            },
+            "pageSize": {
+              "type": "number",
+              "required": false,
+              "description": "默认页大小"
+            }
+          }
+        },
         "columns": {
           "type": "array",
           "required": true,
@@ -165,7 +182,7 @@
       "props": {
         "title": { "type": "string", "required": false },
         "titleKey": { "type": "string", "required": false },
-        "submitAction": { "type": "string", "required": false, "description": "默认模式下必填。mode=search 时忽略" },
+        "submitAction": { "type": "string", "required": false, "description": "默认模式（mode=default）下必填，引用顶层 actions 中的动作 id；mode=search 时忽略此字段" },
         "mode": {
           "type": "string",
           "enum": ["default", "search"],
@@ -188,7 +205,7 @@
       "supportsStates": false,
       "props": {
         "field": { "type": "string", "required": true },
-        "label": { "type": "string", "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },
@@ -204,7 +221,7 @@
       "supportsStates": false,
       "props": {
         "field": { "type": "string", "required": true },
-        "label": { "type": "string", "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "min": { "type": "number", "required": false, "since": "0.2.1", "description": "最小值" },
         "max": { "type": "number", "required": false, "since": "0.2.1", "description": "最大值" },
@@ -224,7 +241,7 @@
       "supportsStates": false,
       "props": {
         "field": { "type": "string", "required": true },
-        "label": { "type": "string", "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "placeholder": { "type": "string", "required": false },
         "format": { "type": "string", "required": false, "description": "日期展示格式，仅控制前端展示；数据格式统一 ISO 8601" },
@@ -242,7 +259,7 @@
       "props": {
         "startField": { "type": "string", "required": true },
         "endField": { "type": "string", "required": true },
-        "label": { "type": "string", "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "placeholder": { "type": "string", "required": false },
         "min": { "type": "string", "required": false, "description": "可选最小日期 ISO 8601" },
@@ -258,7 +275,7 @@
       "supportsStates": false,
       "props": {
         "field": { "type": "string", "required": true },
-        "label": { "type": "string", "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "accept": { "type": "string", "required": false, "description": "接受的文件 MIME 类型" },
         "maxSize": { "type": "number", "required": false, "description": "最大文件大小（字节）" },
@@ -275,7 +292,7 @@
       "supportsStates": false,
       "props": {
         "field": { "type": "string", "required": true },
-        "label": { "type": "string", "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "options": {
           "type": "array",

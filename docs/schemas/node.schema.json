@@ -32,7 +32,11 @@
           { "required": ["boxShadow"] },
           { "required": ["lineHeight"] },
           { "required": ["letterSpacing"] },
-          { "required": ["textAlign"] }
+          { "required": ["textAlign"] },
+          { "required": ["minWidth"] },
+          { "required": ["maxWidth"] },
+          { "required": ["minHeight"] },
+          { "required": ["maxHeight"] }
         ]
       }
     },

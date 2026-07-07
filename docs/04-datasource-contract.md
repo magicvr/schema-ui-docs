@@ -74,6 +74,8 @@ data:
 - `list`：当前页数据数组，字段名需与 Node 的 `columns[].field` / `valueField` 对应。
 - `total`：总条数，用于前端计算总页数。
 
+> **字段名映射（since 0.2.2）：** 若后端无法使用 `list`/`total` 作为响应体字段名（如遗留系统使用 `data`/`items`/`count`），可在 `data.params` 中声明 `responseMapping` 来指定字段名映射关系。此映射为可选项，Renderer 默认以 `list`/`total` 解析；未配置映射时使用协议默认字段名。具体映射语法由接入方在 Renderer 扩展层约定，协议层仅记录此需求。若未来该需求成为普遍诉求，应通过 ADR 标准化映射语法。
+
 ### 4.2 单值类接口（配合 `statCard` / `text`）
 
 ```json

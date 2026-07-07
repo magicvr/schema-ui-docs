@@ -40,7 +40,8 @@ applies_to: schema-ui-protocol v0.2
 
 ```
 margin, padding, color, background, fontSize, fontWeight,
-border, borderRadius, width, height, zIndex, boxShadow,
+border, borderRadius, width, height, minWidth, maxWidth,
+minHeight, maxHeight, zIndex, boxShadow,
 lineHeight, letterSpacing, textAlign
 ```
 
