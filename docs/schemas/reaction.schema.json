@@ -8,8 +8,8 @@
     "dependencies": {
       "type": "array",
       "items": { "type": "string" },
-      "minItems": 1,
-      "description": "依赖的字段名，when 表达式中出现的 $deps.* 变量必须都在此列出"
+      "minItems": 0,
+      "description": "依赖的字段名，when 表达式中出现的 $deps.* 变量必须都在此列出。允为空数组（仅引用 $self 时）"
     },
     "when": {
       "type": "string",

@@ -95,7 +95,32 @@
         "title": { "type": "string", "required": false },
         "rowKey": { "type": "string", "required": true },
         "pagination": { "type": "object", "required": true },
-        "columns": { "type": "array", "required": true },
+        "columns": {
+          "type": "array",
+          "required": true,
+          "description": "列定义，与 docs/03-component-registry.md 中 ColumnDef 表格保持一致",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": { "type": "string", "description": "对应数据字段名" },
+              "label": { "type": "string", "description": "列标题" },
+              "format": { "type": "string", "enum": ["plain", "currency", "datetime", "tag"], "description": "展示格式" },
+              "tagMap": {
+                "type": "object",
+                "description": "format: tag 时，值 → {text, tone} 的映射",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "text": { "type": "string" },
+                    "tone": { "type": "string" }
+                  }
+                }
+              }
+            },
+            "required": ["field"],
+            "additionalProperties": false
+          }
+        },
         "actions": {
           "type": "array",
           "required": false,

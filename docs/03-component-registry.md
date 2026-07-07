@@ -15,7 +15,7 @@ applies_to: schema-ui-protocol v0.2
 
 ## 如何阅读本表
 
-每个组件类型包含：`type` 标识、用途、`props` 字段清单、是否支持 `children`、是否支持 `data`、是否支持 `states`（空态/加载态/错误态，见 [01-node-protocol.md §3.7](./01-node-protocol.md#37-states可选since-02)）。
+每个组件类型包含：`type` 标识、用途、`props` 字段清单、是否支持 `children`、是否支持 `data`、是否支持 `reactions`（联动表达式，见 [02-reaction-expression.md](./02-reaction-expression.md)）、是否支持 `states`（空态/加载态/错误态，见 [01-node-protocol.md §3.7](./01-node-protocol.md#37-states可选since-02)）。
 
 **通用约定（since 0.2）：**
 - 任何作为 `grid` 直接子节点的 Node，均可在自身 `props` 中声明 `span`（语义级占栏数），不再要求包一层 `section`（见 B4）。
@@ -32,7 +32,7 @@ applies_to: schema-ui-protocol v0.2
 |---|---|---|---|
 | `columns` | number | 是 | 栏数（语义级，非像素） |
 
-支持 `children`：是。支持 `data`：否。支持 `states`：否。
+支持 `children`：是。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。
 
 ### `section`
 带标题的分区容器。
@@ -42,7 +42,7 @@ applies_to: schema-ui-protocol v0.2
 | `title` / `titleKey` | string | 否 | 分区标题 |
 | `span` | number | 否 | 在父级 grid 中占几栏 |
 
-支持 `children`：是。支持 `data`：否。支持 `states`：否。
+支持 `children`：是。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。
 
 ### `tabs`
 标签页容器。
@@ -73,7 +73,7 @@ props:
       content: { type: table, ... }
 ```
 
-支持 `children`：否（since 0.2，内容改由 `items[].content` 承载）。支持 `data`：否。支持 `states`：否。
+支持 `children`：否（since 0.2，内容改由 `items[].content` 承载）。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。
 
 ---
 
@@ -103,7 +103,7 @@ data:
   url: /api/stats/order-count
 ```
 
-支持 `children`：否。支持 `data`：是。支持 `states`：是（since 0.2）。
+支持 `children`：否。支持 `data`：是。支持 `reactions`：否。支持 `states`：是（since 0.2）。
 
 ### `chart`
 图表。
@@ -115,7 +115,7 @@ data:
 | `yField` | string | 是 | 纵轴取值字段 |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
-支持 `children`：否。支持 `data`：是（返回值应为数组）。支持 `states`：是（since 0.2）。
+支持 `children`：否。支持 `data`：是（返回值应为数组）。支持 `reactions`：否。支持 `states`：是（since 0.2）。
 
 ### `text`
 纯文本展示。
@@ -128,7 +128,7 @@ data:
 
 > **v0.2 变更（A2）：** 修复 `supportsData` 说明矛盾，`text` 组件**支持 `data`**（`data.source: static/ref/api`），静态场景取 `data.value`，API 场景通过 `props.valueField` 指定取值字段（与 `statCard` 一致）。
 
-支持 `children`：否。支持 `data`：是（since 0.2，原文档误标 `false`）。支持 `states`：是（since 0.2）。
+支持 `children`：否。支持 `data`：是（since 0.2，原文档误标 `false`）。支持 `reactions`：否。支持 `states`：是（since 0.2）。
 
 ---
 
@@ -172,7 +172,7 @@ actions:
     visibleField: canRefund   # 行数据中 canRefund: true 时才显示
 ```
 
-支持 `children`：否。支持 `data`：是（契约见 04 文档）。支持 `states`：是（since 0.2）。
+支持 `children`：否。支持 `data`：是（契约见 04 文档）。支持 `reactions`：否。支持 `states`：是（since 0.2）。
 
 ---
 
@@ -186,7 +186,7 @@ actions:
 | `title` / `titleKey` | string | 否 | 表单标题 |
 | `submitAction` | string | 是 | 引用顶层 `actions` 中的动作 id，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
 
-支持 `children`：是（字段类 Node）。支持 `data`：否。支持 `states`：否。
+支持 `children`：是（字段类 Node）。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。
 
 ### `input` / `inputNumber`
 表单字段控件。

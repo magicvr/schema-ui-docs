@@ -90,6 +90,8 @@ data:
 { "code": "ORDER_NOT_FOUND", "message": "订单不存在" }
 ```
 
+> **`code` 字段说明：** `code` 字段目前**仅用于调试日志和错误追踪**，前端 Renderer 不会据此做程序化判断（如跳转登录页、显示特定 UI）——此类逻辑属于应用层业务逻辑，不应由协议层的 Renderer 处理。后端仍应返回有业务意义的 `code` 值以便排查问题；若后续需要前端据此做程序化处理，建议通过场景 ADR 另行约定。
+
 ## 6. 分页模式说明（对应 `table.props.pagination.mode`）
 
 | 模式 | 后端行为 |
@@ -134,15 +136,3 @@ data:
 ```
 
 若 `searchable: true`，前端会额外附加标准查询参数 `keyword`，后端需支持按该参数做模糊搜索。
-
-## 7. 静态数据（`data.source: static`）
-
-用于无需请求接口、由后端直接内嵌少量数据的场景（如下拉选项的固定值）：
-
-```yaml
-data:
-  source: static
-  value:
-    - { label: 零售, value: retail }
-    - { label: 批发, value: wholesale }
-```

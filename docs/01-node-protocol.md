@@ -93,7 +93,8 @@ data:
 
 ### 3.4 `children`（可选）
 
-子节点数组，仅布局类容器（`grid`/`section`/`tabs`/`form` 等）使用。
+子节点数组，仅布局类容器（`grid`/`section`/`form` 等）使用。
+> **注意（since 0.2）：** `tabs` 的内容由 `items[].content` 承载，不再使用 `children`，见 `03-component-registry.md` 中 `tabs` 的定义。
 子节点本身也是完整的 Node，因此可以任意深度嵌套。
 
 ### 3.5 `reactions`（可选）

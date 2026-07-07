@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/schema-ui/page.schema.json",
+  "title": "Schema-UI Page Document",
+  "description": "顶层页面文档结构 Schema，校验 meta + datasources + body + actions 的整体结构。参见 docs/01-node-protocol.md §2",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "页面元信息",
+      "properties": {
+        "pageId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "protocolVersion": {
+          "type": "string",
+          "description": "必填（since 0.2），如 \"0.2\"，Renderer 版本兼容锚点"
+        }
+      },
+      "required": ["pageId", "title", "protocolVersion"]
+    },
+    "datasources": {
+      "type": "object",
+      "description": "【可选】页面级预声明数据源，key-value 映射，供 body 内节点通过 ref 引用",
+      "additionalProperties": {
+        "$ref": "node.schema.json#/definitions/DataRef"
+      }
+    },
+    "body": {
+      "$ref": "node.schema.json",
+      "description": "页面主体，根 Node"
+    },
+    "actions": {
+      "type": "object",
+      "description": "【可选】页面级可复用动作定义，完整契约见 docs/07-actions-contract.md",
+      "additionalProperties": {
+        "$ref": "action.schema.json"
+      }
+    }
+  },
+  "required": ["meta", "body"],
+  "additionalProperties": false
+}

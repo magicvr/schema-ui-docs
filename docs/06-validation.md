@@ -11,7 +11,8 @@ applies_to: schema-ui-protocol v0.2
 
 | 层级 | 工具 | 时机 | 校验内容 |
 |---|---|---|---|
-| L1 结构校验 | [`schemas/node.schema.json`](./schemas/node.schema.json) | 后端 CI / 提交前 | Node 结构是否合法（字段名、类型） |
+| L0 页面结构校验 | [`schemas/page.schema.json`](./schemas/page.schema.json) | 后端 CI / 提交前 | 顶层文档结构（`meta` + `datasources` + `body` + `actions`）合法性 |
+| L1 Node 结构校验 | [`schemas/node.schema.json`](./schemas/node.schema.json) | 后端 CI / 提交前 | Node 结构是否合法（字段名、类型） |
 | L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约 |
 | L3 联动表达式校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + 白名单解析器 | 前端 Renderer 运行时 | `when` 表达式语法、变量是否在 `dependencies` 声明范围内 |
 | L4 语义禁用词校验 | 自定义 lint 脚本 | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`），可覆盖 Schema 表达力之外的场景（如深层嵌套结构） |
@@ -25,7 +26,8 @@ applies_to: schema-ui-protocol v0.2
 
 ```
 提交 YAML
-  → L1 JSON Schema 校验（结构）
+  → L0 [`page.schema.json`](./schemas/page.schema.json) 顶层文档结构校验
+  → L1 [`node.schema.json`](./schemas/node.schema.json) Node 结构校验
   → L2 组件契约校验（type/props 合法性）
   → L4 禁用词扫描（防止 CSS 属性混入）
   → 通过后允许合并
