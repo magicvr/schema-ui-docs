@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/schema-ui/node.schema.json",
+  "title": "Schema-UI Node",
+  "description": "参见 docs/01-node-protocol.md，本文件是其权威机器可读版本",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "组件类型标识，需存在于 component-registry.json 中"
+    },
+    "props": {
+      "type": "object",
+      "description": "业务级配置参数，禁止出现 CSS 属性名",
+      "not": {
+        "required": [
+          "margin", "padding", "color", "background", "fontSize",
+          "fontWeight", "border", "borderRadius", "width", "height",
+          "zIndex", "boxShadow", "lineHeight", "letterSpacing", "textAlign"
+        ]
+      }
+    },
+    "data": {
+      "$ref": "#/definitions/DataRef"
+    },
+    "children": {
+      "type": "array",
+      "items": { "$ref": "#" }
+    },
+    "reactions": {
+      "type": "array",
+      "items": { "$ref": "reaction.schema.json" }
+    }
+  },
+  "required": ["type"],
+  "additionalProperties": false,
+  "definitions": {
+    "DataRef": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["static", "ref", "api"]
+        },
+        "value": {},
+        "ref": { "type": "string" },
+        "url": { "type": "string" },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST"]
+        },
+        "valueField": { "type": "string" }
+      },
+      "required": ["source"],
+      "allOf": [
+        {
+          "if": { "properties": { "source": { "const": "static" } } },
+          "then": { "required": ["value"] }
+        },
+        {
+          "if": { "properties": { "source": { "const": "ref" } } },
+          "then": { "required": ["ref"] }
+        },
+        {
+          "if": { "properties": { "source": { "const": "api" } } },
+          "then": { "required": ["url"] }
+        }
+      ]
+    }
+  }
+}

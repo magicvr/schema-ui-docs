@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/schema-ui/component-registry.json",
+  "description": "组件类型注册表机器可读版本，需与 docs/03-component-registry.md 保持同步。建议由 CI 从前端组件 Props 类型定义自动生成本文件。",
+  "components": {
+    "grid": {
+      "supportsChildren": true,
+      "supportsData": false,
+      "props": {
+        "columns": { "type": "number", "required": true }
+      }
+    },
+    "section": {
+      "supportsChildren": true,
+      "supportsData": false,
+      "props": {
+        "title": { "type": "string", "required": false },
+        "span": { "type": "number", "required": false }
+      }
+    },
+    "tabs": {
+      "supportsChildren": true,
+      "supportsData": false,
+      "props": {
+        "items": { "type": "array", "required": true }
+      }
+    },
+    "statCard": {
+      "supportsChildren": false,
+      "supportsData": true,
+      "props": {
+        "label": { "type": "string", "required": true },
+        "unit": { "type": "string", "required": false },
+        "format": { "type": "string", "enum": ["plain", "currency", "percent"], "required": false }
+      }
+    },
+    "chart": {
+      "supportsChildren": false,
+      "supportsData": true,
+      "props": {
+        "chartType": { "type": "string", "enum": ["line", "bar", "pie"], "required": true },
+        "xField": { "type": "string", "required": true },
+        "yField": { "type": "string", "required": true }
+      }
+    },
+    "text": {
+      "supportsChildren": false,
+      "supportsData": false,
+      "props": {
+        "content": { "type": "string", "required": true }
+      }
+    },
+    "table": {
+      "supportsChildren": false,
+      "supportsData": true,
+      "props": {
+        "title": { "type": "string", "required": false },
+        "rowKey": { "type": "string", "required": true },
+        "pagination": { "type": "object", "required": true },
+        "columns": { "type": "array", "required": true },
+        "actions": { "type": "array", "required": false }
+      }
+    },
+    "form": {
+      "supportsChildren": true,
+      "supportsData": false,
+      "props": {
+        "title": { "type": "string", "required": false },
+        "submitAction": { "type": "string", "required": true }
+      }
+    },
+    "input": {
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "props": {
+        "field": { "type": "string", "required": true },
+        "label": { "type": "string", "required": true },
+        "required": { "type": "boolean", "required": false },
+        "defaultVisible": { "type": "boolean", "required": false }
+      }
+    },
+    "inputNumber": {
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "props": {
+        "field": { "type": "string", "required": true },
+        "label": { "type": "string", "required": true },
+        "required": { "type": "boolean", "required": false },
+        "defaultVisible": { "type": "boolean", "required": false }
+      }
+    },
+    "select": {
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "props": {
+        "field": { "type": "string", "required": true },
+        "label": { "type": "string", "required": true },
+        "options": { "type": "array", "required": true }
+      }
+    }
+  }
+}

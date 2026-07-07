@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://internal/schema-ui/reaction.schema.json",
+  "title": "Schema-UI Reaction",
+  "description": "参见 docs/02-reaction-expression.md，本文件是其权威机器可读版本",
+  "type": "object",
+  "properties": {
+    "dependencies": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "依赖的字段名，when 表达式中出现的 $deps.* 变量必须都在此列出"
+    },
+    "when": {
+      "type": "string",
+      "description": "条件表达式，语法白名单见 02-reaction-expression.md，禁止函数调用/算术运算"
+    },
+    "fulfill": { "$ref": "#/definitions/StateMap" },
+    "otherwise": { "$ref": "#/definitions/StateMap" }
+  },
+  "required": ["dependencies", "when", "fulfill"],
+  "additionalProperties": false,
+  "definitions": {
+    "StateMap": {
+      "type": "object",
+      "properties": {
+        "visible": { "type": "boolean" },
+        "required": { "type": "boolean" },
+        "disabled": { "type": "boolean" },
+        "value": {}
+      },
+      "additionalProperties": false,
+      "description": "只允许语义级状态键，不允许组件私有 props 或样式键"
+    }
+  }
+}
