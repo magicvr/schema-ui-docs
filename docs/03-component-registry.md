@@ -152,7 +152,7 @@ data:
 | 字段 | 类型 | 说明 |
 |---|---|---|
 | `field` | string | 对应数据字段名 |
-| `label` | string | 列标题 |
+| `label` / `labelKey` | string | 列标题（i18n：`labelKey` 可替代 `label`） |
 | `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 展示格式 |
 | `tagMap` | map | `format: tag` 时，值 → `{text, tone}` 的映射 |
 | `visibleWhen` | object | 可选（since 0.2）。行级条件渲染（需声明 `scope: row`），语法见 [02-reaction-expression.md](./02-reaction-expression.md) |

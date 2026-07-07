@@ -38,7 +38,7 @@ actions:          # 【可选】页面级可复用动作定义（完整契约见
 
 | 字段 | 必填 | 说明 |
 |---|---|---|
-| `meta` | 是 | 页面元信息，`pageId` 全局唯一；`protocolVersion` 必填（since 0.2） |
+| `meta` | 是 | 页面元信息；其中 `pageId`、`title`、`protocolVersion` 必填，`description` 可选 |
 | `datasources` | 否 | 见 [04-datasource-contract.md](./04-datasource-contract.md) |
 | `body` | 是 | 页面主体的根 Node |
 | `actions` | 否 | 供 Node 内按钮/表单提交等引用的动作定义，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
