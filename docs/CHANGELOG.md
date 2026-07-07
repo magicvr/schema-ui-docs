@@ -61,7 +61,7 @@
 - **datePicker / dateRangePicker：** 新增两个日期选择组件到组件注册表。
 - **inputNumber：** 新增 `min`/`max`/`step`/`precision` 可选字段（数值范围、步长、精度控制）。
 - **弹窗内容 Node 化：** `actions[].type: modal` 新增可选 `content: Node` 字段，与 `modalId` 可共存。
-- **searchForm（方案 A）：** `form` 新增 `mode: search` + `targetTable`，搜索模式下提交行为变为刷新目标表格，字段值自动合并为表格 API 参数。
+- **searchForm：** `form` 新增 `mode: search` + `targetTable`，搜索模式下提交行为变为刷新目标表格，字段值自动合并为表格 API 参数。
 - **upload：** 新增文件上传组件（`field`/`label`/`accept`/`maxSize`/`multiple`/`action`），支持 reactions，上传完成后字段值设为后端返回的文件 URL/ID。
 - **G1：** 后端开发者本地校验指南（`ajv-cli`、VS Code YAML Schema 关联、CI 集成示例）。
 

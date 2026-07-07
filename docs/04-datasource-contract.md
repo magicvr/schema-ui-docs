@@ -60,6 +60,17 @@ data:
 
 > 此规则对 `data.params`（`data.source: api` 通用场景）和 `select.optionsSource.params`（见 §8）统一适用。
 
+### 3.2 `data.params` 中 `$deps.*` 的作用域边界
+
+`data.params` 中的 `$deps.*` 引用**仅在表单上下文有效**，语义为「取当前表单中同名 `field` 的当前值」。非表单上下文（独立 `table`/`chart` 等节点的 `data.params`）中出现 `$deps.*` 时，Renderer 的静态校验应直接拒绝——与 `visibleWhen` 的非表单约束（[02-reaction-expression.md §10.1](./02-reaction-expression.md#101-deps-出现在非表单-visiblewhen-中)）保持一致。
+
+| 上下文 | `$deps.*` 在 `data.params` 中 | 说明 |
+|---|---|---|
+| 表单内（`form` 子节点） | ✅ 允许 | 搜索表单字段值驱动 API 参数是核心使用场景 |
+| 表单外（独立 `table`/`chart`） | ❌ 静态校验拒绝 | 无表单字段可依赖，`$deps.*` 永远是 `undefined`，属于配置错误 |
+
+> **设计理由：** 不存在跨组件数据依赖的场景——如果未来需要「一个 `chart` 依赖另一个 `chart` 的筛选结果」，应通过独立的 ADR 设计专门的参数传递机制，而非复用表单字段的 `$deps` 语义。此处保持与 `visibleWhen`、`permissions.*` 一致的策略：在不该出现 `$deps` 的位置使用它就是错误，在解析阶段暴露优于静默忽略。
+
 ## 4. 响应体契约
 
 ### 4.1 列表类接口（配合 `table`/`select` 远程数据源）

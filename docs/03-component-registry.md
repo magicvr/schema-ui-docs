@@ -213,50 +213,52 @@ actions:
 | `targetTable` | string | 搜索模式下是 | `mode: search` 时必填，声明关联表格的 Node `id`，提交时触发表格重新请求 |
 
 ```yaml
-# 搜索表单示例
-type: form
-props:
-  mode: search
-  targetTable: orderTable
-children:
-  - type: dateRangePicker
-    props:
-      startField: dateFrom
-      endField: dateTo
-      label: 下单日期
-  - type: select
-    props:
-      field: status
-      label: 订单状态
-      options:
-        - { label: 全部, value: '' }
-        - { label: 待处理, value: pending }
-        - { label: 已完成, value: completed }
-  - type: input
-    props:
-      field: keyword
-      label: 关键词
-      placeholder: 订单号/客户名
+# 搜索表单示例（form + table 包裹在 section 中作为 body 的单一 Node）
+body:
+  type: section
+  children:
+    - type: form
+      props:
+        mode: search
+        targetTable: orderTable
+      children:
+        - type: dateRangePicker
+          props:
+            startField: dateFrom
+            endField: dateTo
+            label: 下单日期
+        - type: select
+          props:
+            field: status
+            label: 订单状态
+            options:
+              - { label: 全部, value: '' }
+              - { label: 待处理, value: pending }
+              - { label: 已完成, value: completed }
+        - type: input
+          props:
+            field: keyword
+            label: 关键词
+            placeholder: 订单号/客户名
 
-# 搜索结果表格
-- type: table
-  id: orderTable
-  data:
-    source: api
-    url: /api/orders
-  props:
-    rowKey: id
-    pagination:
-      mode: server
-      pageSize: 20
-    columns:
-      - field: orderNo
-        label: 订单号
-      - field: date
-        label: 下单日期
-      - field: status
-        label: 状态
-        format: tag
+    - type: table
+      id: orderTable
+      data:
+        source: api
+        url: /api/orders
+      props:
+        rowKey: id
+        pagination:
+          mode: server
+          pageSize: 20
+        columns:
+          - field: orderNo
+            label: 订单号
+          - field: date
+            label: 下单日期
+          - field: status
+            label: 状态
+            format: tag
 ```
 
 > **搜索模式下数据流：** 搜索表单字段值 → Renderer 收集为请求参数 → 附加到 `targetTable` 的 `data.url` 查询参数 → 触发该表格重新请求。表格原有的 `data.params` 与搜索表单参数自动合并，搜索参数优先级更高。`mode: search` 下的 `dateRangePicker` 以 `startField`/`endField` 作为两个独立参数传递，参数名分别使用 `startField` 和 `endField` 的值。其他字段类组件（`input`/`select`/`datePicker` 等）以各自的 `field` 值作为参数名传递。
@@ -351,6 +353,8 @@ props:
 | `options` | array\<{label,value}\> | 与 `optionsSource` 二选一 | 固定选项列表 |
 | `optionsSource` | OptionsSource | 与 `options` 二选一（since 0.2） | 远程动态选项，见下 |
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
+| `required` | boolean | 否 | 是否必填 |
+| `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 
@@ -434,6 +438,32 @@ props:
 ```
 
 支持 `children`：否。支持 `data`：否。支持 `reactions`：是。支持 `states`：否。
+
+> **reactions 注意事项：** `dateRangePicker` 拥有 `startField` / `endField` 两个字段值，其 `reactions` 语义与单字段组件不同，需注意以下约定：
+>
+> | 场景 | 约定 |
+> |---|---|
+> | 其他字段如何依赖 `dateRangePicker`？ | 在 `dependencies` 中填写 `startField` 和/或 `endField` 的**值**（而非组件 `id`）。`$deps.<startField>` 取起始日期（ISO 8601 字符串），`$deps.<endField>` 取结束日期（ISO 8601 字符串） |
+> | `dateRangePicker` 自身的 `reactions` 中 `$self` 代表什么？ | `$self` 在此处代表一个 `{ start: string, end: string }` 对象（两个字段均为 ISO 8601 字符串或 `null`），可通过 `$self.start` / `$self.end` 分别访问。`$self` 的单个字段值变化即触发联动求值 |
+> | `dateRangePicker` 自身 `reactions` 中能否引用自己的 `startField`/`endField`？ | 可以，在自己的 `dependencies` 中也填写 `startField`/`endField` 的值，通过 `$deps.<startField>` / `$deps.<endField>` 访问，语义与外部引用一致 |
+>
+> ```yaml
+> # 示例：当日期范围起始日期早于 2026-01-01 时，隐藏备注字段
+> - type: dateRangePicker
+>   props:
+>     startField: dateFrom
+>     endField: dateTo
+>     label: 日期范围
+> - type: input
+>   props:
+>     field: remark
+>     label: 备注
+>   reactions:
+>     - dependencies: [dateFrom]       # ← 使用 startField 的值，而非组件 id
+>       when: "$deps.dateFrom < '2026-01-01'"  # ← $deps.dateFrom 是 ISO 8601 字符串
+>       fulfill:
+>         visible: false
+> ```
 
 > **搜索模式行为差异：** 当 `dateRangePicker` 位于 `mode: search` 的 `form` 中时，Renderer 将 `startField` 和 `endField` 分别作为**两个独立查询参数**传递给目标表格（参数名分别为 `startField` 和 `endField` 的值），而非合并为一个参数。这与普通表单提交的行为不同——普通表单中 `dateRangePicker` 作为表单字段按 `startField`/`endField` 分别提交，搜索模式下则是将这两个值作为表格 API 的 query 参数。详见 [form 组件搜索模式说明](#form)。
 

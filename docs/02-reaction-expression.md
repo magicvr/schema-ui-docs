@@ -160,7 +160,7 @@ reactions:
 
 ### 10.4 `scope: row` 下 `fulfill` 出现 `required`/`value`
 
-`scope: row` 的 `reactions`/`otherwise` 中禁止声明 `required` 或 `value` 状态键（仅允许 `visible` 和 `disabled`）。
+`scope: row` 的 `fulfill`/`otherwise` 中禁止声明 `required` 或 `value` 状态键（仅允许 `visible` 和 `disabled`）。
 
 ## 11. `$context` 白名单扩展流程
 
