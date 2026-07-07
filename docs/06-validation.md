@@ -121,6 +121,7 @@ Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
 - [ ] `data.source` 是否为三选一之一，且对应字段齐全？
 - [ ] `reactions[].dependencies` 是否覆盖了 `when` 中用到的所有 `$deps.*` 变量？
 - [ ] 表格 `columns`/`actions` 中的表达式是否正确地声明了 `scope: form` 或 `scope: row`？
+- [ ] `scope: row` 下 `actions` 中是否误用了 `$self`（`$self` 仅 `columns` 中可用，`actions` 中应使用 `$row`）？
 - [ ] `scope: row` 的 `fulfill`/`otherwise` 中是否误用了 `required`/`value`（仅允许 `visible`/`disabled`）？
 - [ ] `permissions.*` 表达式中是否混入了 `$deps.*`（只应使用 `$context.*`）？
 - [ ] 非表单节点的 `visibleWhen` 中是否误用了 `$deps.*`？

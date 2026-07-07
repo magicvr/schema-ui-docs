@@ -123,10 +123,10 @@ data:
 | props 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
 | `content` / `contentKey` | string | 是 | 文本内容 |
-| `valueField` | string | 否（since 0.2） | `data.source: api` 时，指定取哪个字段作为展示文本 |
+| `valueField` | string | 否（since 0.2） | `data.source: api` 时，指定取哪个字段作为展示文本。未指定时 Renderer 默认取响应体的第一个字段值 |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
-> **v0.2 变更（A2）：** 修复 `supportsData` 说明矛盾，`text` 组件**支持 `data`**（`data.source: static/ref/api`），静态场景取 `data.value`，API 场景通过 `props.valueField` 指定取值字段（与 `statCard` 一致）。
+> **v0.2 变更（A2）：** 修复 `supportsData` 说明矛盾，`text` 组件**支持 `data`**（`data.source: static/ref/api`），静态场景取 `data.value`，API 场景通过 `props.valueField` 指定取值字段（与 `statCard` 一致）。`valueField` 为可选，未指定时由 Renderer 取响应体第一个字段值作为展示文本。
 
 支持 `children`：否。支持 `data`：是（since 0.2，原文档误标 `false`）。支持 `reactions`：否。支持 `states`：是（since 0.2）。
 
@@ -265,8 +265,8 @@ children:
 
 支持 `children`：是（字段类 Node）。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。
 
-### `input` / `inputNumber`
-表单字段控件。
+### `input`
+文本输入控件。
 
 | props 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
@@ -277,6 +277,35 @@ children:
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
+
+### `inputNumber`
+数字输入控件。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | 字段名（表单提交时的 key） |
+| `label` / `labelKey` | string | 是 | 字段标签 |
+| `min` | number | 否（since 0.2.1） | 最小值 |
+| `max` | number | 否（since 0.2.1） | 最大值 |
+| `step` | number | 否（since 0.2.1） | 步长 |
+| `precision` | number | 否（since 0.2.1） | 保留小数位数 |
+| `required` | boolean | 否 | 是否必填 |
+| `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
+| `placeholder` | string | 否（since 0.2） | 占位提示文案 |
+| `description` | string | 否（since 0.2） | 字段说明文案 |
+| `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
+
+```yaml
+type: inputNumber
+props:
+  field: age
+  label: 年龄
+  min: 1
+  max: 150
+  required: true
+```
+
+支持 `children`：否。支持 `data`：否（表单字段不直接绑定 API）。支持 `reactions`：是。支持 `states`：否。
 
 ### `upload`
 文件上传控件。

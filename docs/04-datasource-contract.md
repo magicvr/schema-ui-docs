@@ -43,6 +43,23 @@ data:
 | `pageSize` | 每页条数 |
 | `sort` | 排序字段，格式 `field:asc` / `field:desc` |
 
+### 3.1 `data.params` / `optionsSource.params` 中 `$deps.*` 的空值省略规则
+
+`data.params` 和 `select.optionsSource.params` 中引用的 `$deps.*` 值在运行时为 `null` 或 `undefined` 时，该参数**从最终请求的 query 中整体省略**（不传空字符串、不传字面量 `"null"`）。目的是让后端能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
+
+```yaml
+data:
+  source: api
+  url: /api/orders
+  method: GET
+  params:
+    status: $deps.statusFilter
+    # 当 statusFilter 为 null 时，实际请求为 GET /api/orders（不带 status 参数）
+    # 而不是 GET /api/orders?status= 或 ?status=null
+```
+
+> 此规则对 `data.params`（`data.source: api` 通用场景）和 `select.optionsSource.params`（见 §8）统一适用。
+
 ## 4. 响应体契约
 
 ### 4.1 列表类接口（配合 `table`/`select` 远程数据源）
@@ -126,7 +143,7 @@ data:
 # 而不是 GET /api/options/cities?provinceId= 或 ?provinceId=null
 ```
 
-**响应体：** 与 4.1 列表类接口一致，返回数组，每项至少包含 `optionsSource.labelField` 与 `optionsSource.valueField` 指定的两个字段：
+**响应体：** 返回裸数组（无需 `list`/`total` 包装），每项至少包含 `optionsSource.labelField` 与 `optionsSource.valueField` 指定的两个字段：
 
 ```json
 [

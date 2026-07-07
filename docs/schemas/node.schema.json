@@ -110,11 +110,11 @@
     },
     "StateContent": {
       "type": "object",
-      "description": "仅允许语义级文案/插画标识，不允许样式类字段",
+      "description": "仅允许语义级文案/插画标识，不允许样式类字段。各状态下字段的语义侧重点不同：loading/empty 使用 text，error 使用 fallbackText（可操作错误提示）；illustration 三种状态均可使用",
       "properties": {
-        "text": { "type": "string" },
-        "illustration": { "type": "string" },
-        "fallbackText": { "type": "string" }
+        "text": { "type": "string", "description": "状态文案，用于 loading/empty 状态的纯展示说明" },
+        "illustration": { "type": "string", "description": "语义级插画标识，三种状态均可使用" },
+        "fallbackText": { "type": "string", "description": "可操作的错误提示文案（如含重试引导），用于 error 状态。与 text 的语义区别：text 为纯展示，fallbackText 暗示可恢复操作" }
       },
       "additionalProperties": false
     },

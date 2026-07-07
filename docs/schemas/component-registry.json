@@ -83,7 +83,7 @@
           "type": "string",
           "required": false,
           "since": "0.2",
-          "description": "since 0.2：data.source 为 api 时，指定取哪个字段作为展示文本（审计 §4.3，与 statCard 保持一致的取值方式）"
+          "description": "since 0.2：data.source 为 api 时，指定取哪个字段作为展示文本。未指定时 Renderer 默认取响应体第一个字段值（与 statCard 保持一致的取值方式，但 statCard 的 valueField 为必填，text 为可选）"
         },
         "span": { "type": "number", "required": false, "since": "0.2" }
       }
@@ -205,6 +205,10 @@
         "field": { "type": "string", "required": true },
         "label": { "type": "string", "required": true },
         "labelKey": { "type": "string", "required": false },
+        "min": { "type": "number", "required": false, "since": "0.2.1", "description": "最小值" },
+        "max": { "type": "number", "required": false, "since": "0.2.1", "description": "最大值" },
+        "step": { "type": "number", "required": false, "since": "0.2.1", "description": "步长" },
+        "precision": { "type": "number", "required": false, "since": "0.2.1", "description": "保留小数位数" },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },
         "placeholder": { "type": "string", "required": false, "since": "0.2" },

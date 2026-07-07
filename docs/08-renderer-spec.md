@@ -90,6 +90,7 @@ data:
 - Renderer 在 `$deps.*` 值变化时自动重新请求该 Node 的数据。
 - 多参数依赖的情形下，Renderer 对同一 Node 的多次参数变化应做**去抖处理**（建议 300ms），避免高频触发 API 请求。
 - `$deps.*` 的引用声明在 `data.params` 中的结构与 `reactions` 的依赖机制复用同一套解析器，但**仅做值替换，不做条件判断**。
+- **空值省略规则：** 当 `params` 中某个值引用的 `$deps.*` 在运行时为 `null` 或 `undefined` 时，该参数从最终请求的 query/body 中整体省略（与 `select.optionsSource.params` 的空值规则保持一致，详见 [04-datasource-contract.md §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams-中-deps-的空值省略规则)）。
 
 ### 2.4 加载状态管理
 

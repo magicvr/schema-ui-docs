@@ -135,13 +135,15 @@ props:
 ```yaml
 states:
   loading:
-    text: 加载中...
+    text: 加载中...              # 加载态使用 text
   empty:
-    text: 暂无数据
-    illustration: empty-box
+    text: 暂无数据                # 空态使用 text
+    illustration: empty-box       # 可选，语义级插画标识
   error:
-    fallbackText: 加载失败，请重试
+    fallbackText: 加载失败，请重试  # 错误态使用 fallbackText（区别于 text，强调"可恢复操作提示"而非纯展示文案）
 ```
+
+> **语义区分：** `loading` 和 `empty` 使用 `text` 字段展示状态文案；`error` 使用 `fallbackText` 字段展示可操作的错误提示（如带重试按钮的引导文案）。`illustration` 为可选插画标识，三种状态下均可使用。Schema 定义中三个状态共享 `StateContent` 结构，但各状态下字段的**语义侧重点不同**，Renderer 实现时应按上述约定区分对待。
 
 对不支持 `states` 的组件（如 `section`/`grid`/`tabs`）声明该字段时，Renderer 与 CI 校验应直接拒绝，而不是静默忽略。
 
@@ -201,6 +203,8 @@ permissions:
 3. 三者均未声明时，节点默认可见。
 
 > **注意：** `visibleWhen.when` 和 `reactions[].when` 中使用的 `$deps.*` 变量必须在对应位置的 `dependencies` 数组中显式声明，否则表达式无法正确求值。详见 [02-reaction-expression.md §8](./02-reaction-expression.md#8-校验建议)。
+>
+> **⚠️ 求值时序未定义问题：** 当某个字段同时被 `visibleWhen`（或 `permissions`）引用、又被同节点或其他节点的 `reactions.fulfill.value` 修改时，`visibleWhen` 读到的是变更前还是变更后的值——当前协议版本**未定义这个求值时序**。具体场景：A 字段的 `reactions.fulfill.value` 修改了 B 字段的值，而 B 字段的 `visibleWhen` 在同一渲染周期内读取该值。如果实际配置中遇到此类"同时读写"的场景，建议通过拆分表达式或将写入操作改为异步回调来规避时序歧义。此问题的正式解决方案留待后续版本讨论（详见 [ADR-0003](./decisions/0003-context-namespace-and-visible-when.md) 遗留问题章节）。
 
 **容器节点级联**：容器（`section`/`grid`/`form` 等）最终 `visible` 为 `false` 时，其子树不展示，但子树内各节点的 `reactions` 仍按各自声明正常求值。子节点无需、也不应自行判断祖先可见性——级联隐藏是渲染层职责。
 

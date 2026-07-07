@@ -56,11 +56,28 @@ body:
     url: /api/orders
 ```
 
-## `visibleField` 行级显隐说明（B10）
+## 行级显隐说明
 
+### 推荐写法：`$row` 表达式（since 0.2，ADR-0004）
+
+使用 `visibleWhen` + `scope: row` + `$row` 表达式，可读性更强且支持更复杂的条件判断：
+
+```yaml
+actions:
+  - key: refund
+    label: 退款
+    confirm: 确认发起退款吗？
+    visibleWhen:
+      scope: row
+      dependencies: [canRefund]
+      when: "$row.canRefund == true"
+```
+
+### 兼容写法：`visibleField` 语法糖（B10）
+
+`visibleField` 是上述 `$row` 表达式的语法糖——解析阶段等价展开为 `{ scope: row, dependencies: [canRefund], when: "$row.canRefund == true" }`。
 `refund` 操作仅在当前行数据的 `canRefund` 字段为 `true` 时展示，后端需要在列表接口的每一行数据中
-下发该字段（见下方接口契约）。这是数据驱动显隐，不依赖 `reactions`/`when` 表达式，也不引入 `$row`
-变量；行级表达式联动（`$row`）仍在 ADR 评审中（见 [decisions/](../decisions/) 及计划 C3）。
+下发该字段（见下方接口契约）。`visibleField` 今后进入维护模式，新项目建议直接使用 `$row` 表达式写法（推荐写法）。
 
 ## 对应后端接口契约
 
