@@ -5,6 +5,28 @@
 
 ---
 
+## 0007 — 2026-07-07 — 文档第七轮全面审视
+
+**主题：** 组件契约完备性、表达式作用域边界、文档内部一致性——组件级别与规则级别的全面审查。
+**性质：** 全面审视审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0007-2026-07-07-review.md](./0007-2026-07-07-review.md) | 审视报告 — 8 项问题（3🔴 + 2🟡 + 3🟢） |
+| [0007-2026-07-07-checklist.md](./0007-2026-07-07-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- S1: `select` 组件补充 `required` / `defaultVisible` 字段
+- S2: `dateRangePicker` 补充 `reactions` 注意事项表格
+- S3: `02-reaction-expression.md` §10.4 措辞修正
+- S4: `04-datasource-contract.md` 新增 `data.params` 作用域边界章节
+- S5: `03-component-registry.md` 搜索模式示例结构修正
+- S6: `CHANGELOG.md` 措辞清理（移除“方案 A”）
+- S7: `component-registry.json` `placeholder` 补充 `since` 标注
+- S8: 新增 `05-scenarios/README.md` 目录索引
+
+---
+
 ## 0006 — 2026-07-07 — 文档元数据一致性审计
 
 **主题：** CHANGELOG 完整性、版本标注精度、frontmatter 统一性——元数据层面一致性检查。

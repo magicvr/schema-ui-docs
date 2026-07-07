@@ -87,3 +87,17 @@
 - **F6：** `00-overview.md` 版本声明增加 `v0.2.1` 补丁版本说明，消除读者困惑。
 - **F7：** `03-component-registry.md` 中 `dateRangePicker` 增加搜索模式下参数传递行为的交叉引用。
 - **F8：** `04-datasource-contract.md §4.1` `responseMapping` 跟踪条目增加临时变通方案说明。
+
+## v0.2.3 — 2026-07-08（组件契约补丁）
+
+> **版本说明：** v0.2.3 是基于第七轮审计（0007）发现的组件契约完备性与文档内部一致性问题的修补，不改变 v0.2.2 已定义的 Node 结构和表达式语法。
+
+**修复（基于第七轮审计）：**
+- **S1：** `03-component-registry.md` 及 `component-registry.json` 中 `select` 组件补充 `required` 和 `defaultVisible` 字段（与其他表单字段组件保持一致）。
+- **S2：** `03-component-registry.md` 中 `dateRangePicker` 章节补充 `reactions` 注意事项表格，明确定义 `$deps` 引用规则和 `$self` 语义。
+- **S3：** `02-reaction-expression.md` §10.4 措辞修正：`"reactions/otherwise"` → `"fulfill/otherwise"`。
+- **S4：** `04-datasource-contract.md` 新增 §3.2 `data.params` 中 `$deps.*` 的作用域边界章节，明确非表单上下文中静态校验拒绝。
+- **S5：** `03-component-registry.md` 搜索模式示例结构修正：`form` 与 `table` 包裹在 `section` 容器内作为 `body` 的 `children`。
+- **S6：** `CHANGELOG.md` v0.2.1 措辞清理：移除"（方案 A）"后缀避免歧义。
+- **S7：** `component-registry.json` 中 `datePicker`/`dateRangePicker`/`upload` 的 `placeholder` 字段补充 `since` 标注。
+- **S8：** 新增 `05-scenarios/README.md` 目录索引文件，包含文件列表表格与阅读顺序建议。
