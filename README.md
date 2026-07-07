@@ -29,13 +29,8 @@ docs/
 │   ├── 0002-why-not-two-schema-uischema.md
 │   ├── 0003-context-namespace-and-visible-when.md
 │   └── 0004-row-level-scope.md
-├── audit/                       # 过程性审计与迭代记录（NNNN-YYYY-MM-DD-）
-│   ├── 0001-2026-07-07-review.md
-│   ├── 0001-2026-07-07-checklist.md
-│   ├── 0001-2026-07-07-plan.md
-│   ├── 0002-2026-07-07-review.md
-│   ├── 0002-2026-07-07-checklist.md
-│   ├── 0003-2026-07-07-review.md      # ★ MVP 就绪度审视报告
-│   └── 0003-2026-07-07-checklist.md   # ★ MVP 就绪度跟踪清单
+├── audit/                       # 过程性审计与迭代记录（详见 audit/README.md）
+│   ├── README.md                # 活跃清单 + 编号规则
+│   └── archived/                # 已归档历史审计（详见 archived/README.md）
 └── CHANGELOG.md
 ```
