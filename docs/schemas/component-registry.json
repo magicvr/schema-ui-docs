@@ -156,7 +156,7 @@
                   "type": "object",
                   "properties": {
                     "text": { "type": "string" },
-                    "tone": { "type": "string" }
+                    "tone": { "type": "string", "enum": ["warning", "success", "neutral", "info", "danger"] }
                   }
                 }
               },
@@ -301,6 +301,8 @@
         "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "placeholder": { "type": "string", "required": false },
+        "description": { "type": "string", "required": false, "since": "0.2", "description": "字段说明文案" },
+        "tooltip": { "type": "string", "required": false, "since": "0.2", "description": "悬浮提示文案" },
         "format": { "type": "string", "required": false, "description": "日期展示格式，仅控制前端展示；数据格式统一 ISO 8601" },
         "min": { "type": "string", "required": false, "description": "可选最小日期 ISO 8601" },
         "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
@@ -324,6 +326,8 @@
         "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "placeholder": { "type": "string", "required": false },
+        "description": { "type": "string", "required": false, "since": "0.2", "description": "字段说明文案" },
+        "tooltip": { "type": "string", "required": false, "since": "0.2", "description": "悬浮提示文案" },
         "min": { "type": "string", "required": false, "description": "可选最小日期 ISO 8601" },
         "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
         "required": { "type": "boolean", "required": false },
@@ -348,6 +352,8 @@
         "maxSize": { "type": "number", "required": false, "description": "最大文件大小（字节）" },
         "multiple": { "type": "boolean", "required": false, "description": "是否支持多文件上传" },
         "action": { "type": "string", "required": true, "description": "上传接口地址（相对路径）" },
+        "description": { "type": "string", "required": false, "since": "0.2", "description": "字段说明文案" },
+        "tooltip": { "type": "string", "required": false, "since": "0.2", "description": "悬浮提示文案" },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },
         "additionalProperties": false

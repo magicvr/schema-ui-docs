@@ -43,7 +43,7 @@ actions:          # 【可选】页面级可复用动作定义（完整契约见
 | `body` | 是 | 页面主体的根 Node |
 | `actions` | 否 | 供 Node 内按钮/表单提交等引用的动作定义，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
 
-> **`meta.protocolVersion`（since 0.2）：** 必填字符串（如 `"0.2"`），Renderer 据此判断按哪套解析规则处理该页面文档，是协议后续演进做版本兼容判断的锚点。旧文档（v0.1）缺少该字段时，Renderer 应视为 `"0.1"` 并按兼容模式处理，但新建/修改的文档必须显式声明。
+> **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（如 `"0.2"`），**不含 PATCH 号**。Renderer 据此判断按哪套解析规则处理该页面文档，是协议后续演进做版本兼容判断的锚点。使用 v0.2.x 任何子版本（如 v0.2.1）的功能时，protocolVersion 仍声明为 `"0.2"`；Renderer 的兼容性判断基于支持的 MAJOR.MINOR 范围，不依赖 PATCH 号。旧文档（v0.1）缺少该字段时，Renderer 应视为 `"0.1"` 并按兼容模式处理，但新建/修改的文档必须显式声明。
 
 ## 3. Node 结构（核心）
 
@@ -145,7 +145,7 @@ states:
 
 > **语义区分：** `loading` 和 `empty` 使用 `text` 字段展示状态文案；`error` 使用 `fallbackText` 字段展示可操作的错误提示（如带重试按钮的引导文案）。`illustration` 为可选插画标识，三种状态下均可使用。Schema 定义中三个状态共享 `StateContent` 结构，但各状态下字段的**语义侧重点不同**，Renderer 实现时应按上述约定区分对待。
 
-对不支持 `states` 的组件（如 `section`/`grid`/`tabs`/`form`/`input`/`inputNumber`/`select`/`datePicker`/`dateRangePicker`/`upload`，即所有 `supportsStates` 不为 `true` 的组件）声明该字段时，Renderer 与 CI 校验应直接拒绝，而不是静默忽略。
+对不支持 `states` 的组件（即 `component-registry.json` 中 `supportsStates` 不为 `true` 的全部组件）声明该字段时，Renderer 与 CI 校验应直接拒绝，而不是静默忽略。
 
 > **校验实现说明：** `node.schema.json` 中 `states` 为通用可选字段，不包含基于 `supportsStates` 的条件约束。因此 L1（Node 结构校验）无法自动拒绝非支持组件上的 `states` 声明——此校验需要由 L2（组件契约校验）或 CI 自定义脚本实现，检查 `component-registry.json` 中该组件的 `supportsStates` 值。
 

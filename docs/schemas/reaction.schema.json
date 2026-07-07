@@ -25,6 +25,30 @@
   },
   "required": ["dependencies", "when", "fulfill"],
   "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "scope": { "const": "row" } },
+        "required": ["scope"]
+      },
+      "then": {
+        "properties": {
+          "fulfill": {
+            "not": { "anyOf": [
+              { "required": ["required"] },
+              { "required": ["value"] }
+            ]}
+          },
+          "otherwise": {
+            "not": { "anyOf": [
+              { "required": ["required"] },
+              { "required": ["value"] }
+            ]}
+          }
+        }
+      }
+    }
+  ],
   "definitions": {
     "StateMap": {
       "type": "object",

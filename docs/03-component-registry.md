@@ -153,7 +153,7 @@ data:
 |---|---|---|
 | `field` | string | 对应数据字段名 |
 | `label` / `labelKey` | string | 列标题（i18n：`labelKey` 可替代 `label`） |
-| `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 展示格式 |
+| `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 展示格式（默认 `plain`） |
 | `tagMap` | map | `format: tag` 时，值 → `{text, tone}` 的映射 |
 | `visibleWhen` | object | 可选（since 0.2）。行级条件渲染（需声明 `scope: row`），语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
 | `reactions` | array | 可选（since 0.2）。行内字段联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
@@ -259,7 +259,7 @@ children:
         format: tag
 ```
 
-> **搜索模式下数据流：** 搜索表单字段值 → Renderer 收集为请求参数 → 附加到 `targetTable` 的 `data.url` 查询参数 → 触发该表格重新请求。表格原有的 `data.params` 与搜索表单参数自动合并，搜索参数优先级更高。
+> **搜索模式下数据流：** 搜索表单字段值 → Renderer 收集为请求参数 → 附加到 `targetTable` 的 `data.url` 查询参数 → 触发该表格重新请求。表格原有的 `data.params` 与搜索表单参数自动合并，搜索参数优先级更高。`mode: search` 下的 `dateRangePicker` 以 `startField`/`endField` 作为两个独立参数传递，参数名分别使用 `startField` 和 `endField` 的值。其他字段类组件（`input`/`select`/`datePicker` 等）以各自的 `field` 值作为参数名传递。
 >
 > **搜索模式与 actions 的关系：** `mode: search` 时 `submitAction` 被忽略。搜索表单不需要独立的动作定义——提交行为被协议层定义为"刷新目标表格"，不经过 `actions` 路由。
 
@@ -318,6 +318,8 @@ props:
 | `maxSize` | number | 否 | 最大文件大小，单位字节（如 `5242880` 表示 5MB） |
 | `multiple` | boolean | 否 | 是否支持多文件上传（默认 `false`） |
 | `action` | string | 是 | 上传接口地址（相对路径，baseURL 由 Renderer 拼接） |
+| `description` | string | 否（since 0.2） | 字段说明文案 |
+| `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 | `required` | boolean | 否 | 是否必填 |
 | `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
 
@@ -386,6 +388,8 @@ props:
 | `field` | string | 是 | 字段名（表单提交时的 key） |
 | `label` / `labelKey` | string | 是 | 字段标签 |
 | `placeholder` | string | 否 | 占位提示文案 |
+| `description` | string | 否（since 0.2） | 字段说明文案 |
+| `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 | `format` | string | 否 | 日期展示格式（仅控制前端展示，如 `YYYY/MM/DD`）；数据格式统一使用 ISO 8601（`YYYY-MM-DD`） |
 | `min` | string | 否 | 可选最小日期（ISO 8601 格式 `YYYY-MM-DD`） |
 | `max` | string | 否 | 可选最大日期（ISO 8601 格式 `YYYY-MM-DD`） |
@@ -413,6 +417,8 @@ props:
 | `endField` | string | 是 | 结束日期字段名（表单提交时的 key） |
 | `label` / `labelKey` | string | 是 | 字段标签 |
 | `placeholder` | string | 否 | 占位提示文案 |
+| `description` | string | 否（since 0.2） | 字段说明文案 |
+| `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 | `min` | string | 否 | 可选最小日期（ISO 8601 格式 `YYYY-MM-DD`） |
 | `max` | string | 否 | 可选最大日期（ISO 8601 格式 `YYYY-MM-DD`） |
 | `required` | boolean | 否 | 是否必填 |
