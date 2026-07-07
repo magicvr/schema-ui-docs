@@ -5,6 +5,28 @@
 
 ---
 
+## 0004 — 2026-07-07 — 残余不一致项修复
+
+**主题：** Schema 与文档同步一致性审计——聚焦"文档说了但 Schema 没写"和"Schema 写了但文档没提"的同步遗漏。
+**性质：** 一致性审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0004-2026-07-07-review.md](./0004-2026-07-07-review.md) | 审视报告 — 8 项残余不一致问题（3🔴 + 3🟡 + 2🟢） |
+| [0004-2026-07-07-checklist.md](./0004-2026-07-07-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- N1: `tabs.props.items.content` 增加 `$ref: node.schema.json`
+- N2: `columns.items.properties` 补充 `labelKey`/`visibleWhen`/`reactions`/`permissions`
+- N3: `actions.items` 补充字段 + `required` + `additionalProperties: false`
+- N4: `01-node-protocol.md §3.5` reactions 示例增加 `scope`
+- N5: `08-renderer-spec.md` 状态 `draft` → `stable`
+- N6: `01-node-protocol.md §3.10` 可见性公式增加 `dependencies` 前置条件说明
+- N7: `tabs.props.items` 补充 `required: ["key", "label"]`
+- N8: `CHANGELOG.md` v0.2.1 增加版本说明脚注
+
+---
+
 ## 0003 — 2026-07-07 — MVP 就绪度评估
 
 **主题：** 评估协议是否已足够作为前后端团队共同使用的 MVP 实践约定。
