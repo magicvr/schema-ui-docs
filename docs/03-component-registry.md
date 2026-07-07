@@ -155,11 +155,11 @@ data:
 | `label` / `labelKey` | string | 列标题（i18n：`labelKey` 可替代 `label`） |
 | `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 展示格式（默认 `plain`） |
 | `tagMap` | map | `format: tag` 时，值 → `{text, tone}` 的映射。`tone` 可选值：`warning`\|`success`\|`neutral`\|`info`\|`danger` |
-| `visibleWhen` | object | 可选（since 0.2）。行级条件渲染（需声明 `scope: row`），语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
-| `reactions` | array | 可选（since 0.2）。行内字段联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
-| `permissions` | map | 可选（since 0.2）。列级权限控制，表达式仅允许 `$context.*` |
+| `visibleWhen` | object | 可选（since 0.2.1）。行级条件渲染（需声明 `scope: row`），语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
+| `reactions` | array | 可选（since 0.2.1）。行内字段联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
+| `permissions` | map | 可选（since 0.2.1）。列级权限控制，表达式仅允许 `$context.*` |
 
-**RowAction（since 0.2 重构）：**
+**RowAction（since 0.2.1 重构）：**
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
@@ -167,11 +167,11 @@ data:
 | `label` / `labelKey` | string | 是 | 操作文案 |
 | `confirm` | string | 否 | 二次确认文案 |
 | `visibleField` | string | 否 | 行级显隐语法糖（`visibleWhen` 的简化写法），取行数据中同名字段的布尔值作为显隐依据。解析阶段等价展开为 `{ scope: row, dependencies: [field], when: "$row.<field> == true" }`，展开后纳入 [01-node-protocol.md §3.10](./01-node-protocol.md#310-最终可见性优先级公式) 公式 |
-| `visibleWhen` | object | 否（since 0.2） | 行级条件渲染，需声明 `scope: row`，语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
-| `reactions` | array | 否（since 0.2） | 行内操作联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
-| `permissions` | map | 否（since 0.2） | 操作级权限控制，表达式仅允许 `$context.*` |
+| `visibleWhen` | object | 否（since 0.2.1） | 行级条件渲染，需声明 `scope: row`，语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
+| `reactions` | array | 否（since 0.2.1） | 行内操作联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
+| `permissions` | map | 否（since 0.2.1） | 操作级权限控制，表达式仅允许 `$context.*` |
 
-**作用域说明（since 0.2）：** 列/操作内的 `visibleWhen`/`reactions`/`permissions` 可通过 `scope` 属性声明求值作用域：
+**作用域说明（since 0.2.1）：** 列/操作内的 `visibleWhen`/`reactions`/`permissions` 可通过 `scope` 属性声明求值作用域：
 - `scope: form`（默认）：表达式在表单级求值，可访问 `$deps.*`（表单字段），不可访问 `$row.*`。
 - `scope: row`（显式声明）：表达式在行级求值，可访问 `$row.*`（当前行数据），不可访问 `$deps.*`；`$context.*` 两种作用域下均可访问。`scope: row` 下的 `fulfill` 仅允许 `visible`/`disabled` 状态键。
 

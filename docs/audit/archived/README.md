@@ -5,6 +5,28 @@
 
 ---
 
+## 0006 — 2026-07-07 — 文档元数据一致性审计
+
+**主题：** CHANGELOG 完整性、版本标注精度、frontmatter 统一性——元数据层面一致性检查。
+**性质：** 元数据一致性审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0006-2026-07-07-review.md](./0006-2026-07-07-review.md) | 审视报告 — 8 项问题（3🔴 + 3🟡 + 2🟢） |
+| [0006-2026-07-07-checklist.md](./0006-2026-07-07-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- M1: `CHANGELOG.md` B8 字段名 `supportsData` → `supportsStates`
+- M2: `CHANGELOG.md` v0.2.1 补充 ADR-0004 合并记录
+- M3: `00-overview.md` §5 版本声明同步至 v0.2.2
+- M4: `07-actions-contract.md` §5.1 `content` 补充 `(since 0.2.1)` 标注
+- M5: `08-renderer-spec.md` frontmatter 修正（`applies_to` + `date` → `last_updated`）
+- M6: `03-component-registry.md` 表格字段 `since 0.2` → `since 0.2.1`（5 处）
+- M7: `component-registry.json` 废弃标注能力评估（策略 A：接受现状）
+- M8: `04-datasource-contract.md` §4.1 嵌套 blockquote 格式优化
+
+---
+
 ## 0005 — 2026-07-07 — ajv 实测校验 + 交叉比对发现的隐性缺陷
 
 **主题：** 首次引入 ajv 编译运行实测校验 JSON Schema，发现 `action.schema.json` `additionalProperties` 结构性缺陷（🔴）、最小页面示例缺少 `protocolVersion`（🔴）、CHANGELOG 审计编号断链（🟡）、未定义插值语法孤例（🟢）。

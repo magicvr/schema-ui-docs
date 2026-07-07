@@ -30,7 +30,7 @@
 - **B5：** 表单字段新增 `placeholder` / `description` / `tooltip` 可选字段。
 - **B6：** i18n `xxxKey` 约定：`label`/`title`/`content` 等文案字段均可用 `xxxKey` 替代。
 - **B7：** `select` 支持远程动态选项 `optionsSource`，含 `$deps.*` 参数引用及空值省略规则。
-- **B8：** 组件级 `states`（空态/加载态/错误态文案定制），仅对 `supportsData: true` 的组件生效。
+- **B8：** 组件级 `states`（空态/加载态/错误态文案定制），仅对 `supportsStates: true` 的组件生效。
 - **B9：** `component-registry.json` 增加 `deprecated` / `deprecatedMessage` / `since` 元信息标注能力。
 - **B10：** 表格行级操作显隐 `visibleField`，数据驱动不引入表达式。
 - **A4：** 补充 `datasources` + `data.source: ref` 完整示例。
@@ -67,6 +67,7 @@
 
 **已合并的 ADR：**
 - `decisions/0003-context-namespace-and-visible-when.md`（`$context` 命名空间、`visibleWhen`、`permissions`、`contains` 运算符）。
+- `decisions/0004-row-level-scope.md`（`$row` 作用域、`scope: row`/`scope: form`、`visibleField` 语法糖、嵌套表格 `$parentRow`）。
 
 **涉及的文档与 Schema：**
 - 协议文档：`01`（§3.8 visibleWhen、§3.9 permissions、§3.10 可见性公式） / `02`（`$context` 命名空间、`contains` 运算符、变量可见性矩阵、静态校验规则） / `03`（datePicker、dateRangePicker、searchForm mode、upload） / `06`（§5 本地校验指南） / `07`（§5 modal.content） / 新增 `08-renderer-spec.md`
