@@ -7,24 +7,29 @@
     "grid": {
       "supportsChildren": true,
       "supportsData": false,
+      "supportsReactions": false,
       "supportsStates": false,
       "props": {
-        "columns": { "type": "number", "required": true }
+        "columns": { "type": "number", "required": true },
+        "additionalProperties": false
       }
     },
     "section": {
       "supportsChildren": true,
       "supportsData": false,
+      "supportsReactions": false,
       "supportsStates": false,
       "props": {
         "title": { "type": "string", "required": false },
         "titleKey": { "type": "string", "required": false },
-        "span": { "type": "number", "required": false }
+        "span": { "type": "number", "required": false },
+        "additionalProperties": false
       }
     },
     "tabs": {
       "supportsChildren": false,
       "supportsData": false,
+      "supportsReactions": false,
       "supportsStates": false,
       "props": {
         "items": {
@@ -45,12 +50,14 @@
               { "required": ["labelKey"] }
             ]
           }
-        }
+        },
+        "additionalProperties": false
       }
     },
     "statCard": {
       "supportsChildren": false,
       "supportsData": true,
+      "supportsReactions": false,
       "supportsStates": true,
       "props": {
         "label": { "type": "string", "required": false, "description": "卡片标题，与 labelKey 至少提供一个" },
@@ -63,7 +70,8 @@
           "since": "0.2",
           "description": "since 0.2：由 data.valueField 迁移而来（审计 §2.1），指定从 API 响应中取哪个字段作为展示值"
         },
-        "span": { "type": "number", "required": false, "since": "0.2" }
+        "span": { "type": "number", "required": false, "since": "0.2" },
+        "additionalProperties": false
       },
       "anyOf": [
         { "required": ["label"] },
@@ -73,17 +81,20 @@
     "chart": {
       "supportsChildren": false,
       "supportsData": true,
+      "supportsReactions": false,
       "supportsStates": true,
       "props": {
         "chartType": { "type": "string", "enum": ["line", "bar", "pie"], "required": true },
         "xField": { "type": "string", "required": true },
         "yField": { "type": "string", "required": true },
-        "span": { "type": "number", "required": false, "since": "0.2" }
+        "span": { "type": "number", "required": false, "since": "0.2" },
+        "additionalProperties": false
       }
     },
     "text": {
       "supportsChildren": false,
       "supportsData": true,
+      "supportsReactions": false,
       "supportsStates": true,
       "props": {
         "content": { "type": "string", "required": true },
@@ -94,12 +105,18 @@
           "since": "0.2",
           "description": "since 0.2：data.source 为 api 时，指定取哪个字段作为展示文本。未指定时 Renderer 默认取响应体第一个字段值（与 statCard 保持一致的取值方式，但 statCard 的 valueField 为必填，text 为可选）"
         },
-        "span": { "type": "number", "required": false, "since": "0.2" }
-      }
+        "span": { "type": "number", "required": false, "since": "0.2" },
+        "additionalProperties": false
+      },
+      "anyOf": [
+        { "required": ["content"] },
+        { "required": ["contentKey"] }
+      ]
     },
     "table": {
       "supportsChildren": false,
       "supportsData": true,
+      "supportsReactions": false,
       "supportsStates": true,
       "props": {
         "title": { "type": "string", "required": false },
@@ -184,12 +201,14 @@
             "additionalProperties": false
           }
         },
-        "span": { "type": "number", "required": false, "since": "0.2" }
+        "span": { "type": "number", "required": false, "since": "0.2" },
+        "additionalProperties": false
       }
     },
     "form": {
       "supportsChildren": true,
       "supportsData": false,
+      "supportsReactions": false,
       "supportsStates": false,
       "props": {
         "title": { "type": "string", "required": false },
@@ -208,7 +227,23 @@
           "since": "0.2.1",
           "description": "mode=search 时必填，关联表格的 Node id"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": { "const": "search" }
+            },
+            "required": ["mode"]
+          },
+          "then": {
+            "required": ["targetTable"]
+          },
+          "else": {
+            "required": ["submitAction"]
+          }
+        }
+      ]
     },
     "input": {
       "supportsChildren": false,
@@ -223,7 +258,8 @@
         "defaultVisible": { "type": "boolean", "required": false },
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },
-        "tooltip": { "type": "string", "required": false, "since": "0.2" }
+        "tooltip": { "type": "string", "required": false, "since": "0.2" },
+        "additionalProperties": false
       },
       "anyOf": [
         { "required": ["label"] },
@@ -247,7 +283,8 @@
         "defaultVisible": { "type": "boolean", "required": false },
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },
-        "tooltip": { "type": "string", "required": false, "since": "0.2" }
+        "tooltip": { "type": "string", "required": false, "since": "0.2" },
+        "additionalProperties": false
       },
       "anyOf": [
         { "required": ["label"] },
@@ -268,7 +305,8 @@
         "min": { "type": "string", "required": false, "description": "可选最小日期 ISO 8601" },
         "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
         "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false }
+        "defaultVisible": { "type": "boolean", "required": false },
+        "additionalProperties": false
       },
       "anyOf": [
         { "required": ["label"] },
@@ -289,7 +327,8 @@
         "min": { "type": "string", "required": false, "description": "可选最小日期 ISO 8601" },
         "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
         "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false }
+        "defaultVisible": { "type": "boolean", "required": false },
+        "additionalProperties": false
       },
       "anyOf": [
         { "required": ["label"] },
@@ -310,7 +349,8 @@
         "multiple": { "type": "boolean", "required": false, "description": "是否支持多文件上传" },
         "action": { "type": "string", "required": true, "description": "上传接口地址（相对路径）" },
         "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false }
+        "defaultVisible": { "type": "boolean", "required": false },
+        "additionalProperties": false
       },
       "anyOf": [
         { "required": ["label"] },
@@ -354,7 +394,8 @@
         },
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },
-        "tooltip": { "type": "string", "required": false, "since": "0.2" }
+        "tooltip": { "type": "string", "required": false, "since": "0.2" },
+        "additionalProperties": false
       },
       "allOf": [
         {
