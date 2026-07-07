@@ -77,6 +77,8 @@ data:
 > **字段名映射（planned — 待 ADR 标准化后定版）：** 若后端无法使用 `list`/`total` 作为响应体字段名（如遗留系统使用 `data`/`items`/`count`），可在 `data.params` 中声明 `responseMapping` 来指定字段名映射关系。此映射为可选项，Renderer 默认以 `list`/`total` 解析；未配置映射时使用协议默认字段名。具体映射语法待由 ADR 标准化后确定，接入方可按需在 Renderer 扩展层自行约定，但协议层暂不承诺标准语法。
 >
 > **跟踪状态：** 此项功能尚处于需求收集阶段，尚未创建对应 ADR（跟踪条目见 `docs/audit/` 活跃清单）。若您的团队有此需求，请发起 ADR 讨论以推动标准化。
+>
+> **临时变通方案：** 在 ADR 标准化之前，接入方可在 Renderer 扩展层自行实现响应字段名的配置映射（如通过 Renderer 初始化参数注入全局 `responseMapping` 配置），但需注意该方案不属于协议标准，升级 Renderer 时可能存在兼容性风险。
 
 ### 4.2 单值类接口（配合 `statCard` / `text`）
 

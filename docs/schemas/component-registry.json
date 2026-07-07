@@ -44,7 +44,7 @@
               "labelKey": { "type": "string" },
               "content": { "$ref": "node.schema.json", "description": "完整 Node" }
             },
-            "required": ["key"],
+            "required": ["key", "content"],
             "anyOf": [
               { "required": ["label"] },
               { "required": ["labelKey"] }
@@ -226,7 +226,8 @@
           "required": false,
           "since": "0.2.1",
           "description": "mode=search 时必填，关联表格的 Node id"
-        }
+        },
+        "additionalProperties": false
       },
       "allOf": [
         {
@@ -387,16 +388,17 @@
         },
         "optionsSource": {
           "type": "object",
-          "required": false,
           "since": "0.2",
           "description": "与 options 二选一，远程动态选项（审计 §3.4）。params 可引用 $deps.*，值为 null/undefined 时该参数整体省略",
           "properties": {
-            "url": { "type": "string", "required": true },
-            "params": { "type": "object", "required": false },
-            "labelField": { "type": "string", "required": true },
-            "valueField": { "type": "string", "required": true },
-            "searchable": { "type": "boolean", "required": false }
-          }
+            "url": { "type": "string" },
+            "params": { "type": "object" },
+            "labelField": { "type": "string" },
+            "valueField": { "type": "string" },
+            "searchable": { "type": "boolean" }
+          },
+          "required": ["url", "labelField", "valueField"],
+          "additionalProperties": false
         },
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },

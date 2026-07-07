@@ -154,7 +154,7 @@ data:
 | `field` | string | 对应数据字段名 |
 | `label` / `labelKey` | string | 列标题（i18n：`labelKey` 可替代 `label`） |
 | `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 展示格式（默认 `plain`） |
-| `tagMap` | map | `format: tag` 时，值 → `{text, tone}` 的映射 |
+| `tagMap` | map | `format: tag` 时，值 → `{text, tone}` 的映射。`tone` 可选值：`warning`\|`success`\|`neutral`\|`info`\|`danger` |
 | `visibleWhen` | object | 可选（since 0.2）。行级条件渲染（需声明 `scope: row`），语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
 | `reactions` | array | 可选（since 0.2）。行内字段联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
 | `permissions` | map | 可选（since 0.2）。列级权限控制，表达式仅允许 `$context.*` |
@@ -434,6 +434,8 @@ props:
 ```
 
 支持 `children`：否。支持 `data`：否。支持 `reactions`：是。支持 `states`：否。
+
+> **搜索模式行为差异：** 当 `dateRangePicker` 位于 `mode: search` 的 `form` 中时，Renderer 将 `startField` 和 `endField` 分别作为**两个独立查询参数**传递给目标表格（参数名分别为 `startField` 和 `endField` 的值），而非合并为一个参数。这与普通表单提交的行为不同——普通表单中 `dateRangePicker` 作为表单字段按 `startField`/`endField` 分别提交，搜索模式下则是将这两个值作为表格 API 的 query 参数。详见 [form 组件搜索模式说明](#form)。
 
 ---
 

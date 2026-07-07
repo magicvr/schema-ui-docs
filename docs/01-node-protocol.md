@@ -28,7 +28,7 @@ meta:            # 页面元信息
   protocolVersion: string   # 必填（since 0.2）。如 "0.2"，Renderer 版本兼容锚点
 
 datasources:     # 【可选】页面级预声明数据源，供 body 内节点通过 ref 引用
-  <sourceId>: DataSourceDef
+  <sourceId>: DataRef
 
 body: Node        # 页面主体，根 Node
 
@@ -155,6 +155,7 @@ states:
 
 ```yaml
 visibleWhen:
+  scope: form | row          # 【可选，since 0.2】表达式求值作用域，form（默认）或 row
   dependencies: [string]   # 显式声明的依赖字段名（表单上下文中必填，非表单上下文可省略）
   when: string               # 白名单表达式（与 reactions[].when 同语法）
 ```
@@ -206,7 +207,13 @@ permissions:
 
 > **注意：** `visibleWhen.when` 和 `reactions[].when` 中使用的 `$deps.*` 变量必须在对应位置的 `dependencies` 数组中显式声明，否则表达式无法正确求值。详见 [02-reaction-expression.md §8](./02-reaction-expression.md#8-校验建议)。
 >
-> **⚠️ 求值时序未定义问题：** 当某个字段同时被 `visibleWhen`（或 `permissions`）引用、又被同节点或其他节点的 `reactions.fulfill.value` 修改时，`visibleWhen` 读到的是变更前还是变更后的值——当前协议版本**未定义这个求值时序**。具体场景：A 字段的 `reactions.fulfill.value` 修改了 B 字段的值，而 B 字段的 `visibleWhen` 在同一渲染周期内读取该值。如果实际配置中遇到此类"同时读写"的场景，建议通过拆分表达式或将写入操作改为异步回调来规避时序歧义。此问题的正式解决方案留待后续版本讨论（详见 [ADR-0003](./decisions/0003-context-namespace-and-visible-when.md) 遗留问题章节）。
+> **⚠️ 求值时序未定义问题（协议已知限制）：** 当某个字段同时被 `visibleWhen`（或 `permissions`）引用、又被同节点或其他节点的 `reactions.fulfill.value` 修改时，`visibleWhen` 读到的是变更前还是变更后的值——当前协议版本**未定义这个求值时序**。具体场景：A 字段的 `reactions.fulfill.value` 修改了 B 字段的值，而 B 字段的 `visibleWhen` 在同一渲染周期内读取该值。
+>
+> **规避建议：** 如果实际配置中遇到此类"同时读写"的场景，可通过以下方式规避时序歧义：
+> 1. 将 `value` 赋值操作与 `visibleWhen` 判断拆分到不同字段上；
+> 2. 将写操作交由 Renderer 的异步回调处理（如 `onSuccess.reload`），而非在同一渲染周期内通过 `reactions` 完成。
+>
+> **跟踪状态：** 此问题的正式解决方案留待后续协议版本讨论（当前无对应 ADR，需由接入方反馈真实场景后推动立项）。
 
 **容器节点级联**：容器（`section`/`grid`/`form` 等）最终 `visible` 为 `false` 时，其子树不展示，但子树内各节点的 `reactions` 仍按各自声明正常求值。子节点无需、也不应自行判断祖先可见性——级联隐藏是渲染层职责。
 

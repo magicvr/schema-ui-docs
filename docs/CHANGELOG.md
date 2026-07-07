@@ -33,10 +33,12 @@
 - **B8：** 组件级 `states`（空态/加载态/错误态文案定制），仅对 `supportsData: true` 的组件生效。
 - **B9：** `component-registry.json` 增加 `deprecated` / `deprecatedMessage` / `since` 元信息标注能力。
 - **B10：** 表格行级操作显隐 `visibleField`，数据驱动不引入表达式。
-- **A1：** 修复 JSON Schema CSS 禁用词校验为 `not.anyOf` 逐一拦截（双轨策略：L1 Schema + L4 lint）。
-- **A2：** 修复 `text` 组件 `data` 支持说明矛盾，明确支持 `data.source: static/ref/api`。
 - **A4：** 补充 `datasources` + `data.source: ref` 完整示例。
 - **A5：** `meta` 新增必填字段 `protocolVersion`（如 `"0.2"`）。
+
+**修复：**
+- **A1：** 修复 JSON Schema CSS 禁用词校验为 `not.anyOf` 逐一拦截（双轨策略：L1 Schema + L4 lint）。
+- **A2：** 修复 `text` 组件 `data` 支持说明矛盾，明确支持 `data.source: static/ref/api`。
 
 **涉及的文档与 Schema：**
 - 协议文档：`00` / `01` / `03` / `04` / `06` / 新增 `07`
@@ -70,3 +72,17 @@
 - 协议文档：`01`（§3.8 visibleWhen、§3.9 permissions、§3.10 可见性公式） / `02`（`$context` 命名空间、`contains` 运算符、变量可见性矩阵、静态校验规则） / `03`（datePicker、dateRangePicker、searchForm mode、upload） / `06`（§5 本地校验指南） / `07`（§5 modal.content） / 新增 `08-renderer-spec.md`
 - JSON Schema：`node.schema.json`（新增 VisibleWhen + Permissions 定义） / `action.schema.json`（modal 新增 content）
 - `schemas/component-registry.json`（新增 datePicker、dateRangePicker、upload；form 新增 mode/targetTable）
+
+## v0.2.2 — 2026-07-07（文档一致性补丁）
+
+> **版本说明：** v0.2.2 是基于第五轮审计（0005）发现的文档/Schema 一致性问题进行的修补，不改变 v0.2.1 已定义的 Node 结构和表达式语法。
+
+**修复（基于第五轮审计）：**
+- **F1：** `component-registry.json` 中 `form.props` 补充 `additionalProperties: false`（与其他组件约束力度统一）。
+- **F2：** `component-registry.json` 中 `tabs.props.items` 的 `required` 数组补充 `content`（与文档必填声明一致）。
+- **F3：** `01-node-protocol.md §2` 顶层结构 YAML 中 `DataSourceDef` 统一为 `DataRef`（与 `node.schema.json` 定义名一致）。
+- **F4：** `06-validation.md` L4 校验行补充说明：本仓库仅提供规范，不包含可执行 lint 脚本。
+- **F5：** `01-node-protocol.md §3.10` 求值时序警告完善：增加具体规避建议和跟踪状态说明。
+- **F6：** `00-overview.md` 版本声明增加 `v0.2.1` 补丁版本说明，消除读者困惑。
+- **F7：** `03-component-registry.md` 中 `dateRangePicker` 增加搜索模式下参数传递行为的交叉引用。
+- **F8：** `04-datasource-contract.md §4.1` `responseMapping` 跟踪条目增加临时变通方案说明。
