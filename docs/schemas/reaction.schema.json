@@ -15,6 +15,11 @@
       "type": "string",
       "description": "条件表达式，语法白名单见 02-reaction-expression.md，禁止函数调用/算术运算"
     },
+    "scope": {
+      "type": "string",
+      "enum": ["form", "row"],
+      "description": "【可选，since 0.2】表达式求值作用域，form（默认）或 row"
+    },
     "fulfill": { "$ref": "#/definitions/StateMap" },
     "otherwise": { "$ref": "#/definitions/StateMap" }
   },

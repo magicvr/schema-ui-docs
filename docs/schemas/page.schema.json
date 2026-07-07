@@ -17,7 +17,8 @@
           "description": "必填（since 0.2），如 \"0.2\"，Renderer 版本兼容锚点"
         }
       },
-      "required": ["pageId", "title", "protocolVersion"]
+      "required": ["pageId", "title", "protocolVersion"],
+      "additionalProperties": false
     },
     "datasources": {
       "type": "object",

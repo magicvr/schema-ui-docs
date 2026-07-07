@@ -339,8 +339,6 @@ props:
 
 支持 `children`：否。支持 `data`：否。支持 `reactions`：是。支持 `states`：否。
 
-支持 `children`：否。支持 `data`：否（表单字段不直接绑定 API）。支持 `reactions`：是。支持 `states`：否。
-
 ### `select`
 下拉选择控件。
 
