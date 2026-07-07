@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-07
-applies_to: schema-ui-protocol v0.1
+applies_to: schema-ui-protocol v0.2
 ---
 
 # 核心协议规范：Node 结构定义
@@ -50,13 +50,15 @@ actions:          # 【可选】页面级可复用动作定义（完整契约见
 一个 Node 只包含以下字段，不允许出现协议之外的自定义字段（前端可拒绝解析）：
 
 ```yaml
-type: string          # 必填。渲染成什么组件
-id: string             # 可选（since 0.2）。页面内唯一标识
-props: map             # 可选。业务级配置参数
-data: DataRef           # 可选。数据来源描述
-children: [Node]         # 可选。子节点数组
-reactions: [Reaction]     # 可选。联动规则数组（仅字段类 Node 可用）
-states: StatesMap        # 可选（since 0.2）。空态/加载态/错误态定制
+type: string            # 必填。渲染成什么组件
+id: string               # 可选（since 0.2）。页面内唯一标识
+props: map               # 可选。业务级配置参数
+data: DataRef             # 可选。数据来源描述
+children: [Node]           # 可选。子节点数组
+reactions: [Reaction]       # 可选。联动规则数组（仅字段类 Node 可用）
+states: StatesMap          # 可选（since 0.2）。空态/加载态/错误态定制
+visibleWhen: VisibleWhen   # 可选（since 0.2）。节点级条件渲染，见 §3.8
+permissions: Permissions   # 可选（since 0.2）。权限控制，见 §3.9
 ```
 
 ### 3.1 `type`（必填）
@@ -140,6 +142,65 @@ states:
 ```
 
 对不支持 `states` 的组件（如 `section`/`grid`/`tabs`）声明该字段时，Renderer 与 CI 校验应直接拒绝，而不是静默忽略。
+
+### 3.8 `visibleWhen`（节点级条件渲染，可选，since 0.2）
+
+控制整个节点（而非字段）是否渲染，独立于 `reactions` 的字段级联动。任何 Node 类型均可声明。
+
+```yaml
+visibleWhen:
+  dependencies: [string]   # 显式声明的依赖字段名（表单上下文中必填，非表单上下文可省略）
+  when: string               # 白名单表达式（与 reactions[].when 同语法）
+```
+
+- **表单上下文**（节点位于 `form` 内部）：`dependencies` 必填，表达式中可访问 `$deps.*`（声明字段）和 `$context.*`。
+- **非表单上下文**（如布局容器 `section`/`grid`）：`dependencies` 可省略，此时 `when` 中仅允许 `$context.*`，出现 `$deps.*` 为静态校验拒绝。
+- 表达式语法复用 [02-reaction-expression.md](./02-reaction-expression.md) 白名单解析器。
+
+> `visibleWhen` 与 `reactions` 是并列关系，不是包含关系。`reactions` 描述"字段值变化 → 字段级副作用"；`visibleWhen` 描述"给定当前状态 → 该节点是否渲染"的静态判断。
+
+### 3.9 `permissions`（权限控制，可选，since 0.2）
+
+按用户身份控制节点/操作的可用性。值类型为按动作分组的映射表：
+
+```yaml
+permissions:
+  view: string     # 可见性条件（$context.* 表达式）
+  edit: string     # 可编辑/可操作条件（$context.* 表达式）
+  delete: string   # 可删除条件（$context.* 表达式）
+```
+
+协议层预定义三个标准动作键：
+
+| 动作键 | 表达式结果为 false 时的行为 |
+|---|---|
+| `view` | 节点不应存在于 DOM 中（用户无权限） |
+| `edit` | 节点渲染为只读/禁用态，而非从 DOM 中移除 |
+| `delete` | 对应操作按钮禁用/隐藏 |
+
+接入方可在 `component-registry.json` 的组件契约中按需扩展自定义动作键（如 `approve`/`export`）。
+
+> **权限判定语法**：`permissions.*` 的表达式复用与 `visibleWhen` 相同的解析器，但**仅允许使用 `$context.*`，禁止出现 `$deps.*`**（静态校验拒绝）。理由：权限判断只应依赖用户身份，不应混入业务字段状态。
+
+### 3.10 最终可见性优先级公式
+
+节点最终是否渲染由三个独立信号共同决定，按以下优先级 AND 计算：
+
+```
+最终 visible =
+  permissions.view（若声明，优先级最高）
+  AND visibleWhen.when（若声明，次优先级）
+  AND reactions 计算出的 visible（若声明，最低优先级）
+```
+
+**规则：**
+1. 三者均为 AND 语义，只能收紧不能放宽——任一环节为 `false`，后续环节即使为 `true` 也无法"救回"可见性。
+2. `reactions` 始终求值，不因 `permissions.view` 或 `visibleWhen` 结果为 `false` 而跳过（保证赋值/校验等副作用正常执行）。
+3. 三者均未声明时，节点默认可见。
+
+**容器节点级联**：容器（`section`/`grid`/`form` 等）最终 `visible` 为 `false` 时，其子树不展示，但子树内各节点的 `reactions` 仍按各自声明正常求值。子节点无需、也不应自行判断祖先可见性——级联隐藏是渲染层职责。
+
+> `permissions.view=false` 与 `visibleWhen=false` 在容器级联行为上完全一致，共享同一套规则。
 
 ## 4. 与参考协议的概念对照
 

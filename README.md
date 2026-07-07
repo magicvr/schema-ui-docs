@@ -16,13 +16,24 @@ docs/
 │   ├── data-table.md
 │   └── form-with-reactions.md
 ├── 06-validation.md            # 校验规则与工具链
+├── 07-actions-contract.md      # Action 行为契约（since 0.2）
 ├── schemas/                     # 机器可读 JSON Schema
+│   ├── page.schema.json
 │   ├── node.schema.json
 │   ├── reaction.schema.json
+│   ├── action.schema.json
 │   └── component-registry.json
 ├── decisions/                   # 架构决策记录（ADR）
 │   ├── 0001-why-single-node-tree.md
 │   └── 0002-why-not-two-schema-uischema.md
+│   └── 0003-context-namespace-and-visible-when.md
 ├── audit/                       # 过程性审计与迭代记录（NNNN-YYYY-MM-DD-）
+│   ├── 0001-2026-07-07-review.md
+│   ├── 0001-2026-07-07-checklist.md
+│   ├── 0001-2026-07-07-plan.md
+│   ├── 0002-2026-07-07-review.md
+│   ├── 0002-2026-07-07-checklist.md
+│   ├── 0003-2026-07-07-review.md      # ★ MVP 就绪度审视报告
+│   └── 0003-2026-07-07-checklist.md   # ★ MVP 就绪度跟踪清单
 └── CHANGELOG.md
 ```
