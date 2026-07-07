@@ -85,7 +85,7 @@ confirmRefund:
     children:
       - type: text
         props:
-          content: 确认对订单 #{$deps.orderId} 发起退款？
+          content: 确认对该订单发起退款？
       - type: input
         props:
           field: reason

@@ -25,6 +25,11 @@
 
 ## 当前活跃审计
 
+### 0005 — 2026-07-07 — ajv 实测校验 + 交叉比对发现的隐性缺陷
+- **主题：** 首次引入 ajv 编译运行实测校验 JSON Schema，发现 `action.schema.json` `additionalProperties` 结构性缺陷（🔴）、最小页面示例缺少 `protocolVersion`（🔴）、CHANGELOG 审计编号断链（🟡）、未定义插值语法孤例（🟢）。
+- **状态：** 跟踪中，见 [`0005-2026-07-07-checklist.md`](./0005-2026-07-07-checklist.md)
+- **建议版本：** v0.2.3
+
 ### 跟踪项 — 响应体字段名映射（responseMapping）
 - **来源：** `04-datasource-contract.md §4.1`
 - **状态：** 需求收集阶段，待产出 ADR 后标准化。接入方可按需在 Renderer 扩展层自行约定映射语法。

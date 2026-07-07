@@ -8,46 +8,47 @@
     "type": {
       "type": "string",
       "enum": ["request", "navigate", "modal", "custom"]
+    },
+    "method": {
+      "type": "string",
+      "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"]
+    },
+    "url": {
+      "type": "string"
+    },
+    "bodyMapping": {
+      "type": "object",
+      "description": "表单字段名 -> 请求体字段名的映射，缺省时按字段名原样传递"
+    },
+    "onSuccess": { "$ref": "#/definitions/OutcomeBehavior" },
+    "onError": { "$ref": "#/definitions/OutcomeBehavior" },
+    "modalId": {
+      "type": "string",
+      "description": "【可选】引用前端预注册的弹窗模板（尺寸/位置/关闭行为）"
+    },
+    "content": {
+      "type": "object",
+      "description": "【可选，since 0.2】弹窗内容，一个完整的 Node（如 form/text/table 等），与 modalId 可共存",
+      "$ref": "node.schema.json"
+    },
+    "handler": {
+      "type": "string",
+      "description": "仅允许引用前端白名单预注册的处理函数名，不接受任意代码/表达式"
     }
   },
   "required": ["type"],
   "allOf": [
     {
       "if": { "properties": { "type": { "const": "request" } } },
-      "then": {
-        "properties": {
-          "method": { "type": "string", "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"] },
-          "url": { "type": "string" },
-          "bodyMapping": {
-            "type": "object",
-            "description": "表单字段名 -> 请求体字段名的映射，缺省时按字段名原样传递"
-          },
-          "onSuccess": { "$ref": "#/definitions/OutcomeBehavior" },
-          "onError": { "$ref": "#/definitions/OutcomeBehavior" }
-        },
-        "required": ["method", "url"]
-      }
+      "then": { "required": ["method", "url"] }
     },
     {
       "if": { "properties": { "type": { "const": "navigate" } } },
-      "then": {
-        "properties": {
-          "url": { "type": "string" }
-        },
-        "required": ["url"]
-      }
+      "then": { "required": ["url"] }
     },
     {
       "if": { "properties": { "type": { "const": "modal" } } },
       "then": {
-        "properties": {
-          "modalId": { "type": "string", "description": "【可选】引用前端预注册的弹窗模板（尺寸/位置/关闭行为）" },
-          "content": {
-            "type": "object",
-            "description": "【可选，since 0.2】弹窗内容，一个完整的 Node（如 form/text/table 等），与 modalId 可共存",
-            "$ref": "node.schema.json"
-          }
-        },
         "anyOf": [
           { "required": ["modalId"] },
           { "required": ["content"] }
@@ -56,15 +57,7 @@
     },
     {
       "if": { "properties": { "type": { "const": "custom" } } },
-      "then": {
-        "properties": {
-          "handler": {
-            "type": "string",
-            "description": "仅允许引用前端白名单预注册的处理函数名，不接受任意代码/表达式"
-          }
-        },
-        "required": ["handler"]
-      }
+      "then": { "required": ["handler"] }
     }
   ],
   "additionalProperties": false,
