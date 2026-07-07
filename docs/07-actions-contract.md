@@ -61,7 +61,36 @@ url: string
 
 ```yaml
 type: modal
-modalId: string   # 引用前端预注册的弹窗标识
+modalId: string   # 【可选】引用前端预注册的弹窗模板（尺寸/位置/关闭行为）
+content: Node     # 【可选】直接描述弹窗内容（since 0.2），见下方说明
+```
+
+### 5.1 `content` 与 `modalId` 的关系
+
+- `modalId` 提供弹窗的**模板属性**（尺寸、位置、关闭行为、动画等），可引用前端预注册的弹窗模板。
+- `content` 提供弹窗的**内容**（一个完整的 Node，如 `form`/`text`/`table` 等），使弹窗内容不再依赖前端硬编码。
+- `modalId` 和 `content` **可共存**——`modalId` 控制弹窗壳子，`content` 控制弹窗内容。
+- 二者至少提供一个。若只提供 `content` 而不提供 `modalId`，Renderer 使用默认弹窗模板（居中、可关闭）。
+
+```yaml
+# 示例：弹窗内容 Node 化
+confirmRefund:
+  type: modal
+  modalId: medium-dialog          # 可选，引用预注册的"中等尺寸弹窗"模板
+  content:
+    type: form
+    props:
+      title: 确认退款
+      submitAction: doRefund
+    children:
+      - type: text
+        props:
+          content: 确认对订单 #{$deps.orderId} 发起退款？
+      - type: input
+        props:
+          field: reason
+          label: 退款原因
+          placeholder: 请输入退款原因
 ```
 
 ## 6. `custom` 类型

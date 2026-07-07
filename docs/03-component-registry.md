@@ -201,12 +201,67 @@ actions:
 ## 表单类
 
 ### `form`
-表单容器。
+表单容器。支持两种模式：
+- **默认模式**（`mode` 未指定或 `mode: default`）：提交时执行 `submitAction` 动作（发请求/导航等）。
+- **搜索模式**（`mode: search`）：作为表格的筛选条件区，提交时触发表格刷新（带当前表单字段值作为请求参数），不执行 `submitAction`。
 
 | props 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
 | `title` / `titleKey` | string | 否 | 表单标题 |
-| `submitAction` | string | 是 | 引用顶层 `actions` 中的动作 id，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
+| `submitAction` | string | 默认模式下是 | 引用顶层 `actions` 中的动作 id。搜索模式下不需要（`mode: search` 时忽略此字段） |
+| `mode` | enum: `default` \| `search` | 否（since 0.2.1） | 表单模式。`search` 模式将表单用作筛选器 |
+| `targetTable` | string | 搜索模式下是 | `mode: search` 时必填，声明关联表格的 Node `id`，提交时触发表格重新请求 |
+
+```yaml
+# 搜索表单示例
+type: form
+props:
+  mode: search
+  targetTable: orderTable
+children:
+  - type: dateRangePicker
+    props:
+      startField: dateFrom
+      endField: dateTo
+      label: 下单日期
+  - type: select
+    props:
+      field: status
+      label: 订单状态
+      options:
+        - { label: 全部, value: '' }
+        - { label: 待处理, value: pending }
+        - { label: 已完成, value: completed }
+  - type: input
+    props:
+      field: keyword
+      label: 关键词
+      placeholder: 订单号/客户名
+
+# 搜索结果表格
+- type: table
+  id: orderTable
+  data:
+    source: api
+    url: /api/orders
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+      pageSize: 20
+    columns:
+      - field: orderNo
+        label: 订单号
+      - field: date
+        label: 下单日期
+      - field: status
+        label: 状态
+        format: tag
+```
+
+> **搜索模式下数据流：** 搜索表单字段值 → Renderer 收集为请求参数 → 附加到 `targetTable` 的 `data.url` 查询参数 → 触发该表格重新请求。表格原有的 `data.params` 与搜索表单参数自动合并，搜索参数优先级更高。
+>
+> **搜索模式与 actions 的关系：** `mode: search` 时 `submitAction` 被忽略。搜索表单不需要独立的动作定义——提交行为被协议层定义为"刷新目标表格"，不经过 `actions` 路由。
 
 支持 `children`：是（字段类 Node）。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。
 
@@ -222,6 +277,38 @@ actions:
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
+
+### `upload`
+文件上传控件。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | 字段名（表单提交时的 key，提交时值为已上传文件的 URL 或文件 ID 数组） |
+| `label` / `labelKey` | string | 是 | 字段标签 |
+| `accept` | string | 否 | 接受的文件类型（MIME，如 `image/*,.pdf`） |
+| `maxSize` | number | 否 | 最大文件大小，单位字节（如 `5242880` 表示 5MB） |
+| `multiple` | boolean | 否 | 是否支持多文件上传（默认 `false`） |
+| `action` | string | 是 | 上传接口地址（相对路径，baseURL 由 Renderer 拼接） |
+| `required` | boolean | 否 | 是否必填 |
+| `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
+
+```yaml
+type: upload
+props:
+  field: contractFiles
+  label: 合同附件
+  accept: .pdf,.doc,.docx
+  maxSize: 10485760    # 10MB
+  multiple: true
+  action: /api/files/upload
+  required: true
+```
+
+> **上传流程：** Renderer 在文件选择后自动发起上传请求到 `action` 地址。上传成功后，`field` 的值设置为后端返回的文件 URL 或文件 ID。提交表单时（通过 `submitAction`），该字段值随表单一起提交，不再重新上传文件。
+>
+> **数据格式：** 单文件上传时值为字符串，多文件上传时值为字符串数组。具体返回结构由后端上传接口决定，协议层约束仅到"值类型为 string | string[]"。
+
+支持 `children`：否。支持 `data`：否。支持 `reactions`：是。支持 `states`：否。
 
 支持 `children`：否。支持 `data`：否（表单字段不直接绑定 API）。支持 `reactions`：是。支持 `states`：否。
 
@@ -263,6 +350,57 @@ props:
 ```
 
 支持 `children`：否。支持 `data`：否（表单字段不直接绑定 API，远程选项通过 `optionsSource` 单独处理）。支持 `reactions`：是。支持 `states`：否。
+
+### `datePicker`
+日期选择控件。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | 字段名（表单提交时的 key） |
+| `label` / `labelKey` | string | 是 | 字段标签 |
+| `placeholder` | string | 否 | 占位提示文案 |
+| `format` | string | 否 | 日期展示格式（仅控制前端展示，如 `YYYY/MM/DD`）；数据格式统一使用 ISO 8601（`YYYY-MM-DD`） |
+| `min` | string | 否 | 可选最小日期（ISO 8601 格式 `YYYY-MM-DD`） |
+| `max` | string | 否 | 可选最大日期（ISO 8601 格式 `YYYY-MM-DD`） |
+| `required` | boolean | 否 | 是否必填 |
+| `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
+
+```yaml
+type: datePicker
+props:
+  field: orderDate
+  label: 订单日期
+  format: YYYY/MM/DD
+  min: "2024-01-01"
+  required: true
+```
+
+支持 `children`：否。支持 `data`：否。支持 `reactions`：是。支持 `states`：否。
+
+### `dateRangePicker`
+日期范围选择控件。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `startField` | string | 是 | 起始日期字段名（表单提交时的 key） |
+| `endField` | string | 是 | 结束日期字段名（表单提交时的 key） |
+| `label` / `labelKey` | string | 是 | 字段标签 |
+| `placeholder` | string | 否 | 占位提示文案 |
+| `min` | string | 否 | 可选最小日期（ISO 8601 格式 `YYYY-MM-DD`） |
+| `max` | string | 否 | 可选最大日期（ISO 8601 格式 `YYYY-MM-DD`） |
+| `required` | boolean | 否 | 是否必填 |
+| `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
+
+```yaml
+type: dateRangePicker
+props:
+  startField: dateFrom
+  endField: dateTo
+  label: 日期范围
+  required: true
+```
+
+支持 `children`：否。支持 `data`：否。支持 `reactions`：是。支持 `states`：否。
 
 ---
 

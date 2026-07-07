@@ -54,7 +54,67 @@ lineHeight, letterSpacing, textAlign
 > `props` 中不得出现任何 CSS 样式属性，联动表达式必须符合 `02-reaction-expression.md` 的白名单语法，
 > 生成后请对照 `schemas/node.schema.json` 自检结构合法性。
 
-## 5. 自检清单（人工 Review 用）
+## 5. 后端开发者本地校验指南
+
+### 5.1 使用 `ajv-cli`（Node.js）
+
+如果你的机器安装了 Node.js，可用 `ajv-cli` 快速校验 YAML 配置：
+
+```bash
+# 全局安装 ajv-cli
+npm install -g ajv-cli ajv-formats
+
+# 校验单个页面文件
+npx ajv validate -s schemas/page.schema.json -d my-page.yaml
+
+# 校验目录下所有 yaml 文件
+npx ajv validate -s schemas/page.schema.json -d "pages/**/*.yaml"
+```
+
+`ajv-cli` 会自动加载 `$ref` 引用的子 schema（如 `node.schema.json`、`reaction.schema.json`），无需额外配置。
+
+### 5.2 使用 VS Code YAML Schema 关联（推荐）
+
+1. 安装 VS Code 扩展 [`YAML` (redhat.vscode-yaml)](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)。
+2. 在项目根目录创建 `.vscode/settings.json`：
+
+```json
+{
+  "yaml.schemas": {
+    "schemas/page.schema.json": ["pages/**/*.yaml", "pages/**/*.yml"]
+  }
+}
+```
+
+3. 此后编辑 `pages/` 目录下的 YAML 文件时，VS Code 自动提供：
+   - 字段自动补全（根据 Schema 定义）
+   - 实时校验（红色波浪线标出不合法的字段）
+   - 鼠标悬停查看字段说明
+
+### 5.3 Windows PowerShell 用户
+
+若使用 Windows PowerShell，可配合 `Get-ChildItem` 批量校验：
+
+```powershell
+Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
+  npx ajv validate -s schemas/page.schema.json -d $_.FullName
+}
+```
+
+### 5.4 CI 集成
+
+在 CI 流程中挂载校验步骤（以 GitHub Actions 为例）：
+
+```yaml
+- name: Validate Schema-UI YAML
+  run: |
+    npm install -g ajv-cli ajv-formats
+    npx ajv validate -s schemas/page.schema.json -d "pages/**/*.yaml" --strict-refs=true
+```
+
+> 强烈建议在 CI 中开启 `--strict-refs=true`，防止 `$ref` 指向不存在的文件时静默跳过校验。
+
+## 6. 自检清单（人工 Review 用）
 
 - [ ] 每个 Node 是否都有必填的 `type`？
 - [ ] `props` 中是否混入了 CSS 属性？

@@ -41,9 +41,17 @@
       "if": { "properties": { "type": { "const": "modal" } } },
       "then": {
         "properties": {
-          "modalId": { "type": "string", "description": "引用前端预注册的弹窗标识" }
+          "modalId": { "type": "string", "description": "【可选】引用前端预注册的弹窗模板（尺寸/位置/关闭行为）" },
+          "content": {
+            "type": "object",
+            "description": "【可选，since 0.2】弹窗内容，一个完整的 Node（如 form/text/table 等），与 modalId 可共存",
+            "$ref": "node.schema.json"
+          }
         },
-        "required": ["modalId"]
+        "anyOf": [
+          { "required": ["modalId"] },
+          { "required": ["content"] }
+        ]
       }
     },
     {

@@ -49,6 +49,14 @@
     },
     "states": {
       "$ref": "#/definitions/StatesMap"
+    },
+    "visibleWhen": {
+      "$ref": "#/definitions/VisibleWhen",
+      "description": "【可选，since 0.2】节点级条件渲染，见 docs/01-node-protocol.md §3.8"
+    },
+    "permissions": {
+      "$ref": "#/definitions/Permissions",
+      "description": "【可选，since 0.2】权限控制，见 docs/01-node-protocol.md §3.9"
     }
   },
   "required": ["type"],
@@ -105,6 +113,37 @@
         "fallbackText": { "type": "string" }
       },
       "additionalProperties": false
+    },
+    "VisibleWhen": {
+      "type": "object",
+      "description": "节点级条件渲染（since 0.2），复用 02-reaction-expression.md 白名单解析器",
+      "properties": {
+        "dependencies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "显式声明的依赖字段名。表单上下文中必填，非表单上下文可省略"
+        },
+        "when": {
+          "type": "string",
+          "description": "白名单表达式，与 reactions[].when 同语法"
+        }
+      },
+      "required": ["when"],
+      "additionalProperties": false
+    },
+    "Permissions": {
+      "type": "object",
+      "description": "权限控制（since 0.2），按动作分组的映射表，表达式仅允许 $context.*",
+      "properties": {
+        "view": { "type": "string", "description": "可见性条件" },
+        "edit": { "type": "string", "description": "可编辑/可操作条件" },
+        "delete": { "type": "string", "description": "可删除条件" }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "description": "扩展动作键（如 approve/export），需在 component-registry.json 的组件契约中声明"
+      },
+      "minProperties": 1
     }
   }
 }
