@@ -5,6 +5,22 @@
 
 ---
 
+## 0017 — 2026-07-08 — 组件注册 DSL 解释边界 + DataRef 交叉引用漂移
+
+**主题：** 修复 `component-registry.json` 自定义 DSL 对 JSON Schema 风格组合关键字的解释边界说明，以及 `DataRef.params` 空值规则的交叉引用章节漂移。
+**性质：** 组件注册 DSL 校验语义 + 数据源契约交叉引用修复审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0017-2026-07-08-review.md](./0017-2026-07-08-review.md) | 审视报告 — V18(🟡)/V19(🟢) |
+| [0017-2026-07-08-checklist.md](./0017-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V18: `03-component-registry.md` 补充 DSL 约束关键字白名单和两种 `required` 语义；`06-validation.md` 明确 L2 校验必须处理组件 DSL 组合约束
+- V19: `01-node-protocol.md` 将 `DataRef.params` 空值规则引用从 `04-datasource-contract.md §8` 改为 §3.1
+
+---
+
 ## 0016 — 2026-07-08 — DSL 必填关系 + 行级依赖语义 + Renderer 表达式示例漂移
 
 **主题：** 修复 `component-registry.json` 中 `text.content` 与 `contentKey` 的二选一约束冲突、`reaction.schema.json` 中 `dependencies` 的 scope 分支描述、Renderer `contains` 运算符示例和完整变量注入边界说明。
