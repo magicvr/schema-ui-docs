@@ -7,7 +7,7 @@
   "properties": {
     "type": {
       "type": "string",
-      "enum": ["request", "navigate", "modal", "custom"]
+      "enum": ["request", "navigate", "modal", "upload", "custom"]
     },
     "method": {
       "type": "string",
@@ -34,6 +34,23 @@
     "handler": {
       "type": "string",
       "description": "仅允许引用前端白名单预注册的处理函数名，不接受任意代码/表达式"
+    },
+    "fieldName": {
+      "type": "string",
+      "description": "【可选，upload】multipart 中的文件字段名，默认 file"
+    },
+    "accept": {
+      "type": "string",
+      "description": "【可选，upload】允许的 MIME 类型或扩展名，如 image/* 或 .pdf,.docx"
+    },
+    "maxSize": {
+      "type": "number",
+      "minimum": 0,
+      "description": "【可选，upload】单文件大小上限，单位字节"
+    },
+    "multiple": {
+      "type": "boolean",
+      "description": "【可选，upload】是否允许多文件，默认 false"
     }
   },
   "required": ["type"],
@@ -58,6 +75,18 @@
     {
       "if": { "properties": { "type": { "const": "custom" } } },
       "then": { "required": ["handler"] }
+    },
+    {
+      "if": { "properties": { "type": { "const": "upload" } } },
+      "then": {
+        "required": ["url"],
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": ["POST", "PUT"]
+          }
+        }
+      }
     }
   ],
   "additionalProperties": false,

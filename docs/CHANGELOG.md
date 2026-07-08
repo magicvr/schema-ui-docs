@@ -3,7 +3,7 @@
 本协议遵循语义化版本（MAJOR.MINOR.PATCH）：
 - MAJOR：不兼容的协议结构变更
 - MINOR：新增字段/组件类型，向后兼容
-- PATCH：文档修订、示例补充
+- PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
 ## v0.1.0 — 2026-07-07
 
@@ -121,3 +121,19 @@
 - 协议文档：`01-node-protocol.md`（删除"求值时序未定义"限制，改为引用 ADR-0006）/`02-reaction-expression.md`（新增 §13 求值时序模型）/`04-datasource-contract.md`（`responseMapping` 升为正式契约）/`08-renderer-spec.md`（增加 `responseMapping` 处理与批量提交/循环保护要求）
 - JSON Schema：`schemas/node.schema.json`（`DataRef` 增加 `responseMapping` 字段）
 - 新增决策：`decisions/0005-response-mapping.md`、`decisions/0006-expression-evaluation-order.md`
+
+## v0.2.5 — 2026-07-08（前后端契约完备性补丁）
+
+> **版本说明：** v0.2.5 基于前后端契约完备性评估，补充了此前协议空白的四个方向：认证约定、完整错误响应体结构、`$context` 最小字段集、`upload` action 类型。不改变 v0.2.4 已定义的 Node 结构和表达式语法。使用 `actions[].type: upload` 或 `upload.props.actionRef` 的页面需要 Renderer 实现 v0.2.5 的 action 枚举与上传执行能力；旧 v0.2 Renderer 应在静态校验阶段拒绝未知 action 类型。
+
+**新增：**
+- **C1：** `04-datasource-contract.md` 新增 §5 认证约定——Renderer 通过宿主应用注入的 `requestInterceptor` 钩子携带认证信息，协议层不感知具体认证方案；明确 `401`/`403` 的处理规则与 `onAuthFailure` 钩子语义。
+- **C2：** `04-datasource-contract.md` 原 §5 错误约定重构为 §6，拆分为 §6.1 HTTP 状态码矩阵（补充 `400`/`401`/`403`/`404` 独立语义）、§6.2 通用错误响应体（原有约定正式化）、§6.3 字段级验证错误（`400` + `errors` 数组契约，含字段路径与多条错误约定）、§6.4 网络超时与中断处理规则。
+- **C3：** `02-reaction-expression.md` 新增 §11 `$context` 最小字段集——`$context.user` 明确协议级必须字段（`id`/`name`/`roles`）及项目扩展约定；`$context.features` 明确仅含项目注入字段、值类型约束（`boolean` 或简单枚举）及缺失时降级为 `false` 的规则。
+- **C4：** `07-actions-contract.md` 新增 §7 `upload` action 类型——`multipart/form-data` 上传协议，含请求格式约定、响应体契约（`url`/`id`/`name`/`size`）、客户端与服务端双重校验要求、常见错误 `code` 建议值；`type` 枚举表同步增加 `upload` 条目；`upload` 组件新增 `props.actionRef` 用于引用顶层 upload action，既有 `props.action` 继续表示上传 URL。
+
+**涉及的文档：**
+- `04-datasource-contract.md`（§5 认证约定新增；§5-§8 重编号为 §6-§9；§6 错误约定重构）
+- `02-reaction-expression.md`（新增 §11 `$context` 最小字段集；§11-§12 白名单扩展/缺失容错重编号为 §12-§13；§13 求值时序重编号为 §14）
+- `07-actions-contract.md`（§2 枚举表增加 `upload`；新增 §7 upload 类型；§7-§8 原有章节重编号为 §8-§9）
+- `03-component-registry.md` / `schemas/component-registry.json`（`upload.props.actionRef` 新增；`action` 与 `actionRef` 二选一）

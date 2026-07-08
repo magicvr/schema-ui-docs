@@ -29,8 +29,8 @@ applies_to: schema-ui-protocol v0.2
 |---|---|---|---|
 | `$deps.<字段名>` | `dependencies` 中声明的依赖字段的当前值 | `reactions`、`visibleWhen`(表单内)、`scope: form` 表达式 | `$deps.orderType` |
 | `$self` | 当前字段自身的当前值（字段级）；当前列对应单元格的原始数据值（`scope: row` 列表达式） | 表单字段 `reactions`、表格列 `scope: row` 表达式 | `$self` |
-| `$context.user.*` | 当前用户身份信息（只读快照，字段集合由项目扩展） | 所有位置 | `$context.user.roles` |
-| `$context.features.*` | 功能开关映射表（只读快照，值为布尔或简单枚举） | 所有位置 | `$context.features.newDashboard` |
+| `$context.user.*` | 当前用户身份信息（只读快照，最小字段集见 §11.1） | 所有位置 | `$context.user.roles` |
+| `$context.features.*` | 功能开关映射表（只读快照，最小字段集见 §11.2） | 所有位置 | `$context.features.newDashboard` |
 | `$row.<字段名>` | 当前行的原始数据对象（未经格式化处理） | 表格 `columns`/`actions` 中 `scope: row` 表达式 | `$row.level` |
 | `$row.__index` | 当前行在数据集中的序号（从 0 开始） | 同上 | `$row.__index` |
 | `$row.__key` | 当前行的唯一标识（取表格 `rowKey` 字段值） | 同上 | `$row.__key` |
@@ -167,7 +167,42 @@ reactions:
 
 表格列在 `scope: form` 下没有当前行/当前单元格上下文，也不是表单字段，因此 `$self` 没有绑定对象。该场景中出现 `$self` 时，静态校验直接拒绝；需要访问单元格原始值时应使用 `scope: row`。
 
-## 11. `$context` 白名单扩展流程
+## 11. `$context` 最小字段集（since 0.2.5）
+
+### 11.1 `$context.user` 最小字段集
+
+以下字段是协议级最小集，所有接入方**必须**提供，Renderer 在 `permissions.*` 表达式中保证这些路径可被安全访问：
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `$context.user.id` | `string` | 当前用户唯一标识（如数据库主键或 UUID） |
+| `$context.user.name` | `string` | 当前用户显示名（用于界面展示，不用于权限判断） |
+| `$context.user.roles` | `string[]` | 当前用户所属角色数组（如 `["admin", "editor"]`），配合 `contains` 运算符做权限表达式 |
+
+```yaml
+# 权限表达式示例：仅 admin 可见
+permissions:
+  visible: "$context.user.roles contains 'admin'"
+```
+
+> **项目扩展约定：** 接入方可通过 Renderer 初始化时的 `context.user` 注入追加项目专有字段（如 `department`、`tenantId`），这些字段在协议层不做约束，仅在项目范围内有效。最小字段集必须始终存在，项目字段不得覆盖最小字段集的名称。
+
+### 11.2 `$context.features` 最小字段集
+
+`$context.features` 是功能开关命名空间，没有协议级强制字段——其全部内容由接入方在 Renderer 初始化时注入。
+
+**约定：**
+- 字段值只允许 `boolean` 或简单枚举字符串，不允许对象或数组。
+- 字段名使用 `camelCase`，如 `newDashboard`、`betaTableSort`。
+- 缺失的功能开关视为 `false`（未启用）。
+
+```yaml
+# 功能开关表达式示例
+visibleWhen:
+  when: "$context.features.newDashboard == true"
+```
+
+## 12. `$context` 白名单扩展流程
 
 `$context` 的白名单命名空间（`user`、`features`）是协议级约束，不是项目级配置。新增命名空间必须通过以下流程：
 
@@ -177,7 +212,7 @@ reactions:
 
 理由：防止不同接入方各自扩展导致 `$context` 结构碎片化，最终削弱"一种表达式语法，多个挂载点使用"的协议价值。
 
-## 12. `$context` 缺失容错
+## 13. `$context` 缺失容错
 
 若宿主环境未注入 `$context`（如旧版本运行时、测试环境、协议降级场景）：
 
@@ -188,7 +223,7 @@ reactions:
 
 > **安全边界声明**：`$context` 不是安全边界，只是渲染边界。`visibleWhen`/`permissions` 控制的是渲染层面的显隐，不能替代后端的真实鉴权。前端 `$context.user.roles` 判断得出的显隐结果，后端必须独立校验，不能信任前端传来的任何身份声明。
 
-## 13. 表达式求值时序模型（since 0.2.4）
+## 14. 表达式求值时序模型（since 0.2.4）
 
 表达式引擎采用稳定快照模型。每一轮由用户输入、数据加载、上下文刷新或显式重新求值触发的表达式求值，都按以下阶段执行：
 
@@ -199,7 +234,7 @@ reactions:
 
 因此，同一轮内的规则是：**本轮读旧快照，本轮末尾批量写入，下一轮读取新值**。这条规则用于消除 `visibleWhen` / `permissions` 读取字段值与 `reactions.fulfill.value` 写字段值之间的时序歧义。
 
-### 13.1 同一目标字段的写入冲突
+### 14.1 同一目标字段的写入冲突
 
 同一轮中若多条 `reactions` 写入同一个字段值，采用确定性的后写优先规则：
 
@@ -207,7 +242,7 @@ reactions:
 - 不同字段 / 不同节点的 `reactions` 若写入同一个目标字段，按文档中 Node 的深度优先遍历顺序排序，后遍历到的写入覆盖先遍历到的写入。
 - Renderer 在开发环境应输出警告，提示存在多处写同一字段的配置，建议合并规则或拆分字段。
 
-### 13.2 循环保护
+### 14.2 循环保护
 
 若 Commit 阶段产生的 `value` 写入触发下一轮求值，Renderer 必须设置循环保护：
 

@@ -140,6 +140,30 @@ data:
 - 未声明 `responseMapping` 时，Renderer 按协议默认字段名解析：列表数据读取 `list`，服务端分页总数读取 `total`。
 - 若映射路径不存在或结果类型不符合组件预期，Renderer 应将该 Node 视为数据加载失败，进入节点级错误态；开发环境日志应包含缺失路径、Node `id`（若有）和组件 `type`。
 
+### 2.6 请求初始化配置（since 0.2.5）
+
+Renderer 初始化时可接收宿主应用提供的请求配置，用于统一处理认证、超时与鉴权失败回调：
+
+```typescript
+type RendererRequestConfig = {
+  baseURL?: string;
+  credentials?: "omit" | "same-origin" | "include";
+  requestTimeout?: number;
+  requestInterceptor?: (request: RequestInit & { url: string }) => RequestInit & { url: string } | Promise<RequestInit & { url: string }>;
+  onAuthFailure?: (status: 401 | 403, context: { url: string; nodeId?: string; actionId?: string }) => void | Promise<void>;
+};
+```
+
+| 配置项 | 默认值 | 说明 |
+|---|---|---|
+| `baseURL` | 宿主应用决定 | 相对路径 API 的拼接基准，与 v0.2.1 环境变量 / baseURL 管理约定一致 |
+| `credentials` | `same-origin` | 传给 `fetch` 的跨域凭据策略；如需携带跨域 Cookie，宿主应用显式配置为 `include` |
+| `requestTimeout` | `10000` | 单次请求超时时间，单位 ms；超时后的节点行为见 [04-datasource-contract.md §6.4](./04-datasource-contract.md#64-网络超时与中断) |
+| `requestInterceptor` | 无 | 每次请求发出前调用，可同步或异步返回修改后的请求对象；常用于注入 `Authorization` header |
+| `onAuthFailure` | 无 | 收到 `401` / `403` 后调用，供宿主应用刷新 token、跳转登录或记录审计日志 |
+
+`requestInterceptor` 只允许修改请求 URL、header、credentials、body 等传输层信息，不应改写 Node 配置或组件状态。`onAuthFailure` 的返回值不改变协议默认错误态：`401` 节点进入错误态且不展示具体错误文案，`403` 节点渲染"无权限访问"占位（见 [04-datasource-contract.md §5.1](./04-datasource-contract.md#51-401--403-的处理规则)）。
+
 ---
 
 ## 3. 版本协商规范

@@ -127,23 +127,84 @@ data:
 
 字段名需与 `chart.props.xField` / `yField` 对应。
 
-## 5. 错误约定
+## 5. 认证约定（since 0.2.5）
+
+Renderer 发出的所有 API 请求均**不在协议层携带身份凭据**——认证由宿主应用层统一处理，Renderer 通过 HTTP 拦截器（axios interceptor、fetch wrapper 等）注入 `Authorization` header 或管理 Cookie，协议层不感知具体认证方案。
+
+| 约定事项 | 说明 |
+|---|---|
+| 凭据注入方式 | 宿主应用在 Renderer 初始化时提供 `requestInterceptor` 钩子，统一注入 `Authorization: Bearer <token>` 或其他 scheme |
+| Token 刷新 | Token 刷新逻辑由宿主应用层（非 Renderer）管理；Renderer 收到 `401` 后触发 `onAuthFailure` 钩子，由宿主应用决定重新刷新还是跳转登录 |
+| 跨域凭据 | 是否携带 Cookie（`credentials: include`）由宿主初始化配置决定，协议默认 `credentials: same-origin` |
+| 安全边界 | `$context.user.*` 仅用于前端渲染层的显隐判断，**不可替代后端鉴权**；后端必须对每个接口独立做身份校验，不能信任前端传来的任何身份声明 |
+
+### 5.1 `401` / `403` 的处理规则
+
+| 状态码 | 语义 | Renderer 行为 |
+|---|---|---|
+| `401 Unauthorized` | 未认证（token 缺失或已过期） | 触发 `onAuthFailure(401)` 钩子；节点进入错误态但**不展示具体错误文案**（避免泄露信息）；宿主应用负责跳转登录页或刷新 token |
+| `403 Forbidden` | 已认证但无权限 | 触发 `onAuthFailure(403)` 钩子；节点渲染"无权限访问"占位；不跳转登录页 |
+
+> **设计理由：** `401`/`403` 的后续动作（跳转 vs 占位）属于应用层业务决策，协议层只定义"触发钩子 + 节点进入错误态"，不规定跳转目标 URL，避免协议层与具体路由方案耦合。
+
+## 6. 错误约定（since 0.2.5 更新）
+
+### 6.1 HTTP 状态码与前端行为
 
 | HTTP 状态码 | 前端行为 |
 |---|---|
 | `200` | 正常渲染 |
-| `4xx` | 展示后端返回的 `message` 字段作为错误提示 |
+| `400` | 展示后端返回的 `message` 字段；若存在 `errors` 数组（字段级验证错误），Renderer 将错误回填到对应表单字段 |
+| `401` | 见 §5.1：触发 `onAuthFailure(401)`，节点进入错误态 |
+| `403` | 见 §5.1：触发 `onAuthFailure(403)`，节点渲染"无权限访问"占位 |
+| `404` | 展示"资源不存在"占位（节点级，不影响其他节点） |
+| 其他 `4xx` | 展示后端返回的 `message` 字段作为错误提示 |
 | `5xx` | 展示统一的"系统异常，请稍后重试"文案，不透出后端错误细节 |
 
-错误响应体统一约定：
+### 6.2 通用错误响应体结构
+
+所有非 `2xx` 响应均应返回以下结构：
 
 ```json
-{ "code": "ORDER_NOT_FOUND", "message": "订单不存在" }
+{
+  "code": "ORDER_NOT_FOUND",
+  "message": "订单不存在"
+}
 ```
 
 > **`code` 字段说明：** `code` 字段目前**仅用于调试日志和错误追踪**，前端 Renderer 不会据此做程序化判断（如跳转登录页、显示特定 UI）——此类逻辑属于应用层业务逻辑，不应由协议层的 Renderer 处理。后端仍应返回有业务意义的 `code` 值以便排查问题；若后续需要前端据此做程序化处理，建议通过场景 ADR 另行约定。
 
-## 6. 分页模式说明（对应 `table.props.pagination.mode`）
+### 6.3 字段级验证错误（`400` + `errors`）
+
+当请求参数未通过后端校验时（如表单提交），后端应在 `errors` 数组中返回字段级错误，供 Renderer 回填到对应表单字段下方展示：
+
+```json
+{
+  "code": "VALIDATION_ERROR",
+  "message": "请求参数校验失败",
+  "errors": [
+    { "field": "email", "message": "邮箱格式不正确" },
+    { "field": "phone", "message": "手机号不能为空" }
+  ]
+}
+```
+
+- `errors[].field`：对应表单字段的 `props.field` 值（路径分隔符为 `.`，如 `address.city`）。
+- `errors[].message`：展示在该字段下方的错误文案。
+- `errors` 不存在时，`message` 以全局 toast 形式展示。
+- `errors` 存在时，Renderer 将每条错误回填到对应字段，并将全局 `message` 以 toast 形式展示（若 `message` 非空）。
+
+> **后端推荐实践：** 同一字段若有多条校验错误，每条错误对应独立的数组项（同 `field` 可重复）；Renderer 只展示第一条，多余的输出到控制台日志。
+
+### 6.4 网络超时与中断
+
+| 情形 | Renderer 行为 |
+|---|---|
+| 请求超时（> `requestTimeout` 配置，默认 10s） | 节点进入错误态，展示"请求超时，请稍后重试"，支持重试 |
+| 网络中断（`fetch` 抛出 `TypeError: Failed to fetch`） | 节点进入错误态，展示"网络异常，请检查网络连接"，支持重试 |
+| 用户主动离开页面导致请求被中断（`AbortError`） | 静默处理，不进入错误态，不输出日志 |
+
+## 7. 分页模式说明（对应 `table.props.pagination.mode`）
 
 | 模式 | 后端行为 |
 |---|---|
@@ -151,7 +212,7 @@ data:
 | `client` | 后端一次性返回全量 `list`，前端本地分页，无需支持分页参数 |
 | `none` | 不分页，直接展示 `list` 全部内容 |
 
-## 7. 静态数据（`data.source: static`）
+## 8. 静态数据（`data.source: static`）
 
 用于无需请求接口、由后端直接内嵌少量数据的场景（如下拉选项的固定值）：
 
@@ -163,7 +224,7 @@ data:
     - { label: 批发, value: wholesale }
 ```
 
-## 8. `select.optionsSource` 远程动态选项契约（since 0.2，B7）
+## 9. `select.optionsSource` 远程动态选项契约（since 0.2，B7）
 
 配合 `select` 组件的 `props.optionsSource`（见 [03-component-registry.md](./03-component-registry.md)）使用。
 

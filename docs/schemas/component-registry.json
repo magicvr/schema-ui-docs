@@ -352,7 +352,8 @@
         "accept": { "type": "string", "required": false, "description": "接受的文件 MIME 类型" },
         "maxSize": { "type": "number", "required": false, "description": "最大文件大小（字节）" },
         "multiple": { "type": "boolean", "required": false, "description": "是否支持多文件上传" },
-        "action": { "type": "string", "required": true, "description": "上传接口地址（相对路径）" },
+        "action": { "type": "string", "required": false, "description": "上传接口地址（相对路径）" },
+        "actionRef": { "type": "string", "required": false, "since": "0.2.5", "description": "引用顶层 actions 中 type=upload 的动作 id" },
         "description": { "type": "string", "required": false, "since": "0.2", "description": "字段说明文案" },
         "tooltip": { "type": "string", "required": false, "since": "0.2", "description": "悬浮提示文案" },
         "required": { "type": "boolean", "required": false },
@@ -362,6 +363,10 @@
       "anyOf": [
         { "required": ["label"] },
         { "required": ["labelKey"] }
+      ],
+      "oneOf": [
+        { "required": ["action"] },
+        { "required": ["actionRef"] }
       ]
     },
     "select": {

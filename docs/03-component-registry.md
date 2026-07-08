@@ -325,7 +325,8 @@ props:
 | `accept` | string | 否 | 接受的文件类型（MIME，如 `image/*,.pdf`） |
 | `maxSize` | number | 否 | 最大文件大小，单位字节（如 `5242880` 表示 5MB） |
 | `multiple` | boolean | 否 | 是否支持多文件上传（默认 `false`） |
-| `action` | string | 是 | 上传接口地址（相对路径，baseURL 由 Renderer 拼接） |
+| `action` | string | 与 `actionRef` 二选一 | 上传接口地址（相对路径，baseURL 由 Renderer 拼接） |
+| `actionRef` | string | 与 `action` 二选一（since 0.2.5） | 引用顶层 `actions` 中 `type: upload` 的动作 id |
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
@@ -344,7 +345,7 @@ props:
   required: true
 ```
 
-> **上传流程：** Renderer 在文件选择后自动发起上传请求到 `action` 地址。上传成功后，`field` 的值设置为后端返回的文件 URL 或文件 ID。提交表单时（通过 `submitAction`），该字段值随表单一起提交，不再重新上传文件。
+> **上传流程：** Renderer 在文件选择后自动发起上传请求。若声明 `action`，请求发送到该 URL；若声明 `actionRef`，请求按对应顶层 `upload` action 的配置执行。上传成功后，`field` 的值设置为后端返回的文件 URL 或文件 ID。提交表单时（通过 `submitAction`），该字段值随表单一起提交，不再重新上传文件。
 >
 > **数据格式：** 单文件上传时值为字符串，多文件上传时值为字符串数组。具体返回结构由后端上传接口决定，协议层约束仅到"值类型为 string | string[]"。
 

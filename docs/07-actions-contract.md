@@ -30,6 +30,7 @@ actions:
 | `request` | 发起一次 HTTP 请求 |
 | `navigate` | 跳转到指定地址 |
 | `modal` | 打开前端预注册的弹窗 |
+| `upload` | 发起文件上传请求（`multipart/form-data`） |
 | `custom` | 调用前端白名单预注册的处理函数（**不接受任意代码/表达式**，仅传函数名引用） |
 
 `custom` 类型的边界与联动表达式引擎的原则一致（见 [02-reaction-expression.md](./02-reaction-expression.md)）：
@@ -102,7 +103,61 @@ handler: string   # 仅允许引用前端白名单预注册的处理函数名
 
 前端必须维护一份白名单，`handler` 值若不在白名单中，Renderer 应拒绝执行并报错。
 
-## 7. `OutcomeBehavior`（`onSuccess` / `onError` 通用结构）
+## 7. `upload` 类型（since 0.2.5）
+
+用于定义可复用的文件上传行为。`upload` 组件若需要复用顶层 action，应通过 `props.actionRef` 引用该 action；既有 `props.action` 字段仍表示上传接口 URL，不作为 action id 解析。
+
+```yaml
+type: upload
+url: string                    # 上传接口地址（相对路径，Renderer 自动拼接 baseURL）
+method: POST | PUT             # 默认 POST
+fieldName: string              # 【可选】multipart 中的文件字段名，默认 "file"
+accept: string                 # 【可选】允许的 MIME 类型或扩展名，如 "image/*" 或 ".pdf,.docx"
+maxSize: number                # 【可选】单文件大小上限，单位字节，默认不限制
+multiple: boolean              # 【可选】是否允许多文件，默认 false
+onSuccess: OutcomeBehavior     # 【可选】上传成功后的行为
+onError: OutcomeBehavior       # 【可选】上传失败后的行为
+```
+
+### 7.1 上传请求格式
+
+Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fieldName` 指定（默认 `file`）。宿主应用注入的认证 header（见 [04-datasource-contract.md §5](./04-datasource-contract.md#5-认证约定since-025)）同样适用于上传请求。
+
+### 7.2 上传响应体契约
+
+后端上传接口应返回 `200` + 以下结构，Renderer 将 `url`（或 `id`）写入对应表单字段的值：
+
+```json
+{
+  "url": "https://cdn.example.com/files/abc123.pdf",
+  "id": "abc123",
+  "name": "合同文件.pdf",
+  "size": 204800
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `url` | string | 与 `id` 至少一个 | 文件访问地址（CDN 或 OSS 直链） |
+| `id` | string | 与 `url` 至少一个 | 文件在后端存储系统中的 ID |
+| `name` | string | 否 | 原始文件名（用于 UI 展示） |
+| `size` | number | 否 | 文件大小（字节），用于校验展示 |
+
+若表单字段使用 `upload` 组件（见 [03-component-registry.md](./03-component-registry.md)），并通过 `props.actionRef` 引用本 action，上传完成后字段值默认取 `url`（若存在），否则取 `id`。`multiple: true` 时字段值为数组。
+
+### 7.3 错误处理
+
+上传失败时，后端应返回标准错误响应体（见 [04-datasource-contract.md §6.2](./04-datasource-contract.md#62-通用错误响应体结构)）。常见的语义化 `code` 值供参考（不强制）：
+
+| code | 建议语义 |
+|---|---|
+| `FILE_TOO_LARGE` | 文件超过服务端大小限制 |
+| `UNSUPPORTED_FILE_TYPE` | 文件类型不被允许 |
+| `STORAGE_UNAVAILABLE` | 存储服务暂时不可用 |
+
+> **注意：** `accept`/`maxSize` 的客户端校验由 `upload` 组件在选择文件时完成（前端拦截）；服务端仍应独立做文件类型和大小校验，不依赖前端声明。
+
+## 8. `OutcomeBehavior`（`onSuccess` / `onError` 通用结构）
 
 ```yaml
 onSuccess:
@@ -120,7 +175,7 @@ onSuccess:
 
 不允许出现协议未列出的行为类型或任意脚本回调。
 
-## 8. 完整示例
+## 9. 完整示例
 
 ```yaml
 actions:
