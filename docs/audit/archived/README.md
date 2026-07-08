@@ -5,6 +5,22 @@
 
 ---
 
+## 0018 — 2026-07-08 — responseMapping 语义校验边界 + 文档元数据漂移
+
+**主题：** 修复 `responseMapping` 的 `list` / `total` 条件必填语义未落入校验清单的问题，并同步 0017 修复链触达文档的 `last_updated` 元数据。
+**性质：** 数据源响应映射语义校验 + 文档元数据修复审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0018-2026-07-08-review.md](./0018-2026-07-08-review.md) | 审视报告 — V20(🟡)/V21(🟢) |
+| [0018-2026-07-08-checklist.md](./0018-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V20: `06-validation.md` 明确 `responseMapping.list` / `total` 的条件必填属于语义校验，不能只靠 L1 Schema 完成，并在自检清单中补充列表类接口和服务端分页表格的检查项
+- V21: `03-component-registry.md` 与 `06-validation.md` 的 `last_updated` 同步为 `2026-07-08`
+
+---
+
 ## 0017 — 2026-07-08 — 组件注册 DSL 解释边界 + DataRef 交叉引用漂移
 
 **主题：** 修复 `component-registry.json` 自定义 DSL 对 JSON Schema 风格组合关键字的解释边界说明，以及 `DataRef.params` 空值规则的交叉引用章节漂移。
