@@ -9,8 +9,8 @@ last_updated: 2026-07-07
 对应组件：`grid` / `section` / `statCard` / `chart`，字段说明见
 [03-component-registry.md](../03-component-registry.md)。
 
-> **v0.2 变更提示：** `valueField` 已从 `data.valueField` 迁移至 `props.valueField`（见审计 §2.1 / 计划 A3），
-> 本示例同时演示 `datasources` + `data.source: ref` 的预声明引用方式（见计划 A4）。
+> **v0.2 变更提示：** `valueField` 已从 `data.valueField` 迁移至 `props.valueField`，
+> 本示例同时演示 `datasources` + `data.source: ref` 的预声明引用方式。
 
 ```yaml
 meta:

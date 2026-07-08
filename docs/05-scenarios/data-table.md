@@ -8,8 +8,8 @@ last_updated: 2026-07-07
 
 对应组件：`table`，字段说明见 [03-component-registry.md](../03-component-registry.md)。
 
-> **v0.2 变更提示：** `actions[].visibleField`（见计划 B10）演示"数据驱动显隐"——由后端在行数据中下发
-> 语义化布尔字段（如 `canRefund`），前端据此判断行内操作是否展示，不引入 `$row` 表达式。
+> **v0.2 变更提示：** `actions[].visibleField` 演示兼容语法糖：解析阶段等价展开为 `scope: row` 的 `visibleWhen`；
+> 新项目推荐直接使用 `$row` 表达式写法。
 
 ```yaml
 meta:

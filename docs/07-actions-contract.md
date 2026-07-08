@@ -8,7 +8,7 @@ applies_to: schema-ui-protocol v0.2
 # Action 完整契约（since 0.2）
 
 > 本文档定义顶层 `actions` 中每个动作的完整结构。机器可读版本见
-> [`schemas/action.schema.json`](./schemas/action.schema.json)。对应审计条目 §2.5，计划条目 B3。
+> [`schemas/action.schema.json`](./schemas/action.schema.json)。
 
 ## 1. 使用位置
 

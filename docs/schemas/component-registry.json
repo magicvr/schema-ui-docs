@@ -68,7 +68,7 @@
           "type": "string",
           "required": true,
           "since": "0.2",
-          "description": "since 0.2：由 data.valueField 迁移而来（审计 §2.1），指定从 API 响应中取哪个字段作为展示值"
+          "description": "since 0.2：指定从 API 响应中取哪个字段作为展示值"
         },
         "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false
@@ -389,7 +389,7 @@
         "optionsSource": {
           "type": "object",
           "since": "0.2",
-          "description": "与 options 二选一，远程动态选项（审计 §3.4）。params 可引用 $deps.*，值为 null/undefined 时该参数整体省略",
+          "description": "与 options 二选一，远程动态选项。params 可引用 $deps.*，值为 null/undefined 时该参数整体省略",
           "properties": {
             "url": { "type": "string" },
             "params": { "type": "object" },

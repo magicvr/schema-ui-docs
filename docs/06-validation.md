@@ -14,7 +14,8 @@ applies_to: schema-ui-protocol v0.2
 | L0 页面结构校验 | [`schemas/page.schema.json`](./schemas/page.schema.json) | 后端 CI / 提交前 | 顶层文档结构（`meta` + `datasources` + `body` + `actions`）合法性 |
 | L1 Node 结构校验 | [`schemas/node.schema.json`](./schemas/node.schema.json) | 后端 CI / 提交前 | Node 结构是否合法（字段名、类型） |
 | L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约 |
-| L3 联动表达式校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + 白名单解析器 | 前端 Renderer 运行时 | `when` 表达式语法、变量是否在 `dependencies` 声明范围内 |
+| L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + 白名单解析器 | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查 |
+| L3b 表达式运行时求值 | Renderer 表达式引擎 | 交互/数据变化时 | 仅在已通过 L3a 校验的表达式上执行实际求值 |
 | L4 语义禁用词校验 | 自定义 lint 脚本 | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`），可覆盖 Schema 表达力之外的场景（如深层嵌套结构）。**注意：本仓库仅提供校验规范，不包含可执行 lint 脚本——各接入方需根据自身技术栈自行实现，或复用 L1（JSON Schema `not.anyOf`）作为基础防线。** |
 
 > **v0.2 变更（A1，双轨策略）：** L1（`node.schema.json` 的 `not`+`anyOf`）与 L4（lint 脚本）是**两层独立防线**，而非同一规则的重复实现：
@@ -32,8 +33,11 @@ applies_to: schema-ui-protocol v0.2
   → L4 禁用词扫描（防止 CSS 属性混入）
   → 通过后允许合并
   ↓
-运行时（前端）
-  → L3 联动表达式沙箱解析（防止表达式注入）
+加载配置时（Renderer）
+  → L3a 表达式静态校验（语法、作用域、变量声明）
+  ↓
+运行时（前端交互/数据变化时）
+  → L3b 表达式运行时求值（仅在通过 L3a 的表达式上执行）
 ```
 
 ## 3. L4 禁用词清单（示例，需持续维护）

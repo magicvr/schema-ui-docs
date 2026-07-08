@@ -11,7 +11,7 @@ last_updated: 2026-07-07
 [02-reaction-expression.md](../02-reaction-expression.md)；`actions` 完整契约见
 [07-actions-contract.md](../07-actions-contract.md)。
 
-> **v0.2 变更提示：** `createOrder` 动作补充了 `onSuccess`/`onError` 语义级行为声明（见计划 B3）。
+> **v0.2 变更提示：** `createOrder` 动作补充了 `onSuccess`/`onError` 语义级行为声明。
 
 ```yaml
 meta:
