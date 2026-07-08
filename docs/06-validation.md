@@ -11,7 +11,7 @@ applies_to: schema-ui-protocol v0.2
 
 | 层级 | 工具 | 时机 | 校验内容 |
 |---|---|---|---|
-| L0 页面结构校验 | [`schemas/page.schema.json`](./schemas/page.schema.json) | 后端 CI / 提交前 | 顶层文档结构（`meta` + `datasources` + `body` + `actions`）合法性 |
+| L0 页面结构校验 | [`schemas/page.schema.json`](./schemas/page.schema.json) | 后端 CI / 提交前 | 顶层文档结构（`meta` + `datasources` + `body` + `actions`）合法性；校验 `meta.protocolVersion` 为 MAJOR.MINOR 格式 |
 | L1 Node 结构校验 | [`schemas/node.schema.json`](./schemas/node.schema.json) | 后端 CI / 提交前 | Node 结构是否合法（字段名、类型）。L1 只能校验 `data.responseMapping` 的键名、点路径格式和最小字段数，不能单独判断列表类接口必须声明 `list`、服务端分页表格必须声明 `total` 等依赖组件类型和 props 的语义条件 |
 | L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约。该文件是自定义 DSL，校验器必须按 `03-component-registry.md` 的关键字白名单处理字段表和组合约束，不能只读取 props 字段表，也不能直接当作标准 JSON Schema 交给 AJV |
 | L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + 白名单解析器 | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查 |

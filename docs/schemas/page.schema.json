@@ -14,6 +14,7 @@
         "description": { "type": "string" },
         "protocolVersion": {
           "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+$",
           "description": "必填（since 0.2），如 \"0.2\"，Renderer 版本兼容锚点"
         }
       },

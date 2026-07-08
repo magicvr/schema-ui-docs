@@ -5,6 +5,22 @@
 
 ---
 
+## 0019 — 2026-07-08 — 权限表达式 ADR 残留 + protocolVersion 格式校验边界
+
+**主题：** 修复 ADR-0003 中 `permissions.*` 仍保留“协议不强制禁止”的旧建议性措辞，以及 `page.schema.json` 未校验 `meta.protocolVersion` MAJOR.MINOR 格式的问题。
+**性质：** 表达式作用域决策一致性 + 页面 Schema 格式约束修复审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0019-2026-07-08-review.md](./0019-2026-07-08-review.md) | 审视报告 — V22(🟡)/V23(🟡) |
+| [0019-2026-07-08-checklist.md](./0019-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V22: `decisions/0003-context-namespace-and-visible-when.md` 将 `permissions` 定位改为仅允许 `$context.*`、不得掺杂 `$deps.*` 等业务字段状态，并确认 `01-node-protocol.md` 与 `02-reaction-expression.md` 已是强制静态校验口径
+- V23: `schemas/page.schema.json` 为 `meta.protocolVersion` 增加 MAJOR.MINOR 格式 `pattern`，`06-validation.md` 的 L0 页面结构校验说明同步补充该格式校验能力
+
+---
+
 ## 0018 — 2026-07-08 — responseMapping 语义校验边界 + 文档元数据漂移
 
 **主题：** 修复 `responseMapping` 的 `list` / `total` 条件必填语义未落入校验清单的问题，并同步 0017 修复链触达文档的 `last_updated` 元数据。

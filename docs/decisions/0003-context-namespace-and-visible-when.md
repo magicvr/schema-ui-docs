@@ -159,7 +159,7 @@ permissions:
 
 - `permissions` 与 `visibleWhen` 的定位区别:
   - `visibleWhen` 回答"要不要渲染这个节点"(通常是业务状态 + 上下文的组合判断);
-  - `permissions` 回答"当前用户能不能对这个节点/操作做某件事"(纯粹基于 `$context.user`,不掺杂业务字段状态,虽然协议不强制禁止,但**建议实践上只使用 `$context.user`**,避免权限判断和业务显隐判断混在一起导致职责不清)。
+  - `permissions` 回答"当前用户能不能对这个节点/操作做某件事"(仅允许使用 `$context.*`,不得掺杂 `$deps.*` 等业务字段状态,避免权限判断和业务显隐判断混在一起导致职责不清)。
 - `permissions` 求值为 false 与 `visibleWhen` 求值为 false 的渲染差异:
   - `visibleWhen=false`:节点不应存在于 DOM 中(条件不满足);
   - `permissions.view=false`:节点不应存在于 DOM 中(用户无权限);
