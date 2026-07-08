@@ -23,7 +23,9 @@
 
 ---
 
-## 当前活跃审计
+当前无活跃审计。
+
+---
 
 ### 跟踪项 — 响应体字段名映射（responseMapping）
 - **来源：** `04-datasource-contract.md §4.1`

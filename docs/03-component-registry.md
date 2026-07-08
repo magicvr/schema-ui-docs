@@ -59,7 +59,7 @@ applies_to: schema-ui-protocol v0.2
 | `label` / `labelKey` | string | 是 | 标签页标题 |
 | `content` | Node | 是 | 该标签页的内容节点（完整 Node，可任意嵌套） |
 
-> **v0.2 变更（B2，方案 A）：** `tabs` 的内容改为 `items[].content` 内嵌，不再依赖顶层 `children` 按 `key` 做归属匹配。`tabs` 自身**不再支持 `children`**（旧版 `supportsChildren: true` 已废弃）。
+> **v0.2 变更：** `tabs` 的内容改为 `items[].content` 内嵌，不再依赖顶层 `children` 按 `key` 做归属匹配。`tabs` 自身**不再支持 `children`**（旧版 `supportsChildren: true` 已废弃）。
 
 ```yaml
 type: tabs

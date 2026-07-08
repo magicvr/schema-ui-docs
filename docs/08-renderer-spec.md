@@ -55,15 +55,19 @@ Renderer 在解析 Node 时，对已知 `type` 的 `props` 做运行时校验（
 ```yaml
 # 以下三个 Node 的 API 请求默认并行发起
 body:
-  - type: statCard
-    props: { label: 今日订单数, valueField: total }
-    data: { source: api, url: /api/stats/order-count }
-  - type: statCard
-    props: { label: 今日收入, valueField: amount }
-    data: { source: api, url: /api/stats/revenue }
-  - type: chart
-    props: { chartType: bar, xField: date, yField: sales }
-    data: { source: api, url: /api/stats/sales-trend }
+  type: grid
+  props:
+    columns: 3
+  children:
+    - type: statCard
+      props: { label: 今日订单数, valueField: total }
+      data: { source: api, url: /api/stats/order-count }
+    - type: statCard
+      props: { label: 今日收入, valueField: amount }
+      data: { source: api, url: /api/stats/revenue }
+    - type: chart
+      props: { chartType: bar, xField: date, yField: sales }
+      data: { source: api, url: /api/stats/sales-trend }
 ```
 
 ### 2.2 失败隔离（stale-while-render）
@@ -76,17 +80,33 @@ body:
 
 ### 2.3 数据依赖声明
 
-当某个 Node 的 API 参数依赖另一个表单/筛选组件的值时，通过 `$deps.*` 机制声明数据依赖（无需在 `data.url` 中硬编码参数值）：
+当某个 Node 的 API 参数依赖另一个表单/筛选组件的值时，通过 `$deps.*` 机制声明数据依赖（无需在 `data.url` 中硬编码参数值）。`$deps.*` 在 `data.params` 中的引用**仅在表单上下文有效**——Node 必须是 `form` 的子节点，方可引用同表单中其他字段的当前值：
 
 ```yaml
-type: table
-data:
-  source: api
-  url: /api/orders
-  method: GET
-  params:
-    status: $deps.orderStatusFilter
-    dateFrom: $deps.dateRange
+body:
+  type: form
+  children:
+    - type: select
+      props:
+        field: orderStatusFilter
+        label: 订单状态
+        options:
+          - { label: 全部, value: '' }
+          - { label: 待处理, value: pending }
+          - { label: 已完成, value: completed }
+    - type: dateRangePicker
+      props:
+        startField: dateFrom
+        endField: dateTo
+        label: 下单日期
+    - type: table
+      data:
+        source: api
+        url: /api/orders
+        method: GET
+        params:
+          status: $deps.orderStatusFilter
+          dateFrom: $deps.dateRange
 ```
 
 - Renderer 在 `$deps.*` 值变化时自动重新请求该 Node 的数据。

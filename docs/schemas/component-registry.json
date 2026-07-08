@@ -35,7 +35,7 @@
         "items": {
           "type": "array",
           "required": true,
-          "description": "since 0.2：每项内嵌 content（完整 Node），不再依赖顶层 children 按 key 匹配（见方案 A，审计 §2.4）",
+          "description": "since 0.2：每项内嵌 content（完整 Node），不再依赖顶层 children 按 key 匹配",
           "items": {
             "type": "object",
             "properties": {
