@@ -28,7 +28,7 @@
     },
     "content": {
       "type": "object",
-      "description": "【可选，since 0.2】弹窗内容，一个完整的 Node（如 form/text/table 等），与 modalId 可共存",
+      "description": "【可选，since 0.2.1】弹窗内容，一个完整的 Node（如 form/text/table 等），与 modalId 可共存",
       "$ref": "node.schema.json"
     },
     "handler": {

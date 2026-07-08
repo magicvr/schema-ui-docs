@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-07
+last_updated: 2026-07-08
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -75,7 +75,7 @@ applies_to: schema-ui-protocol v0.2
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v0.2`（最新补丁版本 `v0.2.3`，见 [CHANGELOG.md](./CHANGELOG.md)）。`meta.protocolVersion` 仅声明 MAJOR.MINOR（即 `"0.2"`），不含 PATCH 号——因此 `v0.2.0`、`v0.2.1`、`v0.2.2` 与 `v0.2.3` 共享同一 `protocolVersion` 值。
+当前协议版本：`v0.2`（最新补丁版本 `v0.2.4`，见 [CHANGELOG.md](./CHANGELOG.md)）。`meta.protocolVersion` 仅声明 MAJOR.MINOR（即 `"0.2"`），不含 PATCH 号——因此 `v0.2.0`、`v0.2.1`、`v0.2.2`、`v0.2.3` 与 `v0.2.4` 共享同一 `protocolVersion` 值。
 
 本协议目前覆盖三类场景：网格布局、数据表格、表单联动。后续新增场景类型时，
 应遵循同一套 Node 结构（`type`/`props`/`data`/`children`/`reactions`），

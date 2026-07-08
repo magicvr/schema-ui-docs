@@ -5,6 +5,24 @@
 
 ---
 
+## 0013 — 2026-07-08 — 版本/since 标注漂移复发与残留修复
+
+**主题：** 审计 0006 M3/M6 同类缺陷复发与残留修复，包括 `00-overview.md` 版本声明同步、`modal.content` since 标注统一、`component-registry.json` 7 处 since 批量更新。
+**性质：** 版本/since 标注一致性修复审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0013-2026-07-08-review.md](./0013-2026-07-08-review.md) | 审视报告 — V1(🔴)/V2(🟡)/V3(🟡)/O1(🟢) |
+| [0013-2026-07-08-checklist.md](./0013-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V1: `00-overview.md` §5 版本声明 v0.2.3→v0.2.4，`last_updated` 同步
+- V2: `07-actions-contract.md` 代码注释 + `action.schema.json` 描述统一为 `since 0.2.1`
+- V3: `component-registry.json` 7 处 column/action `(since 0.2)`→`(since 0.2.1)`
+- O1: `01/02/04/08` 四篇文档 `last_updated` 同步为 2026-07-08
+
+---
+
 ## 0012 — 2026-07-08 — ADR 决策缺口汇总审视
 
 **主题：** ADR 决策缺口收集与决策收敛，标准化 `responseMapping` 与表达式读写求值时序。

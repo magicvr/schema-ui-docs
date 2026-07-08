@@ -62,7 +62,7 @@ url: string
 ```yaml
 type: modal
 modalId: string   # 【可选】引用前端预注册的弹窗模板（尺寸/位置/关闭行为）
-content: Node     # 【可选】直接描述弹窗内容（since 0.2），见下方说明
+content: Node     # 【可选】直接描述弹窗内容（since 0.2.1），见下方说明
 ```
 
 ### 5.1 `content` 与 `modalId` 的关系

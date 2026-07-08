@@ -161,9 +161,9 @@
                 }
               },
               "labelKey": { "type": "string", "description": "列标题 i18n key（since 0.2）" },
-              "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "列级条件渲染（since 0.2）" },
-              "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "列级联动规则（since 0.2）" },
-              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "列级权限控制（since 0.2）" }
+              "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "列级条件渲染（since 0.2.1）" },
+              "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "列级联动规则（since 0.2.1）" },
+              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "列级权限控制（since 0.2.1）" }
             },
             "required": ["field"],
             "anyOf": [
@@ -187,11 +187,11 @@
               "visibleField": {
                 "type": "string",
                 "since": "0.2",
-                "description": "scope: row 的 visibleWhen 语法糖（since 0.2），解析阶段等价展开为 visibleWhen: { scope: row, dependencies: [<field>], when: \"$row.<field> == true\" }。与显式 visibleWhen 同时声明时以显式 visibleWhen 为准"
+                "description": "scope: row 的 visibleWhen 语法糖（since 0.2.1），解析阶段等价展开为 visibleWhen: { scope: row, dependencies: [<field>], when: \"$row.<field> == true\" }。与显式 visibleWhen 同时声明时以显式 visibleWhen 为准"
               },
-              "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "行级操作条件渲染（since 0.2）" },
-              "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "行级操作联动规则（since 0.2）" },
-              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "行级操作权限控制（since 0.2）" }
+              "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "行级操作条件渲染（since 0.2.1）" },
+              "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "行级操作联动规则（since 0.2.1）" },
+              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "行级操作权限控制（since 0.2.1）" }
             },
             "required": ["key"],
             "anyOf": [
