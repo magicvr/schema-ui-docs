@@ -5,6 +5,24 @@
 
 ---
 
+## 0020 — 2026-07-08 — 组件注册表文档盲区 + 表达式引用漂移
+
+**主题：** 修复 `upload` 组件 doc 缺失 `placeholder` 字段、`datePicker`/`dateRangePicker` 的 `placeholder` 缺少 `(since 0.2)` 标注、表达式 §9.1 交叉引用漂移、`responseMapping` 章节引用精度问题。
+**性质：** 组件注册表文档与 Schema 一致性修复 + 表达式规范交叉引用修复审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0020-2026-07-08-review.md](./0020-2026-07-08-review.md) | 审视报告 — V24(🟡)/V25(🟢)/V26(🟢)/V27(🟢) |
+| [0020-2026-07-08-checklist.md](./0020-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V24: `03-component-registry.md` 中 `upload` 组件 props 表格补充 `placeholder` 行，与 `input`/`select` 等组件保持一致
+- V25: `datePicker`/`dateRangePicker` 的 `placeholder` 行补充 `（since 0.2）` 标注，与 `component-registry.json` 的 `since: "0.2"` 同步
+- V26: `02-reaction-expression.md` §9.1 交叉引用从 `§10.1` 修正为 `§10 静态校验规则`
+- V27: `01-node-protocol.md` §3.3 中 `responseMapping` 的章节引用从 `§4.1` 修正为 `§4.1.1`
+
+---
+
 ## 0019 — 2026-07-08 — 权限表达式 ADR 残留 + protocolVersion 格式校验边界
 
 **主题：** 修复 ADR-0003 中 `permissions.*` 仍保留“协议不强制禁止”的旧建议性措辞，以及 `page.schema.json` 未校验 `meta.protocolVersion` MAJOR.MINOR 格式的问题。

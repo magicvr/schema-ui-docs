@@ -326,6 +326,7 @@ props:
 | `maxSize` | number | 否 | 最大文件大小，单位字节（如 `5242880` 表示 5MB） |
 | `multiple` | boolean | 否 | 是否支持多文件上传（默认 `false`） |
 | `action` | string | 是 | 上传接口地址（相对路径，baseURL 由 Renderer 拼接） |
+| `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 | `required` | boolean | 否 | 是否必填 |
@@ -397,7 +398,7 @@ props:
 |---|---|---|---|
 | `field` | string | 是 | 字段名（表单提交时的 key） |
 | `label` / `labelKey` | string | 是 | 字段标签 |
-| `placeholder` | string | 否 | 占位提示文案 |
+| `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 | `format` | string | 否 | 日期展示格式（仅控制前端展示，如 `YYYY/MM/DD`）；数据格式统一使用 ISO 8601（`YYYY-MM-DD`） |
@@ -426,7 +427,7 @@ props:
 | `startField` | string | 是 | 起始日期字段名（表单提交时的 key） |
 | `endField` | string | 是 | 结束日期字段名（表单提交时的 key） |
 | `label` / `labelKey` | string | 是 | 字段标签 |
-| `placeholder` | string | 否 | 占位提示文案 |
+| `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 | `min` | string | 否 | 可选最小日期（ISO 8601 格式 `YYYY-MM-DD`） |

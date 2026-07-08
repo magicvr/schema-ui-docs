@@ -86,7 +86,7 @@ data:
   url: string        # source=api 时，独立请求的地址
   method: GET | POST | PUT | DELETE | PATCH
   params: map        # 【可选】请求参数映射，值可引用 $deps.*，空值规则见 04-datasource-contract.md §3.1
-  responseMapping: map # 【可选，since 0.2.4】响应字段名映射，见 04-datasource-contract.md §4.1
+  responseMapping: map # 【可选，since 0.2.4】响应字段名映射，见 04-datasource-contract.md §4.1.1
 ```
 
 | source | 含义 |
