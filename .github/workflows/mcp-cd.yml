@@ -1,0 +1,157 @@
+name: MCP CD
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    name: Build and push MCP Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      IMAGE_NAME: schema-ui-mcp
+      DOCKERHUB_REPOSITORY: ${{ secrets.DOCKER_USERNAME }}/schema-ui-mcp
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            mcp/package-lock.json
+
+      - name: Install protocol dependencies
+        run: npm ci
+
+      - name: Install MCP dependencies
+        run: npm ci --prefix mcp
+
+      - name: Read MCP version
+        id: mcp-version
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./mcp/package.json').version")
+          MINOR=$(node -p "const v=require('./mcp/package.json').version.split('.'); v[0] + '.' + v[1]")
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "minor=${MINOR}" >> "$GITHUB_OUTPUT"
+
+      - name: Build MCP
+        run: npm --prefix mcp run build
+
+      - name: Test MCP
+        run: npm --prefix mcp test
+
+      - name: Smoke test MCP tools
+        run: npm --prefix mcp run smoke:tools
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build local Docker image for smoke test
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: mcp/Dockerfile
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:${{ steps.mcp-version.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test MCP Docker image
+        run: npm --prefix mcp run smoke:docker -- ${{ env.IMAGE_NAME }}:${{ steps.mcp-version.outputs.version }}
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: mcp/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKERHUB_REPOSITORY }}:${{ steps.mcp-version.outputs.version }}
+            ${{ env.DOCKERHUB_REPOSITORY }}:${{ steps.mcp-version.outputs.minor }}
+            ${{ env.DOCKERHUB_REPOSITORY }}:latest
+            ${{ env.DOCKERHUB_REPOSITORY }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Prune old SHA tags (keep latest 10)
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+          DOCKERHUB_REPOSITORY_NAME: schema-ui-mcp
+        shell: bash
+        run: |
+          LOGIN_RESPONSE=$(curl -s -X POST "https://hub.docker.com/v2/users/login/" \
+            -H "Content-Type: application/json" \
+            -d "{\"username\": \"${DOCKER_USERNAME}\", \"password\": \"${DOCKER_TOKEN}\"}")
+          TOKEN=$(echo "$LOGIN_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('token',''))")
+          if [ -z "$TOKEN" ]; then
+            echo "DockerHub login failed: $LOGIN_RESPONSE"
+            exit 1
+          fi
+
+          PAGE=1
+          SHA_TAGS=()
+          while true; do
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${TOKEN}" \
+              "https://hub.docker.com/v2/repositories/${DOCKER_USERNAME}/${DOCKERHUB_REPOSITORY_NAME}/tags/?page=${PAGE}&page_size=100")
+            COUNT=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('results', [])))")
+            if [ "$COUNT" -eq "0" ]; then break; fi
+
+            TAGS=$(echo "$RESPONSE" | python3 -c "
+          import re, sys, json
+          d = json.load(sys.stdin)
+          sha_re = re.compile(r'^[0-9a-f]{40}$')
+          for r in d.get('results', []):
+              name = r['name']
+              updated = r.get('tag_last_pushed') or r.get('last_updated') or '1970-01-01T00:00:00Z'
+              if sha_re.match(name):
+                  print(updated + ' ' + name)
+          ")
+            while IFS= read -r line; do
+              [ -n "$line" ] && SHA_TAGS+=("$line")
+            done <<< "$TAGS"
+
+            NEXT=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('next') or '')")
+            [ -z "$NEXT" ] && break
+            PAGE=$((PAGE + 1))
+          done
+
+          SORTED=$(printf '%s\n' "${SHA_TAGS[@]}" | sort -r)
+          TO_DELETE=$(printf '%s\n' "$SORTED" | tail -n +11 | awk '{print $2}')
+
+          if [ -z "$TO_DELETE" ]; then
+            echo "No SHA tags to prune."
+            exit 0
+          fi
+
+          FAILED=0
+          while IFS= read -r TAG; do
+            echo "Deleting tag: ${TAG}"
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+              -H "Authorization: Bearer ${TOKEN}" \
+              "https://hub.docker.com/v2/repositories/${DOCKER_USERNAME}/${DOCKERHUB_REPOSITORY_NAME}/tags/${TAG}/")
+            if [ "$HTTP_STATUS" != "204" ]; then
+              echo "Failed to delete tag ${TAG} (HTTP ${HTTP_STATUS})"
+              FAILED=1
+            fi
+          done <<< "$TO_DELETE"
+          exit $FAILED
