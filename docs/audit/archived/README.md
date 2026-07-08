@@ -5,6 +5,24 @@
 
 ---
 
+## 0016 — 2026-07-08 — DSL 必填关系 + 行级依赖语义 + Renderer 表达式示例漂移
+
+**主题：** 修复 `component-registry.json` 中 `text.content` 与 `contentKey` 的二选一约束冲突、`reaction.schema.json` 中 `dependencies` 的 scope 分支描述、Renderer `contains` 运算符示例和完整变量注入边界说明。
+**性质：** 组件注册 DSL 约束一致性 + 表达式机器描述 + Renderer 示例语义修复审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0016-2026-07-08-review.md](./0016-2026-07-08-review.md) | 审视报告 — V14(🔴)/V15(🟡)/V16(🟡)/V17(🟡) |
+| [0016-2026-07-08-checklist.md](./0016-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V14: `component-registry.json` 中 `text.props.content.required` 改为 `false`，由组件级 `anyOf` 表达 `content` / `contentKey` 二选一
+- V15: `reaction.schema.json` 的 `dependencies.description` 明确 `scope: form` 对应 `$deps.*`，`scope: row` 对应 `$row.*` 行内字段路径
+- V16: `08-renderer-spec.md` 将 `contains` 表述为协议级二元运算符，删除函数调用例外
+- V17: `08-renderer-spec.md` 补充最小示例的变量覆盖边界，说明 `$self` / `$row` / `$parentRow` 由调用方按表达式位置注入
+
+---
+
 ## 0015 — 2026-07-08 — 示例可执行性 + 入口索引漂移 + 表达式作用域残余歧义 + 校验命令路径
 
 **主题：** 修复 `08-renderer-spec.md` 中 `dateRangePicker` 旧式 `$deps.dateRange` 示例、根 README 目录树遗漏、表达式作用域和 `$self` 边界歧义、`06-validation.md` 校验命令路径问题。

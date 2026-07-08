@@ -220,22 +220,25 @@ const parser = new Parser({
     // 关闭算术、三元、函数调用等
     concatenate: false,
     conditional: false,
-    assignment: false,
-    // contains 通过自定义函数实现
+    assignment: false
   }
 });
 
-// 注册 contains 运算符
-parser.functions.contains = (arr, val) => {
-  return Array.isArray(arr) ? arr.includes(val) : false;
-};
+// contains 是协议级二元运算符（a contains b），不是 contains(a, b) 函数。
+// 若底层库不原生支持该运算符，应在解析前将其编译为受控的内部比较节点，
+// 不应向协议暴露任何函数调用语法。
 
-function evaluateWhen(expression, context, dependencies) {
+function evaluateWhen(expression, context, dependencies, options = {}) {
   // 1. 静态扫描：检查表达式中的变量是否在允许范围内
-  validateVariables(expression, dependencies);
+  validateVariables(expression, dependencies, options);
 
-  // 2. 替换变量为实际值
-  const prepared = expression
+  // 2. 将协议运算符适配到底层解析器能力
+  const normalized = compileContainsOperator(expression);
+
+  // 3. 替换变量为实际值。本示例覆盖 form/context 场景；
+  // $self / $row / $parentRow 由调用方按表达式位置注入 options，
+  // 并必须先通过 02-reaction-expression.md 的变量可见性矩阵校验。
+  const prepared = normalized
     .replace(/\$deps\.(\w+)/g, (_, key) => {
       if (!dependencies || !dependencies.includes(key)) {
         throw new Error(`未声明的依赖字段: ${key}`);
@@ -247,7 +250,7 @@ function evaluateWhen(expression, context, dependencies) {
       return JSON.stringify(val !== undefined ? val : undefined);
     });
 
-  // 3. 使用沙箱化解析器求值
+  // 4. 使用沙箱化解析器求值
   return parser.evaluate(prepared);
 }
 ```
@@ -272,7 +275,7 @@ Renderer 的表达式调度必须遵循稳定快照模型：
 | 禁止访问全局对象 | 表达式引擎不应暴露 `window`/`global`/`globalThis`/`process` 等 |
 | 变量名白名单 | 只允许 `$deps.*` / `$self` / `$context.*` / `$row.*` / `$parentRow.*` |
 | 运算符白名单 | `==` `!=` `>` `>=` `<` `<=` `contains` `&&` `\|\|` `!` `(` `)` |
-| 禁止函数调用 | 除 `contains` 外不允许任何函数调用 |
+| 禁止函数调用 | 不允许任何函数调用；`contains` 是二元运算符而非函数 |
 
 ### 5.5 静态校验（L3）
 

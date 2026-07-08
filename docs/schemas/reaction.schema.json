@@ -9,7 +9,7 @@
       "type": "array",
       "items": { "type": "string" },
       "minItems": 0,
-      "description": "依赖的字段名，when 表达式中出现的 $deps.* 变量必须都在此列出。允为空数组（仅引用 $self 时）"
+      "description": "依赖字段声明。scope: form（默认）下列出 when 表达式中使用的 $deps.* 表单字段；scope: row 下列出 when 表达式中使用的 $row.* 行内字段路径，不注入表单级 $deps。允为空数组（仅引用 $self 或 $context 时）"
     },
     "when": {
       "type": "string",

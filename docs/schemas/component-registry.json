@@ -97,7 +97,7 @@
       "supportsReactions": false,
       "supportsStates": true,
       "props": {
-        "content": { "type": "string", "required": true },
+        "content": { "type": "string", "required": false },
         "contentKey": { "type": "string", "required": false },
         "valueField": {
           "type": "string",
