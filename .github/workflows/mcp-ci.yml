@@ -1,0 +1,52 @@
+name: MCP CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mcp:
+    name: Build, test, and smoke MCP
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            mcp/package-lock.json
+
+      - name: Install protocol dependencies
+        run: npm ci
+
+      - name: Install MCP dependencies
+        run: npm ci --prefix mcp
+
+      - name: Build MCP
+        run: npm --prefix mcp run build
+
+      - name: Test MCP
+        run: npm --prefix mcp test
+
+      - name: Smoke test MCP tools
+        run: npm --prefix mcp run smoke:tools
+
+      - name: Build MCP Docker image
+        run: docker build -f mcp/Dockerfile -t schema-ui-mcp:0.2.6 .
+
+      - name: Smoke test MCP Docker image
+        run: npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.6
