@@ -187,7 +187,7 @@
               "visibleField": {
                 "type": "string",
                 "since": "0.2",
-                "description": "取当前行数据中的同名布尔字段作为显隐依据，不引入 $row 表达式"
+                "description": "scope: row 的 visibleWhen 语法糖（since 0.2），解析阶段等价展开为 visibleWhen: { scope: row, dependencies: [<field>], when: \"$row.<field> == true\" }。与显式 visibleWhen 同时声明时以显式 visibleWhen 为准"
               },
               "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "行级操作条件渲染（since 0.2）" },
               "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "行级操作联动规则（since 0.2）" },

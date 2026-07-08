@@ -11,7 +11,7 @@ applies_to: schema-ui-protocol v0.2
 > 建议由 CI 从组件的 TypeScript Props 类型定义自动生成骨架，防止文档与实现漂移。
 > 每次新增/修改一个 `type`，必须同步更新本文档 + [`schemas/component-registry.json`](./schemas/component-registry.json)。
 >
-> **v0.2 变更说明：** 本次更新涉及多处破坏性/新增字段，详见 [audit/0001-2026-07-07-plan.md](./audit/0001-2026-07-07-plan.md)。表格中新增字段标注 `(since 0.2)`。
+> **v0.2 变更说明：** 本次更新涉及多处破坏性/新增字段，详见 [audit/0001-2026-07-07-plan.md](./audit/archived/0001-2026-07-07-plan.md)。表格中新增字段标注 `(since 0.2)`。
 
 ## 如何阅读本表
 
@@ -90,7 +90,7 @@ props:
 | `valueField` | string | 是（since 0.2） | 指定从 API 响应中取哪个字段作为展示值 |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
-> **v0.2 变更（A3，破坏性）：** `valueField` 从 `data.valueField` 迁移至 `props.valueField`，与 `table.columns[].field`、`chart.xField/yField` 的取值方式保持一致。迁移方式见 [audit/0001-2026-07-07-plan.md §A3](./audit/0001-2026-07-07-plan.md#a3-将-valuefield-从-dataref-移至组件-props)。
+> **v0.2 变更（A3，破坏性）：** `valueField` 从 `data.valueField` 迁移至 `props.valueField`，与 `table.columns[].field`、`chart.xField/yField` 的取值方式保持一致。迁移方式见 [audit/0001-2026-07-07-plan.md §A3](./audit/archived/0001-2026-07-07-plan.md#a3-将-valuefield-从-dataref-移至组件-props)。
 
 ```yaml
 # v0.2 写法
