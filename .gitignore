@@ -34,3 +34,4 @@ ehthumbs.db
 # --- 测试 / 校验临时输出 ---
 *.tmp
 *.log
+mcp/dist/

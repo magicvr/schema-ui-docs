@@ -15,3 +15,40 @@
 - MCP 不复制协议规则，只读取或打包同版本协议文件。
 - v1 校验入口只有 `protocol.validate_content`，调用方传入 YAML/JSON 内容。
 - Docker 镜像内置协议知识和校验运行时，不要求挂载业务项目目录。
+
+## 本地开发
+
+```bash
+npm install
+npm install --prefix mcp
+npm --prefix mcp run build
+npm --prefix mcp run smoke:tools
+```
+
+本地启动 stdio server：
+
+```bash
+npm --prefix mcp start
+```
+
+## Docker 分发
+
+从仓库根目录构建镜像：
+
+```bash
+docker build -f mcp/Dockerfile -t schema-ui-mcp:0.2.6 .
+```
+
+作为 stdio MCP server 启动：
+
+```bash
+docker run --rm -i schema-ui-mcp:0.2.6
+```
+
+Docker smoke test：
+
+```bash
+npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.6
+```
+
+文档示例固定使用 PATCH tag `0.2.6`，不使用 `latest`。
