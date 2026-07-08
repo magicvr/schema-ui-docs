@@ -5,6 +5,25 @@
 
 ---
 
+## 0024 — 2026-07-09 — MVP 协议稳定性复查：能力协商 + L3a scope + 组件语义边界
+
+**主题：** 修复 PATCH 级执行能力缺少显式协商机制（V35🔴）、L3a 表格表达式默认 `scope: row` 导致省略显式 scope 仍可使用 `$row.*`（V36🔴），并澄清 `text` 数据兜底语义（V37🟡）与 `RowAction.key` 执行边界（V38🟡）。
+**性质：** MVP 协议稳定性修复 + 校验脚本行为收敛 + 组件语义边界澄清。
+
+| 文件 | 说明 |
+|---|---|
+| [0024-2026-07-09-review.md](./0024-2026-07-09-review.md) | 审视报告 — V35🔴/V36🔴/V37🟡/V38🟡 |
+| [0024-2026-07-09-plan.md](./0024-2026-07-09-plan.md) | 处理计划 |
+| [0024-2026-07-09-checklist.md](./0024-2026-07-09-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V35: 新增 `meta.requiredCapabilities`、Renderer `supportedCapabilities` 与 L2 `actions.upload` 能力声明校验
+- V36: L3a 表格表达式默认 scope 改回 `form`，`$row.*` 必须显式声明 `scope: row`
+- V37: `text.content/contentKey` 明确为静态文本或数据加载前/无数据兜底文案
+- V38: `RowAction.key` 明确仅供前端预注册处理器本地分发，不自动绑定顶层 `actions`
+
+---
+
 ## 0023 — 2026-07-09 — 校验工具链执行缺陷——reserved 误杀 + responseMapping 误判 + 文档命令不可用
 
 **主题：** 修复 `validate-l2-components.js` 中 `getDeclaredFields()` 的 `reserved` 集合误杀 6 个表单组件的 `required` 业务字段（V32🔴）、`validateResponseMapping()` 服务端分页检查误报"未声明 responseMapping"的合法默认用法（V33🟡）、以及 `06-validation.md §5` 本地校验指南中 ajv-cli 命令缺少 `-r` 参数和 CI 示例使用不存在的 `--strict-refs=true`（V34🟢）。

@@ -1,7 +1,7 @@
 ---
 status: living-document
 owner: 前端组件库团队
-last_updated: 2026-07-08
+last_updated: 2026-07-09
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -128,11 +128,11 @@ data:
 
 | props 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| `content` / `contentKey` | string | 是 | 文本内容 |
+| `content` / `contentKey` | string | 是 | 静态文本内容；声明 `data` 时作为加载前/无数据时的兜底文案 |
 | `valueField` | string | 否（since 0.2） | `data.source: api` 时，指定取哪个字段作为展示文本。未指定时 Renderer 默认取响应体的第一个字段值 |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
-> **v0.2 变更（A2）：** 修复 `supportsData` 说明矛盾，`text` 组件**支持 `data`**（`data.source: static/ref/api`），静态场景取 `data.value`，API 场景通过 `props.valueField` 指定取值字段（与 `statCard` 一致）。`valueField` 为可选，未指定时由 Renderer 取响应体第一个字段值作为展示文本。
+> **v0.2 变更（A2）：** 修复 `supportsData` 说明矛盾，`text` 组件**支持 `data`**（`data.source: static/ref/api`）。`content` / `contentKey` 仍为必填，用作静态文本或数据加载前/无数据时的兜底文案；静态数据场景优先取 `data.value`，API 场景通过 `props.valueField` 指定取值字段（与 `statCard` 一致）。`valueField` 为可选，未指定时由 Renderer 取响应体第一个字段值作为展示文本。
 
 支持 `children`：否。支持 `data`：是（since 0.2，原文档误标 `false`）。支持 `reactions`：否。支持 `states`：是（since 0.2）。
 
@@ -176,6 +176,8 @@ data:
 | `visibleWhen` | object | 否（since 0.2.1） | 行级条件渲染，需声明 `scope: row`，语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
 | `reactions` | array | 否（since 0.2.1） | 行内操作联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
 | `permissions` | map | 否（since 0.2.1） | 操作级权限控制，表达式仅允许 `$context.*` |
+
+> **行内操作执行边界：** `RowAction.key` 只用于 Renderer 将点击事件分发给前端预注册的行内操作处理器，并由该处理器接收当前行上下文。v0.2 不定义 `RowAction` 到顶层 `actions` 的自动绑定，也不定义行级请求如何映射当前行字段；需要后端请求型行操作时，应使用前端预注册处理器、弹窗内表单的 `submitAction`，或另行通过 ADR 标准化 `rowAction.actionRef` 一类的新字段。
 
 **作用域说明（since 0.2.1）：** 列/操作内的 `visibleWhen`/`reactions`/`permissions` 可通过 `scope` 属性声明求值作用域：
 - `scope: form`（默认）：表达式在表单级求值，可访问 `$deps.*`（表单字段），不可访问 `$row.*`。**注意：仅当表格本身位于 `form.children` 内（如搜索表单嵌入表格场景）时，`$deps.*` 才合法；独立表格的列/操作中即使声明 `scope: form`，`$deps.*` 仍被静态校验拒绝（见 [02-reaction-expression.md §9.1](./02-reaction-expression.md#91-作用域隔离规则)）。

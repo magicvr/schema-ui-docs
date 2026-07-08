@@ -137,3 +137,21 @@
 - `02-reaction-expression.md`（新增 §11 `$context` 最小字段集；§11-§12 白名单扩展/缺失容错重编号为 §12-§13；§13 求值时序重编号为 §14）
 - `07-actions-contract.md`（§2 枚举表增加 `upload`；新增 §7 upload 类型；§7-§8 原有章节重编号为 §8-§9）
 - `03-component-registry.md` / `schemas/component-registry.json`（`upload.props.actionRef` 新增；`action` 与 `actionRef` 二选一）
+
+## v0.2.6 — 2026-07-09（能力协商与校验收敛补丁）
+
+> **版本说明：** v0.2.6 基于审计 0024 的 MVP 协议稳定性复查，补齐 PATCH 级执行能力协商，并修复 L3a 表格行级表达式 scope 校验缺口。不改变既有 v0.2 Node 主结构；未使用 PATCH 级执行能力的旧页面无需新增字段。
+
+**新增 / 修订：**
+- **E1：** `meta` 新增可选 `requiredCapabilities` 数组，用于声明页面依赖的 Renderer 执行能力。当前预定义能力键：`actions.upload`。
+- **E2：** Renderer 规范新增 `supportedCapabilities` 与能力匹配规则；页面声明了 Renderer 不支持的能力时，Renderer 应在加载前拒绝渲染并输出缺失能力。
+- **E3：** L2 校验器新增能力约束：使用 `actions[].type: upload` 或 `upload.props.actionRef` 时，页面必须声明 `meta.requiredCapabilities: [actions.upload]`。
+- **E4：** L3a 校验器修复表格列/行内操作表达式默认作用域，省略 `scope` 时不再隐式允许 `$row.*`，与 `03-component-registry.md` / ADR-0004 的“显式 `scope: row`”规则一致。
+- **E5：** `text` 组件文档与 DSL 描述澄清：`content` / `contentKey` 仍为必填，声明 `data` 时作为加载前/无数据时的兜底文案。
+- **E6：** `RowAction.key` 执行边界澄清：仅供前端预注册行内处理器本地分发，不自动绑定顶层 `actions`；后端请求型行操作需另行标准化。
+
+**涉及的文档、Schema 与脚本：**
+- 协议文档：`00-overview.md` / `01-node-protocol.md` / `03-component-registry.md` / `08-renderer-spec.md`
+- JSON Schema / DSL：`schemas/page.schema.json` / `schemas/component-registry.json`
+- 校验脚本：`scripts/validate-l2-components.js` / `scripts/validate-l3a-expressions.js`
+- 审计记录：`docs/audit/archived/0024-2026-07-09-*`

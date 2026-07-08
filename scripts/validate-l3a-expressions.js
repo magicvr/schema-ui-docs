@@ -455,7 +455,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
       if (!col) return;
       const colBase = `${nodePath}.props.columns[${ci}]`;
       if (col.visibleWhen && col.visibleWhen.when) {
-        const scope = col.visibleWhen.scope || 'row';
+        const scope = col.visibleWhen.scope || 'form';
         const deps = Array.isArray(col.visibleWhen.dependencies) ? col.visibleWhen.dependencies : [];
         violations.push(...validateExpression(col.visibleWhen.when, `${colBase}.visibleWhen.when`, {
           scope, dependencies: deps, location: 'tableColumn', hasFormContext: false,
@@ -464,7 +464,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
       if (Array.isArray(col.reactions)) {
         col.reactions.forEach((r, ri) => {
           if (r && r.when) {
-            const scope = r.scope || 'row';
+            const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(r.when, `${colBase}.reactions[${ri}].when`, {
               scope, dependencies: deps, location: 'tableColumn', hasFormContext: false,
@@ -486,7 +486,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
       if (!action) return;
       const actBase = `${nodePath}.props.actions[${ai}]`;
       if (action.visibleWhen && action.visibleWhen.when) {
-        const scope = action.visibleWhen.scope || 'row';
+        const scope = action.visibleWhen.scope || 'form';
         const deps = Array.isArray(action.visibleWhen.dependencies) ? action.visibleWhen.dependencies : [];
         violations.push(...validateExpression(action.visibleWhen.when, `${actBase}.visibleWhen.when`, {
           scope, dependencies: deps, location: 'tableAction', hasFormContext: false,
@@ -495,7 +495,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
       if (Array.isArray(action.reactions)) {
         action.reactions.forEach((r, ri) => {
           if (r && r.when) {
-            const scope = r.scope || 'row';
+            const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(r.when, `${actBase}.reactions[${ri}].when`, {
               scope, dependencies: deps, location: 'tableAction', hasFormContext: false,

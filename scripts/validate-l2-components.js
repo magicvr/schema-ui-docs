@@ -395,6 +395,47 @@ function validateResponseMapping(node, type, compDef, nodePath, violations) {
   }
 }
 
+function validateRequiredCapabilities(doc, violations) {
+  const declared = new Set(
+    Array.isArray(doc?.meta?.requiredCapabilities) ? doc.meta.requiredCapabilities : [],
+  );
+
+  const requireCapability = (capability, path, reason) => {
+    if (declared.has(capability)) return;
+    violations.push({
+      path: 'meta.requiredCapabilities',
+      message: `${path} 使用 ${reason}，必须声明能力 "${capability}"`,
+    });
+  };
+
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'upload') {
+        requireCapability('actions.upload', `actions.${actionId}`, 'upload action');
+      }
+    }
+  }
+
+  const scanNode = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'upload' && node.props && node.props.actionRef !== undefined) {
+      requireCapability('actions.upload', `${nodePath}.props.actionRef`, 'upload.props.actionRef');
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, idx) => scanNode(child, `${nodePath}.children[${idx}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, idx) => {
+        if (item && item.content) {
+          scanNode(item.content, `${nodePath}.props.items[${idx}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+}
+
 // ---------------------------------------------------------------------------
 // 扫描整个页面文档
 // ---------------------------------------------------------------------------
@@ -403,6 +444,7 @@ function validatePage(doc, fileLabel) {
   if (doc.body) {
     validateNode(doc.body, 'body', violations);
   }
+  validateRequiredCapabilities(doc, violations);
   return violations.map(v => ({ file: fileLabel, ...v }));
 }
 

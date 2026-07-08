@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-08
+last_updated: 2026-07-09
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -75,7 +75,9 @@ applies_to: schema-ui-protocol v0.2
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v0.2`（最新补丁版本 `v0.2.5`，见 [CHANGELOG.md](./CHANGELOG.md)）。`meta.protocolVersion` 仅声明 MAJOR.MINOR（即 `"0.2"`），不含 PATCH 号——因此 `v0.2.0`、`v0.2.1`、`v0.2.2`、`v0.2.3`、`v0.2.4` 与 `v0.2.5` 共享同一 `protocolVersion` 值。
+当前协议版本：`v0.2`（最新补丁版本 `v0.2.6`，见 [CHANGELOG.md](./CHANGELOG.md)）。`meta.protocolVersion` 仅声明 MAJOR.MINOR（即 `"0.2"`），不含 PATCH 号——因此 `v0.2.0`、`v0.2.1`、`v0.2.2`、`v0.2.3`、`v0.2.4`、`v0.2.5` 与 `v0.2.6` 共享同一 `protocolVersion` 值。
+
+PATCH 版本若新增需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同为 `"0.2"` 的新旧 Renderer 对执行能力产生误判。
 
 本协议目前覆盖三类场景：网格布局、数据表格、表单联动。后续新增场景类型时，
 应遵循同一套 Node 结构（`type`/`props`/`data`/`children`/`reactions`），

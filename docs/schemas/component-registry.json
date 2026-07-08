@@ -97,7 +97,7 @@
       "supportsReactions": false,
       "supportsStates": true,
       "props": {
-        "content": { "type": "string", "required": false },
+        "content": { "type": "string", "required": false, "description": "静态文本内容；声明 data 时作为加载前/无数据时的兜底文案" },
         "contentKey": { "type": "string", "required": false },
         "valueField": {
           "type": "string",
@@ -176,7 +176,7 @@
         "actions": {
           "type": "array",
           "required": false,
-          "description": "行内操作；可使用 visibleField 兼容语法糖或显式 visibleWhen 表达行级显隐",
+          "description": "行内操作；key 仅供前端预注册处理器本地分发，不引用顶层 actions；可使用 visibleField 兼容语法糖或显式 visibleWhen 表达行级显隐",
           "items": {
             "type": "object",
             "properties": {

@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-08
+last_updated: 2026-07-09
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -175,6 +175,7 @@ Renderer 在初始化时宣告自身支持的协议版本范围：
 ```javascript
 const renderer = new Renderer({
   supportedVersions: ["0.2"],   // 支持的协议版本列表
+  supportedCapabilities: ["actions.upload"], // 支持的 PATCH 级执行能力（可选）
   // 可选：最低兼容版本（低于此版本拒绝渲染）
   minCompatibleVersion: "0.1"
 })
@@ -189,12 +190,25 @@ const renderer = new Renderer({
 | 不在 `supportedVersions` 中但 >= `minCompatibleVersion` | 尝试按最接近的已知版本解析，输出兼容性警告 |
 | 缺失（v0.1 旧文档） | 视为 `"0.1"`，按兼容模式处理 |
 
-### 3.3 版本不匹配时的错误信息格式
+### 3.3 执行能力匹配规则（since 0.2.6）
+
+页面可在 `meta.requiredCapabilities` 中声明所需执行能力。Renderer 初始化时可声明 `supportedCapabilities`，用于判断当前运行时是否具备这些能力。
+
+| 页面 `requiredCapabilities` | Renderer 行为 |
+|---|---|
+| 为空或缺失 | 仅按 `protocolVersion` 做版本匹配 |
+| 全部包含在 `supportedCapabilities` 中 | 继续解析渲染 |
+| 存在任一缺失能力 | 拒绝渲染，在页面展示明确错误信息（含缺失能力键） |
+
+能力键由协议或接入方白名单定义。Renderer 不认识的能力键视为不支持，不得静默忽略。当前协议预定义能力键：`actions.upload`。
+
+### 3.4 版本或能力不匹配时的错误信息格式
 
 当 Renderer 拒绝渲染时，应在页面展示位置和浏览器控制台同时输出以下信息：
 
 ```
 [Schema-UI] 协议版本不匹配：页面版本 "0.3"，Renderer 支持版本 ["0.2"]，最小兼容版本 "0.1"
+[Schema-UI] Renderer 缺少必需能力：页面要求 ["actions.upload"]，Renderer 支持 []
 ```
 
 ---
@@ -347,6 +361,7 @@ const renderer = new Renderer({
 interface RendererOptions {
   baseURL?: string;                          // API 基础地址（默认：''）
   supportedVersions: string[];               // 支持的协议版本列表
+  supportedCapabilities?: string[];          // 支持的 PATCH 级执行能力（默认：[]）
   minCompatibleVersion?: string;             // 最低兼容版本（默认：'0.1'）
   context?: {                                // $context 注入（见 02-reaction-expression.md §2）
     user?: Record<string, any>;

@@ -16,6 +16,15 @@
           "type": "string",
           "pattern": "^[0-9]+\\.[0-9]+$",
           "description": "必填（since 0.2），如 \"0.2\"，Renderer 版本兼容锚点"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "description": "可选（since 0.2.6），页面依赖的 Renderer 执行能力列表，用于 PATCH 级能力协商。如 actions.upload",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$"
+          },
+          "uniqueItems": true
         }
       },
       "required": ["pageId", "title", "protocolVersion"],
