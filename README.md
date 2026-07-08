@@ -31,7 +31,8 @@ docs/
 │   ├── 0003-context-namespace-and-visible-when.md
 │   ├── 0004-row-level-scope.md
 │   ├── 0005-response-mapping.md
-│   └── 0006-expression-evaluation-order.md
+│   ├── 0006-expression-evaluation-order.md
+│   └── 0007-mcp-protocol-reader-validator.md
 ├── audit/                       # 过程性审计与迭代记录（详见 audit/README.md）
 │   ├── README.md                # 活跃清单 + 编号规则
 │   └── archived/                # 已归档历史审计（详见 archived/README.md）
