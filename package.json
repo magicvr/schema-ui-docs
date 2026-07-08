@@ -1,0 +1,23 @@
+{
+  "name": "schema-ui-docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Schema-UI 协议文档及校验工具链",
+  "scripts": {
+    "validate": "node scripts/validate-all.js",
+    "validate:l2": "node scripts/validate-l2-components.js",
+    "validate:l3a": "node scripts/validate-l3a-expressions.js",
+    "lint:l4": "node scripts/lint-l4-banned-props.js"
+  },
+  "dependencies": {
+    "glob": "^10.4.5",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "ajv-cli": "^5.0.0",
+    "ajv-formats": "^2.1.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

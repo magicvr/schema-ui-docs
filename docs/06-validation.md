@@ -13,10 +13,10 @@ applies_to: schema-ui-protocol v0.2
 |---|---|---|---|
 | L0 页面结构校验 | [`schemas/page.schema.json`](./schemas/page.schema.json) | 后端 CI / 提交前 | 顶层文档结构（`meta` + `datasources` + `body` + `actions`）合法性；校验 `meta.protocolVersion` 为 MAJOR.MINOR 格式 |
 | L1 Node 结构校验 | [`schemas/node.schema.json`](./schemas/node.schema.json) | 后端 CI / 提交前 | Node 结构是否合法（字段名、类型）。L1 只能校验 `data.responseMapping` 的键名、点路径格式和最小字段数，不能单独判断列表类接口必须声明 `list`、服务端分页表格必须声明 `total` 等依赖组件类型和 props 的语义条件 |
-| L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约。该文件是自定义 DSL，校验器必须按 `03-component-registry.md` 的关键字白名单处理字段表和组合约束，不能只读取 props 字段表，也不能直接当作标准 JSON Schema 交给 AJV |
-| L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + 白名单解析器 | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查 |
+| L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) + [`scripts/validate-l2-components.js`](./scripts/validate-l2-components.js) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约。该文件是自定义 DSL，校验器必须按 `03-component-registry.md` 的关键字白名单处理字段表和组合约束，不能只读取 props 字段表，也不能直接当作标准 JSON Schema 交给 AJV |
+| L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + [`scripts/validate-l3a-expressions.js`](./scripts/validate-l3a-expressions.js) | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查 |
 | L3b 表达式运行时求值 | Renderer 表达式引擎 | 交互/数据变化时 | 仅在已通过 L3a 校验的表达式上执行实际求值 |
-| L4 语义禁用词校验 | 自定义 lint 脚本 | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`），可覆盖 Schema 表达力之外的场景（如深层嵌套结构）。**注意：本仓库仅提供校验规范，不包含可执行 lint 脚本——各接入方需根据自身技术栈自行实现，或复用 L1（JSON Schema `not.anyOf`）作为基础防线。** |
+| L4 语义禁用词校验 | [`scripts/lint-l4-banned-props.js`](./scripts/lint-l4-banned-props.js) | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`），可覆盖 Schema 表达力之外的场景（如深层嵌套结构）。**注意：本仓库已在 `scripts/lint-l4-banned-props.js` 中提供可执行 lint 脚本，各接入方可直接使用；也可复用 L1（JSON Schema `not.anyOf`）作为基础防线。** |
 
 > **v0.2 变更（A1，双轨策略）：** L1（`node.schema.json` 的 `not`+`anyOf`）与 L4（lint 脚本）是**两层独立防线**，而非同一规则的重复实现：
 > - **L1** 通过 JSON Schema 的 `not: { anyOf: [...] }` 逐一禁止每个 CSS 属性名单独出现在 `props` 中，随 CI 自动挂载生效，无需额外配置，是**自动生效的基础防线**。
@@ -31,16 +31,18 @@ applies_to: schema-ui-protocol v0.2
 提交 YAML
   → L0 [`page.schema.json`](./schemas/page.schema.json) 顶层文档结构校验
   → L1 [`node.schema.json`](./schemas/node.schema.json) Node 结构校验
-  → L2 组件契约校验（type/props 合法性 + 组件 DSL 组合约束）
-  → L4 禁用词扫描（防止 CSS 属性混入）
+  → L2 组件契约校验（node_modules）[`scripts/validate-l2-components.js`](./scripts/validate-l2-components.js)
+  → L4 禁用词扫描（防止 CSS 属性混入）[`scripts/lint-l4-banned-props.js`](./scripts/lint-l4-banned-props.js)
   → 通过后允许合并
   ↓
 加载配置时（Renderer）
-  → L3a 表达式静态校验（语法、作用域、变量声明）
+  → L3a 表达式静态校验（语法、作用域、变量声明）[`scripts/validate-l3a-expressions.js`](./scripts/validate-l3a-expressions.js)
   ↓
 运行时（前端交互/数据变化时）
   → L3b 表达式运行时求值（仅在通过 L3a 的表达式上执行）
 ```
+
+统一入口：`npm run validate`（或直接 `node scripts/validate-all.js`），按 `--skip-l0l1` 控制是否跳过 AJV 步骤。
 
 ## 3. L4 禁用词清单（示例，需持续维护）
 
@@ -65,7 +67,17 @@ lineHeight, letterSpacing, textAlign
 
 ### 5.1 使用 `ajv-cli`（Node.js）
 
-如果你的机器安装了 Node.js，可在仓库根目录用 `ajv-cli` 快速校验 YAML 配置：
+如果你的机器安装了 Node.js，可在仓库根目录使用统一校验入口：
+
+```bash
+# 全链路校验（L0+L1+L2+L3a+L4，需要先 npm install）
+npm run validate -- "pages/**/*.yaml"
+
+# 跳过 L0/L1（当 AJV 不可用时）
+npm run validate -- "pages/**/*.yaml" --skip-l0l1
+```
+
+如需仅校验 L0/L1（JSON Schema 层），也可以用 `ajv-cli`：
 
 ```bash
 # 全局安装 ajv-cli
