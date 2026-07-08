@@ -176,7 +176,7 @@
         "actions": {
           "type": "array",
           "required": false,
-          "description": "行内操作，每项支持 visibleField（since 0.2，审计 §3.6 过渡方案，数据驱动显隐）",
+          "description": "行内操作；可使用 visibleField 兼容语法糖或显式 visibleWhen 表达行级显隐",
           "items": {
             "type": "object",
             "properties": {
@@ -227,24 +227,24 @@
           "since": "0.2.1",
           "description": "mode=search 时必填，关联表格的 Node id"
         },
-        "additionalProperties": false
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "mode": { "const": "search" }
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "mode": { "const": "search" }
+              },
+              "required": ["mode"]
             },
-            "required": ["mode"]
-          },
-          "then": {
-            "required": ["targetTable"]
-          },
-          "else": {
-            "required": ["submitAction"]
+            "then": {
+              "required": ["targetTable"]
+            },
+            "else": {
+              "required": ["submitAction"]
+            }
           }
-        }
-      ]
+        ]
+      }
     },
     "input": {
       "supportsChildren": false,

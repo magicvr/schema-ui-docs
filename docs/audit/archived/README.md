@@ -5,6 +5,23 @@
 
 ---
 
+## 0009 — 2026-07-08 — Schema 约束与正文契约复查
+
+**主题：** Schema 约束层级修正、条件必填补齐、描述漂移清理——第九轮正文与机器可读契约一致性复查。
+**性质：** 一致性复查审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0009-2026-07-08-review.md](./0009-2026-07-08-review.md) | 审视报告 — 3 项问题（2🟡 + 1🟢） |
+| [0009-2026-07-08-checklist.md](./0009-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- U1: `component-registry.json` `form` 条件必填 allOf 从组件对象层移入 `props` 内
+- U2: `action.schema.json` `OutcomeBehavior` 新增 `if/then` 条件必填（toast→message, navigate→url）
+- U3: `component-registry.json` `table.props.actions.description` 旧措辞更新为当前语义
+
+---
+
 ## 0008 — 2026-07-08 — 残余文档一致性与链接审视
 
 **主题：** 文档断链修复、正文与 Schema 漂移修正、审计元数据一致性更新——第八轮残余问题收敛。

@@ -74,7 +74,17 @@
         "url": { "type": "string", "description": "behavior: navigate 时的目标地址" }
       },
       "required": ["behavior"],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "behavior": { "const": "toast" } } },
+          "then": { "required": ["message"] }
+        },
+        {
+          "if": { "properties": { "behavior": { "const": "navigate" } } },
+          "then": { "required": ["url"] }
+        }
+      ]
     }
   }
 }
