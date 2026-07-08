@@ -5,6 +5,25 @@
 
 ---
 
+## 0015 — 2026-07-08 — 示例可执行性 + 入口索引漂移 + 表达式作用域残余歧义 + 校验命令路径
+
+**主题：** 修复 `08-renderer-spec.md` 中 `dateRangePicker` 旧式 `$deps.dateRange` 示例、根 README 目录树遗漏、表达式作用域和 `$self` 边界歧义、`06-validation.md` 校验命令路径问题。
+**性质：** 示例可执行性 + 文档导航完整性 + 表达式静态校验边界修复审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0015-2026-07-08-review.md](./0015-2026-07-08-review.md) | 审视报告 — V9(🔴)/V10(🟡)/V11(🟡)/V12(🟡)/V13(🟢) |
+| [0015-2026-07-08-checklist.md](./0015-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V9: `08-renderer-spec.md` 示例改为 `dateFrom: $deps.dateFrom` + `dateTo: $deps.dateTo`
+- V10: 根 `README.md` 目录树补充 `05-scenarios/README.md`、ADR-0005、ADR-0006
+- V11: `02-reaction-expression.md` 收紧 `scope: form` 默认场景，并明确非表单节点 `visibleWhen` 只能访问 `$context.*`
+- V12: `02-reaction-expression.md` 将表格列 `scope: form` 下 `$self` 标为不可用，并补充静态校验规则
+- V13: `06-validation.md` 校验命令和 VS Code YAML 配置路径统一为仓库根目录下的 `docs/schemas/page.schema.json`
+
+---
+
 ## 0014 — 2026-07-08 — 审计证据链自洽性 + 被排查盲区遗漏 + Schema 格式本质矛盾 + ADR 收尾
 
 **主题：** 审计证据链自洽性修复（0013 checklist 回补）、`08-renderer-spec.md` `applies_to` 版本声明盲区修复、`component-registry.json` Schema 方言声明修正、ADR-0005/0006 状态收尾更新、ADR-0005 文字重复修正。

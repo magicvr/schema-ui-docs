@@ -12,6 +12,7 @@ docs/
 ├── 03-component-registry.md    # 组件类型注册表
 ├── 04-datasource-contract.md   # 数据源/API 契约规范
 ├── 05-scenarios/                # 可复制的完整场景示例
+│   ├── README.md
 │   ├── grid-dashboard.md
 │   ├── data-table.md
 │   └── form-with-reactions.md
@@ -28,7 +29,9 @@ docs/
 │   ├── 0001-why-single-node-tree.md
 │   ├── 0002-why-not-two-schema-uischema.md
 │   ├── 0003-context-namespace-and-visible-when.md
-│   └── 0004-row-level-scope.md
+│   ├── 0004-row-level-scope.md
+│   ├── 0005-response-mapping.md
+│   └── 0006-expression-evaluation-order.md
 ├── audit/                       # 过程性审计与迭代记录（详见 audit/README.md）
 │   ├── README.md                # 活跃清单 + 编号规则
 │   └── archived/                # 已归档历史审计（详见 archived/README.md）

@@ -63,17 +63,17 @@ lineHeight, letterSpacing, textAlign
 
 ### 5.1 使用 `ajv-cli`（Node.js）
 
-如果你的机器安装了 Node.js，可用 `ajv-cli` 快速校验 YAML 配置：
+如果你的机器安装了 Node.js，可在仓库根目录用 `ajv-cli` 快速校验 YAML 配置：
 
 ```bash
 # 全局安装 ajv-cli
 npm install -g ajv-cli ajv-formats
 
 # 校验单个页面文件
-npx ajv validate -s schemas/page.schema.json -d my-page.yaml
+npx ajv validate -s docs/schemas/page.schema.json -d my-page.yaml
 
 # 校验目录下所有 yaml 文件
-npx ajv validate -s schemas/page.schema.json -d "pages/**/*.yaml"
+npx ajv validate -s docs/schemas/page.schema.json -d "pages/**/*.yaml"
 ```
 
 `ajv-cli` 会自动加载 `$ref` 引用的子 schema（如 `node.schema.json`、`reaction.schema.json`），无需额外配置。
@@ -86,7 +86,7 @@ npx ajv validate -s schemas/page.schema.json -d "pages/**/*.yaml"
 ```json
 {
   "yaml.schemas": {
-    "schemas/page.schema.json": ["pages/**/*.yaml", "pages/**/*.yml"]
+    "docs/schemas/page.schema.json": ["pages/**/*.yaml", "pages/**/*.yml"]
   }
 }
 ```
@@ -102,7 +102,7 @@ npx ajv validate -s schemas/page.schema.json -d "pages/**/*.yaml"
 
 ```powershell
 Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
-  npx ajv validate -s schemas/page.schema.json -d $_.FullName
+  npx ajv validate -s docs/schemas/page.schema.json -d $_.FullName
 }
 ```
 
@@ -114,7 +114,7 @@ Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
 - name: Validate Schema-UI YAML
   run: |
     npm install -g ajv-cli ajv-formats
-    npx ajv validate -s schemas/page.schema.json -d "pages/**/*.yaml" --strict-refs=true
+    npx ajv validate -s docs/schemas/page.schema.json -d "pages/**/*.yaml" --strict-refs=true
 ```
 
 > 强烈建议在 CI 中开启 `--strict-refs=true`，防止 `$ref` 指向不存在的文件时静默跳过校验。

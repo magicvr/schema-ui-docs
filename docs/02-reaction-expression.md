@@ -117,13 +117,14 @@ reactions:
 
 | 作用域 | `scope` 值 | 可用变量 | 默认场景 |
 |---|---|---|---|
-| 表单级 | `form`（默认） | `$deps.*`、`$self`、`$context.*` | 表单 `reactions`、页面 `visibleWhen` |
+| 表单级 | `form`（默认） | `$deps.*`、`$self`、`$context.*` | 表单字段 `reactions`、表单内 `visibleWhen` |
 | 行级 | `row` | `$row.*`、`$self`（列表达式）、`$context.*` | 表格 `columns`/`actions` 内表达式 |
 
 ### 9.1 作用域隔离规则
 
 - **`$row` 与 `$deps` 互斥**：`scope: row` 的表达式中不能出现 `$deps.*`；`scope: form` 的表达式中不能出现 `$row.*`。违反该规则的配置由静态校验直接拒绝（见 §10.1）。
 - **`$context` 跨作用域可访问**：`$context.*` 在两种作用域下均可访问，不受隔离规则限制。
+- **非表单节点 `visibleWhen` 只能访问 `$context.*`**：非表单节点不绑定表单字段，即使其表达式默认属于 `scope: form`，也不得访问 `$deps.*` 或 `$self`。
 - **跨作用域联合判断不支持**：若业务需要同时依赖表单级字段和行内字段（如"表单审批模式为严格且当前行金额超阈值"），v0.2 **不提供协议级语法支持**。该场景无法通过现有表达式机制在协议层实现变通，应由后端预计算为行数据字段（如行数据中增加 `canHighlight` 布尔字段），或通过 ADR 新增标准机制。
 
 ### 9.2 `$self` 的作用域语义
@@ -161,6 +162,10 @@ reactions:
 ### 10.4 `scope: row` 下 `fulfill` 出现 `required`/`value`
 
 `scope: row` 的 `fulfill`/`otherwise` 中禁止声明 `required` 或 `value` 状态键（仅允许 `visible` 和 `disabled`）。
+
+### 10.5 表格列 `scope: form` 表达式中出现 `$self`
+
+表格列在 `scope: form` 下没有当前行/当前单元格上下文，也不是表单字段，因此 `$self` 没有绑定对象。该场景中出现 `$self` 时，静态校验直接拒绝；需要访问单元格原始值时应使用 `scope: row`。
 
 ## 11. `$context` 白名单扩展流程
 
@@ -221,7 +226,7 @@ reactions:
 | 表单字段 `visibleWhen` | ✅ | ❌ | ✅ | ❌ | ❌ |
 | 非表单节点 `visibleWhen` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ | ❌ |
 | 节点 `permissions.*` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ | ❌ |
-| 表格列 `scope: form` 表达式 | ✅ | ✅ | ✅ | ❌ | ❌ |
+| 表格列 `scope: form` 表达式 | ✅ | ❌（无绑定对象） | ✅ | ❌ | ❌ |
 | 表格列 `scope: row` 表达式 | ❌ | ✅（单元格原始值） | ✅ | ✅ | ❌ |
 | 表格列 `scope: row`（嵌套表格内） | ❌ | ✅ | ✅ | ✅ | ✅（仅直接父级） |
 | 表格 `actions`（`scope: row`） | ❌ | ❌（不适用） | ✅ | ✅ | ❌ |

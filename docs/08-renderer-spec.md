@@ -106,7 +106,8 @@ body:
         method: GET
         params:
           status: $deps.orderStatusFilter
-          dateFrom: $deps.dateRange
+          dateFrom: $deps.dateFrom
+          dateTo: $deps.dateTo
 ```
 
 - Renderer 在 `$deps.*` 值变化时自动重新请求该 Node 的数据。
