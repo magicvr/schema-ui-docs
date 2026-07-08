@@ -11,6 +11,8 @@ applies_to: schema-ui-protocol v0.2
 > 建议由 CI 从组件的 TypeScript Props 类型定义自动生成骨架，防止文档与实现漂移。
 > 每次新增/修改一个 `type`，必须同步更新本文档 + [`schemas/component-registry.json`](./schemas/component-registry.json)。
 >
+> **关于 `schemas/component-registry.json` 的格式说明：** 该文件使用**自定义 DSL 格式**（非标准 JSON Schema），`$schema` 标识为 `component-registry-dsl#`。其结构以自造键 `components` 组织组件目录、使用内联布尔值 `"required": true` 表达必填性——这些均非标准 JSON Schema 语法，不应使用 `ajv` 等标准校验器直接验证。与之对比，协议中实际的 JSON Schema 文件（`node.schema.json`/`page.schema.json`/`action.schema.json`/`reaction.schema.json`）均为合法标准格式。
+>
 > **v0.2 变更说明：** 本次更新涉及多处破坏性/新增字段，详见 [audit/0001-2026-07-07-plan.md](./audit/archived/0001-2026-07-07-plan.md)。表格中新增字段标注 `(since 0.2)`。
 
 ## 如何阅读本表

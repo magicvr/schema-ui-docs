@@ -7,7 +7,7 @@ date: 2026-07-08
 
 ## 状态
 
-已接受(Accepted)—— 需合并入 `01-node-protocol.md`、`02-reaction-expression.md` 与 `08-renderer-spec.md`。
+已接受(Accepted)—— 已合并入 `01-node-protocol.md`、`02-reaction-expression.md` 与 `08-renderer-spec.md`。
 
 ## 背景
 

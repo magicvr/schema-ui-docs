@@ -7,7 +7,7 @@ date: 2026-07-08
 
 ## 状态
 
-已接受(Accepted)—— 需合并入 `01-node-protocol.md`、`04-datasource-contract.md`、`08-renderer-spec.md` 与 `schemas/node.schema.json`。
+已接受(Accepted)—— 已合并入 `01-node-protocol.md`、`04-datasource-contract.md`、`08-renderer-spec.md` 与 `schemas/node.schema.json`。
 
 ## 背景
 
@@ -79,7 +79,7 @@ v0.2.x 仅标准化两个语义键：
 
 `total` 仅在服务端分页表格中必需；若组件不需要总数，可不声明。`statCard` / `text` 的取值字段继续使用既有 `props.valueField`，不新增 `responseMapping.value`。
 
-理由：协议已有 `valueField`、`xField`、`yField`、`labelField`、`valueField` 等组件级字段映射机制，`responseMapping` 只解决“响应包裹层字段名不同”的问题，不重复承担组件内部字段选择。
+理由：协议已有 `valueField`、`xField`、`yField`、`labelField` 等组件级字段映射机制，`responseMapping` 只解决“响应包裹层字段名不同”的问题，不重复承担组件内部字段选择。
 
 ### D4. 默认行为保持向后兼容
 

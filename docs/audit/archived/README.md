@@ -5,6 +5,26 @@
 
 ---
 
+## 0014 — 2026-07-08 — 审计证据链自洽性 + 被排查盲区遗漏 + Schema 格式本质矛盾 + ADR 收尾
+
+**主题：** 审计证据链自洽性修复（0013 checklist 回补）、`08-renderer-spec.md` `applies_to` 版本声明盲区修复、`component-registry.json` Schema 方言声明修正、ADR-0005/0006 状态收尾更新、ADR-0005 文字重复修正。
+**性质：** 审计流程自洽性 + 排查盲区修复 + Schema 格式声明修正审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0014-2026-07-08-review.md](./0014-2026-07-08-review.md) | 审视报告 — V4(🔴)/V5(🔴)/V6(🟡)/V7(🟡)/V8(🟢) |
+| [0014-2026-07-08-checklist.md](./0014-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+| [0014-2026-07-08-plan.md](./0014-2026-07-08-plan.md) | 处理计划 |
+
+**关键修复：**
+- V4: `archived/0013-checklist.md` 全部子项标记为 `[x]` + O1 决策记录回补 + `audit/README.md` 重复行清理与陈述修正
+- V5: `08-renderer-spec.md` `applies_to` 版本声明 `v0.2.1`→`v0.2`（统一裸版本号）
+- V6: `component-registry.json` `$schema` 改为自定义 DSL 标识 `component-registry-dsl#` + `03-component-registry.md` 补充格式说明
+- V7: `decisions/0005`/`0006` 状态行"需合并入"→"已合并入"
+- V8: `decisions/0005` 第 82 行 `valueField` 重复删除
+
+---
+
 ## 0013 — 2026-07-08 — 版本/since 标注漂移复发与残留修复
 
 **主题：** 审计 0006 M3/M6 同类缺陷复发与残留修复，包括 `00-overview.md` 版本声明同步、`modal.content` since 标注统一、`component-registry.json` 7 处 since 批量更新。

@@ -1,8 +1,8 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://internal/schema-ui/component-registry-dsl#",
   "$id": "https://internal/schema-ui/component-registry.json",
   "title": "Schema-UI Component Registry",
-  "description": "组件类型注册表机器可读版本，需与 docs/03-component-registry.md 保持同步。建议由 CI 从前端组件 Props 类型定义自动生成本文件。",
+  "description": "组件类型注册表机器可读版本（自定义 DSL 格式，非标准 JSON Schema），需与 docs/03-component-registry.md 保持同步。建议由 CI 从前端组件 Props 类型定义自动生成本文件。",
   "components": {
     "grid": {
       "supportsChildren": true,

@@ -33,8 +33,6 @@
 
 ### 跟踪项
 
-当前无活跃跟踪项。审计 0013 已完成并归档；V1-V3 版本/since 标注漂移已修复，O1 `last_updated` 已同步更新。
-
-> 历史归档详情见 [`archived/`](./archived/README.md)（倒序排列）。
+当前无活跃跟踪项。
 
 > 历史归档详情见 [`archived/`](./archived/README.md)（倒序排列）。
