@@ -19,6 +19,10 @@ docs/
 ├── 06-validation.md            # 校验规则与工具链
 ├── 07-actions-contract.md      # Action 行为契约（since 0.2）
 ├── 08-renderer-spec.md         # Renderer 实现规范（since 0.2.1）
+├── mcp/                         # MCP 服务设计与实施计划
+│   ├── README.md
+│   ├── v1-design.md
+│   └── v1-implementation-plan.md
 ├── schemas/                     # 机器可读 JSON Schema
 │   ├── page.schema.json
 │   ├── node.schema.json
