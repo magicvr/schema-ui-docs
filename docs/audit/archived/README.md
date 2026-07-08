@@ -5,6 +5,24 @@
 
 ---
 
+## 0023 — 2026-07-09 — 校验工具链执行缺陷——reserved 误杀 + responseMapping 误判 + 文档命令不可用
+
+**主题：** 修复 `validate-l2-components.js` 中 `getDeclaredFields()` 的 `reserved` 集合误杀 6 个表单组件的 `required` 业务字段（V32🔴）、`validateResponseMapping()` 服务端分页检查误报"未声明 responseMapping"的合法默认用法（V33🟡）、以及 `06-validation.md §5` 本地校验指南中 ajv-cli 命令缺少 `-r` 参数和 CI 示例使用不存在的 `--strict-refs=true`（V34🟢）。
+**性质：** 校验工具链代码级缺陷修复 + 文档命令同步审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0023-2026-07-09-review.md](./0023-2026-07-09-review.md) | 审视报告 — V32🔴/V33🟡/V34🟢 |
+| [0023-2026-07-09-plan.md](./0023-2026-07-09-plan.md) | 处理计划 |
+| [0023-2026-07-09-checklist.md](./0023-2026-07-09-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V32: `getDeclaredFields()` 的 `reserved` 集合移除 `required`，6 个表单组件的 `props.required`（布尔业务字段）不再被误杀
+- V33: `validateResponseMapping()` 服务端分页条件从 `!rm || !rm.total` 改为 `rm !== undefined && !rm.total`，未声明 responseMapping 走默认字段名不再误报
+- V34: `06-validation.md` §5.1 补充 `-r` 参数和 `--allow-union-types --strict=false` 标志；§5.4 删除无效的 `--strict-refs=true`；所有命令示例与 `scripts/validate-all.js` 保持一致
+
+---
+
 ## 0022 — 2026-07-08 — Action 引用语义冲突 + 权限示例键名错误
 
 **主题：** 修复 `07-actions-contract.md` 中 `table.props.actions[].key` 被误写为顶层 `actions` 引用（与 `RowAction` 定义和场景示例冲突），以及 `02-reaction-expression.md` 中权限示例误用 `permissions.visible`（应为 `permissions.view`）。

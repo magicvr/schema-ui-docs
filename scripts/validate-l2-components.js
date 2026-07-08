@@ -8,8 +8,8 @@
  *   3. supportsChildren / supportsData / supportsReactions / supportsStates 约束
  *   4. 组件级 anyOf / oneOf / allOf 约束
  *   5. responseMapping 语义规则：
- *      - 列表类接口 + 注册了 supportsData 的组件：必须声明 responseMapping.list
- *      - pagination.mode === 'server' 时：必须声明 responseMapping.total
+ *      - table 组件使用 API 数据且声明了 responseMapping 时，必须声明 responseMapping.list
+ *      - table.props.pagination.mode === 'server' 且声明了 responseMapping 时，必须声明 responseMapping.total
  *
  * 用法：
  *   node scripts/validate-l2-components.js <file-or-glob> [--json]
@@ -61,7 +61,7 @@ function allowsAdditionalProps(propsSpec) {
 
 /** 判断字段是否在 DSL props 中显式声明 */
 function getDeclaredFields(propsSpec) {
-  const reserved = new Set(['additionalProperties', 'required', 'allOf', 'anyOf', 'oneOf']);
+  const reserved = new Set(['additionalProperties', 'allOf', 'anyOf', 'oneOf']);
   return Object.keys(propsSpec).filter(k => !reserved.has(k));
 }
 
@@ -368,7 +368,7 @@ function validateProps(props, compDef, type, nodePath, violations) {
  * 规则：
  *   - 只有 table 是列表类接口；使用 API 数据时若声明了 responseMapping 则必须有 list。
  *     其他 supportsData 组件（statCard / text / chart）是单值/聚合数据，不强制要求 list。
- *   - table.props.pagination.mode === 'server' 时，必须有 responseMapping.total。
+ *   - table.props.pagination.mode === 'server' 时，若声明了 responseMapping，则必须有 responseMapping.total。
  */
 function validateResponseMapping(node, type, compDef, nodePath, violations) {
   const { data, props = {} } = node;
@@ -377,19 +377,19 @@ function validateResponseMapping(node, type, compDef, nodePath, violations) {
   const rm = data.responseMapping;
 
   // 列表类接口：仅 table，且已声明 responseMapping 时必须有 list
-  if (type === 'table' && rm !== undefined && !rm.list) {
+  if (type === 'table' && rm !== undefined && !rm?.list) {
     violations.push({
       path: `${nodePath}.data.responseMapping.list`,
       message: 'table 组件使用 API 数据且声明了 responseMapping，必须提供 responseMapping.list',
     });
   }
 
-  // table 服务端分页：必须有 responseMapping 且有 total
+  // table 服务端分页：若声明了 responseMapping，则必须有 total
   if (type === 'table' && props.pagination && props.pagination.mode === 'server') {
-    if (!rm || !rm.total) {
+    if (rm !== undefined && !rm?.total) {
       violations.push({
         path: `${nodePath}.data.responseMapping.total`,
-        message: 'table 使用 pagination.mode=server 时，必须在 responseMapping 中声明 total',
+        message: 'table 使用 pagination.mode=server 且声明了 responseMapping 时，必须在 responseMapping 中声明 total',
       });
     }
   }

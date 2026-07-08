@@ -83,14 +83,25 @@ npm run validate -- "pages/**/*.yaml" --skip-l0l1
 # 全局安装 ajv-cli
 npm install -g ajv-cli ajv-formats
 
-# 校验单个页面文件
-npx ajv validate -s docs/schemas/page.schema.json -d my-page.yaml
+# 校验单个页面文件（需显式注册被 $ref 引用的子 schema）
+npx ajv validate -s docs/schemas/page.schema.json \
+  --allow-union-types --strict=false \
+  -r docs/schemas/node.schema.json \
+  -r docs/schemas/action.schema.json \
+  -r docs/schemas/reaction.schema.json \
+  -d my-page.yaml
 
 # 校验目录下所有 yaml 文件
-npx ajv validate -s docs/schemas/page.schema.json -d "pages/**/*.yaml"
+npx ajv validate -s docs/schemas/page.schema.json \
+  --allow-union-types --strict=false \
+  -r docs/schemas/node.schema.json \
+  -r docs/schemas/action.schema.json \
+  -r docs/schemas/reaction.schema.json \
+  -d "pages/**/*.yaml"
 ```
 
-`ajv-cli` 会自动加载 `$ref` 引用的子 schema（如 `node.schema.json`、`reaction.schema.json`），无需额外配置。
+`page.schema.json` 通过 `$ref` 依赖 `node.schema.json`、`action.schema.json`、`reaction.schema.json`；
+直接调用 `ajv-cli` 时，需要用 `-r` 显式注册这些子 schema。上面的参数与仓库内 [`scripts/validate-all.js`](../scripts/validate-all.js) 保持一致。
 
 ### 5.2 使用 VS Code YAML Schema 关联（推荐）
 
@@ -116,7 +127,7 @@ npx ajv validate -s docs/schemas/page.schema.json -d "pages/**/*.yaml"
 
 ```powershell
 Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
-  npx ajv validate -s docs/schemas/page.schema.json -d $_.FullName
+  npx ajv validate -s docs/schemas/page.schema.json --allow-union-types --strict=false -r docs/schemas/node.schema.json -r docs/schemas/action.schema.json -r docs/schemas/reaction.schema.json -d $_.FullName
 }
 ```
 
@@ -128,10 +139,10 @@ Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
 - name: Validate Schema-UI YAML
   run: |
     npm install -g ajv-cli ajv-formats
-    npx ajv validate -s docs/schemas/page.schema.json -d "pages/**/*.yaml" --strict-refs=true
+    npx ajv validate -s docs/schemas/page.schema.json --allow-union-types --strict=false -r docs/schemas/node.schema.json -r docs/schemas/action.schema.json -r docs/schemas/reaction.schema.json -d "pages/**/*.yaml"
 ```
 
-> 强烈建议在 CI 中开启 `--strict-refs=true`，防止 `$ref` 指向不存在的文件时静默跳过校验。
+> 也可以直接复用仓库自带的 `npm run validate -- "pages/**/*.yaml"`，其内部已按同样方式注册 `$ref` 子 schema。
 
 ## 6. 自检清单（人工 Review 用）
 
