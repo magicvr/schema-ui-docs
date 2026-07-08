@@ -182,7 +182,7 @@ reactions:
 ```yaml
 # 权限表达式示例：仅 admin 可见
 permissions:
-  visible: "$context.user.roles contains 'admin'"
+  view: "$context.user.roles contains 'admin'"
 ```
 
 > **项目扩展约定：** 接入方可通过 Renderer 初始化时的 `context.user` 注入追加项目专有字段（如 `department`、`tenantId`），这些字段在协议层不做约束，仅在项目范围内有效。最小字段集必须始终存在，项目字段不得覆盖最小字段集的名称。

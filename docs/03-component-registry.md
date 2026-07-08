@@ -169,7 +169,7 @@ data:
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| `key` | string | 是 | 操作标识 |
+| `key` | string | 是 | 操作标识；仅供前端识别行内操作类型，不引用顶层 `actions` |
 | `label` / `labelKey` | string | 是 | 操作文案 |
 | `confirm` | string | 否 | 二次确认文案 |
 | `visibleField` | string | 否 | 行级显隐语法糖（`visibleWhen` 的简化写法），取行数据中同名字段的布尔值作为显隐依据。解析阶段等价展开为 `{ scope: row, dependencies: [field], when: "$row.<field> == true" }`，展开后纳入 [01-node-protocol.md §3.10](./01-node-protocol.md#310-最终可见性优先级公式) 公式 |

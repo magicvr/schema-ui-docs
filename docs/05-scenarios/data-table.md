@@ -56,6 +56,8 @@ body:
     url: /api/orders
 ```
 
+> **说明：** 此处 `actions[].key`（如 `view` / `refund`）仅为行内操作标识，不引用顶层 `actions`；当前示例无需额外声明页面级 `actions` 定义。
+
 ## 行级显隐说明
 
 ### 推荐写法：`$row` 表达式（since 0.2，ADR-0004）

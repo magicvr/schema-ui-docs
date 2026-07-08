@@ -13,7 +13,9 @@ applies_to: schema-ui-protocol v0.2
 ## 1. 使用位置
 
 顶层文档结构中的 `actions` 字段（详见 [01-node-protocol.md §2](./01-node-protocol.md#2-顶层文档结构)），
-供 `form.props.submitAction`、`table.props.actions[].key` 等按 id 引用。
+供 `form.props.submitAction`、`upload.props.actionRef` 等按 id 引用。
+
+> **说明：** `table.props.actions[].key` 是表格行内操作的本地标识，不引用顶层 `actions`；相关约定见 [03-component-registry.md](./03-component-registry.md) 中 `RowAction` 定义。
 
 ```yaml
 actions:

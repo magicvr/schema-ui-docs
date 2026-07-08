@@ -5,6 +5,22 @@
 
 ---
 
+## 0022 — 2026-07-08 — Action 引用语义冲突 + 权限示例键名错误
+
+**主题：** 修复 `07-actions-contract.md` 中 `table.props.actions[].key` 被误写为顶层 `actions` 引用（与 `RowAction` 定义和场景示例冲突），以及 `02-reaction-expression.md` 中权限示例误用 `permissions.visible`（应为 `permissions.view`）。
+**性质：** Action 引用语义一致性修复 + 示例键名纠正审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0022-2026-07-08-review.md](./0022-2026-07-08-review.md) | 审视报告 — V30(🔴)/V31(🟡) |
+| [0022-2026-07-08-checklist.md](./0022-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V30: 统一 `RowAction.key` 为本地操作标识，不引用顶层 `actions`；`07-actions-contract.md` §1 删除错误引用说明并补充提示；`03-component-registry.md` `RowAction.key` 补充"不引用顶层 `actions`"限定；`05-scenarios/data-table.md` 补充说明
+- V31: `02-reaction-expression.md` §11.1 权限示例 `permissions.visible` → `permissions.view`
+
+---
+
 ## 0021 — 2026-07-08 — 表格列作用域描述歧义 + CHANGELOG 格式缺口
 
 **主题：** 修复 `03-component-registry.md` 表格列/操作"作用域说明"中 `scope: form` 缺少"仅限表单上下文"前提限定，以及 `CHANGELOG.md` v0.2.4 条目缺少"涉及的文档与 Schema"段落。
