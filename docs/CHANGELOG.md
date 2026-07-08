@@ -116,3 +116,8 @@
 - `04-datasource-contract.md` 将 `responseMapping` 从 planned 状态改为正式契约。
 - `01-node-protocol.md` 删除“求值时序未定义”限制，改为引用 ADR-0006 的确定性模型。
 - `02-reaction-expression.md` 新增表达式求值时序章节。
+
+**涉及的文档与 Schema：**
+- 协议文档：`01-node-protocol.md`（删除"求值时序未定义"限制，改为引用 ADR-0006）/`02-reaction-expression.md`（新增 §13 求值时序模型）/`04-datasource-contract.md`（`responseMapping` 升为正式契约）/`08-renderer-spec.md`（增加 `responseMapping` 处理与批量提交/循环保护要求）
+- JSON Schema：`schemas/node.schema.json`（`DataRef` 增加 `responseMapping` 字段）
+- 新增决策：`decisions/0005-response-mapping.md`、`decisions/0006-expression-evaluation-order.md`

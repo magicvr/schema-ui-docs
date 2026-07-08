@@ -178,7 +178,7 @@ data:
 | `permissions` | map | 否（since 0.2.1） | 操作级权限控制，表达式仅允许 `$context.*` |
 
 **作用域说明（since 0.2.1）：** 列/操作内的 `visibleWhen`/`reactions`/`permissions` 可通过 `scope` 属性声明求值作用域：
-- `scope: form`（默认）：表达式在表单级求值，可访问 `$deps.*`（表单字段），不可访问 `$row.*`。
+- `scope: form`（默认）：表达式在表单级求值，可访问 `$deps.*`（表单字段），不可访问 `$row.*`。**注意：仅当表格本身位于 `form.children` 内（如搜索表单嵌入表格场景）时，`$deps.*` 才合法；独立表格的列/操作中即使声明 `scope: form`，`$deps.*` 仍被静态校验拒绝（见 [02-reaction-expression.md §9.1](./02-reaction-expression.md#91-作用域隔离规则)）。
 - `scope: row`（显式声明）：表达式在行级求值，可访问 `$row.*`（当前行数据），不可访问 `$deps.*`；`$context.*` 两种作用域下均可访问。`scope: row` 下的 `fulfill` 仅允许 `visible`/`disabled` 状态键。
 
 > **`visibleField` 与 `visibleWhen` 关系：** `visibleField` 是 `scope: row` 的 `visibleWhen` 的语法糖。同时声明两者时，以显式 `visibleWhen` 为准，`visibleField` 被忽略。

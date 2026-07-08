@@ -5,6 +5,22 @@
 
 ---
 
+## 0021 — 2026-07-08 — 表格列作用域描述歧义 + CHANGELOG 格式缺口
+
+**主题：** 修复 `03-component-registry.md` 表格列/操作"作用域说明"中 `scope: form` 缺少"仅限表单上下文"前提限定，以及 `CHANGELOG.md` v0.2.4 条目缺少"涉及的文档与 Schema"段落。
+**性质：** 组件注册表文档与表达式规范交叉引用一致性修复 + CHANGELOG 格式补全审计。
+
+| 文件 | 说明 |
+|---|---|
+| [0021-2026-07-08-review.md](./0021-2026-07-08-review.md) | 审视报告 — V28(🟡)/V29(🟢) |
+| [0021-2026-07-08-checklist.md](./0021-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V28: `03-component-registry.md` 中"作用域说明"段落的 `scope: form` 条目补充"仅当表格位于 `form.children` 内时 `$deps.*` 才合法"的前提说明，并交叉引用 `02-reaction-expression.md §9.1`
+- V29: `CHANGELOG.md` v0.2.4 条目末尾补充"涉及的文档与 Schema："段落，列出受影响的 4 份协议文档、1 份 JSON Schema 和 2 份新增决策文件
+
+---
+
 ## 0020 — 2026-07-08 — 组件注册表文档盲区 + 表达式引用漂移
 
 **主题：** 修复 `upload` 组件 doc 缺失 `placeholder` 字段、`datePicker`/`dateRangePicker` 的 `placeholder` 缺少 `(since 0.2)` 标注、表达式 §9.1 交叉引用漂移、`responseMapping` 章节引用精度问题。
