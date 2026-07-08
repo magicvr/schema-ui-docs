@@ -86,6 +86,7 @@ data:
   url: string        # source=api 时，独立请求的地址
   method: GET | POST | PUT | DELETE | PATCH
   params: map        # 【可选】请求参数映射，值可引用 $deps.*，空值规则见 04-datasource-contract.md §8
+  responseMapping: map # 【可选，since 0.2.4】响应字段名映射，见 04-datasource-contract.md §4.1
 ```
 
 | source | 含义 |
@@ -93,6 +94,8 @@ data:
 | `static` | 值直接写死在 YAML 里 |
 | `ref` | 引用页面级 `datasources` 中预声明的数据源，避免重复声明 |
 | `api` | Node 独立发起一次请求（表格、图表等常用） |
+
+`responseMapping` 仅用于 `source: api` 或引用到 API 数据源的响应解析，声明位置与 `params` 同级，不属于请求参数。协议禁止将 `responseMapping` 放入 `params`，避免 Renderer 误把响应解析配置发送给后端。
 
 ### 3.4 `children`（可选）
 
@@ -207,13 +210,7 @@ permissions:
 
 > **注意：** `visibleWhen.when` 和 `reactions[].when` 中使用的 `$deps.*` 变量必须在对应位置的 `dependencies` 数组中显式声明，否则表达式无法正确求值。详见 [02-reaction-expression.md §8](./02-reaction-expression.md#8-校验建议)。
 >
-> **⚠️ 求值时序未定义问题（协议已知限制）：** 当某个字段同时被 `visibleWhen`（或 `permissions`）引用、又被同节点或其他节点的 `reactions.fulfill.value` 修改时，`visibleWhen` 读到的是变更前还是变更后的值——当前协议版本**未定义这个求值时序**。具体场景：A 字段的 `reactions.fulfill.value` 修改了 B 字段的值，而 B 字段的 `visibleWhen` 在同一渲染周期内读取该值。
->
-> **规避建议：** 如果实际配置中遇到此类"同时读写"的场景，可通过以下方式规避时序歧义：
-> 1. 将 `value` 赋值操作与 `visibleWhen` 判断拆分到不同字段上；
-> 2. 将写操作交由 Renderer 的异步回调处理（如 `onSuccess.reload`），而非在同一渲染周期内通过 `reactions` 完成。
->
-> **跟踪状态：** 此问题的正式解决方案留待后续协议版本讨论（当前无对应 ADR，需由接入方反馈真实场景后推动立项）。
+> **求值时序（since 0.2.4）：** 表达式引擎采用稳定快照模型。每一轮求值开始时，Renderer 冻结当前表单状态作为输入快照；本轮内 `visibleWhen`、`permissions` 与 `reactions.when` 都读取该快照。`reactions.fulfill.value` / `otherwise.value` 产生的写入在本轮结束时批量提交，不会影响同轮其他表达式读取；若写入改变了字段值，Renderer 在下一轮求值中读取新值。完整规则见 [02-reaction-expression.md §13](./02-reaction-expression.md#13-表达式求值时序模型since-024) 与 [decisions/0006](./decisions/0006-expression-evaluation-order.md)。
 
 **容器节点级联**：容器（`section`/`grid`/`form` 等）最终 `visible` 为 `false` 时，其子树不展示，但子树内各节点的 `reactions` 仍按各自声明正常求值。子节点无需、也不应自行判断祖先可见性——级联隐藏是渲染层职责。
 

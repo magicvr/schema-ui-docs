@@ -84,6 +84,10 @@
         "params": {
           "type": "object",
           "description": "【可选】请求参数映射，值可引用 $deps.*（仅做值替换，不做条件判断），见 docs/08-renderer-spec.md §2.3"
+        },
+        "responseMapping": {
+          "$ref": "#/definitions/ResponseMapping",
+          "description": "【可选，since 0.2.4】响应字段名映射，点路径字符串，见 docs/04-datasource-contract.md §4.1.1"
         }
       },
       "required": ["source"],
@@ -111,6 +115,24 @@
         "error": { "$ref": "#/definitions/StateContent" }
       },
       "additionalProperties": false
+    },
+    "ResponseMapping": {
+      "type": "object",
+      "description": "响应字段名映射。仅描述 Renderer 如何从响应体中取值，不属于请求参数。",
+      "properties": {
+        "list": {
+          "type": "string",
+          "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*(\\.[A-Za-z_$][A-Za-z0-9_$]*)*$",
+          "description": "当前数据数组在响应体中的点路径，如 result.records"
+        },
+        "total": {
+          "type": "string",
+          "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*(\\.[A-Za-z_$][A-Za-z0-9_$]*)*$",
+          "description": "总条数在响应体中的点路径，如 result.totalCount"
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
     },
     "StateContent": {
       "type": "object",

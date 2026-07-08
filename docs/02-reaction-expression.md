@@ -183,6 +183,34 @@ reactions:
 
 > **安全边界声明**：`$context` 不是安全边界，只是渲染边界。`visibleWhen`/`permissions` 控制的是渲染层面的显隐，不能替代后端的真实鉴权。前端 `$context.user.roles` 判断得出的显隐结果，后端必须独立校验，不能信任前端传来的任何身份声明。
 
+## 13. 表达式求值时序模型（since 0.2.4）
+
+表达式引擎采用稳定快照模型。每一轮由用户输入、数据加载、上下文刷新或显式重新求值触发的表达式求值，都按以下阶段执行：
+
+1. **Snapshot**：冻结当前表单字段值、节点状态、`$context`、行数据上下文，形成本轮 `inputSnapshot`。
+2. **Evaluate**：本轮所有 `permissions.*`、`visibleWhen.when`、`reactions[].when` 均只读取 `inputSnapshot`。`reactions.fulfill.value` / `otherwise.value` 只产生待提交写入，不会立刻改变同轮其他表达式读取到的值。
+3. **Commit**：Renderer 一次性提交本轮产生的 `visible`、`required`、`disabled`、`value` 变更。
+4. **Next tick**：若 Commit 阶段改变了字段值，并且该字段又是其他表达式依赖，Renderer 安排下一轮求值；下一轮的 Snapshot 才能读到新值。
+
+因此，同一轮内的规则是：**本轮读旧快照，本轮末尾批量写入，下一轮读取新值**。这条规则用于消除 `visibleWhen` / `permissions` 读取字段值与 `reactions.fulfill.value` 写字段值之间的时序歧义。
+
+### 13.1 同一目标字段的写入冲突
+
+同一轮中若多条 `reactions` 写入同一个字段值，采用确定性的后写优先规则：
+
+- 同一字段上的多条 `reactions` 按数组顺序求值，后一条对同一状态键覆盖前一条。
+- 不同字段 / 不同节点的 `reactions` 若写入同一个目标字段，按文档中 Node 的深度优先遍历顺序排序，后遍历到的写入覆盖先遍历到的写入。
+- Renderer 在开发环境应输出警告，提示存在多处写同一字段的配置，建议合并规则或拆分字段。
+
+### 13.2 循环保护
+
+若 Commit 阶段产生的 `value` 写入触发下一轮求值，Renderer 必须设置循环保护：
+
+- 若连续求值轮次超过实现上限（建议 10 轮），Renderer 应停止继续求值，将相关节点置为错误态，并在开发环境输出包含依赖链的错误日志。
+- 若某轮 Commit 后状态没有实际变化（新值与旧值深相等），不得继续触发下一轮。
+
+`scope: row` 下仍禁止 `value` 状态键；行内字段回写若未来需要支持，必须另开 ADR 决策。
+
 ## 附录 A：变量可见性矩阵
 
 下表汇总各使用位置可访问的变量，是 §2（变量命名空间）与 §9（作用域规则）的交叉对照。合并入 `02-reaction-expression.md` 时作为独立附录。

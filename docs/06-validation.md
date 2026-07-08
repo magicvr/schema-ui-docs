@@ -131,4 +131,6 @@ Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
 - [ ] `permissions.*` 表达式中是否混入了 `$deps.*`（只应使用 `$context.*`）？
 - [ ] 非表单节点的 `visibleWhen` 中是否误用了 `$deps.*`？
 - [ ] `data.source: api` 的节点是否在 `data.params` 中正确声明了请求参数？
+- [ ] `data.responseMapping` 是否与 `params` 同级，且未误放入 `data.params`？
+- [ ] `data.responseMapping.list` / `total` 是否为合法点路径，且映射结果类型符合组件预期？
 - [ ] 表格类 Node 的 `columns[].field` 是否与后端响应体字段名一致？

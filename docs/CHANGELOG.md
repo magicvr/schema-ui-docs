@@ -101,3 +101,18 @@
 - **S6：** `CHANGELOG.md` v0.2.1 措辞清理：移除"（方案 A）"后缀避免歧义。
 - **S7：** `component-registry.json` 中 `datePicker`/`dateRangePicker`/`upload` 的 `placeholder` 字段补充 `since` 标注。
 - **S8：** 新增 `05-scenarios/README.md` 目录索引文件，包含文件列表表格与阅读顺序建议。
+
+## v0.2.4 — 2026-07-08（ADR 决策补丁）
+
+> **版本说明：** v0.2.4 基于审计 0012 的 ADR 决策缺口补齐两个已成熟的协议决策：响应字段名映射与表达式读写求值时序。A3-A6 保持未来触发型议题，未提前扩展核心协议能力。
+
+**新增 / 决策：**
+- **D1：** 新增 `decisions/0005-response-mapping.md`，正式标准化 `data.responseMapping`。映射声明与 `params` 同级，仅用于响应解析，不作为请求参数发送。
+- **D2：** `schemas/node.schema.json` 的 `DataRef` 增加 `responseMapping`，支持 `list` / `total` 点路径映射。
+- **D3：** 新增 `decisions/0006-expression-evaluation-order.md`，表达式引擎采用稳定快照模型：本轮读旧快照，本轮末尾批量提交写入，下一轮读取新值。
+- **D4：** `08-renderer-spec.md` 增加 `responseMapping` 应用阶段、表达式批量提交与循环保护要求。
+
+**修订：**
+- `04-datasource-contract.md` 将 `responseMapping` 从 planned 状态改为正式契约。
+- `01-node-protocol.md` 删除“求值时序未定义”限制，改为引用 ADR-0006 的确定性模型。
+- `02-reaction-expression.md` 新增表达式求值时序章节。

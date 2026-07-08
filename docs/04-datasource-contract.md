@@ -85,13 +85,28 @@ data:
 - `list`：当前页数据数组，字段名需与 Node 的 `columns[].field` / `valueField` 对应。
 - `total`：总条数，用于前端计算总页数。
 
-> **字段名映射（planned — 待 ADR 标准化后定版）：** 若后端无法使用 `list`/`total` 作为响应体字段名（如遗留系统使用 `data`/`items`/`count`），可在 `data.params` 中声明 `responseMapping` 来指定字段名映射关系。此映射为可选项，Renderer 默认以 `list`/`total` 解析；未配置映射时使用协议默认字段名。具体映射语法待由 ADR 标准化后确定，接入方可按需在 Renderer 扩展层自行约定，但协议层暂不承诺标准语法。
->
-> **跟踪状态：** 此项功能尚处于需求收集阶段，尚未创建对应 ADR（跟踪条目见 `docs/audit/` 活跃清单）。若您的团队有此需求，请发起 ADR 讨论以推动标准化。
->
-> ---
->
-> **临时变通方案：** 在 ADR 标准化之前，接入方可在 Renderer 扩展层自行实现响应字段名的配置映射（如通过 Renderer 初始化参数注入全局 `responseMapping` 配置），但需注意该方案不属于协议标准，升级 Renderer 时可能存在兼容性风险。
+### 4.1.1 响应字段名映射 `responseMapping`（since 0.2.4）
+
+若后端无法使用 `list` / `total` 作为响应体字段名（如遗留系统使用 `data` / `items` / `count`），可在 `data.responseMapping` 中声明字段名映射。`responseMapping` 与 `params` 同级，不属于请求参数，Renderer 不得将其发送给后端。
+
+```yaml
+data:
+  source: api
+  url: /api/orders
+  method: GET
+  responseMapping:
+    list: result.records
+    total: result.totalCount
+```
+
+映射值为响应 JSON 对象内的点路径字符串，不支持表达式、函数调用、数组过滤或模板语法。未声明 `responseMapping` 时，Renderer 按协议默认字段名解析：列表数据读取 `list`，服务端分页总数读取 `total`。
+
+| 映射键 | 含义 | 是否必填 |
+|---|---|---|
+| `list` | 当前页数据数组 | 对列表类接口必填（未声明映射时默认读取响应体 `list`） |
+| `total` | 总条数 | `table.props.pagination.mode: server` 时必填（未声明映射时默认读取响应体 `total`） |
+
+若映射路径不存在，或映射结果类型不符合组件预期，Renderer 应将该节点视为数据加载失败并进入节点级错误态。详见 [08-renderer-spec.md §2.5](./08-renderer-spec.md#25-响应字段名映射-responsemappingsince-024) 与 [decisions/0005](./decisions/0005-response-mapping.md)。
 
 ### 4.2 单值类接口（配合 `statCard` / `text`）
 

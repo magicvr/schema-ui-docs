@@ -121,6 +121,24 @@ body:
 - 并行加载期间，已加载完成的 Node 立即渲染，不等待尚未完成的 Node。
 - 支持 `states.loading.text` 的组件在加载期间展示加载态文案；不支持的组件由 Renderer 提供统一的轻量加载指示（如骨架屏），具体实现由宿主环境决定。
 
+### 2.5 响应字段名映射 `responseMapping`（since 0.2.4）
+
+Renderer 在 API 请求成功后、组件消费数据前，应先应用 `data.responseMapping`：
+
+```yaml
+data:
+  source: api
+  url: /api/orders
+  responseMapping:
+    list: result.records
+    total: result.totalCount
+```
+
+- `responseMapping` 与 `params` 同级，只参与响应解析，不得作为请求参数发送给后端。
+- 映射值是响应 JSON 对象中的点路径字符串，不执行表达式、函数或数组过滤。
+- 未声明 `responseMapping` 时，Renderer 按协议默认字段名解析：列表数据读取 `list`，服务端分页总数读取 `total`。
+- 若映射路径不存在或结果类型不符合组件预期，Renderer 应将该 Node 视为数据加载失败，进入节点级错误态；开发环境日志应包含缺失路径、Node `id`（若有）和组件 `type`。
+
 ---
 
 ## 3. 版本协商规范
@@ -233,7 +251,19 @@ function evaluateWhen(expression, context, dependencies) {
 }
 ```
 
-### 5.3 安全约束
+### 5.3 表达式调度与批量提交（since 0.2.4）
+
+Renderer 的表达式调度必须遵循稳定快照模型：
+
+1. 每轮求值开始时冻结当前表单字段值、节点状态、`$context` 和行数据上下文。
+2. 本轮所有 `permissions.*`、`visibleWhen.when`、`reactions[].when` 都读取该快照。
+3. `reactions.fulfill.value` / `otherwise.value` 在本轮只记录待提交写入，不得立即改变同轮其他表达式读取到的值。
+4. 本轮结束时批量提交状态变更；若字段值发生实际变化，再安排下一轮求值。
+5. Renderer 必须设置循环保护，连续求值轮次超过实现上限（建议 10 轮）时停止求值并进入错误态。
+
+同一目标字段出现多处 `value` 写入时，按文档中 Node 的深度优先遍历顺序后写优先；开发环境应输出警告。
+
+### 5.4 安全约束
 
 | 规则 | 说明 |
 |---|---|
@@ -243,7 +273,7 @@ function evaluateWhen(expression, context, dependencies) {
 | 运算符白名单 | `==` `!=` `>` `>=` `<` `<=` `contains` `&&` `\|\|` `!` `(` `)` |
 | 禁止函数调用 | 除 `contains` 外不允许任何函数调用 |
 
-### 5.4 静态校验（L3）
+### 5.5 静态校验（L3）
 
 Renderer 在加载页面配置时，应执行以下静态校验（见 [06-validation.md §1](./06-validation.md#1-校验层级) L3）：
 
