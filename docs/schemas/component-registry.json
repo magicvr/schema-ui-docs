@@ -176,11 +176,22 @@
         "actions": {
           "type": "array",
           "required": false,
-          "description": "行内操作；key 仅供前端预注册处理器本地分发，不引用顶层 actions；可使用 visibleField 兼容语法糖或显式 visibleWhen 表达行级显隐",
+          "description": "行内操作；key 仅供前端预注册处理器本地分发；actionRef 可引用顶层 request action 触发行级后端请求；可使用 visibleField 兼容语法糖或显式 visibleWhen 表达行级显隐",
           "items": {
             "type": "object",
             "properties": {
               "key": { "type": "string", "required": true },
+              "actionRef": { "type": "string", "description": "【可选，since 0.2.7】引用顶层 actions 中的 request action，用于声明式行级后端请求；使用时必须声明 meta.requiredCapabilities: [actions.row.request]" },
+              "requestMapping": {
+                "type": "object",
+                "description": "【可选，since 0.2.7】RowAction.actionRef 的请求参数绑定；path/query/body 均为扁平 key-value map；path 替换 url 中的 {param}，query 生成查询参数，body 生成 JSON 请求体；值仅允许字面量或单个 $row.* / $parentRow.* 点路径引用",
+                "properties": {
+                  "path": { "type": "object" },
+                  "query": { "type": "object" },
+                  "body": { "type": "object" }
+                },
+                "additionalProperties": false
+              },
               "label": { "type": "string", "description": "操作文案，与 labelKey 至少提供一个" },
               "labelKey": { "type": "string", "description": "操作文案 i18n key，与 label 至少提供一个" },
               "confirm": { "type": "string" },

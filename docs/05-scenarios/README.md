@@ -9,6 +9,7 @@
 | [`grid-dashboard.md`](./grid-dashboard.md) | `grid` / `section` / `statCard` / `chart` | 两列网格看板，含统计卡片与图表 | `datasources` 预声明、`data.source: ref`、`valueField`、布局 |
 | [`data-table.md`](./data-table.md) | `table` | 数据表格，自动分页与格式化 | 分页契约、列格式（`tag`/`currency`/`datetime`）、`visibleField` 行级显隐 |
 | [`form-with-reactions.md`](./form-with-reactions.md) | `form` / `input` / `select` / `inputNumber` | 表单与基础字段联动 | `reactions` 联动表达式、`onSuccess`/`onError`、`actions` 契约 |
+| [`row-backend-actions.md`](./row-backend-actions.md) | `table` + `actions` | 表格行内按钮直接调用后端接口 | `RowAction.actionRef`、`requestMapping`、`actions.row.request`、成功后刷新 |
 
 ## 阅读顺序
 
@@ -16,7 +17,8 @@
 
 1. **`form-with-reactions.md`** — 表单 + 联动，最常用的基础场景
 2. **`data-table.md`** — 数据表格，展示分页与格式化
-3. **`grid-dashboard.md`** — 组合布局，展示多组件协同与数据预声明
+3. **`row-backend-actions.md`** — 表格行级后端动作，展示退款/审批/删除类操作
+4. **`grid-dashboard.md`** — 组合布局，展示多组件协同与数据预声明
 
 ## 相关文档
 

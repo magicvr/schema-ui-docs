@@ -155,3 +155,21 @@
 - JSON Schema / DSL：`schemas/page.schema.json` / `schemas/component-registry.json`
 - 校验脚本：`scripts/validate-l2-components.js` / `scripts/validate-l3a-expressions.js`
 - 审计记录：`docs/audit/archived/0024-2026-07-09-*`
+
+## v0.2.7 — 2026-07-09（行级后端动作补丁）
+
+> **版本说明：** v0.2.7 基于 ADR-0008 标准化表格行内按钮直接调用后端接口的声明式模型。不改变 `meta.protocolVersion`，使用该能力的页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。
+
+**新增 / 决策：**
+- **F1：** 新增 `decisions/0008-row-action-backend-request.md`，明确 `RowAction.key` 继续作为本地分发标识，新增 `RowAction.actionRef` 引用顶层 `type: request` action。
+- **F2：** `RowAction` 新增 `requestMapping`，用于把 `$row.*` / `$parentRow.*` 或字面量绑定到 request action 的 `path` / `query` / `body`。
+- **F3：** 新增 PATCH 级能力键 `actions.row.request`；使用 `table.props.actions[].actionRef` 时必须声明该能力。
+- **F4：** Renderer 规范补充行级 request action 执行流程：解析映射、替换 URL 占位符、复用统一请求通道、`onSuccess.reload` 刷新触发表格。
+- **F5：** L2 校验器新增 `RowAction.actionRef` 引用、能力声明、request action 类型、URL 占位符与 `requestMapping` 值规则校验。
+- **F6：** 新增行级后端动作端到端场景示例。
+
+**涉及的文档、Schema 与脚本：**
+- 协议文档：`00-overview.md` / `01-node-protocol.md` / `03-component-registry.md` / `06-validation.md` / `07-actions-contract.md` / `08-renderer-spec.md`
+- JSON Schema / DSL：`schemas/page.schema.json` / `schemas/component-registry.json`
+- 校验脚本：`scripts/validate-l2-components.js`
+- 场景示例：`05-scenarios/row-backend-actions.md`

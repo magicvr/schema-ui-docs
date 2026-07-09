@@ -19,7 +19,7 @@
         },
         "requiredCapabilities": {
           "type": "array",
-          "description": "可选（since 0.2.6），页面依赖的 Renderer 执行能力列表，用于 PATCH 级能力协商。如 actions.upload",
+          "description": "可选（since 0.2.6），页面依赖的 Renderer 执行能力列表，用于 PATCH 级能力协商。如 actions.upload、actions.row.request",
           "items": {
             "type": "string",
             "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$"

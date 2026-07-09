@@ -175,7 +175,7 @@ Renderer 在初始化时宣告自身支持的协议版本范围：
 ```javascript
 const renderer = new Renderer({
   supportedVersions: ["0.2"],   // 支持的协议版本列表
-  supportedCapabilities: ["actions.upload"], // 支持的 PATCH 级执行能力（可选）
+  supportedCapabilities: ["actions.upload", "actions.row.request"], // 支持的 PATCH 级执行能力（可选）
   // 可选：最低兼容版本（低于此版本拒绝渲染）
   minCompatibleVersion: "0.1"
 })
@@ -200,7 +200,7 @@ const renderer = new Renderer({
 | 全部包含在 `supportedCapabilities` 中 | 继续解析渲染 |
 | 存在任一缺失能力 | 拒绝渲染，在页面展示明确错误信息（含缺失能力键） |
 
-能力键由协议或接入方白名单定义。Renderer 不认识的能力键视为不支持，不得静默忽略。当前协议预定义能力键：`actions.upload`。
+能力键由协议或接入方白名单定义。Renderer 不认识的能力键视为不支持，不得静默忽略。当前协议预定义能力键：`actions.upload`、`actions.row.request`。
 
 ### 3.4 版本或能力不匹配时的错误信息格式
 
@@ -208,7 +208,7 @@ const renderer = new Renderer({
 
 ```
 [Schema-UI] 协议版本不匹配：页面版本 "0.3"，Renderer 支持版本 ["0.2"]，最小兼容版本 "0.1"
-[Schema-UI] Renderer 缺少必需能力：页面要求 ["actions.upload"]，Renderer 支持 []
+[Schema-UI] Renderer 缺少必需能力：页面要求 ["actions.row.request"]，Renderer 支持 []
 ```
 
 ---
@@ -352,6 +352,29 @@ const renderer = new Renderer({
 | development | `https://dev-api.example.com` |
 | staging | `https://staging-api.example.com` |
 | production | `https://api.example.com` |
+
+---
+
+## 7. Action 执行策略
+
+### 7.1 行级后端请求动作（since 0.2.7）
+
+当 `table.props.actions[]` 声明 `actionRef` 时，Renderer 按以下流程执行：
+
+1. 确认页面已通过 `actions.row.request` 能力匹配；
+2. 确认 `actionRef` 指向顶层 `actions` 中的 `type: request` action；
+3. 按当前行上下文对 `requestMapping.path` / `query` / `body` 做简单取值替换；
+4. 用 `requestMapping.path` 替换 `action.url` 中的 `{name}` 占位符，并对 path segment 做 URL 编码；
+5. 将 `requestMapping.query` 编码为 query string；
+6. 对非 `GET` / `DELETE` 请求，将 `requestMapping.body` 序列化为 JSON 请求体；
+7. 通过统一请求通道发送请求，继续应用 `baseURL`、`requestInterceptor`、`requestTimeout` 和 `onAuthFailure`；
+8. 根据 `onSuccess` / `onError` 执行结果行为。
+
+点击行内按钮时，Renderer 的交互时序必须是：`visibleWhen` 判定 → `permissions` 判定 → `disabled` 状态判定 → 展示 `confirm`（若声明）→ 构造请求 → 发送请求。不可见、无权限或禁用状态下不得展示确认框，也不得构造请求。
+
+`requestMapping.path` / `query` / `body` 都是扁平 key-value map。映射值只允许字面量或单个 `$row.*` / `$parentRow.*` 点路径引用，不调用表达式引擎，也不读取 `$deps.*` 或 `$context.*`，不支持嵌套对象或数组值。路径占位符取值为 `null` / `undefined` 时，Renderer 应拒绝执行该动作并进入动作级错误处理；query/body 字段取值失败时，开发环境应输出包含 action id、RowAction key 和字段路径的错误信息。
+
+`onSuccess.behavior: reload` 在行级动作中表示重新加载触发该动作的表格数据；若该表格使用 `data.source: api`，Renderer 按当前分页、排序、筛选参数重新请求。单个行级动作失败不应影响页面其他节点。
 
 ---
 

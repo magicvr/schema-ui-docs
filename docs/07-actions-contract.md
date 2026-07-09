@@ -13,9 +13,9 @@ applies_to: schema-ui-protocol v0.2
 ## 1. 使用位置
 
 顶层文档结构中的 `actions` 字段（详见 [01-node-protocol.md §2](./01-node-protocol.md#2-顶层文档结构)），
-供 `form.props.submitAction`、`upload.props.actionRef` 等按 id 引用。
+供 `form.props.submitAction`、`upload.props.actionRef`、`table.props.actions[].actionRef` 等按 id 引用。
 
-> **说明：** `table.props.actions[].key` 是表格行内操作的本地标识，不引用顶层 `actions`；相关约定见 [03-component-registry.md](./03-component-registry.md) 中 `RowAction` 定义。
+> **说明：** `table.props.actions[].key` 是表格行内操作的本地标识，不引用顶层 `actions`；需要声明式行级后端请求时使用 `table.props.actions[].actionRef`。相关约定见 [03-component-registry.md](./03-component-registry.md) 中 `RowAction` 定义与 [ADR-0008](./decisions/0008-row-action-backend-request.md)。
 
 ```yaml
 actions:
@@ -52,6 +52,76 @@ onError: OutcomeBehavior     # 【可选】
 
 - `bodyMapping` 缺省时，表单各字段按原字段名直接组成请求体 JSON。
 - `onSuccess` / `onError` 缺省时，Renderer 使用默认行为（如 `toast` 展示通用成功/失败提示）。
+
+### 3.1 行级后端请求绑定（since 0.2.7）
+
+表格行内按钮若需要直接调用后端接口，应在 `RowAction` 上声明 `actionRef`，引用顶层 `type: request` action，并通过 `requestMapping` 绑定当前行数据。使用该能力时，页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。
+
+```yaml
+meta:
+  pageId: order_approval
+  title: 订单审批
+  protocolVersion: "0.2"
+  requiredCapabilities:
+    - actions.row.request
+
+actions:
+  approveOrder:
+    type: request
+    method: POST
+    url: /api/orders/{orderId}/approve
+    onSuccess:
+      behavior: reload
+    onError:
+      behavior: toast
+      message: 审批失败，请重试
+
+body:
+  type: table
+  props:
+    rowKey: orderId
+    actions:
+      - key: approve
+        label: 通过
+        confirm: 确认审批通过？
+        actionRef: approveOrder
+        requestMapping:
+          path:
+            orderId: $row.orderId
+```
+
+`requestMapping` 属于 `RowAction`，不属于顶层 `ActionDef`。它描述“当前行如何绑定到这次请求”：
+
+| 字段 | 说明 |
+|---|---|
+| `path` | 扁平 key-value map，替换 `action.url` 中的 `{name}` 占位符 |
+| `query` | 扁平 key-value map，生成 URL query 参数 |
+| `body` | 扁平 key-value map，生成 JSON 请求体 |
+
+映射值只允许字面量或单个行上下文点路径：
+
+```yaml
+requestMapping:
+  path:
+    orderId: $row.orderId
+  query:
+    source: list
+  body:
+    status: APPROVED
+    version: $row.version
+```
+
+规则：
+
+- `actionRef` 只能引用顶层 `actions` 中的 `type: request` action。
+- `action.url` 中每个 `{name}` 都必须在 `requestMapping.path.<name>` 中声明。
+- `requestMapping.path` 不得声明 URL 中不存在的 key。
+- `requestMapping` 值若以 `$` 开头，只允许单个 `$row.*` 或 `$parentRow.*` 点路径；不允许 `$deps.*`、`$context.*`、表达式、函数或模板字符串。
+- `requestMapping.path` / `query` / `body` 不支持嵌套对象或数组值；需要复杂结构时应由后端适配，或使用前端预注册 handler。
+- `GET` / `DELETE` 行级请求不得声明 `requestMapping.body`；请使用 `path` 或 `query` 传递当前行标识。
+- `confirm` 保留在 `RowAction` 层声明，因为确认文案属于按钮触发入口，而不是后端请求定义。
+
+Renderer 执行时先判定 `visibleWhen` / `permissions` / `disabled` 等状态；按钮可点击后再展示 `confirm`，确认通过后构造请求。`onSuccess.behavior: reload` 表示重新加载触发该动作的表格数据。
 
 ## 4. `navigate` 类型
 

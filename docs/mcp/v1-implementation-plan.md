@@ -140,9 +140,10 @@ mcp/
 
 ### P7. 测试与回归
 
-- [ ] 三个官方完整场景 `validate_content` 通过
+- [ ] 官方完整场景 `validate_content` 通过
 - [ ] `$row.*` 缺少 `scope: row` 反例失败
 - [ ] upload 缺少 `actions.upload` capability 反例失败
+- [ ] RowAction.actionRef 缺少 `actions.row.request` capability 反例失败
 - [ ] 非法 YAML 返回 `parseError`
 - [ ] `search` 返回稳定顺序
 - [ ] `get_component` 不丢原始 DSL 约束
@@ -195,9 +196,9 @@ schema-ui-mcp:0.2.6
 MCP v1 完成需同时满足：
 
 - ADR-0007 中 D2 工具全部实现；
-- `v1-design.md` 中 M1-M8 验收用例全部通过；
+- `v1-design.md` 中 M1-M9 验收用例全部通过；
 - Docker 镜像可通过 stdio 方式启动；
-- 三个官方完整场景校验通过；
-- 两个协议反例（缺 scope、缺 capability）校验失败且返回建议文档；
+- 官方完整场景校验通过；
+- 协议反例（缺 scope、缺 upload capability、缺 row request capability）校验失败且返回建议文档；
 - 非法 YAML 返回结构化 `parseError`；
 - 文档说明工程师无需挂载业务目录即可使用 Docker MCP。
