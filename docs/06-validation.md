@@ -23,7 +23,7 @@ applies_to: schema-ui-protocol v0.2
 > - **L4** 是更细致的深度补充，可覆盖 Schema 表达力之外的场景（如嵌套对象内部、`reactions[].fulfill` 中的禁用词），但需要团队额外接入 lint 流程才会生效。
 > - **同步要求：** L1 的 `anyOf` 清单与 L4 的禁用词清单必须保持一致，任一方新增禁用词时需同步更新另一方，避免两层防线出现漂移。
 
-> **v0.2.4 变更（`responseMapping` 条件必填）：** `schemas/node.schema.json` 只能表达 `responseMapping` 的结构下限，不能仅凭 `DataRef` 判断组件消费数据的语义。校验器必须在 L2、L4 或人工 review 中结合组件类型和 `props` 补充检查：列表类接口声明 `responseMapping` 时必须提供 `list`；`table.props.pagination.mode: server` 时必须提供 `total`。这两条规则与 `04-datasource-contract.md` §4.1.1 和 ADR-0005 保持一致。
+> **v0.2.4 变更（`responseMapping` 条件必填）：** `schemas/node.schema.json` 只能表达 `responseMapping` 的结构下限，不能仅凭 `DataRef` 判断组件消费数据的语义。校验器必须在 L2、L4 或人工 review 中结合组件类型和 `props` 补充检查：`table` / `chart` 这类数组消费组件声明 `responseMapping` 时必须提供 `list`；`table.props.pagination.mode: server` 时必须提供 `total`。这两条规则与 `04-datasource-contract.md` §4.1.1 和 ADR-0005 保持一致。
 
 > **v0.2.7 变更（行级后端请求）：** 使用 `table.props.actions[].actionRef` 时，页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。L2 校验器还应检查 `actionRef` 是否存在、是否引用 `type: request` action、是否同时声明非空 `requestMapping`、`requestMapping.path` 是否与 URL `{param}` 占位符一致、映射值是否只使用字面量或单个 `$row.*` / `$parentRow.*` 点路径。
 
@@ -160,7 +160,7 @@ Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
 - [ ] `data.source: api` 的节点是否在 `data.params` 中正确声明了请求参数？
 - [ ] `data.responseMapping` 是否与 `params` 同级，且未误放入 `data.params`？
 - [ ] `data.responseMapping.list` / `total` 是否为合法点路径，且映射结果类型符合组件预期？
-- [ ] 列表类接口声明 `data.responseMapping` 时，是否提供了 `responseMapping.list`？
+- [ ] `table` / `chart` 这类数组消费组件声明 `data.responseMapping` 时，是否提供了 `responseMapping.list`？
 - [ ] `table.props.pagination.mode: server` 时，是否提供了 `responseMapping.total`？
 - [ ] 表格类 Node 的 `columns[].field` 是否与后端响应体字段名一致？
 - [ ] 使用 `table.props.actions[].actionRef` 时，是否声明了 `actions.row.request` 能力，并提供了合法的 `requestMapping`？

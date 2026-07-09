@@ -85,6 +85,8 @@ body:
 ```yaml
 body:
   type: form
+  props:
+    submitAction: applyOrderFilters
   children:
     - type: select
       props:
@@ -100,6 +102,16 @@ body:
         endField: dateTo
         label: 下单日期
     - type: table
+      props:
+        rowKey: orderId
+        pagination:
+          mode: server
+          pageSize: 20
+        columns:
+          - field: orderId
+            label: 订单号
+          - field: status
+            label: 状态
       data:
         source: api
         url: /api/orders
@@ -137,7 +149,8 @@ data:
 
 - `responseMapping` 与 `params` 同级，只参与响应解析，不得作为请求参数发送给后端。
 - 映射值是响应 JSON 对象中的点路径字符串，不执行表达式、函数或数组过滤。
-- 未声明 `responseMapping` 时，Renderer 按协议默认字段名解析：列表数据读取 `list`，服务端分页总数读取 `total`。
+- 未声明 `responseMapping` 时，Renderer 按协议默认字段名解析：`table` 列表数据读取 `list`，服务端分页总数读取 `total`；`chart` 默认期望响应体为裸数组。
+- 声明 `responseMapping` 时，`table` 与 `chart` 这类数组消费组件必须提供 `list`，服务端分页 `table` 还必须提供 `total`。
 - 若映射路径不存在或结果类型不符合组件预期，Renderer 应将该 Node 视为数据加载失败，进入节点级错误态；开发环境日志应包含缺失路径、Node `id`（若有）和组件 `type`。
 
 ### 2.6 请求初始化配置（since 0.2.5）

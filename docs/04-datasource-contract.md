@@ -73,7 +73,9 @@ data:
 
 ## 4. 响应体契约
 
-### 4.1 列表类接口（配合 `table`/`select` 远程数据源）
+### 4.1 列表类接口（配合 `table` 与通过 `DataRef` 消费列表数据的组件）
+
+本节描述 `data.source: api` / `datasources` 这类 `DataRef` 数据源的列表响应体。`select.optionsSource` 是组件私有的远程选项契约，不属于 `DataRef`，默认返回裸数组，见 §9。
 
 ```json
 {
@@ -125,7 +127,7 @@ data:
 ]
 ```
 
-字段名需与 `chart.props.xField` / `yField` 对应。
+字段名需与 `chart.props.xField` / `yField` 对应。未声明 `responseMapping` 时，`chart` 默认期望响应体为裸数组；若后端返回包裹结构，可在 `data.responseMapping.list` 中声明数组所在点路径。
 
 ## 5. 认证约定（since 0.2.5）
 
@@ -238,7 +240,7 @@ data:
 # 而不是 GET /api/options/cities?provinceId= 或 ?provinceId=null
 ```
 
-**响应体：** 返回裸数组（无需 `list`/`total` 包装），每项至少包含 `optionsSource.labelField` 与 `optionsSource.valueField` 指定的两个字段：
+**响应体：** 返回裸数组（无需 `list`/`total` 包装），每项至少包含 `optionsSource.labelField` 与 `optionsSource.valueField` 指定的两个字段。`optionsSource` 不复用 `data.responseMapping`；若未来需要包裹响应映射，应在 `optionsSource` 契约中另行标准化。
 
 ```json
 [

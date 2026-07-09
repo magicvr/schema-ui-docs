@@ -37,6 +37,7 @@ applies_to: schema-ui-protocol v0.2
 | props 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
 | `columns` | number | 是 | 栏数（语义级，非像素） |
+| `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 支持 `children`：是。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。
 
@@ -56,6 +57,7 @@ applies_to: schema-ui-protocol v0.2
 | props 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
 | `items` | array\<TabItem\> | 是 | 各标签页定义，见下 |
+| `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 **TabItem（since 0.2）：**
 
@@ -225,6 +227,7 @@ actions:
 | `submitAction` | string | 默认模式下是 | 引用顶层 `actions` 中的动作 id。搜索模式下不需要（`mode: search` 时忽略此字段） |
 | `mode` | enum: `default` \| `search` | 否（since 0.2.1） | 表单模式。`search` 模式将表单用作筛选器 |
 | `targetTable` | string | 搜索模式下是 | `mode: search` 时必填，声明关联表格的 Node `id`，提交时触发表格重新请求 |
+| `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 ```yaml
 # 搜索表单示例（form + table 包裹在 section 中作为 body 的单一 Node）
@@ -293,6 +296,7 @@ body:
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
+| `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 ### `inputNumber`
 数字输入控件。
@@ -310,6 +314,7 @@ body:
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
+| `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 ```yaml
 type: inputNumber
@@ -340,6 +345,7 @@ props:
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 | `required` | boolean | 否 | 是否必填 |
 | `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
+| `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 ```yaml
 type: upload
@@ -373,6 +379,7 @@ props:
 | `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
+| `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 **OptionsSource（since 0.2）：**
 
@@ -415,6 +422,7 @@ props:
 | `max` | string | 否 | 可选最大日期（ISO 8601 格式 `YYYY-MM-DD`） |
 | `required` | boolean | 否 | 是否必填 |
 | `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
+| `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 ```yaml
 type: datePicker
@@ -443,6 +451,7 @@ props:
 | `max` | string | 否 | 可选最大日期（ISO 8601 格式 `YYYY-MM-DD`） |
 | `required` | boolean | 否 | 是否必填 |
 | `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
+| `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 ```yaml
 type: dateRangePicker

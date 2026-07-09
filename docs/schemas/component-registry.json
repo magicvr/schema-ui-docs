@@ -11,6 +11,7 @@
       "supportsStates": false,
       "props": {
         "columns": { "type": "number", "required": true },
+        "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false
       }
     },
@@ -51,6 +52,7 @@
             ]
           }
         },
+        "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false
       }
     },
@@ -238,6 +240,7 @@
           "since": "0.2.1",
           "description": "mode=search 时必填，关联表格的 Node id"
         },
+        "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false,
         "allOf": [
           {
@@ -271,6 +274,7 @@
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },
         "tooltip": { "type": "string", "required": false, "since": "0.2" },
+        "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -296,6 +300,7 @@
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },
         "tooltip": { "type": "string", "required": false, "since": "0.2" },
+        "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -320,6 +325,7 @@
         "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },
+        "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -344,6 +350,7 @@
         "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },
+        "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -370,6 +377,7 @@
         "tooltip": { "type": "string", "required": false, "since": "0.2", "description": "悬浮提示文案" },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },
+        "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -422,6 +430,7 @@
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },
         "tooltip": { "type": "string", "required": false, "since": "0.2" },
+        "span": { "type": "number", "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "allOf": [
