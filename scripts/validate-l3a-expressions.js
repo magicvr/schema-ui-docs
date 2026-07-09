@@ -614,6 +614,25 @@ function scanDataParams(params, paramsPath, violations, hasFormContext) {
 function validatePage(doc, fileLabel) {
   const violations = [];
   if (doc.body) scanNode(doc.body, 'body', violations, false, 0);
+
+  // --- datasources.*.params 中的 $deps.* 值替换（页面级预声明，永远非 form 上下文）---
+  if (doc.datasources && typeof doc.datasources === 'object' && !Array.isArray(doc.datasources)) {
+    for (const [sourceId, dataRef] of Object.entries(doc.datasources)) {
+      if (dataRef && dataRef.params && typeof dataRef.params === 'object') {
+        scanDataParams(dataRef.params, `datasources.${sourceId}.params`, violations, false);
+      }
+    }
+  }
+
+  // --- 遍历 actions[].type: modal 的 content Node ---
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        scanNode(actionDef.content, `actions.${actionId}.content`, violations, false, 0);
+      }
+    }
+  }
+
   return violations.map(v => ({ file: fileLabel, ...v }));
 }
 

@@ -136,14 +136,24 @@ function checkObjectForBannedKeys(obj, objPath, violations) {
 }
 
 /**
- * 扫描页面顶层文档（datasources 的 params 也要扫描）。
+ * 扫描页面顶层文档 body 与 actions[].type: modal 的 content Node。
+ * page-level actions 里的 payload 不属于 props，不在 L4 范围内。
  */
 function scanPage(doc, fileLabel) {
   const violations = [];
   if (doc.body) {
     scanNode(doc.body, 'body', violations);
   }
-  // page-level actions 里的 payload 不属于 props，不在 L4 范围内
+
+  // --- 遍历 actions[].type: modal 的 content Node ---
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        scanNode(actionDef.content, `actions.${actionId}.content`, violations);
+      }
+    }
+  }
+
   return violations.map(v => ({ file: fileLabel, ...v }));
 }
 

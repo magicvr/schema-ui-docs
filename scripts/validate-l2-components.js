@@ -541,6 +541,15 @@ function validateRowActionRefs(doc, violations) {
   };
 
   if (doc.body) scanNode(doc.body, 'body');
+
+  // --- 遍历 actions[].type: modal 的 content Node ---
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        scanNode(actionDef.content, `actions.${actionId}.content`);
+      }
+    }
+  }
 }
 
 function validateRequiredCapabilities(doc, violations) {
@@ -589,6 +598,15 @@ function validateRequiredCapabilities(doc, violations) {
   };
 
   if (doc.body) scanNode(doc.body, 'body');
+
+  // --- 遍历 actions[].type: modal 的 content Node ---
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        scanNode(actionDef.content, `actions.${actionId}.content`);
+      }
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -599,6 +617,16 @@ function validatePage(doc, fileLabel) {
   if (doc.body) {
     validateNode(doc.body, 'body', violations);
   }
+
+  // --- 遍历 actions[].type: modal 的 content Node ---
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        validateNode(actionDef.content, `actions.${actionId}.content`, violations);
+      }
+    }
+  }
+
   validateRowActionRefs(doc, violations);
   validateRequiredCapabilities(doc, violations);
   return violations.map(v => ({ file: fileLabel, ...v }));

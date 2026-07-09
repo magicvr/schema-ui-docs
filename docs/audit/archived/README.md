@@ -5,6 +5,23 @@
 
 ---
 
+## 0030 — 2026-07-10 — modal.content 校验盲区 + datasources.params 作用域缺口 + ADR-0004 附录残留
+
+**主题：** 修复 `actions[].type: modal` 的 `content` Node 完全不进 L2/L3a/L4 的校验盲区（V64🔴）、页面级 `datasources.*.params` 中 `$deps.*` 未被 L3a 扫描的作用域缺口（V65🟡）、以及 ADR-0004 附录矩阵未同步"仅表格位于 form.children 内"前提（V66🟢）。
+**性质：** 校验遍历边界收敛 + 脚本/文档一致性补齐 + ADR 附录同步。
+
+| 文件 | 说明 |
+|---|---|
+| [0030-2026-07-10-review.md](./0030-2026-07-10-review.md) | 审视报告 — V64🔴/V65🟡/V66🟢 |
+| [0030-2026-07-10-checklist.md](./0030-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V64: L2/L3a/L4 遍历 `doc.actions[*].type: modal` 的 `content` Node，消除校验盲区
+- V65: L3a 扫描 `doc.datasources[*].params` 中 `$deps.*`（固定非 form 上下文）；`06` 文档同步
+- V66: ADR-0004 附录矩阵拆分为 form 内 ✅ / 独立表格 ❌ 两行
+
+---
+
 ## 0029 — 2026-07-10 — 表达式交叉引用 + reactions 术语边界 + 作用域/校验缺口 + method 缺省语义
 
 **主题：** 修复 `02` §2 禁止事项章节引用漂移（V55🔴）、`reactions`「仅表单」术语与表格行级 reactions 冲突（V56🔴）、ADR-0003 `$context.user` 最小字段集与后果段残留（V57🟡）、表格列 `scope: form` + `$deps.*` 三方不一致（V58🟡）、`optionsSource.params` 未纳入 L3a 且 form 上下文可绕过（V59🟡）、`DataRef.method` / upload `method` 缺省语义缺失（V60🟡/V61🟡）、`08` 运算符白名单章节歧义（V62🟢）以及场景 `last_updated` 漂移（V63🟢）。
