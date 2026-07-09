@@ -115,7 +115,8 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.7
     │   ├── README.md
     │   ├── grid-dashboard.md
     │   ├── data-table.md
-    │   └── form-with-reactions.md
+    │   ├── form-with-reactions.md
+    │   └── row-backend-actions.md
     ├── 06-validation.md            # 校验规则与工具链
     ├── 07-actions-contract.md      # Action 行为契约（since 0.2）
     ├── 08-renderer-spec.md         # Renderer 实现规范（since 0.2.1）
@@ -136,7 +137,8 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.7
     │   ├── 0004-row-level-scope.md
     │   ├── 0005-response-mapping.md
     │   ├── 0006-expression-evaluation-order.md
-    │   └── 0007-mcp-protocol-reader-validator.md
+    │   ├── 0007-mcp-protocol-reader-validator.md
+    │   └── 0008-row-action-backend-request.md
     ├── audit/                      # 过程性审计与迭代记录（详见 audit/README.md）
     │   ├── README.md               # 活跃清单 + 编号规则
     │   └── archived/               # 已归档历史审计（详见 archived/README.md）

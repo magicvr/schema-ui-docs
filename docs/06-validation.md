@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-08
+last_updated: 2026-07-09
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -13,10 +13,10 @@ applies_to: schema-ui-protocol v0.2
 |---|---|---|---|
 | L0 页面结构校验 | [`schemas/page.schema.json`](./schemas/page.schema.json) | 后端 CI / 提交前 | 顶层文档结构（`meta` + `datasources` + `body` + `actions`）合法性；校验 `meta.protocolVersion` 为 MAJOR.MINOR 格式 |
 | L1 Node 结构校验 | [`schemas/node.schema.json`](./schemas/node.schema.json) | 后端 CI / 提交前 | Node 结构是否合法（字段名、类型）。L1 只能校验 `data.responseMapping` 的键名、点路径格式和最小字段数，不能单独判断列表类接口必须声明 `list`、服务端分页表格必须声明 `total` 等依赖组件类型和 props 的语义条件 |
-| L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) + [`scripts/validate-l2-components.js`](./scripts/validate-l2-components.js) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约；同时补充依赖组件语义的校验，如 `responseMapping` 条件必填、PATCH 级能力声明、`RowAction.actionRef` 引用和行级 `requestMapping` 规则。该文件是自定义 DSL，校验器必须按 `03-component-registry.md` 的关键字白名单处理字段表和组合约束，不能只读取 props 字段表，也不能直接当作标准 JSON Schema 交给 AJV |
-| L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + [`scripts/validate-l3a-expressions.js`](./scripts/validate-l3a-expressions.js) | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查 |
+| L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) + [`scripts/validate-l2-components.js`](../scripts/validate-l2-components.js) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约；同时补充依赖组件语义的校验，如 `responseMapping` 条件必填、PATCH 级能力声明、`RowAction.actionRef` 引用和行级 `requestMapping` 规则。该文件是自定义 DSL，校验器必须按 `03-component-registry.md` 的关键字白名单处理字段表和组合约束，不能只读取 props 字段表，也不能直接当作标准 JSON Schema 交给 AJV |
+| L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + [`scripts/validate-l3a-expressions.js`](../scripts/validate-l3a-expressions.js) | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查 |
 | L3b 表达式运行时求值 | Renderer 表达式引擎 | 交互/数据变化时 | 仅在已通过 L3a 校验的表达式上执行实际求值 |
-| L4 语义禁用词校验 | [`scripts/lint-l4-banned-props.js`](./scripts/lint-l4-banned-props.js) | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`），可覆盖 Schema 表达力之外的场景（如深层嵌套结构）。**注意：本仓库已在 `scripts/lint-l4-banned-props.js` 中提供可执行 lint 脚本，各接入方可直接使用；也可复用 L1（JSON Schema `not.anyOf`）作为基础防线。** |
+| L4 语义禁用词校验 | [`scripts/lint-l4-banned-props.js`](../scripts/lint-l4-banned-props.js) | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`），可覆盖 Schema 表达力之外的场景（如深层嵌套结构）。**注意：本仓库已在 `scripts/lint-l4-banned-props.js` 中提供可执行 lint 脚本，各接入方可直接使用；也可复用 L1（JSON Schema `not.anyOf`）作为基础防线。** |
 
 > **v0.2 变更（A1，双轨策略）：** L1（`node.schema.json` 的 `not`+`anyOf`）与 L4（lint 脚本）是**两层独立防线**，而非同一规则的重复实现：
 > - **L1** 通过 JSON Schema 的 `not: { anyOf: [...] }` 逐一禁止每个 CSS 属性名单独出现在 `props` 中，随 CI 自动挂载生效，无需额外配置，是**自动生效的基础防线**。
@@ -33,12 +33,12 @@ applies_to: schema-ui-protocol v0.2
 提交 YAML
   → L0 [`page.schema.json`](./schemas/page.schema.json) 顶层文档结构校验
   → L1 [`node.schema.json`](./schemas/node.schema.json) Node 结构校验
-  → L2 组件契约校验（node_modules）[`scripts/validate-l2-components.js`](./scripts/validate-l2-components.js)
-  → L4 禁用词扫描（防止 CSS 属性混入）[`scripts/lint-l4-banned-props.js`](./scripts/lint-l4-banned-props.js)
+  → L2 组件契约校验（node_modules）[`scripts/validate-l2-components.js`](../scripts/validate-l2-components.js)
+  → L4 禁用词扫描（防止 CSS 属性混入）[`scripts/lint-l4-banned-props.js`](../scripts/lint-l4-banned-props.js)
   → 通过后允许合并
   ↓
 加载配置时（Renderer）
-  → L3a 表达式静态校验（语法、作用域、变量声明）[`scripts/validate-l3a-expressions.js`](./scripts/validate-l3a-expressions.js)
+  → L3a 表达式静态校验（语法、作用域、变量声明）[`scripts/validate-l3a-expressions.js`](../scripts/validate-l3a-expressions.js)
   ↓
 运行时（前端交互/数据变化时）
   → L3b 表达式运行时求值（仅在通过 L3a 的表达式上执行）

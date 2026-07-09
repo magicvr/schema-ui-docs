@@ -5,6 +5,24 @@
 
 ---
 
+## 0025 — 2026-07-09 — 入口索引 + 组件 DSL + 链接与元数据漂移
+
+**主题：** 修复根 README 漏列 v0.2.7 行级后端动作示例与 ADR-0008（V39🟡）、`upload.props.placeholder` 正文允许但组件 DSL 未声明导致 L2 拒绝（V40🔴）、`06-validation.md` 脚本链接相对路径错误（V41🟢）、以及 v0.2.7 触达文档 `last_updated` 未同步（V42🟢）。
+**性质：** 入口索引同步 + 正文/机器契约一致性修复 + 文档链接与元数据收敛。
+
+| 文件 | 说明 |
+|---|---|
+| [0025-2026-07-09-review.md](./0025-2026-07-09-review.md) | 审视报告 — V39🟡/V40🔴/V41🟢/V42🟢 |
+| [0025-2026-07-09-checklist.md](./0025-2026-07-09-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V39: 根 README 目录树补齐 `row-backend-actions.md` 与 ADR-0008，且未展开审计文件清单
+- V40: `component-registry.json` 为 `upload.props` 补充 `placeholder`，并用最小页面样例验证全链路校验通过
+- V41: `06-validation.md` 中脚本链接目标统一修正为 `../scripts/...`
+- V42: `06-validation.md`、`07-actions-contract.md`、`05-scenarios/data-table.md` 的 `last_updated` 同步为 2026-07-09
+
+---
+
 ## 0024 — 2026-07-09 — MVP 协议稳定性复查：能力协商 + L3a scope + 组件语义边界
 
 **主题：** 修复 PATCH 级执行能力缺少显式协商机制（V35🔴）、L3a 表格表达式默认 `scope: row` 导致省略显式 scope 仍可使用 `$row.*`（V36🔴），并澄清 `text` 数据兜底语义（V37🟡）与 `RowAction.key` 执行边界（V38🟡）。
