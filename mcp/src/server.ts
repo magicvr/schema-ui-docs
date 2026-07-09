@@ -5,9 +5,10 @@ import { handleGetComponent, handleListComponents, getComponentInputSchema } fro
 import { handleGetDoc, getDocInputSchema } from './tools/docs.js';
 import { handleSearch, searchInputSchema } from './tools/search.js';
 import { handleValidateContent, validateContentInputSchema } from './tools/validate-content.js';
+import packageJson from '../package.json' with { type: 'json' };
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: 'schema-ui-mcp', version: '0.2.6' }, {
+  const server = new McpServer({ name: 'schema-ui-mcp', version: packageJson.version }, {
     instructions: 'Schema-UI protocol read-only query and content validation tools. This server does not read caller project files.',
   });
 
