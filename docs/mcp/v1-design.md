@@ -102,7 +102,7 @@ Docker 镜像内置协议文档、Schema、组件注册 DSL、校验脚本、Nod
   "components": [
     {
       "type": "table",
-      "category": "data",
+      "category": "数据",
       "supportsChildren": false,
       "supportsData": true,
       "supportsReactions": false,
@@ -112,7 +112,7 @@ Docker 镜像内置协议文档、Schema、组件注册 DSL、校验脚本、Nod
 }
 ```
 
-分类由 MCP 根据 `03-component-registry.md` 的章节和 `component-registry.json` 组件顺序派生。分类仅用于导航，不作为协议校验依据。
+分类由 MCP 根据 `03-component-registry.md` 的章节标题和 `component-registry.json` 组件顺序派生；当前返回值使用章节标题规范化后的中文分类（如 `数据`）。分类仅用于导航，不作为协议校验依据。
 
 ### 3.4 `protocol.get_component`
 

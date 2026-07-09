@@ -80,6 +80,11 @@ body:
   type: table
   props:
     rowKey: orderId
+    pagination:
+      mode: server
+    columns:
+      - field: orderId
+        label: 订单号
     actions:
       - key: approve
         label: 通过

@@ -513,13 +513,13 @@ function validateProps(props, compDef, type, nodePath, violations) {
  * responseMapping 语义规则（ADR-0005 + 04-datasource-contract.md §4.1.1）
  *
  * 规则：
- *   - table 与 chart 是数组消费类接口；使用 API 数据且声明了 responseMapping 时必须有 list。
+ *   - table 与 chart 是数组消费类接口；使用 API / ref 本地映射且声明了 responseMapping 时必须有 list。
  *     其他 supportsData 组件（statCard / text）是单值/聚合数据，不强制要求 list。
  *   - table.props.pagination.mode === 'server' 时，若声明了 responseMapping，则必须有 responseMapping.total。
  */
 function validateResponseMapping(node, type, compDef, nodePath, violations) {
   const { data, props = {} } = node;
-  if (!data || data.source !== 'api') return;
+  if (!data || !['api', 'ref'].includes(data.source)) return;
 
   const rm = data.responseMapping;
 
@@ -527,7 +527,7 @@ function validateResponseMapping(node, type, compDef, nodePath, violations) {
   if ((type === 'table' || type === 'chart') && rm !== undefined && !rm?.list) {
     violations.push({
       path: `${nodePath}.data.responseMapping.list`,
-      message: `${type} 组件使用 API 数据且声明了 responseMapping，必须提供 responseMapping.list`,
+      message: `${type} 组件使用 API/ref 数据且声明了 responseMapping，必须提供 responseMapping.list`,
     });
   }
 

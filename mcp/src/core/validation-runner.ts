@@ -7,7 +7,7 @@ import yaml from 'js-yaml';
 import { Ajv, type ErrorObject } from 'ajv';
 import { protocolPath } from './paths.js';
 import { buildSuggestedDocs } from './suggested-docs.js';
-import type { LayerViolation, ParseError, ValidateContentResult, ValidationLayer } from '../types.js';
+import type { LayerViolation, ParseError, ToolError, ValidateContentResult, ValidationLayer } from '../types.js';
 
 const MAX_CONTENT_BYTES = 1024 * 1024;
 
@@ -28,6 +28,20 @@ type RunnerInput = {
   format: 'yaml' | 'json';
   filename?: string;
 };
+
+type LayerScriptResult = {
+  violations: LayerViolation[];
+  parseErrors: ParseError[];
+  internalError: ToolError | null;
+};
+
+type LayerScriptExecutor = (scriptName: string, filePath: string, layer: ValidationLayer) => string;
+
+let layerScriptExecutor: LayerScriptExecutor = defaultLayerScriptExecutor;
+
+export function setLayerScriptExecutorForTest(executor: LayerScriptExecutor | null): void {
+  layerScriptExecutor = executor ?? defaultLayerScriptExecutor;
+}
 
 export function validateContent(input: RunnerInput): ValidateContentResult {
   const baseResult: ValidateContentResult = {
@@ -79,6 +93,15 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
     layers.L2 = l2.violations;
     layers.L3a = l3a.violations;
     layers.L4 = l4.violations;
+
+    const internalError = l2.internalError ?? l3a.internalError ?? l4.internalError;
+    if (internalError) {
+      return finalize({
+        ...baseResult,
+        layers,
+        internalError,
+      });
+    }
 
     const scriptParseError = firstParseError([l2.parseErrors, l3a.parseErrors, l4.parseErrors], input.filename);
     return finalize({
@@ -157,17 +180,22 @@ function mapAjvError(error: ErrorObject): LayerViolation {
 function runLayerScript(scriptName: string, filePath: string, layer: ValidationLayer): {
   violations: LayerViolation[];
   parseErrors: ParseError[];
+  internalError: ToolError | null;
 } {
-  const scriptPath = protocolPath('scripts', scriptName);
   let raw = '';
 
   try {
-    raw = execFileSync(process.execPath, [scriptPath, filePath, '--json'], {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
+    raw = layerScriptExecutor(scriptName, filePath, layer);
   } catch (error) {
-    raw = getChildOutput(error, 'stdout') || getChildOutput(error, 'stderr');
+    const childOutput = getChildOutput(error, 'stdout') || getChildOutput(error, 'stderr');
+    if (!childOutput.trim()) {
+      return {
+        violations: [],
+        parseErrors: [],
+        internalError: { message: `[${layer}] 校验脚本执行失败` },
+      };
+    }
+    raw = childOutput;
   }
 
   let parsed: ScriptJson;
@@ -175,8 +203,9 @@ function runLayerScript(scriptName: string, filePath: string, layer: ValidationL
     parsed = raw.trim() ? JSON.parse(raw) as ScriptJson : {};
   } catch {
     return {
-      violations: [{ path: '', message: `[${layer}] 无法解析校验脚本 JSON 输出` }],
+      violations: [],
       parseErrors: [],
+      internalError: { message: `[${layer}] 无法解析校验脚本 JSON 输出` },
     };
   }
 
@@ -186,7 +215,16 @@ function runLayerScript(scriptName: string, filePath: string, layer: ValidationL
       message: item.error ?? '解析失败',
       filename: item.file,
     })),
+    internalError: null,
   };
+}
+
+function defaultLayerScriptExecutor(scriptName: string, filePath: string): string {
+  const scriptPath = protocolPath('scripts', scriptName);
+  return execFileSync(process.execPath, [scriptPath, filePath, '--json'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
 }
 
 function mapScriptViolation(item: Record<string, unknown>, layer: ValidationLayer): LayerViolation {

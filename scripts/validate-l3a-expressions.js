@@ -69,6 +69,7 @@ const TT = {
 const ALLOWED_KEYWORDS = new Set(['contains', 'true', 'false', 'null']);
 // 变量命名空间前缀白名单
 const ALLOWED_NS_PREFIXES = ['$deps.', '$self', '$row.', '$parentRow.', '$context.'];
+const ALLOWED_CONTEXT_ROOTS = new Set(['user', 'features']);
 
 /**
  * 把表达式字符串拆成 token 列表。
@@ -310,16 +311,28 @@ function validateExpression(expr, exprPath, context) {
     .map(v => v.slice('$deps.'.length).split('.')[0]); // 取第一段字段名
 
   // 2. 变量命名空间白名单
-  for (const v of vars) {
+  for (const variableName of vars) {
     // $self 精确匹配，单独处理
-    if (v === '$self') continue;
-    const allowed = ALLOWED_NS_PREFIXES.some(prefix => v.startsWith(prefix));
+    if (variableName === '$self') continue;
+    const allowed = ALLOWED_NS_PREFIXES.some(prefix => variableName.startsWith(prefix));
     if (!allowed) {
       violations.push({
         path: exprPath,
         rule: 'UNKNOWN_VARIABLE',
-        message: `未知变量命名空间 "${v}"，只允许：${ALLOWED_NS_PREFIXES.join(', ')}`,
+        message: `未知变量命名空间 "${variableName}"，只允许：${ALLOWED_NS_PREFIXES.join(', ')}`,
       });
+      continue;
+    }
+
+    if (variableName.startsWith('$context.')) {
+      const contextRoot = variableName.slice('$context.'.length).split('.')[0];
+      if (!ALLOWED_CONTEXT_ROOTS.has(contextRoot)) {
+        violations.push({
+          path: exprPath,
+          rule: 'UNKNOWN_CONTEXT_NAMESPACE',
+          message: `未知 $context 根命名空间 "${contextRoot}"，只允许：${[...ALLOWED_CONTEXT_ROOTS].join(', ')}`,
+        });
+      }
     }
   }
 
@@ -366,12 +379,12 @@ function validateExpression(expr, exprPath, context) {
     });
   }
 
-  // 6. permissions.* 不能用 $deps.*（§10.2）
-  if (location === 'permission' && hasDepRef) {
+  // 6. permissions.* 仅允许 $context.*（§10.2 + 附录 A）
+  if (location === 'permission' && vars.some(variableName => !variableName.startsWith('$context.'))) {
     violations.push({
       path: exprPath,
-      rule: 'PERM_NO_DEPS',
-      message: 'permissions.* 表达式中禁止出现 $deps.*，只允许 $context.*',
+      rule: 'PERM_CONTEXT_ONLY',
+      message: 'permissions.* 表达式中只允许使用 $context.*',
     });
   }
 
@@ -555,6 +568,14 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
             }));
           }
         });
+      }
+      if (action.permissions) {
+        for (const [permissionKey, expr] of Object.entries(action.permissions)) {
+          if (typeof expr !== 'string') continue;
+          violations.push(...validateExpression(expr, `${actBase}.permissions.${permissionKey}`, {
+            scope: 'form', dependencies: [], location: 'permission', hasFormContext: false,
+          }));
+        }
       }
     });
   }
