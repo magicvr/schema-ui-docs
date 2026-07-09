@@ -9,7 +9,8 @@
  *   2. 变量命名空间 —— 只允许 $deps.* / $self / $row.* / $parentRow.* / $context.*
  *   3. 作用域隔离规则（02-reaction-expression.md §9、§10）
  *      - scope:row 不能出现 $deps.*
- *      - scope:form 不能出现 $row.*
+ *      - scope:form 不能出现 $row.* / $parentRow.*
+ *      - $parentRow.* 仅允许嵌套表格内的 scope:row 表达式
  *      - permissions.* 不能出现 $deps.*
  *      - 非表单 visibleWhen（无 dependencies）不能出现 $deps.*
  *      - 表格 actions 的 scope:row 不能出现 $self
@@ -279,11 +280,12 @@ function validateExpression(expr, exprPath, context) {
    * {
    *   scope: 'form' | 'row' | undefined,
    *   dependencies: string[],          // reactions/visibleWhen 声明的 deps
-   *   location: 'reaction' | 'visibleWhen' | 'permission' | 'tableAction' | 'tableColumn',
-   *   hasFormContext: boolean,          // 节点是否处于表单上下文（有 dependencies 声明）
+  *   location: 'reaction' | 'visibleWhen' | 'permission' | 'tableAction' | 'tableColumn',
+  *   hasFormContext: boolean,          // 节点是否处于表单上下文（有 dependencies 声明）
+  *   allowParentRow: boolean,          // 当前表达式是否处于嵌套表格的行级上下文
    * }
    */
-  const { scope = 'form', dependencies = [], location, hasFormContext = true } = context;
+  const { scope = 'form', dependencies = [], location, hasFormContext = true, allowParentRow = false } = context;
   const violations = [];
 
   if (typeof expr !== 'string' || !expr.trim()) {
@@ -330,8 +332,9 @@ function validateExpression(expr, exprPath, context) {
     }
   }
 
-  const hasDepRef  = vars.some(v => v.startsWith('$deps.'));
-  const hasRowRef  = vars.some(v => v.startsWith('$row.') || v === '$row.__index' || v === '$row.__key');
+  const hasDepRef = vars.some(v => v.startsWith('$deps.'));
+  const hasRowRef = vars.some(v => v.startsWith('$row.'));
+  const hasParentRowRef = vars.some(v => v.startsWith('$parentRow.'));
   const hasSelfRef = vars.some(v => v === '$self');
 
   // 4. 作用域隔离：scope:row 不能用 $deps.*
@@ -343,12 +346,21 @@ function validateExpression(expr, exprPath, context) {
     });
   }
 
-  // 5. 作用域隔离：scope:form 不能用 $row.*
-  if (scope === 'form' && hasRowRef) {
+  // 5. 作用域隔离：scope:form 不能用 $row.* / $parentRow.*
+  if (scope === 'form' && (hasRowRef || hasParentRowRef)) {
     violations.push({
       path: exprPath,
       rule: 'SCOPE_ISOLATION',
-      message: 'scope:form 的表达式中不能出现 $row.*（需要行数据请使用 scope:row）',
+      message: 'scope:form 的表达式中不能出现 $row.* / $parentRow.*（需要行数据请使用 scope:row）',
+    });
+  }
+
+  // 5a. $parentRow.* 仅允许嵌套表格内的行级表达式
+  if (hasParentRowRef && !allowParentRow) {
+    violations.push({
+      path: exprPath,
+      rule: 'PARENT_ROW_SCOPE',
+      message: '$parentRow.* 仅允许嵌套表格内的 scope:row 表达式使用',
     });
   }
 
@@ -404,10 +416,12 @@ function isFormContext(node) {
     (Array.isArray(node.reactions) && node.reactions.some(r => Array.isArray(r.dependencies) && r.dependencies.length > 0));
 }
 
-function scanNode(node, nodePath, violations, parentIsForm) {
+function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
   if (!node || typeof node !== 'object') return;
 
   const inFormCtx = parentIsForm || isFormContext(node);
+  const currentTableDepth = node.type === 'table' ? tableDepth + 1 : tableDepth;
+  const allowParentRow = tableDepth > 0;
 
   // --- reactions[].when ---
   if (Array.isArray(node.reactions)) {
@@ -458,7 +472,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
         const scope = col.visibleWhen.scope || 'form';
         const deps = Array.isArray(col.visibleWhen.dependencies) ? col.visibleWhen.dependencies : [];
         violations.push(...validateExpression(col.visibleWhen.when, `${colBase}.visibleWhen.when`, {
-          scope, dependencies: deps, location: 'tableColumn', hasFormContext: false,
+          scope, dependencies: deps, location: 'tableColumn', hasFormContext: false, allowParentRow,
         }));
       }
       if (Array.isArray(col.reactions)) {
@@ -467,7 +481,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(r.when, `${colBase}.reactions[${ri}].when`, {
-              scope, dependencies: deps, location: 'tableColumn', hasFormContext: false,
+              scope, dependencies: deps, location: 'tableColumn', hasFormContext: false, allowParentRow,
             }));
           }
         });
@@ -489,7 +503,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
         const scope = action.visibleWhen.scope || 'form';
         const deps = Array.isArray(action.visibleWhen.dependencies) ? action.visibleWhen.dependencies : [];
         violations.push(...validateExpression(action.visibleWhen.when, `${actBase}.visibleWhen.when`, {
-          scope, dependencies: deps, location: 'tableAction', hasFormContext: false,
+          scope, dependencies: deps, location: 'tableAction', hasFormContext: false, allowParentRow,
         }));
       }
       if (Array.isArray(action.reactions)) {
@@ -498,7 +512,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(r.when, `${actBase}.reactions[${ri}].when`, {
-              scope, dependencies: deps, location: 'tableAction', hasFormContext: false,
+              scope, dependencies: deps, location: 'tableAction', hasFormContext: false, allowParentRow,
             }));
           }
         });
@@ -509,7 +523,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
   // --- 递归 children ---
   if (Array.isArray(node.children)) {
     node.children.forEach((child, idx) => {
-      scanNode(child, `${nodePath}.children[${idx}]`, violations, inFormCtx);
+      scanNode(child, `${nodePath}.children[${idx}]`, violations, inFormCtx, currentTableDepth);
     });
   }
 
@@ -517,7 +531,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
   if (node.props && Array.isArray(node.props.items)) {
     node.props.items.forEach((item, idx) => {
       if (item && item.content) {
-        scanNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, inFormCtx);
+        scanNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, inFormCtx, currentTableDepth);
       }
     });
   }
@@ -525,7 +539,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
 
 function validatePage(doc, fileLabel) {
   const violations = [];
-  if (doc.body) scanNode(doc.body, 'body', violations, false);
+  if (doc.body) scanNode(doc.body, 'body', violations, false, 0);
   return violations.map(v => ({ file: fileLabel, ...v }));
 }
 
