@@ -5,6 +5,26 @@
 
 ---
 
+## 0033 — 2026-07-10 — upload.actionRef 能力声明提示缺失 + permissions 文档表述残留 + MCP get_doc 示例/截断偏差 + v1-design 状态漂移
+
+**主题：** 修复 `upload.props.actionRef` 的 `actions.upload` 能力声明提示未同步到入口文档（V79🟡）、`permissions` 仍被列为可通过 `scope` 声明作用域（V80🟡）、权限扩展键声明机制缺口（V81🟡）、`protocol.get_doc` 示例 docId 与白名单不一致（V82🟡）、`protocol.get_doc` 截断时未返回章节建议（V83🟡）、以及 v1-design.md frontmatter 仍为 draft（V84🟢）。
+**性质：** 协议入口文档能力声明提示补齐 + permissions 作用域与扩展键口径统一 + MCP 文档示例与实现同步 + 审计证据链修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0033-2026-07-10-review.md](./0033-2026-07-10-review.md) | 审视报告 — V79🟡/V80🟡/V81🟡/V82🟡/V83🟡/V84🟢 |
+| [0033-2026-07-10-checklist.md](./0033-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V79: `03-component-registry.md`/`component-registry.json`/`07-actions-contract.md` 入口文档补齐 `actions.upload` 能力声明提示
+- V80: 组件文档与 ADR-0004 统一 permissions 定位为 `$context.*` 固定权限语义，不再参与 scope 作用域
+- V81: 扩展权限键口径统一为"协议层不限制键名，项目侧自行约束"（选项 A）
+- V82: `protocol.get_doc` 示例 docId 从 `02-reaction-expression` 修正为 `reaction-expression`
+- V83: `getDoc()` 截断时新增 `availableSections` 章节标题数组，同步文档与测试
+- V84: v1-design.md frontmatter 从 `draft` 改为 `stable`
+
+---
+
 ## 0032 — 2026-07-10 — DataRef/权限静态校验缺口 + MCP 文档/错误分类漂移 + Action 示例不可执行
 
 **主题：** 修复 `source: ref` 本地 `responseMapping` 未进入 L2 条件必填校验（V71🟡）、RowAction `permissions` 未被 L3a 扫描（V72🟡）、`permissions.*` 未完整限制为 `$context.*`（V73🟡）、`$context` 根命名空间白名单未执行（V74🟡）、MCP 子脚本异常误归类为协议违规（V75🟡）、`protocol.list_components.category` 示例漂移（V76🟡）、MCP v1 实施计划状态漂移（V77🟢）、以及 `07-actions-contract.md` 行级后端请求示例不可执行（V78🟡）。

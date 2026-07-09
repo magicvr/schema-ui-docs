@@ -80,6 +80,7 @@ export function getDoc(docId: string, section?: string): {
   matchedSection: string | null;
   content: string;
   truncated: boolean;
+  availableSections?: string[];
 } {
   const entry = getDocEntry(docId);
   if (!entry) {
@@ -104,8 +105,9 @@ export function getDoc(docId: string, section?: string): {
 
   const maxLength = 20 * 1024;
   const truncated = content.length > maxLength;
+  const availableSections = truncated ? splitSections(markdown).map(item => item.title) : undefined;
   if (truncated) {
-    content = `${content.slice(0, maxLength)}\n\n[内容已截断，请传入更精确的 section]`;
+    content = `${content.slice(0, maxLength)}\n\n[内容已截断，请传入更精确的 section，并参考 availableSections]`;
   }
 
   return {
@@ -115,6 +117,7 @@ export function getDoc(docId: string, section?: string): {
     matchedSection,
     content,
     truncated,
+    availableSections,
   };
 }
 

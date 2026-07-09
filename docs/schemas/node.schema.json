@@ -201,7 +201,7 @@
       },
       "additionalProperties": {
         "type": "string",
-        "description": "扩展动作键（如 approve/export），需在 component-registry.json 的组件契约中声明"
+        "description": "扩展动作键（如 approve/export）；协议层不限制键名，建议由接入方通过项目级 CI/Review 约束"
       },
       "minProperties": 1
     }

@@ -182,7 +182,7 @@ handler: string   # 仅允许引用前端白名单预注册的处理函数名
 
 ## 7. `upload` 类型（since 0.2.5）
 
-用于定义可复用的文件上传行为。`upload` 组件若需要复用顶层 action，应通过 `props.actionRef` 引用该 action；既有 `props.action` 字段仍表示上传接口 URL，不作为 action id 解析。
+用于定义可复用的文件上传行为。`upload` 组件若需要复用顶层 action，应通过 `props.actionRef` 引用该 action；使用该能力时页面必须声明 `meta.requiredCapabilities: [actions.upload]`。既有 `props.action` 字段仍表示上传接口 URL，不作为 action id 解析。
 
 ```yaml
 type: upload

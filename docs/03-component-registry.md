@@ -183,7 +183,7 @@ data:
 
 > **行内操作执行边界：** 未声明 `actionRef` 时，`RowAction.key` 只用于 Renderer 将点击事件分发给前端预注册的行内操作处理器，并由该处理器接收当前行上下文。声明 `actionRef` 时，Renderer 按 [ADR-0008](./decisions/0008-row-action-backend-request.md) 与 [07-actions-contract.md §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) 执行标准行级后端请求；`key` 仍保留为操作类型标识，不变成顶层 action id。
 
-**作用域说明（since 0.2.1）：** 列/操作内的 `visibleWhen`/`reactions`/`permissions` 可通过 `scope` 属性声明求值作用域：
+**作用域说明（since 0.2.1）：** 列/操作内的 `visibleWhen`/`reactions` 可通过 `scope` 属性声明求值作用域；`permissions` 固定仅允许 `$context.*`，不参与 `scope` 语义：
 - `scope: form`（默认）：表达式在表单级求值，可访问 `$deps.*`（表单字段），不可访问 `$row.*`。**注意：仅当表格本身位于 `form.children` 内（如搜索表单嵌入表格场景）时，`$deps.*` 才合法；独立表格的列/操作中即使声明 `scope: form`，`$deps.*` 仍被静态校验拒绝（见 [02-reaction-expression.md §9.1](./02-reaction-expression.md#91-作用域隔离规则)）。
 - `scope: row`（显式声明）：表达式在行级求值，可访问 `$row.*`（当前行数据），不可访问 `$deps.*`；`$context.*` 两种作用域下均可访问。`scope: row` 下的 `fulfill` 仅允许 `visible`/`disabled` 状态键。
 
@@ -339,7 +339,7 @@ props:
 | `maxSize` | number | 否 | 最大文件大小，单位字节（如 `5242880` 表示 5MB） |
 | `multiple` | boolean | 否 | 是否支持多文件上传（默认 `false`） |
 | `action` | string | 与 `actionRef` 二选一 | 上传接口地址（相对路径，baseURL 由 Renderer 拼接） |
-| `actionRef` | string | 与 `action` 二选一（since 0.2.5） | 引用顶层 `actions` 中 `type: upload` 的动作 id |
+| `actionRef` | string | 与 `action` 二选一（since 0.2.5） | 引用顶层 `actions` 中 `type: upload` 的动作 id；使用时页面必须声明 `meta.requiredCapabilities: [actions.upload]` |
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |

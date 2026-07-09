@@ -1,5 +1,5 @@
 ---
-status: draft
+status: stable
 date: 2026-07-09
 based_on: ../decisions/0007-mcp-protocol-reader-validator.md
 ---
@@ -78,7 +78,7 @@ Docker 镜像内置协议文档、Schema、组件注册 DSL、校验脚本、Nod
 
 ```json
 {
-  "docId": "02-reaction-expression",
+  "docId": "reaction-expression",
   "section": "作用域"
 }
 ```
@@ -89,7 +89,21 @@ Docker 镜像内置协议文档、Schema、组件注册 DSL、校验脚本、Nod
 - `section` 可选；
 - v1 支持固定文档 id 白名单，不接受任意路径；
 - `section` 至少支持二级标题匹配（`##` + `###`）；匹配到 `##` 时返回该章节及其子章节，匹配到 `###` 时返回该子章节内容；多个标题命中时返回文档顺序中的第一个，并在结果中标明实际命中的标题；
-- 单次返回建议不超过 20KB，超出时返回截断提示和章节建议。
+- 单次返回建议不超过 20KB，超出时返回截断提示，并附 `availableSections` 章节标题数组，便于调用方使用更精确的 `section` 重试。
+
+输出示例（截断时）：
+
+```json
+{
+  "docId": "component-registry",
+  "title": "组件类型（type）注册表",
+  "path": "docs/03-component-registry.md",
+  "matchedSection": null,
+  "content": "...",
+  "truncated": true,
+  "availableSections": ["如何阅读本表", "布局类", "展示类", "数据类", "表单类"]
+}
+```
 
 ### 3.3 `protocol.list_components`
 
