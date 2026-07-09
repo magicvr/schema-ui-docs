@@ -46,3 +46,34 @@ actions:
     method: POST
     url: /api/upload
 `;
+
+export const missingRowRequestCapabilityYaml = `
+meta:
+  pageId: row_request_page
+  title: Row Request Page
+  protocolVersion: "0.2"
+actions:
+  approveOrder:
+    type: request
+    method: POST
+    url: /api/orders/{orderId}/approve
+body:
+  type: table
+  props:
+    rowKey: orderId
+    pagination:
+      mode: server
+    columns:
+      - field: orderId
+        label: Order ID
+    actions:
+      - key: approve
+        label: Approve
+        actionRef: approveOrder
+        requestMapping:
+          path:
+            orderId: $row.orderId
+  data:
+    source: api
+    url: /api/orders
+`;

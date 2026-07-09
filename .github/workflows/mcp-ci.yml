@@ -45,8 +45,13 @@ jobs:
       - name: Smoke test MCP tools
         run: npm --prefix mcp run smoke:tools
 
+      - name: Read MCP version
+        id: mcp-version
+        shell: bash
+        run: echo "version=$(node -p \"require('./mcp/package.json').version\")" >> "$GITHUB_OUTPUT"
+
       - name: Build MCP Docker image
-        run: docker build -f mcp/Dockerfile -t schema-ui-mcp:0.2.6 .
+        run: docker build -f mcp/Dockerfile -t schema-ui-mcp:${{ steps.mcp-version.outputs.version }} .
 
       - name: Smoke test MCP Docker image
-        run: npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.6
+        run: npm --prefix mcp run smoke:docker -- schema-ui-mcp:${{ steps.mcp-version.outputs.version }}

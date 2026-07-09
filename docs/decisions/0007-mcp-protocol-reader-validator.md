@@ -164,14 +164,14 @@ MCP v1 使用 stdio transport。
 镜像 tag 与协议版本对齐：
 
 ```text
-schema-ui-mcp:0.2.6
+schema-ui-mcp:0.2.7
 schema-ui-mcp:0.2
 schema-ui-mcp:latest
 ```
 
 约定：
 
-- 文档示例必须使用 PATCH tag（如 `0.2.6`），避免工程师无意跟随 `latest` 升级；
+- 文档示例必须使用 PATCH tag（如 `0.2.7`），避免工程师无意跟随 `latest` 升级；
 - `0.2` 可指向当前最新 `0.2.x`；
 - `latest` 可发布，但不作为接入示例；
 - 每次协议 PATCH 发布时，同步发布对应 MCP 镜像；

@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { validateContent } from '../src/core/validation-runner.js';
-import { extractFirstYamlFence, missingRowScopeYaml, missingUploadCapabilityYaml } from './test-utils.js';
+import {
+  extractFirstYamlFence,
+  missingRowRequestCapabilityYaml,
+  missingRowScopeYaml,
+  missingUploadCapabilityYaml,
+} from './test-utils.js';
 
 describe('validate_content', () => {
   it.each([
     'docs/05-scenarios/data-table.md',
     'docs/05-scenarios/form-with-reactions.md',
     'docs/05-scenarios/grid-dashboard.md',
+    'docs/05-scenarios/row-backend-actions.md',
   ])('passes official scenario %s', relativePath => {
     const result = validateContent({
       content: extractFirstYamlFence(relativePath),
@@ -36,6 +42,17 @@ describe('validate_content', () => {
     expect(result.layers.L2).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: 'meta.requiredCapabilities' }),
     ]));
+    expect(result.suggestedDocs).toContain('docs/07-actions-contract.md');
+  });
+
+  it('reports missing actions.row.request capability', () => {
+    const result = validateContent({ content: missingRowRequestCapabilityYaml, format: 'yaml', filename: 'row-request.yaml' });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'meta.requiredCapabilities' }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/03-component-registry.md');
     expect(result.suggestedDocs).toContain('docs/07-actions-contract.md');
   });
 

@@ -11,26 +11,26 @@
 
 ## MCP 服务
 
-MCP 服务版本当前为 `0.2.6`，运行时要求 Node.js `>=18`。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
+MCP 服务版本当前为 `0.2.7`，运行时要求 Node.js `>=18`。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
 
 ### 使用 Docker Hub 镜像
 
 CD 工作流会将 MCP 镜像推送到 Docker Hub：
 
 ```text
-<dockerhub-namespace>/schema-ui-mcp:0.2.6
+<dockerhub-namespace>/schema-ui-mcp:0.2.7
 <dockerhub-namespace>/schema-ui-mcp:0.2
 <dockerhub-namespace>/schema-ui-mcp:latest
 <dockerhub-namespace>/schema-ui-mcp:<commit-sha>
 ```
 
-团队接入建议固定使用 PATCH tag，例如 `0.2.6`，避免无意跟随 `latest` 升级。
+团队接入建议固定使用 PATCH tag，例如 `0.2.7`，避免无意跟随 `latest` 升级。
 
 拉取并启动 stdio MCP server：
 
 ```bash
-docker pull <dockerhub-namespace>/schema-ui-mcp:0.2.6
-docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:0.2.6
+docker pull <dockerhub-namespace>/schema-ui-mcp:0.2.7
+docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:0.2.7
 ```
 
 MCP 客户端配置示例：
@@ -44,7 +44,7 @@ MCP 客户端配置示例：
                 "run",
                 "--rm",
                 "-i",
-                "<dockerhub-namespace>/schema-ui-mcp:0.2.6"
+                "<dockerhub-namespace>/schema-ui-mcp:0.2.7"
             ]
     }
     }
@@ -87,9 +87,9 @@ npm --prefix mcp start
 本地 Docker 构建与 smoke test：
 
 ```bash
-docker build -f mcp/Dockerfile -t schema-ui-mcp:0.2.6 .
-docker run --rm -i schema-ui-mcp:0.2.6
-npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.6
+docker build -f mcp/Dockerfile -t schema-ui-mcp:0.2.7 .
+docker run --rm -i schema-ui-mcp:0.2.7
+npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.7
 ```
 
 更多 MCP 设计与边界说明见 [`docs/mcp/README.md`](./docs/mcp/README.md) 与 [`docs/decisions/0007-mcp-protocol-reader-validator.md`](./docs/decisions/0007-mcp-protocol-reader-validator.md)。
