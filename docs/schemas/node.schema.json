@@ -79,7 +79,8 @@
         "method": {
           "type": "string",
           "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
-          "description": "与 action.schema.json 的 method 枚举保持一致。GET/POST 覆盖常见场景，PUT/DELETE/PATCH 预留用于扩展（如编辑表单场景）"
+          "default": "GET",
+          "description": "HTTP 方法。source: api 时可选，缺省为 GET。与 action.schema.json 的 method 枚举保持一致。GET/POST 覆盖常见场景，PUT/DELETE/PATCH 预留用于扩展（如编辑表单场景）"
         },
         "params": {
           "type": "object",

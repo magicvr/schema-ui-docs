@@ -5,6 +5,27 @@
 
 ---
 
+## 0029 — 2026-07-10 — 表达式交叉引用 + reactions 术语边界 + 作用域/校验缺口 + method 缺省语义
+
+**主题：** 修复 `02` §2 禁止事项章节引用漂移（V55🔴）、`reactions`「仅表单」术语与表格行级 reactions 冲突（V56🔴）、ADR-0003 `$context.user` 最小字段集与后果段残留（V57🟡）、表格列 `scope: form` + `$deps.*` 三方不一致（V58🟡）、`optionsSource.params` 未纳入 L3a 且 form 上下文可绕过（V59🟡）、`DataRef.method` / upload `method` 缺省语义缺失（V60🟡/V61🟡）、`08` 运算符白名单章节歧义（V62🟢）以及场景 `last_updated` 漂移（V63🟢）。
+**性质：** 表达式交叉引用与术语边界收敛 + L3a 作用域判定收紧 + method 缺省契约补齐 + 元数据同步。
+
+| 文件 | 说明 |
+|---|---|
+| [0029-2026-07-10-review.md](./0029-2026-07-10-review.md) | 审视报告 — V55🔴/V56🔴/V57🟡/V58🟡/V59🟡/V60🟡/V61🟡/V62🟢/V63🟢 |
+| [0029-2026-07-10-checklist.md](./0029-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V55: `02` §2 禁止事项引用改为 §10.2 / §10.1 / §10.3
+- V56: `00` 术语表与 `01` §3.5 统一 `reactions` 挂载点（表单字段 + 表格列/行内）
+- V57: ADR-0003 D1 与后果段同步 `$context.user` 最小字段 `id`/`name`/`roles`
+- V58: 附录 A 补 form 前提；L3a 新增 `NON_FORM_TABLE_DEPS`
+- V59: L3a 扫描 `optionsSource.params`；`isFormContext` 收紧为仅 `type===form`；新增 `NON_FORM_REACTION_DEPS`
+- V60/V61: `DataRef.method` 缺省 `GET`、upload `method` 缺省 `POST` 进入正文与 Schema
+- V62/V63: `08` 运算符白名单引用修正；场景示例 `last_updated` 同步
+
+---
+
 ## 0028 — 2026-07-09 — DataRef 互斥 + data.params 作用域矩阵 + ADR/DSL/Schema 漂移
 
 **主题：** 修复 `DataRef` 三选一来源形态未被 Schema 强制的问题（V49🔴）、`data.params` 中 `$deps.*` 作用域规则未进入表达式矩阵与 L3a 的问题（V50🟡）、ADR-0004 旧 `columns[].key` 字段名残留（V51🟡）、`tagMap` DSL 约束缺口（V52🟡）、Action Schema 类型字段未隔离（V53🟡）、以及 `04-datasource-contract.md` 元数据/章节引用漂移（V54🟢）。
