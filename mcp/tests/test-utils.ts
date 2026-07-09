@@ -124,3 +124,80 @@ body:
     source: api
     url: /api/items
 `;
+
+export const tableRefResponseMappingMissingListYaml = `
+meta:
+  pageId: table_ref_response_mapping_missing_list
+  title: Table Ref ResponseMapping Missing List
+  protocolVersion: "0.2"
+datasources:
+  orders:
+    source: api
+    url: /api/orders
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: id
+        label: ID
+  data:
+    source: ref
+    ref: orders
+    responseMapping:
+      total: result.total
+`;
+
+export const tableActionPermissionSelfYaml = `
+meta:
+  pageId: table_action_permission_self
+  title: Table Action Permission Self
+  protocolVersion: "0.2"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: none
+    columns:
+      - field: id
+        label: ID
+    actions:
+      - key: approve
+        label: Approve
+        permissions:
+          view: "$self == true"
+  data:
+    source: static
+    value: []
+`;
+
+export const nodePermissionSelfYaml = `
+meta:
+  pageId: node_permission_self
+  title: Node Permission Self
+  protocolVersion: "0.2"
+body:
+  type: input
+  props:
+    field: title
+    label: Title
+  permissions:
+    view: "$self == true"
+`;
+
+export const unknownContextNamespaceYaml = `
+meta:
+  pageId: unknown_context_namespace
+  title: Unknown Context Namespace
+  protocolVersion: "0.2"
+body:
+  type: input
+  props:
+    field: title
+    label: Title
+  permissions:
+    view: "$context.tenant.id == 't1'"
+`;

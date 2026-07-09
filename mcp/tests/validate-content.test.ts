@@ -1,15 +1,23 @@
-import { describe, expect, it } from 'vitest';
-import { validateContent } from '../src/core/validation-runner.js';
+import { afterEach, describe, expect, it } from 'vitest';
+import { setLayerScriptExecutorForTest, validateContent } from '../src/core/validation-runner.js';
 import {
   extractFirstYamlFence,
   missingRowRequestCapabilityYaml,
   missingRowScopeYaml,
   missingUploadCapabilityYaml,
+  nodePermissionSelfYaml,
+  tableActionPermissionSelfYaml,
+  tableRefResponseMappingMissingListYaml,
   tableRowReactionForbiddenStateYaml,
   tableVisibleWhenMissingWhenYaml,
+  unknownContextNamespaceYaml,
 } from './test-utils.js';
 
 describe('validate_content', () => {
+  afterEach(() => {
+    setLayerScriptExecutorForTest(null);
+  });
+
   it.each([
     'docs/05-scenarios/data-table.md',
     'docs/05-scenarios/form-with-reactions.md',
@@ -80,6 +88,50 @@ describe('validate_content', () => {
     ]));
   });
 
+  it('reports source ref responseMapping semantic errors through L2', () => {
+    const result = validateContent({
+      content: tableRefResponseMappingMissingListYaml,
+      format: 'yaml',
+      filename: 'table-ref-response-mapping.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.data.responseMapping.list' }),
+    ]));
+  });
+
+  it('reports permissions variables outside $context and unknown context roots through L3a', () => {
+    const actionPermission = validateContent({
+      content: tableActionPermissionSelfYaml,
+      format: 'yaml',
+      filename: 'table-action-permission.yaml',
+    });
+    const nodePermission = validateContent({
+      content: nodePermissionSelfYaml,
+      format: 'yaml',
+      filename: 'node-permission.yaml',
+    });
+    const unknownContext = validateContent({
+      content: unknownContextNamespaceYaml,
+      format: 'yaml',
+      filename: 'unknown-context.yaml',
+    });
+
+    expect(actionPermission.passed).toBe(false);
+    expect(actionPermission.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.actions[0].permissions.view', rule: 'PERM_CONTEXT_ONLY' }),
+    ]));
+    expect(nodePermission.passed).toBe(false);
+    expect(nodePermission.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.permissions.view', rule: 'PERM_CONTEXT_ONLY' }),
+    ]));
+    expect(unknownContext.passed).toBe(false);
+    expect(unknownContext.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.permissions.view', rule: 'UNKNOWN_CONTEXT_NAMESPACE' }),
+    ]));
+  });
+
   it('maps AJV schema errors into L0/L1', () => {
     const result = validateContent({
       content: `meta:\n  pageId: missing_title\n  protocolVersion: "0.2"\nbody:\n  type: text\n  props:\n    content: Hello\n`,
@@ -106,5 +158,23 @@ describe('validate_content', () => {
     expect(result.passed).toBe(false);
     expect(result.internalError).toMatchObject({ message: 'content 超过 1MB 限制' });
     expect(result.summary).toContain('content 超过 1MB 限制');
+  });
+
+  it('returns internalError when a layer script emits non-json output', () => {
+    setLayerScriptExecutorForTest((scriptName) => {
+      if (scriptName === 'validate-l2-components.js') return 'not json';
+      return JSON.stringify({ violations: [], parseErrors: [] });
+    });
+
+    const result = validateContent({
+      content: extractFirstYamlFence('docs/05-scenarios/data-table.md'),
+      format: 'yaml',
+      filename: 'data-table.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.internalError).toMatchObject({ message: '[L2] 无法解析校验脚本 JSON 输出' });
+    expect(result.layers.L2).toHaveLength(0);
+    expect(result.summary).toContain('校验内部错误');
   });
 });

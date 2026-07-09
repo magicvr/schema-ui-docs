@@ -5,6 +5,25 @@
 
 ---
 
+## 0032 — 2026-07-10 — DataRef/权限静态校验缺口 + MCP 文档/错误分类漂移 + Action 示例不可执行
+
+**主题：** 修复 `source: ref` 本地 `responseMapping` 未进入 L2 条件必填校验（V71🟡）、RowAction `permissions` 未被 L3a 扫描（V72🟡）、`permissions.*` 未完整限制为 `$context.*`（V73🟡）、`$context` 根命名空间白名单未执行（V74🟡）、MCP 子脚本异常误归类为协议违规（V75🟡）、`protocol.list_components.category` 示例漂移（V76🟡）、MCP v1 实施计划状态漂移（V77🟢）、以及 `07-actions-contract.md` 行级后端请求示例不可执行（V78🟡）。
+**性质：** DataRef/表达式静态校验收敛 + MCP 错误分类与文档状态同步 + 示例可执行性修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0032-2026-07-10-review.md](./0032-2026-07-10-review.md) | 审视报告 — V71🟡/V72🟡/V73🟡/V74🟡/V75🟡/V76🟡/V77🟢/V78🟡 |
+| [0032-2026-07-10-checklist.md](./0032-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V71: L2 对 `source: api` / `source: ref` 本地 `responseMapping` 统一执行 `list` / `total` 条件必填
+- V72-V74: L3a 扫描 RowAction `permissions`，并将权限变量限制为 `$context.user.*` / `$context.features.*`，拒绝未知 `$context` 根命名空间
+- V75: MCP 子脚本非 JSON/执行失败返回结构化 `internalError`，正常违规 JSON 仍进入对应 layer
+- V76/V77: MCP `category` 示例同步为中文分类，v1 实施计划标记为已落地记录
+- V78: `07-actions-contract.md` 行级后端请求示例补齐 table `pagination` / `columns` 并通过 `validate-all`
+
+---
+
 ## 0031 — 2026-07-10 — 表格内嵌表达式校验缺口 + Renderer/MCP/审计状态漂移
 
 **主题：** 修复表格 `columns[]` / `actions[]` 内嵌 `visibleWhen` / `reactions` / `permissions` 的 `$ref` 结构约束不被 L2/L3a 实际执行（V67🔴）、Renderer 规范 L3 静态校验清单落后于当前规则（V68🟡）、MCP `internalError` 返回结构与 ADR-0007 不一致（V69🟡）、以及 0030 checklist 归档状态不自洽（V70🟢）。
