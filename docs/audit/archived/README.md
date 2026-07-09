@@ -5,6 +5,24 @@
 
 ---
 
+## 0031 — 2026-07-10 — 表格内嵌表达式校验缺口 + Renderer/MCP/审计状态漂移
+
+**主题：** 修复表格 `columns[]` / `actions[]` 内嵌 `visibleWhen` / `reactions` / `permissions` 的 `$ref` 结构约束不被 L2/L3a 实际执行（V67🔴）、Renderer 规范 L3 静态校验清单落后于当前规则（V68🟡）、MCP `internalError` 返回结构与 ADR-0007 不一致（V69🟡）、以及 0030 checklist 归档状态不自洽（V70🟢）。
+**性质：** 校验 $ref 解析收敛 + Renderer/MCP 契约同步 + 审计证据链修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0031-2026-07-10-review.md](./0031-2026-07-10-review.md) | 审视报告 — V67🔴/V68🟡/V69🟡/V70🟢 |
+| [0031-2026-07-10-checklist.md](./0031-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V67: L2 受控解析 DSL $ref（VisibleWhen/Reaction/Permissions），表格列/行内表达式的缺 `when` 与 row scope 非法状态键被拒绝
+- V68: `08-renderer-spec.md` §5.5 补齐当前 10 条静态校验规则并引用权威规范
+- V69: `internalError` 改为结构化对象，MCP validate_content 返回与 ADR-0007 一致
+- V70: 0030 checklist V65c 显式记录决策后标记完成
+
+---
+
 ## 0030 — 2026-07-10 — modal.content 校验盲区 + datasources.params 作用域缺口 + ADR-0004 附录残留
 
 **主题：** 修复 `actions[].type: modal` 的 `content` Node 完全不进 L2/L3a/L4 的校验盲区（V64🔴）、页面级 `datasources.*.params` 中 `$deps.*` 未被 L3a 扫描的作用域缺口（V65🟡）、以及 ADR-0004 附录矩阵未同步"仅表格位于 form.children 内"前提（V66🟢）。

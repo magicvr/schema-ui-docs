@@ -5,6 +5,8 @@ import {
   missingRowRequestCapabilityYaml,
   missingRowScopeYaml,
   missingUploadCapabilityYaml,
+  tableRowReactionForbiddenStateYaml,
+  tableVisibleWhenMissingWhenYaml,
 } from './test-utils.js';
 
 describe('validate_content', () => {
@@ -56,6 +58,28 @@ describe('validate_content', () => {
     expect(result.suggestedDocs).toContain('docs/07-actions-contract.md');
   });
 
+  it('reports invalid table embedded expression objects through L2', () => {
+    const missingWhen = validateContent({
+      content: tableVisibleWhenMissingWhenYaml,
+      format: 'yaml',
+      filename: 'table-visiblewhen.yaml',
+    });
+    const forbiddenState = validateContent({
+      content: tableRowReactionForbiddenStateYaml,
+      format: 'yaml',
+      filename: 'table-reaction.yaml',
+    });
+
+    expect(missingWhen.passed).toBe(false);
+    expect(missingWhen.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.columns[0].visibleWhen.when' }),
+    ]));
+    expect(forbiddenState.passed).toBe(false);
+    expect(forbiddenState.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.columns[0].reactions[0].fulfill.required' }),
+    ]));
+  });
+
   it('maps AJV schema errors into L0/L1', () => {
     const result = validateContent({
       content: `meta:\n  pageId: missing_title\n  protocolVersion: "0.2"\nbody:\n  type: text\n  props:\n    content: Hello\n`,
@@ -74,5 +98,13 @@ describe('validate_content', () => {
     expect(result.passed).toBe(false);
     expect(result.parseError).toMatchObject({ filename: 'broken.yaml' });
     expect(result.layers.L2).toHaveLength(0);
+  });
+
+  it('returns structured internalError objects', () => {
+    const result = validateContent({ content: 'a'.repeat(1024 * 1024 + 1), format: 'yaml', filename: 'too-large.yaml' });
+
+    expect(result.passed).toBe(false);
+    expect(result.internalError).toMatchObject({ message: 'content 超过 1MB 限制' });
+    expect(result.summary).toContain('content 超过 1MB 限制');
   });
 });

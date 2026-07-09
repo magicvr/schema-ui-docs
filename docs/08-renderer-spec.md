@@ -330,12 +330,19 @@ Renderer 的表达式调度必须遵循稳定快照模型：
 
 ### 5.5 静态校验（L3）
 
-Renderer 在加载页面配置时，应执行以下静态校验（见 [06-validation.md §1](./06-validation.md#1-校验层级) L3）：
+Renderer 在加载页面配置时，应覆盖 [02-reaction-expression.md §10](./02-reaction-expression.md#10-静态校验规则) 与附录 A、以及 [06-validation.md §1](./06-validation.md#1-校验层级) L3a 中列出的当前完整静态校验边界。至少包括：
 
 - 所有 `when` 表达式中的 `$deps.*` 变量必须在对应位置的 `dependencies` 声明中。
-- `permissions.*` 表达式中不能出现 `$deps.*`。
+- `scope: row` 表达式中禁止 `$deps.*`，`scope: form` 表达式中禁止 `$row.*` / `$parentRow.*`。
+- `$parentRow.*` 仅允许嵌套表格内的 `scope: row` 表达式。
+- `permissions.*` 表达式中不能出现 `$deps.*`，只允许 `$context.*`。
 - 非表单上下文的 `visibleWhen` 中不能出现 `$deps.*`。
-- 无法通过的配置直接拒绝渲染，并在开发环境给出明确的校验错误信息。
+- 表格 `actions` 的 `scope: row` 表达式中禁止 `$self`；表格列 `scope: form` 表达式中也禁止 `$self`。
+- 独立表格（非 `form.children` 上下文）的列/操作在 `scope: form` 下不能使用 `$deps.*`。
+- `scope: row` 的 `fulfill` / `otherwise` 中禁止 `required` / `value`，仅允许 `visible` / `disabled`。
+- `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许字面量或 `$deps.*` 值替换；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.*`。
+
+其中，`table.props.columns[]` / `actions[]` 内嵌的 `visibleWhen` / `reactions` / `permissions` 对象属于组件 DSL 内的协议结构，CI 的 L2 校验应先保证其结构合法；Renderer 的 L3a 校验再检查表达式语法、变量声明与作用域隔离。无法通过的配置直接拒绝渲染，并在开发环境给出明确的校验错误信息。
 
 ---
 
