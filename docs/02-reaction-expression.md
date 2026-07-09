@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-08
+last_updated: 2026-07-10
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -21,13 +21,14 @@ applies_to: schema-ui-protocol v0.2
 | 节点条件渲染 | `visibleWhen.when` | [01-node-protocol.md §3.8](./01-node-protocol.md#38-visiblewhen-节点级条件渲染可选since-02) |
 | 权限判定 | `permissions.*` | [01-node-protocol.md §3.9](./01-node-protocol.md#39-permissions-权限控制可选since-02) |
 | 表格列/行内操作 | `columns[].{visibleWhen,reactions}.when` | [03-component-registry.md](./03-component-registry.md) `table` 组件章节 |
+| 数据请求参数 | `data.params`（仅值替换，不做条件判断） | [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams-中-deps-的作用域边界) |
 | 远程选项参数 | `props.optionsSource.params`（仅值替换，不做条件判断） | [03-component-registry.md](./03-component-registry.md) `select` 组件章节 |
 
 ## 2. 变量命名空间（白名单）
 
 | 变量 | 含义 | 可用位置 | 示例 |
 |---|---|---|---|
-| `$deps.<字段名>` | `dependencies` 中声明的依赖字段的当前值 | `reactions`、`visibleWhen`(表单内)、`scope: form` 表达式 | `$deps.orderType` |
+| `$deps.<字段名>` | `dependencies` 中声明的依赖字段的当前值；在 `data.params` / `optionsSource.params` 中表示同表单字段的当前值，不需要额外 `dependencies` 数组 | `reactions`、`visibleWhen`(表单内)、`scope: form` 表达式、表单上下文内的参数值替换 | `$deps.orderType` |
 | `$self` | 当前字段自身的当前值（字段级）；当前列对应单元格的原始数据值（`scope: row` 列表达式） | 表单字段 `reactions`、表格列 `scope: row` 表达式 | `$self` |
 | `$context.user.*` | 当前用户身份信息（只读快照，最小字段集见 §11.1） | 所有位置 | `$context.user.roles` |
 | `$context.features.*` | 功能开关映射表（只读快照，最小字段集见 §11.2） | 所有位置 | `$context.features.newDashboard` |
@@ -167,6 +168,10 @@ reactions:
 
 表格列在 `scope: form` 下没有当前行/当前单元格上下文，也不是表单字段，因此 `$self` 没有绑定对象。该场景中出现 `$self` 时，静态校验直接拒绝；需要访问单元格原始值时应使用 `scope: row`。
 
+### 10.6 `$deps` 出现在非表单 `data.params` 中
+
+`data.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做请求参数值替换。若节点不处于表单上下文，`data.params` 中出现 `$deps.*` 时，静态校验直接拒绝。`data.params` 不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。
+
 ## 11. `$context` 最小字段集（since 0.2.5）
 
 ### 11.1 `$context.user` 最小字段集
@@ -259,6 +264,8 @@ visibleWhen:
 |---|---|---|---|---|---|
 | 表单字段 `reactions` | ✅ | ✅ | ✅ | ❌ | ❌ |
 | 表单字段 `visibleWhen` | ✅ | ❌ | ✅ | ❌ | ❌ |
+| 表单上下文内 `data.params` | ✅（仅值替换） | ❌ | ❌ | ❌ | ❌ |
+| 非表单上下文 `data.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ | ❌ |
 | 非表单节点 `visibleWhen` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ | ❌ |
 | 节点 `permissions.*` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ | ❌ |
 | 表格列 `scope: form` 表达式 | ✅ | ❌（无绑定对象） | ✅ | ❌ | ❌ |

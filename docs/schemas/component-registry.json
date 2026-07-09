@@ -159,7 +159,9 @@
                   "properties": {
                     "text": { "type": "string" },
                     "tone": { "type": "string", "enum": ["warning", "success", "neutral", "info", "danger"] }
-                  }
+                  },
+                  "required": ["text"],
+                  "additionalProperties": false
                 }
               },
               "labelKey": { "type": "string", "description": "列标题 i18n key（since 0.2）" },

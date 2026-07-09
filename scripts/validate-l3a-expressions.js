@@ -14,6 +14,7 @@
  *      - permissions.* 不能出现 $deps.*
  *      - 非表单 visibleWhen（无 dependencies）不能出现 $deps.*
  *      - 表格 actions 的 scope:row 不能出现 $self
+ *      - data.params 中 $deps.* 仅允许出现在表单上下文，且不支持其他变量
  *   4. $deps.* 中使用的字段必须在 dependencies 中声明
  *
  * 用法：
@@ -423,6 +424,11 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
   const currentTableDepth = node.type === 'table' ? tableDepth + 1 : tableDepth;
   const allowParentRow = tableDepth > 0;
 
+  // --- data.params 中的变量值替换 ---
+  if (node.data && node.data.params && typeof node.data.params === 'object') {
+    scanDataParams(node.data.params, `${nodePath}.data.params`, violations, inFormCtx);
+  }
+
   // --- reactions[].when ---
   if (Array.isArray(node.reactions)) {
     node.reactions.forEach((reaction, idx) => {
@@ -534,6 +540,38 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
         scanNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, inFormCtx, currentTableDepth);
       }
     });
+  }
+}
+
+function scanDataParams(params, paramsPath, violations, hasFormContext) {
+  for (const [key, value] of Object.entries(params)) {
+    const valuePath = `${paramsPath}.${key}`;
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      scanDataParams(value, valuePath, violations, hasFormContext);
+      continue;
+    }
+
+    if (typeof value !== 'string') continue;
+
+    const refs = value.match(/\$(?:deps|row|parentRow|context)(?:\.[A-Za-z_$][A-Za-z0-9_$]*)*|\$self\b/g) || [];
+    for (const ref of refs) {
+      if (ref.startsWith('$deps.')) {
+        if (!hasFormContext) {
+          violations.push({
+            path: valuePath,
+            rule: 'NON_FORM_DATA_PARAMS',
+            message: '非表单上下文的 data.params 中不能出现 $deps.*',
+          });
+        }
+        continue;
+      }
+
+      violations.push({
+        path: valuePath,
+        rule: 'DATA_PARAMS_VARIABLE',
+        message: 'data.params 仅允许字面量或 $deps.* 值替换，不允许使用 $row.*、$parentRow.*、$self 或 $context.*',
+      });
+    }
   }
 }
 

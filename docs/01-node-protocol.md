@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-09
+last_updated: 2026-07-10
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -97,6 +97,8 @@ data:
 | `static` | 值直接写死在 YAML 里 |
 | `ref` | 引用页面级 `datasources` 中预声明的数据源，避免重复声明 |
 | `api` | Node 独立发起一次请求（表格、图表等常用） |
+
+各来源形态的字段集合互斥：`source: static` 仅携带 `value`；`source: api` 可携带 `url`、`method`、`params` 与 `responseMapping`；`source: ref` 仅携带 `ref`，并可在引用目标为 API 数据源时携带本地 `responseMapping` 覆盖响应解析。`source: ref` 不得混入 `url`、`method`、`params` 或 `value`，避免同一 `DataRef` 同时表现为引用和内联请求。
 
 `responseMapping` 仅用于 `source: api` 或引用到 API 数据源的响应解析，声明位置与 `params` 同级，不属于请求参数。协议禁止将 `responseMapping` 放入 `params`，避免 Renderer 误把响应解析配置发送给后端。
 
