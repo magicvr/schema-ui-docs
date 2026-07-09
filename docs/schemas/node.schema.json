@@ -91,18 +91,42 @@
         }
       },
       "required": ["source"],
-      "allOf": [
+      "additionalProperties": false,
+      "oneOf": [
         {
-          "if": { "properties": { "source": { "const": "static" } } },
-          "then": { "required": ["value"] }
+          "properties": { "source": { "const": "static" } },
+          "required": ["source", "value"],
+          "not": {
+            "anyOf": [
+              { "required": ["ref"] },
+              { "required": ["url"] },
+              { "required": ["method"] },
+              { "required": ["params"] },
+              { "required": ["responseMapping"] }
+            ]
+          }
         },
         {
-          "if": { "properties": { "source": { "const": "ref" } } },
-          "then": { "required": ["ref"] }
+          "properties": { "source": { "const": "ref" } },
+          "required": ["source", "ref"],
+          "not": {
+            "anyOf": [
+              { "required": ["value"] },
+              { "required": ["url"] },
+              { "required": ["method"] },
+              { "required": ["params"] }
+            ]
+          }
         },
         {
-          "if": { "properties": { "source": { "const": "api" } } },
-          "then": { "required": ["url"] }
+          "properties": { "source": { "const": "api" } },
+          "required": ["source", "url"],
+          "not": {
+            "anyOf": [
+              { "required": ["value"] },
+              { "required": ["ref"] }
+            ]
+          }
         }
       ]
     },

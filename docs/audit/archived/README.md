@@ -5,6 +5,26 @@
 
 ---
 
+## 0028 — 2026-07-09 — DataRef 互斥 + data.params 作用域矩阵 + ADR/DSL/Schema 漂移
+
+**主题：** 修复 `DataRef` 三选一来源形态未被 Schema 强制的问题（V49🔴）、`data.params` 中 `$deps.*` 作用域规则未进入表达式矩阵与 L3a 的问题（V50🟡）、ADR-0004 旧 `columns[].key` 字段名残留（V51🟡）、`tagMap` DSL 约束缺口（V52🟡）、Action Schema 类型字段未隔离（V53🟡）、以及 `04-datasource-contract.md` 元数据/章节引用漂移（V54🟢）。
+**性质：** 核心 Schema 互斥约束收敛 + 表达式静态校验补齐 + ADR/DSL/元数据同步。
+
+| 文件 | 说明 |
+|---|---|
+| [0028-2026-07-09-review.md](./0028-2026-07-09-review.md) | 审视报告 — V49🔴/V50🟡/V51🟡/V52🟡/V53🟡/V54🟢 |
+| [0028-2026-07-09-checklist.md](./0028-2026-07-09-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V49: `DataRef` 改为 `oneOf` 来源分支并补充互斥字段约束；正文明确 `source: ref` 只允许本地覆写 API 响应映射
+- V50: `02-reaction-expression.md` / `06-validation.md` 补充 `data.params` 变量规则，L3a 新增非表单 `$deps.*` 检查
+- V51: ADR-0004 中列字段名统一为 `field`，`$self` 语义同步为 `$row[column.field]`
+- V52: `tagMap` 映射项要求 `text` 且禁止额外字段；缺少 `text` 的样例被 L2 拒绝
+- V53: `action.schema.json` 改为按 `type` 分支隔离字段，混合 Action 被 L0/L1 拒绝
+- V54: `04-datasource-contract.md` 同步 `last_updated` 并修正 `select.optionsSource.params` 章节引用
+
+---
+
 ## 0027 — 2026-07-09 — grid span 契约漂移 + Renderer 示例 + 数据响应契约分类
 
 **主题：** 修复 `grid` 直接子节点通用 `span` 约定与组件 DSL / L2 的冲突（V45🔴）、`08-renderer-spec.md` 数据依赖示例不可执行问题（V46🟡）、`select.optionsSource` 响应体分类矛盾（V47🔴）、以及 `chart` 与 `responseMapping.list` 的适用口径不一致（V48🟡）。

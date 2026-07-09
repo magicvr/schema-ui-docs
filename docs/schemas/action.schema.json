@@ -3,94 +3,100 @@
   "$id": "https://internal/schema-ui/action.schema.json",
   "title": "Schema-UI Action",
   "description": "参见 docs/07-actions-contract.md，本文件是其权威机器可读版本（since 0.2）",
-  "type": "object",
-  "properties": {
-    "type": {
-      "type": "string",
-      "enum": ["request", "navigate", "modal", "upload", "custom"]
-    },
-    "method": {
-      "type": "string",
-      "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"]
-    },
-    "url": {
-      "type": "string"
-    },
-    "bodyMapping": {
-      "type": "object",
-      "description": "表单字段名 -> 请求体字段名的映射，缺省时按字段名原样传递"
-    },
-    "onSuccess": { "$ref": "#/definitions/OutcomeBehavior" },
-    "onError": { "$ref": "#/definitions/OutcomeBehavior" },
-    "modalId": {
-      "type": "string",
-      "description": "【可选】引用前端预注册的弹窗模板（尺寸/位置/关闭行为）"
-    },
-    "content": {
-      "type": "object",
-      "description": "【可选，since 0.2.1】弹窗内容，一个完整的 Node（如 form/text/table 等），与 modalId 可共存",
-      "$ref": "node.schema.json"
-    },
-    "handler": {
-      "type": "string",
-      "description": "仅允许引用前端白名单预注册的处理函数名，不接受任意代码/表达式"
-    },
-    "fieldName": {
-      "type": "string",
-      "description": "【可选，upload】multipart 中的文件字段名，默认 file"
-    },
-    "accept": {
-      "type": "string",
-      "description": "【可选，upload】允许的 MIME 类型或扩展名，如 image/* 或 .pdf,.docx"
-    },
-    "maxSize": {
-      "type": "number",
-      "minimum": 0,
-      "description": "【可选，upload】单文件大小上限，单位字节"
-    },
-    "multiple": {
-      "type": "boolean",
-      "description": "【可选，upload】是否允许多文件，默认 false"
-    }
-  },
-  "required": ["type"],
-  "allOf": [
-    {
-      "if": { "properties": { "type": { "const": "request" } } },
-      "then": { "required": ["method", "url"] }
-    },
-    {
-      "if": { "properties": { "type": { "const": "navigate" } } },
-      "then": { "required": ["url"] }
-    },
-    {
-      "if": { "properties": { "type": { "const": "modal" } } },
-      "then": {
-        "anyOf": [
-          { "required": ["modalId"] },
-          { "required": ["content"] }
-        ]
-      }
-    },
-    {
-      "if": { "properties": { "type": { "const": "custom" } } },
-      "then": { "required": ["handler"] }
-    },
-    {
-      "if": { "properties": { "type": { "const": "upload" } } },
-      "then": {
-        "required": ["url"],
-        "properties": {
-          "method": {
-            "type": "string",
-            "enum": ["POST", "PUT"]
-          }
-        }
-      }
-    }
+  "oneOf": [
+    { "$ref": "#/definitions/RequestAction" },
+    { "$ref": "#/definitions/NavigateAction" },
+    { "$ref": "#/definitions/ModalAction" },
+    { "$ref": "#/definitions/UploadAction" },
+    { "$ref": "#/definitions/CustomAction" }
   ],
-  "additionalProperties": false,
   "definitions": {
+    "RequestAction": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "request" },
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"] },
+        "url": { "type": "string" },
+        "bodyMapping": {
+          "type": "object",
+          "description": "表单字段名 -> 请求体字段名的映射，缺省时按字段名原样传递"
+        },
+        "onSuccess": { "$ref": "#/definitions/OutcomeBehavior" },
+        "onError": { "$ref": "#/definitions/OutcomeBehavior" }
+      },
+      "required": ["type", "method", "url"],
+      "additionalProperties": false
+    },
+    "NavigateAction": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "navigate" },
+        "url": { "type": "string" }
+      },
+      "required": ["type", "url"],
+      "additionalProperties": false
+    },
+    "ModalAction": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "modal" },
+        "modalId": {
+          "type": "string",
+          "description": "【可选】引用前端预注册的弹窗模板（尺寸/位置/关闭行为）"
+        },
+        "content": {
+          "description": "【可选，since 0.2.1】弹窗内容，一个完整的 Node（如 form/text/table 等），与 modalId 可共存",
+          "$ref": "node.schema.json"
+        }
+      },
+      "required": ["type"],
+      "anyOf": [
+        { "required": ["modalId"] },
+        { "required": ["content"] }
+      ],
+      "additionalProperties": false
+    },
+    "UploadAction": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "upload" },
+        "url": { "type": "string" },
+        "method": { "type": "string", "enum": ["POST", "PUT"] },
+        "fieldName": {
+          "type": "string",
+          "description": "【可选，upload】multipart 中的文件字段名，默认 file"
+        },
+        "accept": {
+          "type": "string",
+          "description": "【可选，upload】允许的 MIME 类型或扩展名，如 image/* 或 .pdf,.docx"
+        },
+        "maxSize": {
+          "type": "number",
+          "minimum": 0,
+          "description": "【可选，upload】单文件大小上限，单位字节"
+        },
+        "multiple": {
+          "type": "boolean",
+          "description": "【可选，upload】是否允许多文件，默认 false"
+        },
+        "onSuccess": { "$ref": "#/definitions/OutcomeBehavior" },
+        "onError": { "$ref": "#/definitions/OutcomeBehavior" }
+      },
+      "required": ["type", "url"],
+      "additionalProperties": false
+    },
+    "CustomAction": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "custom" },
+        "handler": {
+          "type": "string",
+          "description": "仅允许引用前端白名单预注册的处理函数名，不接受任意代码/表达式"
+        }
+      },
+      "required": ["type", "handler"],
+      "additionalProperties": false
+    },
     "OutcomeBehavior": {
       "type": "object",
       "description": "action 执行结束后的语义级行为，仅允许以下四种",

@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 后端架构组
-last_updated: 2026-07-08
+last_updated: 2026-07-10
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -58,7 +58,7 @@ data:
     # 而不是 GET /api/orders?status= 或 ?status=null
 ```
 
-> 此规则对 `data.params`（`data.source: api` 通用场景）和 `select.optionsSource.params`（见 §8）统一适用。
+> 此规则对 `data.params`（`data.source: api` 通用场景）和 `select.optionsSource.params`（见 §9）统一适用。
 
 ### 3.2 `data.params` 中 `$deps.*` 的作用域边界
 
