@@ -58,7 +58,7 @@ id: string               # 可选（since 0.2）。页面内唯一标识
 props: map               # 可选。业务级配置参数
 data: DataRef             # 可选。数据来源描述
 children: [Node]           # 可选。子节点数组
-reactions: [Reaction]       # 可选。联动规则数组（仅字段类 Node 可用）
+reactions: [Reaction]       # 可选。声明式联动规则（支持 reactions 的组件位置见组件注册表）
 states: StatesMap          # 可选（since 0.2）。空态/加载态/错误态定制
 visibleWhen: VisibleWhen   # 可选（since 0.2）。节点级条件渲染，见 §3.8
 permissions: Permissions   # 可选（since 0.2）。权限控制，见 §3.9
@@ -87,7 +87,7 @@ data:
   value: any        # source=static 时的字面量
   ref: string        # source=ref 时，指向 datasources 中的 key
   url: string        # source=api 时，独立请求的地址
-  method: GET | POST | PUT | DELETE | PATCH
+  method: GET | POST | PUT | DELETE | PATCH  # source=api 时可选，缺省为 GET
   params: map        # 【可选】请求参数映射，值可引用 $deps.*，空值规则见 04-datasource-contract.md §3.1
   responseMapping: map # 【可选，since 0.2.4】响应字段名映射，见 04-datasource-contract.md §4.1.1
 ```
@@ -100,6 +100,8 @@ data:
 
 各来源形态的字段集合互斥：`source: static` 仅携带 `value`；`source: api` 可携带 `url`、`method`、`params` 与 `responseMapping`；`source: ref` 仅携带 `ref`，并可在引用目标为 API 数据源时携带本地 `responseMapping` 覆盖响应解析。`source: ref` 不得混入 `url`、`method`、`params` 或 `value`，避免同一 `DataRef` 同时表现为引用和内联请求。
 
+`source: api` 时 `method` **可选**，缺省为 `GET`。示例与生成配置可省略 `method`；Renderer 与静态校验均按 `GET` 解释缺省值。
+
 `responseMapping` 仅用于 `source: api` 或引用到 API 数据源的响应解析，声明位置与 `params` 同级，不属于请求参数。协议禁止将 `responseMapping` 放入 `params`，避免 Renderer 误把响应解析配置发送给后端。
 
 ### 3.4 `children`（可选）
@@ -110,12 +112,18 @@ data:
 
 ### 3.5 `reactions`（可选）
 
-仅表单场景内的字段类 Node 使用，用于表达"当依赖字段满足某条件时，本字段的状态如何变化"。
+声明式联动规则数组，仅允许出现在组件注册表标注支持 `reactions` 的位置：
+
+| 挂载位置 | 默认/要求的 `scope` | 典型用途 |
+|---|---|---|
+| 表单字段类 Node（如 `input` / `select`） | `scope: form`（默认） | 字段间显隐/必填/禁用/赋值联动 |
+| 表格 `columns[]` / `actions[]` | 必须显式 `scope: row` | 行内单元格/操作的显隐与禁用 |
+
 完整语法见 [02-reaction-expression.md](./02-reaction-expression.md)，结构如下：
 
 ```yaml
 reactions:
-  - dependencies: [string]     # 依赖的字段名（同表单内的兄弟/祖先字段）
+  - dependencies: [string]     # 依赖的字段名（form 作用域）或行内字段路径（row 作用域）
     when: string                 # 条件表达式
     fulfill: StateMap             # 条件为真时应用的状态
     otherwise: StateMap             # 【可选】条件为假时应用的状态
@@ -123,7 +131,7 @@ reactions:
 ```
 
 `StateMap` 只能包含以下语义级状态键：`visible`、`required`、`disabled`、`value`。
-不允许声明组件私有 props 或任何样式相关的键。
+不允许声明组件私有 props 或任何样式相关的键。`scope: row` 下仅允许 `visible` / `disabled`，`required` / `value` 由静态校验拒绝（见 [02-reaction-expression.md §9.3](./02-reaction-expression.md#93-fulfillotherwise-状态键的作用域限制)）。
 
 ### 3.6 `id`（可选，since 0.2）
 

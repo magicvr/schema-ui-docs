@@ -43,9 +43,9 @@ applies_to: schema-ui-protocol v0.2
 - ❌ 不允许函数调用（包括 `Date.now()`、自定义函数等）。
 - ❌ 不允许在 `scope: row` 表达式中访问 `$deps.*`（与 `$row.*` 互斥，见 §9.1）。
 - ❌ 不允许在 `scope: form` 表达式中访问 `$row.*`。
-- ❌ 不允许在 `permissions.*` 表达式中访问 `$deps.*`（静态校验拒绝，见 §9.3）。
-- ❌ 不允许在非表单节点的 `visibleWhen` 中访问 `$deps.*`（静态校验拒绝，见 §9.2）。
-- ❌ 不允许在表格 `actions` 的 `scope: row` 表达式中使用 `$self`（不适用，见 §9.4）。
+- ❌ 不允许在 `permissions.*` 表达式中访问 `$deps.*`（静态校验拒绝，见 §10.2）。
+- ❌ 不允许在非表单节点的 `visibleWhen` 中访问 `$deps.*`（静态校验拒绝，见 §10.1）。
+- ❌ 不允许在表格 `actions` 的 `scope: row` 表达式中使用 `$self`（不适用，见 §10.3）。
 
 ## 3. 运算符白名单
 
@@ -168,9 +168,9 @@ reactions:
 
 表格列在 `scope: form` 下没有当前行/当前单元格上下文，也不是表单字段，因此 `$self` 没有绑定对象。该场景中出现 `$self` 时，静态校验直接拒绝；需要访问单元格原始值时应使用 `scope: row`。
 
-### 10.6 `$deps` 出现在非表单 `data.params` 中
+### 10.6 `$deps` 出现在非表单 `data.params` / `optionsSource.params` 中
 
-`data.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做请求参数值替换。若节点不处于表单上下文，`data.params` 中出现 `$deps.*` 时，静态校验直接拒绝。`data.params` 不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。
+`data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做请求参数值替换，规则完全一致。若节点不处于表单上下文，上述 params 中出现 `$deps.*` 时，静态校验直接拒绝。二者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。
 
 ## 11. `$context` 最小字段集（since 0.2.5）
 
@@ -266,9 +266,12 @@ visibleWhen:
 | 表单字段 `visibleWhen` | ✅ | ❌ | ✅ | ❌ | ❌ |
 | 表单上下文内 `data.params` | ✅（仅值替换） | ❌ | ❌ | ❌ | ❌ |
 | 非表单上下文 `data.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ | ❌ |
+| 表单上下文内 `optionsSource.params` | ✅（仅值替换，同 `data.params`） | ❌ | ❌ | ❌ | ❌ |
+| 非表单上下文 `optionsSource.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ | ❌ |
 | 非表单节点 `visibleWhen` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ | ❌ |
 | 节点 `permissions.*` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ | ❌ |
-| 表格列 `scope: form` 表达式 | ✅ | ❌（无绑定对象） | ✅ | ❌ | ❌ |
+| 表格列 `scope: form` 表达式（仅表格位于 `form.children` 内） | ✅ | ❌（无绑定对象） | ✅ | ❌ | ❌ |
+| 独立表格列 `scope: form` 表达式 | ❌（静态校验拒绝 `$deps.*`） | ❌（无绑定对象） | ✅ | ❌ | ❌ |
 | 表格列 `scope: row` 表达式 | ❌ | ✅（单元格原始值） | ✅ | ✅ | ❌ |
 | 表格列 `scope: row`（嵌套表格内） | ❌ | ✅ | ✅ | ✅ | ✅（仅直接父级） |
 | 表格 `actions`（`scope: row`） | ❌ | ❌（不适用） | ✅ | ✅ | ❌ |

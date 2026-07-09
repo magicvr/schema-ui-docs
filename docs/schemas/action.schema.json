@@ -61,7 +61,12 @@
       "properties": {
         "type": { "const": "upload" },
         "url": { "type": "string" },
-        "method": { "type": "string", "enum": ["POST", "PUT"] },
+        "method": {
+          "type": "string",
+          "enum": ["POST", "PUT"],
+          "default": "POST",
+          "description": "【可选，upload】上传 HTTP 方法，缺省为 POST"
+        },
         "fieldName": {
           "type": "string",
           "description": "【可选，upload】multipart 中的文件字段名，默认 file"

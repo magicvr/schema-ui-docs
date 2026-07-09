@@ -14,7 +14,8 @@
  *      - permissions.* 不能出现 $deps.*
  *      - 非表单 visibleWhen（无 dependencies）不能出现 $deps.*
  *      - 表格 actions 的 scope:row 不能出现 $self
- *      - data.params 中 $deps.* 仅允许出现在表单上下文，且不支持其他变量
+ *      - 表格列/操作 scope:form 使用 $deps.* 时要求表格位于 form 上下文
+ *      - data.params / optionsSource.params 中 $deps.* 仅允许出现在表单上下文，且不支持其他变量
  *   4. $deps.* 中使用的字段必须在 dependencies 中声明
  *
  * 用法：
@@ -282,7 +283,7 @@ function validateExpression(expr, exprPath, context) {
    *   scope: 'form' | 'row' | undefined,
    *   dependencies: string[],          // reactions/visibleWhen 声明的 deps
   *   location: 'reaction' | 'visibleWhen' | 'permission' | 'tableAction' | 'tableColumn',
-  *   hasFormContext: boolean,          // 节点是否处于表单上下文（有 dependencies 声明）
+  *   hasFormContext: boolean,          // 节点是否处于 form 上下文（type===form 或其 form 子孙）
   *   allowParentRow: boolean,          // 当前表达式是否处于嵌套表格的行级上下文
    * }
    */
@@ -401,6 +402,24 @@ function validateExpression(expr, exprPath, context) {
     });
   }
 
+  // 10. 独立表格（非 form 上下文）的列/操作 scope:form 不能用 $deps.*
+  if ((location === 'tableColumn' || location === 'tableAction') && scope === 'form' && !hasFormContext && hasDepRef) {
+    violations.push({
+      path: exprPath,
+      rule: 'NON_FORM_TABLE_DEPS',
+      message: '独立表格（非 form 上下文）的列/操作在 scope:form 下不能使用 $deps.*；仅当表格位于 form.children 内时才允许',
+    });
+  }
+
+  // 11. 非 form 上下文的字段级 reactions 不能用 $deps.*
+  if (location === 'reaction' && !hasFormContext && hasDepRef) {
+    violations.push({
+      path: exprPath,
+      rule: 'NON_FORM_REACTION_DEPS',
+      message: '非 form 上下文的 reactions 中不能出现 $deps.*；仅 form 字段（type===form 或其子孙）允许',
+    });
+  }
+
   return violations;
 }
 
@@ -409,12 +428,11 @@ function validateExpression(expr, exprPath, context) {
 // ---------------------------------------------------------------------------
 
 /**
- * 判断节点是否处于表单上下文（自身是 form 组件或其 children）
- * 简化判断：只要节点有任一 reaction 声明了 dependencies，视为表单上下文
+ * 判断节点是否开启表单上下文（仅 type === form）。
+ * 子节点通过 scanNode 的 parentIsForm 继承，不得用节点自身 reactions.dependencies 推断。
  */
 function isFormContext(node) {
-  return node.type === 'form' ||
-    (Array.isArray(node.reactions) && node.reactions.some(r => Array.isArray(r.dependencies) && r.dependencies.length > 0));
+  return node.type === 'form';
 }
 
 function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
@@ -427,6 +445,21 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
   // --- data.params 中的变量值替换 ---
   if (node.data && node.data.params && typeof node.data.params === 'object') {
     scanDataParams(node.data.params, `${nodePath}.data.params`, violations, inFormCtx);
+  }
+
+  // --- select.optionsSource.params 中的变量值替换 ---
+  if (
+    node.props &&
+    node.props.optionsSource &&
+    node.props.optionsSource.params &&
+    typeof node.props.optionsSource.params === 'object'
+  ) {
+    scanDataParams(
+      node.props.optionsSource.params,
+      `${nodePath}.props.optionsSource.params`,
+      violations,
+      inFormCtx,
+    );
   }
 
   // --- reactions[].when ---
@@ -478,7 +511,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
         const scope = col.visibleWhen.scope || 'form';
         const deps = Array.isArray(col.visibleWhen.dependencies) ? col.visibleWhen.dependencies : [];
         violations.push(...validateExpression(col.visibleWhen.when, `${colBase}.visibleWhen.when`, {
-          scope, dependencies: deps, location: 'tableColumn', hasFormContext: false, allowParentRow,
+          scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx, allowParentRow,
         }));
       }
       if (Array.isArray(col.reactions)) {
@@ -487,7 +520,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(r.when, `${colBase}.reactions[${ri}].when`, {
-              scope, dependencies: deps, location: 'tableColumn', hasFormContext: false, allowParentRow,
+              scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx, allowParentRow,
             }));
           }
         });
@@ -509,7 +542,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
         const scope = action.visibleWhen.scope || 'form';
         const deps = Array.isArray(action.visibleWhen.dependencies) ? action.visibleWhen.dependencies : [];
         violations.push(...validateExpression(action.visibleWhen.when, `${actBase}.visibleWhen.when`, {
-          scope, dependencies: deps, location: 'tableAction', hasFormContext: false, allowParentRow,
+          scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx, allowParentRow,
         }));
       }
       if (Array.isArray(action.reactions)) {
@@ -518,7 +551,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(r.when, `${actBase}.reactions[${ri}].when`, {
-              scope, dependencies: deps, location: 'tableAction', hasFormContext: false, allowParentRow,
+              scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx, allowParentRow,
             }));
           }
         });
@@ -544,6 +577,9 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
 }
 
 function scanDataParams(params, paramsPath, violations, hasFormContext) {
+  const isOptionsSource = paramsPath.includes('optionsSource.params');
+  const paramsLabel = isOptionsSource ? 'optionsSource.params' : 'data.params';
+
   for (const [key, value] of Object.entries(params)) {
     const valuePath = `${paramsPath}.${key}`;
     if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -560,7 +596,7 @@ function scanDataParams(params, paramsPath, violations, hasFormContext) {
           violations.push({
             path: valuePath,
             rule: 'NON_FORM_DATA_PARAMS',
-            message: '非表单上下文的 data.params 中不能出现 $deps.*',
+            message: `非表单上下文的 ${paramsLabel} 中不能出现 $deps.*`,
           });
         }
         continue;
@@ -569,7 +605,7 @@ function scanDataParams(params, paramsPath, violations, hasFormContext) {
       violations.push({
         path: valuePath,
         rule: 'DATA_PARAMS_VARIABLE',
-        message: 'data.params 仅允许字面量或 $deps.* 值替换，不允许使用 $row.*、$parentRow.*、$self 或 $context.*',
+        message: `${paramsLabel} 仅允许字面量或 $deps.* 值替换，不允许使用 $row.*、$parentRow.*、$self 或 $context.*`,
       });
     }
   }

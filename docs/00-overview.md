@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-09
+last_updated: 2026-07-10
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -56,7 +56,7 @@ applies_to: schema-ui-protocol v0.2
 | **props** | Node 上表示"业务级配置参数"的字段，只包含语义信息，不含任何 CSS/DOM 细节 |
 | **data** | Node 上表示"数据来源"的字段，描述值是静态的、引用页面数据源的、还是来自独立 API 请求的 |
 | **children** | Node 的子节点数组，用于表达树形嵌套结构（布局容器场景） |
-| **reactions** | Node 上表示"联动规则"的字段，仅用于表单场景内，字段之间的显隐/必填等状态联动 |
+| **reactions** | 声明式联动规则数组；主要挂载在表单字段 Node（默认 `scope: form`）上，也可挂载在表格 `columns[]` / `actions[]`（需 `scope: row`，且 `fulfill` 仅允许 `visible`/`disabled`） |
 | **Renderer（渲染器）** | 前端负责递归解析 Node 树、按 `type` 分发到具体组件的核心模块 |
 | **组件注册表** | 前端维护的 `type` → 组件实现 的映射表，是协议与具体 UI 实现之间的唯一桥梁 |
 

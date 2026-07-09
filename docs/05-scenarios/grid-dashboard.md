@@ -1,7 +1,7 @@
 ---
 status: example
 protocol_version: v0.2
-last_updated: 2026-07-07
+last_updated: 2026-07-10
 ---
 
 # 场景示例：两列网格看板（统计卡片 + 图表）
