@@ -42,14 +42,14 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
   if (!['yaml', 'json'].includes(input.format)) {
     return finalize({
       ...baseResult,
-      internalError: 'format 必须是 yaml 或 json',
+      internalError: { message: 'format 必须是 yaml 或 json' },
     });
   }
 
   if (Buffer.byteLength(input.content, 'utf8') > MAX_CONTENT_BYTES) {
     return finalize({
       ...baseResult,
-      internalError: 'content 超过 1MB 限制',
+      internalError: { message: 'content 超过 1MB 限制' },
     });
   }
 
@@ -89,7 +89,7 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
   } catch (error) {
     return finalize({
       ...baseResult,
-      internalError: error instanceof Error ? error.message : String(error),
+      internalError: { message: error instanceof Error ? error.message : String(error) },
     });
   } finally {
     try {
@@ -240,7 +240,7 @@ function finalize(result: ValidateContentResult): ValidateContentResult {
 function summarize(passed: boolean, result: ValidateContentResult): string {
   if (passed) return '校验通过，未发现协议违规';
   if (result.parseError) return `解析失败：${result.parseError.message}`;
-  if (result.internalError) return `校验内部错误：${result.internalError}`;
+  if (result.internalError) return `校验内部错误：${result.internalError.message}`;
 
   const parts = Object.entries(result.layers)
     .filter(([, items]) => items.length > 0)

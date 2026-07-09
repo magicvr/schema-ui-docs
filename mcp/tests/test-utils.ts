@@ -77,3 +77,50 @@ body:
     source: api
     url: /api/orders
 `;
+
+export const tableVisibleWhenMissingWhenYaml = `
+meta:
+  pageId: table_visiblewhen_missing_when
+  title: Table VisibleWhen Missing When
+  protocolVersion: "0.2"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: id
+        label: ID
+        visibleWhen:
+          scope: row
+          dependencies: [id]
+  data:
+    source: api
+    url: /api/items
+`;
+
+export const tableRowReactionForbiddenStateYaml = `
+meta:
+  pageId: table_row_reaction_forbidden_state
+  title: Table Row Reaction Forbidden State
+  protocolVersion: "0.2"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: id
+        label: ID
+        reactions:
+          - scope: row
+            dependencies: [id]
+            when: "$row.id == '1'"
+            fulfill:
+              required: true
+  data:
+    source: api
+    url: /api/items
+`;

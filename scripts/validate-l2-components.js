@@ -90,6 +90,135 @@ function checkEnum(value, enumValues, fieldPath, violations) {
   }
 }
 
+function validateStringArray(value, fieldPath, violations) {
+  if (!Array.isArray(value)) {
+    violations.push({ path: fieldPath, message: '期望 array，实际 ' + (value === null ? 'null' : typeof value) });
+    return;
+  }
+  value.forEach((item, index) => {
+    if (typeof item !== 'string') {
+      violations.push({ path: `${fieldPath}[${index}]`, message: `期望 string，实际 ${typeof item}` });
+    }
+  });
+}
+
+function validateStateMap(value, statePath, violations, scope) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    violations.push({ path: statePath, message: `期望 object，实际 ${Array.isArray(value) ? 'array' : typeof value}` });
+    return;
+  }
+
+  const allowedKeys = new Set(['visible', 'required', 'disabled', 'value']);
+  for (const [key, stateValue] of Object.entries(value)) {
+    if (!allowedKeys.has(key)) {
+      violations.push({ path: `${statePath}.${key}`, message: `不允许的额外字段 "${key}"` });
+      continue;
+    }
+    if (['visible', 'required', 'disabled'].includes(key) && typeof stateValue !== 'boolean') {
+      violations.push({ path: `${statePath}.${key}`, message: `期望 boolean，实际 ${typeof stateValue}` });
+    }
+  }
+
+  if (scope === 'row') {
+    for (const forbiddenKey of ['required', 'value']) {
+      if (Object.prototype.hasOwnProperty.call(value, forbiddenKey)) {
+        violations.push({
+          path: `${statePath}.${forbiddenKey}`,
+          message: 'scope: row 的 fulfill/otherwise 中禁止声明 required 或 value（仅允许 visible 和 disabled）',
+        });
+      }
+    }
+  }
+}
+
+function validateVisibleWhen(value, valuePath, violations) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    violations.push({ path: valuePath, message: `期望 object，实际 ${Array.isArray(value) ? 'array' : typeof value}` });
+    return;
+  }
+
+  const allowedKeys = new Set(['scope', 'dependencies', 'when']);
+  if (value.when === undefined) {
+    violations.push({ path: `${valuePath}.when`, message: '必填字段 "when" 缺失' });
+  } else if (typeof value.when !== 'string') {
+    violations.push({ path: `${valuePath}.when`, message: `期望 string，实际 ${typeof value.when}` });
+  }
+  if (value.scope !== undefined) {
+    checkType(value.scope, 'string', `${valuePath}.scope`, violations);
+    if (typeof value.scope === 'string') checkEnum(value.scope, ['form', 'row'], `${valuePath}.scope`, violations);
+  }
+  if (value.dependencies !== undefined) {
+    validateStringArray(value.dependencies, `${valuePath}.dependencies`, violations);
+  }
+  for (const key of Object.keys(value)) {
+    if (!allowedKeys.has(key)) {
+      violations.push({ path: `${valuePath}.${key}`, message: `不允许的额外字段 "${key}"` });
+    }
+  }
+}
+
+function validateReaction(value, valuePath, violations) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    violations.push({ path: valuePath, message: `期望 object，实际 ${Array.isArray(value) ? 'array' : typeof value}` });
+    return;
+  }
+
+  const allowedKeys = new Set(['dependencies', 'when', 'scope', 'fulfill', 'otherwise']);
+  const scope = value.scope || 'form';
+  if (value.dependencies === undefined) {
+    violations.push({ path: `${valuePath}.dependencies`, message: '必填字段 "dependencies" 缺失' });
+  } else {
+    validateStringArray(value.dependencies, `${valuePath}.dependencies`, violations);
+  }
+  if (value.when === undefined) {
+    violations.push({ path: `${valuePath}.when`, message: '必填字段 "when" 缺失' });
+  } else if (typeof value.when !== 'string') {
+    violations.push({ path: `${valuePath}.when`, message: `期望 string，实际 ${typeof value.when}` });
+  }
+  if (value.scope !== undefined) {
+    checkType(value.scope, 'string', `${valuePath}.scope`, violations);
+    if (typeof value.scope === 'string') checkEnum(value.scope, ['form', 'row'], `${valuePath}.scope`, violations);
+  }
+  if (value.fulfill === undefined) {
+    violations.push({ path: `${valuePath}.fulfill`, message: '必填字段 "fulfill" 缺失' });
+  } else {
+    validateStateMap(value.fulfill, `${valuePath}.fulfill`, violations, scope);
+  }
+  if (value.otherwise !== undefined) {
+    validateStateMap(value.otherwise, `${valuePath}.otherwise`, violations, scope);
+  }
+  for (const key of Object.keys(value)) {
+    if (!allowedKeys.has(key)) {
+      violations.push({ path: `${valuePath}.${key}`, message: `不允许的额外字段 "${key}"` });
+    }
+  }
+}
+
+function validatePermissions(value, valuePath, violations) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    violations.push({ path: valuePath, message: `期望 object，实际 ${Array.isArray(value) ? 'array' : typeof value}` });
+    return;
+  }
+  if (Object.keys(value).length === 0) {
+    violations.push({ path: valuePath, message: 'permissions 至少需要一个动作键' });
+  }
+  for (const [key, expr] of Object.entries(value)) {
+    if (typeof expr !== 'string') {
+      violations.push({ path: `${valuePath}.${key}`, message: `期望 string，实际 ${typeof expr}` });
+    }
+  }
+}
+
+function validateKnownRef(value, ref, valuePath, violations) {
+  if (ref === 'node.schema.json#/definitions/VisibleWhen') {
+    validateVisibleWhen(value, valuePath, violations);
+  } else if (ref === 'reaction.schema.json') {
+    validateReaction(value, valuePath, violations);
+  } else if (ref === 'node.schema.json#/definitions/Permissions') {
+    validatePermissions(value, valuePath, violations);
+  }
+}
+
 /**
  * 递归校验嵌套 object 的 properties / required / additionalProperties。
  * spec 是 DSL 中字段规格（含 properties / required / additionalProperties）。
@@ -108,12 +237,24 @@ function validateNestedObject(obj, spec, objPath, violations) {
   for (const [k, v] of Object.entries(obj)) {
     const fs = props[k];
     if (!fs || typeof fs !== 'object') continue;
+    if (fs.$ref) validateKnownRef(v, fs.$ref, `${objPath}.${k}`, violations);
     if (fs.type) checkType(v, fs.type, `${objPath}.${k}`, violations);
     if (fs.enum && v !== undefined) checkEnum(v, fs.enum, `${objPath}.${k}`, violations);
     // 再深一层：有 properties 或 additionalProperties schema 的 object 都递归
     if (fs.type === 'object' && v && typeof v === 'object' && !Array.isArray(v) &&
         (fs.properties || (fs.additionalProperties && typeof fs.additionalProperties === 'object'))) {
       validateNestedObject(v, fs, `${objPath}.${k}`, violations);
+    }
+    if (fs.type === 'array' && fs.items && Array.isArray(v)) {
+      v.forEach((item, index) => {
+        if (fs.items.$ref) {
+          validateKnownRef(item, fs.items.$ref, `${objPath}.${k}[${index}]`, violations);
+        }
+        if (item && typeof item === 'object' && !Array.isArray(item) &&
+            (fs.items.properties || (fs.items.additionalProperties && typeof fs.items.additionalProperties === 'object'))) {
+          validateNestedObject(item, fs.items, `${objPath}.${k}[${index}]`, violations);
+        }
+      });
     }
   }
   // additionalProperties: false → 拒绝未声明字段
@@ -281,6 +422,9 @@ function validateProps(props, compDef, type, nodePath, violations) {
     if (fieldSpec.type === 'array' && fieldSpec.items && Array.isArray(value)) {
       value.forEach((item, idx) => {
         const itemSpec = fieldSpec.items;
+        if (itemSpec.$ref) {
+          validateKnownRef(item, itemSpec.$ref, `${nodePath}.props.${key}[${idx}]`, violations);
+        }
         if (item && typeof item === 'object' &&
             (itemSpec.properties || (itemSpec.additionalProperties && typeof itemSpec.additionalProperties === 'object'))) {
           validateNestedObject(item, itemSpec, `${nodePath}.props.${key}[${idx}]`, violations);

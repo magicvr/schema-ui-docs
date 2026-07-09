@@ -28,11 +28,18 @@ export type ParseError = {
   filename?: string;
 };
 
+export type ToolError = {
+  message: string;
+  line?: number;
+  column?: number;
+  filename?: string;
+};
+
 export type ValidateContentResult = {
   passed: boolean;
   layers: Record<ValidationLayer, LayerViolation[]>;
   summary: string;
   parseError: ParseError | null;
-  internalError: string | null;
+  internalError: ToolError | null;
   suggestedDocs: string[];
 };
