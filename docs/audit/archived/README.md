@@ -5,6 +5,24 @@
 
 ---
 
+## 0027 — 2026-07-09 — grid span 契约漂移 + Renderer 示例 + 数据响应契约分类
+
+**主题：** 修复 `grid` 直接子节点通用 `span` 约定与组件 DSL / L2 的冲突（V45🔴）、`08-renderer-spec.md` 数据依赖示例不可执行问题（V46🟡）、`select.optionsSource` 响应体分类矛盾（V47🔴）、以及 `chart` 与 `responseMapping.list` 的适用口径不一致（V48🟡）。
+**性质：** 组件 DSL 收敛 + 示例可执行性修复 + 数据响应契约分类统一。
+
+| 文件 | 说明 |
+|---|---|
+| [0027-2026-07-09-review.md](./0027-2026-07-09-review.md) | 审视报告 — V45🔴/V46🟡/V47🔴/V48🟡 |
+| [0027-2026-07-09-checklist.md](./0027-2026-07-09-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V45: `component-registry.json` 与 `03-component-registry.md` 为缺失组件补齐 `span`，`grid > form/input(props.span)` 最小样例通过 L2
+- V46: `08-renderer-spec.md` §2.3 示例补齐 `form.props.submitAction` 与内层 `table` 必填 props，等价最小页面通过 L2
+- V47: `04-datasource-contract.md` 明确 `select.optionsSource` 默认返回裸数组，不属于 `DataRef` 列表响应，也不复用 `data.responseMapping`
+- V48: `chart` 支持 `data.responseMapping.list` 的口径落入 `04` / `08` / `06` 与 L2；缺少 `list` 的 chart 映射被拒绝，提供 `list` 的样例通过
+
+---
+
 ## 0026 — 2026-07-09 — `$parentRow` 静态校验边界 + 表达式章节引用漂移
 
 **主题：** 修复 L3a 未按变量可见性矩阵拒绝非法 `$parentRow.*` 使用（V43🔴），以及 `01-node-protocol.md` 中表达式求值时序章节仍指向旧 §13 锚点的问题（V44🟢）。
