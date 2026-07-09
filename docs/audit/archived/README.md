@@ -5,6 +5,22 @@
 
 ---
 
+## 0026 — 2026-07-09 — `$parentRow` 静态校验边界 + 表达式章节引用漂移
+
+**主题：** 修复 L3a 未按变量可见性矩阵拒绝非法 `$parentRow.*` 使用（V43🔴），以及 `01-node-protocol.md` 中表达式求值时序章节仍指向旧 §13 锚点的问题（V44🟢）。
+**性质：** 表达式静态校验收敛 + 文档章节引用修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0026-2026-07-09-review.md](./0026-2026-07-09-review.md) | 审视报告 — V43🔴/V44🟢 |
+| [0026-2026-07-09-checklist.md](./0026-2026-07-09-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V43: `validate-l3a-expressions.js` 新增 `$parentRow.*` 作用域隔离，非行级位置会报 `SCOPE_ISOLATION` / `PARENT_ROW_SCOPE`；嵌套表格内层 `scope: row` 正例通过
+- V44: `01-node-protocol.md` 将表达式求值时序引用从 `02-reaction-expression.md §13` 更新为当前 §14 锚点
+
+---
+
 ## 0025 — 2026-07-09 — 入口索引 + 组件 DSL + 链接与元数据漂移
 
 **主题：** 修复根 README 漏列 v0.2.7 行级后端动作示例与 ADR-0008（V39🟡）、`upload.props.placeholder` 正文允许但组件 DSL 未声明导致 L2 拒绝（V40🔴）、`06-validation.md` 脚本链接相对路径错误（V41🟢）、以及 v0.2.7 触达文档 `last_updated` 未同步（V42🟢）。

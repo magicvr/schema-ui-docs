@@ -213,7 +213,7 @@ permissions:
 
 > **注意：** `visibleWhen.when` 和 `reactions[].when` 中使用的 `$deps.*` 变量必须在对应位置的 `dependencies` 数组中显式声明，否则表达式无法正确求值。详见 [02-reaction-expression.md §8](./02-reaction-expression.md#8-校验建议)。
 >
-> **求值时序（since 0.2.4）：** 表达式引擎采用稳定快照模型。每一轮求值开始时，Renderer 冻结当前表单状态作为输入快照；本轮内 `visibleWhen`、`permissions` 与 `reactions.when` 都读取该快照。`reactions.fulfill.value` / `otherwise.value` 产生的写入在本轮结束时批量提交，不会影响同轮其他表达式读取；若写入改变了字段值，Renderer 在下一轮求值中读取新值。完整规则见 [02-reaction-expression.md §13](./02-reaction-expression.md#13-表达式求值时序模型since-024) 与 [decisions/0006](./decisions/0006-expression-evaluation-order.md)。
+> **求值时序（since 0.2.4）：** 表达式引擎采用稳定快照模型。每一轮求值开始时，Renderer 冻结当前表单状态作为输入快照；本轮内 `visibleWhen`、`permissions` 与 `reactions.when` 都读取该快照。`reactions.fulfill.value` / `otherwise.value` 产生的写入在本轮结束时批量提交，不会影响同轮其他表达式读取；若写入改变了字段值，Renderer 在下一轮求值中读取新值。完整规则见 [02-reaction-expression.md §14](./02-reaction-expression.md#14-表达式求值时序模型since-024) 与 [decisions/0006](./decisions/0006-expression-evaluation-order.md)。
 
 **容器节点级联**：容器（`section`/`grid`/`form` 等）最终 `visible` 为 `false` 时，其子树不展示，但子树内各节点的 `reactions` 仍按各自声明正常求值。子节点无需、也不应自行判断祖先可见性——级联隐藏是渲染层职责。
 
