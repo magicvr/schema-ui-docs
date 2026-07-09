@@ -1,7 +1,7 @@
 ---
 status: example
 protocol_version: v0.2
-last_updated: 2026-07-07
+last_updated: 2026-07-09
 ---
 
 # 场景示例：数据表格（自动分页 + 格式化）
