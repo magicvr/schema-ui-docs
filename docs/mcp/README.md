@@ -33,6 +33,54 @@ npm --prefix mcp start
 
 ## Docker 分发
 
+### 使用已发布镜像
+
+CD 工作流会将镜像推送到 Docker Hub 仓库：
+
+```text
+<dockerhub-namespace>/schema-ui-mcp
+```
+
+当前版本示例：
+
+```bash
+docker pull <dockerhub-namespace>/schema-ui-mcp:0.2.6
+docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:0.2.6
+```
+
+MCP 客户端配置示例：
+
+```json
+{
+  "mcpServers": {
+    "schema-ui": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "<dockerhub-namespace>/schema-ui-mcp:0.2.6"
+      ]
+    }
+  }
+}
+```
+
+镜像 tag 策略：
+
+| Tag | 用途 |
+|---|---|
+| `0.2.6` | 固定 PATCH 版本，推荐团队接入使用 |
+| `0.2` | 当前 `0.2.x` 最新 PATCH |
+| `latest` | 最新发布版本，不建议写入稳定接入示例 |
+| `<commit-sha>` | 精确追踪一次 CD 构建产物 |
+
+MCP 使用 stdio transport，Docker 启动参数需要保留 `-i`，不需要 `-t`。镜像不要求挂载业务项目目录；`protocol.validate_content` 校验的是调用方传入的 YAML/JSON 字符串，不读取 `filename` 对应的本地文件。
+
+接入后，AI 客户端可以直接调用 `protocol.search`、`protocol.get_doc`、`protocol.list_components`、`protocol.get_component` 和 `protocol.validate_content`。常见使用方式是先用 `protocol.search` 或 `protocol.get_component` 查询协议约束，再把页面配置内容传给 `protocol.validate_content` 做 L0-L4 分层校验。
+
+### 本地构建镜像
+
 从仓库根目录构建镜像：
 
 ```bash
