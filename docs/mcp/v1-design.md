@@ -265,6 +265,7 @@ v1 使用固定映射：
 | `L4` | `docs/06-validation.md`, `docs/01-node-protocol.md` |
 | `parseError` | `docs/01-node-protocol.md`, `docs/06-validation.md` |
 | `actions.upload` capability | `docs/01-node-protocol.md`, `docs/07-actions-contract.md`, `docs/08-renderer-spec.md` |
+| `actions.row.request` capability | `docs/03-component-registry.md`, `docs/07-actions-contract.md`, `docs/08-renderer-spec.md` |
 
 实现可以按具体 rule 增加更精确文档，但必须保持确定性。
 
@@ -307,8 +308,9 @@ Docker smoke test 应可自动化执行：启动镜像，发送 MCP `initialize`
 | M1 | `protocol.get_doc({ docId: "overview" })` | 返回总纲内容 |
 | M2 | `protocol.list_components()` | 包含 `table` / `form` / `upload` |
 | M3 | `protocol.get_component({ type: "table" })` | 返回结构化表格契约 |
-| M4 | 三个官方完整场景传入 `validate_content` | `passed: true` |
+| M4 | 官方完整场景传入 `validate_content` | `passed: true` |
 | M5 | `$row.*` 缺少 `scope: row` | `passed: false`，L3a 报错 |
 | M6 | upload action 缺少 `actions.upload` capability | `passed: false`，L2 报错 |
-| M7 | 非法 YAML | `passed: false`，返回 `parseError` |
-| M8 | Docker stdio smoke test | MCP 可启动并响应工具列表 |
+| M7 | RowAction.actionRef 缺少 `actions.row.request` capability | `passed: false`，L2 报错 |
+| M8 | 非法 YAML | `passed: false`，返回 `parseError` |
+| M9 | Docker stdio smoke test | MCP 可启动并响应工具列表 |

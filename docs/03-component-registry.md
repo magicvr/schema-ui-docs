@@ -170,14 +170,16 @@ data:
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
 | `key` | string | 是 | 操作标识；仅供前端识别行内操作类型，不引用顶层 `actions` |
+| `actionRef` | string | 否（since 0.2.7） | 引用顶层 `actions` 中的 `type: request` action，用于声明式行级后端请求；使用时页面必须声明 `meta.requiredCapabilities: [actions.row.request]` |
+| `requestMapping` | object | 否（since 0.2.7） | `actionRef` 的行数据绑定。支持 `path` / `query` / `body` 三段，均为扁平 key-value map；值只允许字面量或单个 `$row.*` / `$parentRow.*` 点路径引用；完整规则见 [07-actions-contract.md §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) |
 | `label` / `labelKey` | string | 是 | 操作文案 |
-| `confirm` | string | 否 | 二次确认文案 |
+| `confirm` | string | 否 | 二次确认文案；行级后端请求中仅在 `visibleWhen` / `permissions` / `disabled` 判定通过后、构造请求前展示 |
 | `visibleField` | string | 否 | 行级显隐语法糖（`visibleWhen` 的简化写法），取行数据中同名字段的布尔值作为显隐依据。解析阶段等价展开为 `{ scope: row, dependencies: [field], when: "$row.<field> == true" }`，展开后纳入 [01-node-protocol.md §3.10](./01-node-protocol.md#310-最终可见性优先级公式) 公式 |
 | `visibleWhen` | object | 否（since 0.2.1） | 行级条件渲染，需声明 `scope: row`，语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
 | `reactions` | array | 否（since 0.2.1） | 行内操作联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
 | `permissions` | map | 否（since 0.2.1） | 操作级权限控制，表达式仅允许 `$context.*` |
 
-> **行内操作执行边界：** `RowAction.key` 只用于 Renderer 将点击事件分发给前端预注册的行内操作处理器，并由该处理器接收当前行上下文。v0.2 不定义 `RowAction` 到顶层 `actions` 的自动绑定，也不定义行级请求如何映射当前行字段；需要后端请求型行操作时，应使用前端预注册处理器、弹窗内表单的 `submitAction`，或另行通过 ADR 标准化 `rowAction.actionRef` 一类的新字段。
+> **行内操作执行边界：** 未声明 `actionRef` 时，`RowAction.key` 只用于 Renderer 将点击事件分发给前端预注册的行内操作处理器，并由该处理器接收当前行上下文。声明 `actionRef` 时，Renderer 按 [ADR-0008](./decisions/0008-row-action-backend-request.md) 与 [07-actions-contract.md §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) 执行标准行级后端请求；`key` 仍保留为操作类型标识，不变成顶层 action id。
 
 **作用域说明（since 0.2.1）：** 列/操作内的 `visibleWhen`/`reactions`/`permissions` 可通过 `scope` 属性声明求值作用域：
 - `scope: form`（默认）：表达式在表单级求值，可访问 `$deps.*`（表单字段），不可访问 `$row.*`。**注意：仅当表格本身位于 `form.children` 内（如搜索表单嵌入表格场景）时，`$deps.*` 才合法；独立表格的列/操作中即使声明 `scope: form`，`$deps.*` 仍被静态校验拒绝（见 [02-reaction-expression.md §9.1](./02-reaction-expression.md#91-作用域隔离规则)）。
@@ -190,6 +192,10 @@ data:
 actions:
   - key: refund
     label: 退款
+    actionRef: refundOrder
+    requestMapping:
+      path:
+        orderId: $row.orderId
     visibleWhen:
       scope: row
       dependencies: [canRefund]

@@ -10,6 +10,9 @@
  *   5. responseMapping 语义规则：
  *      - table 组件使用 API 数据且声明了 responseMapping 时，必须声明 responseMapping.list
  *      - table.props.pagination.mode === 'server' 且声明了 responseMapping 时，必须声明 responseMapping.total
+ *   6. 执行能力与行级 action 引用规则：
+ *      - 使用 RowAction.actionRef 时必须声明 actions.row.request 能力
+ *      - RowAction.actionRef 必须引用顶层 request action，且 RowAction 必须声明 requestMapping
  *
  * 用法：
  *   node scripts/validate-l2-components.js <file-or-glob> [--json]
@@ -395,6 +398,151 @@ function validateResponseMapping(node, type, compDef, nodePath, violations) {
   }
 }
 
+function isPlainObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function extractUrlPathParams(url) {
+  if (typeof url !== 'string') return [];
+  return Array.from(url.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g), match => match[1]);
+}
+
+function hasNonEmptyRequestMapping(mapping) {
+  if (!isPlainObject(mapping)) return false;
+  return ['path', 'query', 'body'].some(section =>
+    isPlainObject(mapping[section]) && Object.keys(mapping[section]).length > 0,
+  );
+}
+
+function validateRequestMappingValues(mappingSection, sectionPath, violations) {
+  if (mappingSection === undefined) return;
+  if (!isPlainObject(mappingSection)) {
+    violations.push({ path: sectionPath, message: 'requestMapping 的 path/query/body 必须是对象' });
+    return;
+  }
+
+  const rowRefPattern = /^\$(row|parentRow)\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
+  for (const [mappingKey, mappingValue] of Object.entries(mappingSection)) {
+    const valuePath = `${sectionPath}.${mappingKey}`;
+    const valueType = mappingValue === null ? 'null' : Array.isArray(mappingValue) ? 'array' : typeof mappingValue;
+    if (!['string', 'number', 'boolean', 'null'].includes(valueType)) {
+      violations.push({
+        path: valuePath,
+        message: `requestMapping 必须是扁平 key-value map；值只能是 string/number/boolean/null 或单个行上下文引用，实际为 ${valueType}`,
+      });
+      continue;
+    }
+    if (typeof mappingValue === 'string' && mappingValue.startsWith('$')) {
+      if (!rowRefPattern.test(mappingValue)) {
+        violations.push({
+          path: valuePath,
+          message: '行级 requestMapping 仅允许单个 $row.* / $parentRow.* 点路径引用；不得使用 $deps.*、$context.* 或表达式',
+        });
+      }
+    }
+  }
+}
+
+function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPath, violations) {
+  if (!hasNonEmptyRequestMapping(rowAction.requestMapping)) {
+    violations.push({
+      path: `${rowActionPath}.requestMapping`,
+      message: 'RowAction.actionRef 必须同时声明非空 requestMapping，以显式绑定当前行数据',
+    });
+    return;
+  }
+
+  const mapping = rowAction.requestMapping;
+  validateRequestMappingValues(mapping.path, `${rowActionPath}.requestMapping.path`, violations);
+  validateRequestMappingValues(mapping.query, `${rowActionPath}.requestMapping.query`, violations);
+  validateRequestMappingValues(mapping.body, `${rowActionPath}.requestMapping.body`, violations);
+
+  const placeholders = new Set(extractUrlPathParams(actionDef.url));
+  const pathMapping = isPlainObject(mapping.path) ? mapping.path : {};
+  for (const placeholder of placeholders) {
+    if (pathMapping[placeholder] === undefined) {
+      violations.push({
+        path: `${rowActionPath}.requestMapping.path.${placeholder}`,
+        message: `url 中的路径参数 {${placeholder}} 必须在 requestMapping.path 中声明`,
+      });
+    }
+  }
+  for (const mappingKey of Object.keys(pathMapping)) {
+    if (!placeholders.has(mappingKey)) {
+      violations.push({
+        path: `${rowActionPath}.requestMapping.path.${mappingKey}`,
+        message: `requestMapping.path.${mappingKey} 没有对应的 url 路径参数 {${mappingKey}}`,
+      });
+    }
+  }
+
+  if (['GET', 'DELETE'].includes(actionDef.method) && isPlainObject(mapping.body) && Object.keys(mapping.body).length > 0) {
+    violations.push({
+      path: `${rowActionPath}.requestMapping.body`,
+      message: `${actionDef.method} 行级请求不得声明 body；请使用 path 或 query 传递当前行标识`,
+    });
+  }
+}
+
+function validateRowActionRefs(doc, violations) {
+  const actions = isPlainObject(doc.actions) ? doc.actions : {};
+
+  const scanNode = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+
+    if (node.type === 'table' && node.props && Array.isArray(node.props.actions)) {
+      node.props.actions.forEach((rowAction, rowActionIndex) => {
+        if (!rowAction) return;
+
+        const rowActionPath = `${nodePath}.props.actions[${rowActionIndex}]`;
+        if (rowAction.requestMapping !== undefined && rowAction.actionRef === undefined) {
+          violations.push({
+            path: `${rowActionPath}.requestMapping`,
+            message: 'RowAction.requestMapping 只能与 actionRef 一起使用；本地 handler 模式不接受 requestMapping',
+          });
+        }
+
+        if (rowAction.actionRef === undefined) return;
+
+        const actionRef = rowAction.actionRef;
+        if (typeof actionRef !== 'string') return;
+
+        const actionDef = actions[actionRef];
+        if (!actionDef) {
+          violations.push({
+            path: `${rowActionPath}.actionRef`,
+            message: `RowAction.actionRef 引用了不存在的顶层 action "${actionRef}"`,
+          });
+          return;
+        }
+
+        if (actionDef.type !== 'request') {
+          violations.push({
+            path: `${rowActionPath}.actionRef`,
+            message: `RowAction.actionRef 仅可引用 type: request 的 action，当前为 "${actionDef.type}"`,
+          });
+          return;
+        }
+
+        validateRowRequestAction(rowAction, rowActionPath, actionDef, `actions.${actionRef}`, violations);
+      });
+    }
+
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, childIndex) => scanNode(child, `${nodePath}.children[${childIndex}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, itemIndex) => {
+        if (item && item.content) {
+          scanNode(item.content, `${nodePath}.props.items[${itemIndex}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+}
+
 function validateRequiredCapabilities(doc, violations) {
   const declared = new Set(
     Array.isArray(doc?.meta?.requiredCapabilities) ? doc.meta.requiredCapabilities : [],
@@ -421,6 +569,13 @@ function validateRequiredCapabilities(doc, violations) {
     if (node.type === 'upload' && node.props && node.props.actionRef !== undefined) {
       requireCapability('actions.upload', `${nodePath}.props.actionRef`, 'upload.props.actionRef');
     }
+    if (node.type === 'table' && node.props && Array.isArray(node.props.actions)) {
+      node.props.actions.forEach((rowAction, rowActionIndex) => {
+        if (rowAction && rowAction.actionRef !== undefined) {
+          requireCapability('actions.row.request', `${nodePath}.props.actions[${rowActionIndex}].actionRef`, 'RowAction.actionRef');
+        }
+      });
+    }
     if (Array.isArray(node.children)) {
       node.children.forEach((child, idx) => scanNode(child, `${nodePath}.children[${idx}]`));
     }
@@ -444,6 +599,7 @@ function validatePage(doc, fileLabel) {
   if (doc.body) {
     validateNode(doc.body, 'body', violations);
   }
+  validateRowActionRefs(doc, violations);
   validateRequiredCapabilities(doc, violations);
   return violations.map(v => ({ file: fileLabel, ...v }));
 }

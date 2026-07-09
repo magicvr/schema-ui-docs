@@ -234,11 +234,12 @@ MCP 镜像发布前必须通过以下验收：
 1. `protocol.get_doc` 能返回协议总纲；
 2. `protocol.list_components` 能列出组件注册表中的全部组件；
 3. `protocol.get_component` 能返回 `table` / `form` / `upload` 的结构化契约；
-4. `protocol.validate_content` 能通过三个官方完整场景示例；
+4. `protocol.validate_content` 能通过官方完整场景示例；
 5. `protocol.validate_content` 能拒绝表格 `$row.*` 缺少 `scope: row` 的反例；
 6. `protocol.validate_content` 能拒绝使用 upload 但缺少 `meta.requiredCapabilities: [actions.upload]` 的反例；
-7. `protocol.validate_content` 能对非法 YAML 返回 `parseError`；
-8. Docker 镜像通过 stdio 启动 smoke test。
+7. `protocol.validate_content` 能拒绝使用 RowAction.actionRef 但缺少 `meta.requiredCapabilities: [actions.row.request]` 的反例；
+8. `protocol.validate_content` 能对非法 YAML 返回 `parseError`；
+9. Docker 镜像通过 stdio 启动 smoke test。
 
 ## 明确不做
 
