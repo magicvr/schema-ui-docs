@@ -48,7 +48,7 @@ columns:
 
 - **复用现有 `reactions` 结构,不新造 `rowReactions` 概念。** 行级联动与字段级联动的语义模型(`dependencies` 声明依赖 → `when` 判断 → `fulfill`/`otherwise` 副作用)是一致的,区别只在于"依赖字段和赋值目标所在的作用域是当前行还是当前表单"。
   - 这与 ADR-0003 D3 中"`visibleWhen` 复用 `reactions` 解析器而非新造语法"的理由完全一致:两套结构意味着两套语义和两套安全校验逻辑,维护成本翻倍,而实际语义并无本质差异。
-- 具体做法:`reactions`/`visibleWhen`/`permissions` 这三处已有字段,在 `table.columns`/`table.actions` 的上下文里,**新增一个可选的 `scope` 属性**(默认值为 `form`,行级显式声明为 `row`),而不是为表格场景发明平行的字段名。
+- 具体做法:`reactions` 与 `visibleWhen` 这两处已有字段,在 `table.columns`/`table.actions` 的上下文里,**新增一个可选的 `scope` 属性**(默认值为 `form`,行级显式声明为 `row`),而不是为表格场景发明平行的字段名。`permissions` 继续沿用 ADR-0003 的 `$context.*` 只读权限语义,不参与 `scope` 切换。
   - `scope: form`(默认):`dependencies` 声明的是表单级字段,`$deps` 语义与现有 `reactions` 完全一致,`$row` 在此作用域下不可访问(静态校验拦截)。
   - `scope: row`:`dependencies` 声明的是**当前行内的字段**(即 `$row` 下的属性路径),表达式中可访问 `$row.*`,不可访问表单级 `$deps`(与 D3 的隔离边界一致)。
 

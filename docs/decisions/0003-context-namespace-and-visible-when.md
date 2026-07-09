@@ -152,7 +152,7 @@ permissions:
   delete: "$context.user.roles contains 'superadmin'" # 可删除
 ```
 
-协议层预定义三个标准动作键:`view`/`edit`/`delete`。接入方可在 `component-registry.json` 的组件契约中按需扩展自定义动作键(如 `approve`/`export`),扩展逻辑见 `03-component-registry.md`。
+协议层预定义三个标准动作键:`view`/`edit`/`delete`。协议层不限制扩展动作键名；接入方可按需使用自定义动作键(如 `approve`/`export`),并通过项目级 CI/Review 约束其命名与适用范围。
 
 - **静态校验规则(补充,原为建议性约束,现提升为强制规则)**:`permissions.*` 的表达式中**禁止出现 `$deps.*`**,只允许使用 `$context.*`。解析器在静态校验阶段拦截违反该规则的协议,直接拒绝而非运行时警告。
   - 理由:此前该约束只是"建议实践上只用 `$context.user`",不具备强制力,意味着 `permissions.edit: "$deps.status == 'closed'"` 这类写法语法上完全合法,会导致权限判断和业务状态判断混在一起,长期造成职责不清、难以审计"这个权限判断到底依不依赖用户身份"。既然这条规则已经被明确认为是应当遵守的设计原则,协议就应该用静态校验去保障它,而不是停留在文档建议层面。

@@ -201,7 +201,7 @@ permissions:
 | `edit` | 节点渲染为只读/禁用态，而非从 DOM 中移除 |
 | `delete` | 对应操作按钮禁用/隐藏 |
 
-接入方可在 `component-registry.json` 的组件契约中按需扩展自定义动作键（如 `approve`/`export`）。
+协议层不限制扩展动作键名；接入方可按需使用自定义动作键（如 `approve`/`export`），并通过项目级 CI/Review 约束其命名与适用范围。
 
 > **权限判定语法**：`permissions.*` 的表达式复用与 `visibleWhen` 相同的解析器，但**仅允许使用 `$context.*`，禁止出现 `$deps.*`**（静态校验拒绝）。理由：权限判断只应依赖用户身份，不应混入业务字段状态。
 
