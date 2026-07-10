@@ -15,7 +15,7 @@
     "smoke:docker": "node tests/smoke-docker.mjs"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "latest",
+    "@modelcontextprotocol/sdk": "1.29.0",
     "ajv": "^8.17.1",
     "glob": "^10.4.5",
     "js-yaml": "^4.1.0",

@@ -34,7 +34,7 @@ applies_to: schema-ui-protocol v0.2
 | [06-validation.md](./06-validation.md) | 前后端开发者 / AI | 校验规则与工具链 |
 | [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
 | [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
-| [schemas/](./schemas/) | 工具 / AI | 机器可读的 JSON Schema |
+| [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
 | [audit/](./audit/) | 维护者 / AI | 过程性审计与迭代记录，编号规则：`NNNN-YYYY-MM-DD-{review,checklist,plan}`（完整规则见 [audit/README.md](./audit/README.md)） |
 | [CHANGELOG.md](./CHANGELOG.md) | 所有人 | 协议版本变更记录 |

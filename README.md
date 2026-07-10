@@ -6,12 +6,12 @@
 
 本仓库当前包含两部分交付物：
 
-- `docs/`：Schema-UI 协议、场景示例、JSON Schema、ADR 与校验说明。
+- `docs/`：Schema-UI 协议、场景示例、标准 JSON Schema、组件注册 DSL、ADR 与校验说明。
 - `mcp/`：Schema-UI MCP stdio 服务初版实现，提供协议只读查询与内容校验工具。
 
 ## MCP 服务
 
-MCP 服务版本当前为 `0.2.8`，运行时要求 Node.js `>=18`。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
+MCP 服务当前**已发布版本**为 `0.2.8`，运行时要求 Node.js `>=18`。当前工作区若存在尚未发布的补充修订，以 [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) 顶部最新条目（如 `Unreleased`）为准。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
 
 ### 使用 Docker Hub 镜像
 
@@ -124,7 +124,7 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.8
     │   ├── README.md
     │   ├── v1-design.md
     │   └── v1-implementation-plan.md
-    ├── schemas/                    # 机器可读 JSON Schema
+    ├── schemas/                    # 标准 JSON Schema（page/node/action/reaction）+ 组件注册 DSL（component-registry）
     │   ├── page.schema.json
     │   ├── node.schema.json
     │   ├── reaction.schema.json

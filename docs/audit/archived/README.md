@@ -5,6 +5,23 @@
 
 ---
 
+## 0038 — 2026-07-10 — 版本说明漂移 + schemas 入口索引误导 + MCP SDK 依赖版本策略
+
+**主题：** 修复最新 PATCH 发布说明落后当前仓库状态（V114🟡）、入口文档将 `docs/schemas/` 笼统写为标准 JSON Schema（V115🟡）、以及 MCP 核心 SDK 依赖仍使用 `latest`（V116🟢）。
+**性质：** 发布说明收敛 + 入口索引边界补齐 + MCP 依赖版本策略固化。
+
+| 文件 | 说明 |
+|---|---|
+| [0038-2026-07-10-review.md](./0038-2026-07-10-review.md) | 审视报告 — V114🟡/V115🟡/V116🟢 |
+| [0038-2026-07-10-checklist.md](./0038-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V114: `CHANGELOG.md` 顶部新增 `Unreleased`，并在 `README.md` / `docs/mcp/README.md` 中明确区分已发布版本 `0.2.8` 与当前工作区未发布修订
+- V115: `README.md` 与 `docs/00-overview.md` 入口层统一改为“标准 JSON Schema + 组件注册 DSL”，明确 `component-registry.json` 不属于标准 Schema 集合
+- V116: `mcp/package.json` / `mcp/package-lock.json` 将 `@modelcontextprotocol/sdk` 固定为 `1.29.0`，并在 MCP README 中补充不使用 `latest` 作为包清单策略的说明
+
+---
+
 ## 0037 — 2026-07-10 — 表达式/DSL 校验边界 + 引用与映射约束 + Renderer/ADR 示例 + MCP 文档读取
 
 **主题：** 修复表格 scope 口径与 L3a 表达式边界（V96-V98🔴）、组件 DSL/RowAction/datasource 约束缺口（V99-V103）、Renderer 与 ADR 示例矛盾（V104-V107）、MCP UTF-8 截断/导言搜索/filename 映射（V108-V110），以及锚点、命名和归档元数据（V111-V113）。
