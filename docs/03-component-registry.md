@@ -391,7 +391,7 @@ props:
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
 | `url` | string | 是 | 远程选项接口地址 |
-| `params` | object | 否 | 请求参数，可引用 `$deps.*`（复用 `reactions` 依赖机制，仅做值替换，不做条件判断）。**空值规则：** 当引用的 `$deps.*` 值为 `null`/`undefined` 时，该参数从请求中整体省略，详见 [04-datasource-contract.md](./04-datasource-contract.md) |
+| `params` | object | 否 | 请求参数。值仅允许不含 `$` 的字面量，或**完整单个** `$deps.<path>` 整值替换（禁止 `prefix-$deps.x` 等模板拼接，与 [04-datasource-contract.md §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams-中-deps-的空值省略规则) / [02 §10.7](./02-reaction-expression.md#107-deps-出现在非表单-dataparams--optionssourceparams-中) 一致）。**空值规则：** 当引用的 `$deps.*` 值为 `null`/`undefined` 时，该参数从请求中整体省略 |
 | `labelField` | string | 是 | 响应数据中作为选项文案的字段 |
 | `valueField` | string | 是 | 响应数据中作为选项值的字段 |
 | `searchable` | boolean | 否 | 是否支持远程搜索 |

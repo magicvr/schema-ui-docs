@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 后端架构组
-last_updated: 2026-07-10
+last_updated: 2026-07-11
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -285,7 +285,7 @@ data:
 
 配合 `select` 组件的 `props.optionsSource`（见 [03-component-registry.md](./03-component-registry.md)）使用。
 
-**请求：** `GET <optionsSource.url>?<params>`，`params` 中的值可引用 `$deps.*`（表单内其他字段的当前值）。
+**请求：** `GET <optionsSource.url>?<params>`。`params` 中的值仅允许不含 `$` 的字面量，或**完整单个** `$deps.<path>` 整值替换（禁止模板拼接；规则与 §3.1 相同，仅在表单上下文有效）。
 
 **空值省略规则（关键约定）：** 当 `params` 中某个值引用的 `$deps.*` 在运行时为 `null` 或 `undefined` 时，该参数**从最终请求的 query 中整体省略**，不传空字符串、不传字面量 `"null"`。这与 `table`/`chart` 等其他场景下 `$deps` 参数的处理方式保持统一，目的是让后端能明确区分"参数未提供"与"参数值为空字符串"两种不同语义。
 
