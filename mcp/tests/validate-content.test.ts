@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { setLayerScriptExecutorForTest, setTempDirCreatorForTest, validateContent } from '../src/core/validation-runner.js';
+import { handleValidateContent } from '../src/tools/validate-content.js';
 import {
   chartRefResponseMappingInheritedMissingListYaml,
   chartRefResponseMappingLocalOverrideOkYaml,
@@ -217,6 +218,120 @@ describe('validate_content', () => {
     ]));
     expect(missingDependency.layers.L3a).toEqual(expect.arrayContaining([
       expect.objectContaining({ rule: 'UNDECLARED_ROW_DEP' }),
+    ]));
+  });
+
+  it('uses exact nested row dependency paths', () => {
+    const makePage = (dependencies: string[]) => JSON.stringify({
+      meta: { pageId: 'nested-row-dep', title: 'Nested row dependency', protocolVersion: '0.2' },
+      body: {
+        type: 'table',
+        props: {
+          rowKey: 'id',
+          pagination: { mode: 'none' },
+          columns: [{
+            field: 'id',
+            label: 'ID',
+            visibleWhen: {
+              scope: 'row',
+              dependencies,
+              when: "$row.customer.status == 'active'",
+            },
+          }],
+        },
+      },
+    });
+    const exact = validateContent({ content: makePage(['customer.status']), format: 'json' });
+    const parentOnly = validateContent({ content: makePage(['customer']), format: 'json' });
+
+    expect(exact.passed).toBe(true);
+    expect(parentOnly.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'UNDECLARED_ROW_DEP' }),
+    ]));
+  });
+
+  it('allows only context variables in non-form visibleWhen', () => {
+    const makePage = (when: string) => JSON.stringify({
+      meta: { pageId: 'non-form-visible', title: 'Non-form visible', protocolVersion: '0.2' },
+      body: { type: 'text', props: { content: 'Status' }, visibleWhen: { when } },
+    });
+    const valid = validateContent({ content: makePage('$context.features.beta == true'), format: 'json' });
+    const invalidExpressions = [
+      '$self == true',
+      '$deps.status == true',
+      '$row.status == true',
+      '$parentRow.status == true',
+    ];
+
+    expect(valid.passed).toBe(true);
+    for (const expression of invalidExpressions) {
+      const invalid = validateContent({ content: makePage(expression), format: 'json' });
+      expect(invalid.layers.L3a).toEqual(expect.arrayContaining([
+        expect.objectContaining({ rule: 'NON_FORM_VISIBLEWHEN' }),
+      ]));
+    }
+  });
+
+  it('recursively checks variables in params arrays', () => {
+    const makePage = (owners: unknown[]) => JSON.stringify({
+      meta: { pageId: 'params-array', title: 'Params array', protocolVersion: '0.2' },
+      body: {
+        type: 'form',
+        props: { submitAction: 'save' },
+        children: [{
+          type: 'table',
+          props: { rowKey: 'id', pagination: { mode: 'none' }, columns: [{ field: 'id', label: 'ID' }] },
+          data: { source: 'api', url: '/orders', params: { owners } },
+        }],
+      },
+      actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+    });
+    const valid = validateContent({ content: makePage(['$deps.ownerId', 'fixed']), format: 'json' });
+    const invalid = validateContent({ content: makePage(['$context.user.id']), format: 'json' });
+
+    expect(valid.passed).toBe(true);
+    expect(invalid.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].data.params.owners[0]', rule: 'DATA_PARAMS_VARIABLE' }),
+    ]));
+
+    const optionsSource = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'options-array', title: 'Options array', protocolVersion: '0.2' },
+        body: {
+          type: 'form',
+          props: { submitAction: 'save' },
+          children: [{
+            type: 'select',
+            props: {
+              field: 'owner',
+              label: 'Owner',
+              optionsSource: {
+                url: '/owners',
+                params: { ids: ['$row.id'] },
+                labelField: 'name',
+                valueField: 'id',
+              },
+            },
+          }],
+        },
+        actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+      }),
+      format: 'json',
+    });
+    const datasource = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'datasource-array', title: 'Datasource array', protocolVersion: '0.2' },
+        datasources: { owners: { source: 'api', url: '/owners', params: { ids: ['$deps.owner'] } } },
+        body: { type: 'text', props: { content: 'Owners' } },
+      }),
+      format: 'json',
+    });
+
+    expect(optionsSource.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].props.optionsSource.params.ids[0]' }),
+    ]));
+    expect(datasource.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'datasources.owners.params.ids[0]', rule: 'NON_FORM_DATA_PARAMS' }),
     ]));
   });
 
@@ -457,6 +572,26 @@ describe('validate_content', () => {
     ]));
   });
 
+  it('treats request parameter map keys as business data in L4', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'business-map', title: 'Business map', protocolVersion: '0.2' },
+        body: {
+          type: 'select',
+          props: {
+            field: 'theme',
+            label: 'Theme',
+            optionsSource: { url: '/themes', params: { color: 'red', width: 100 } },
+          },
+        },
+      }),
+      format: 'json',
+      filename: 'business-map.json',
+    });
+
+    expect(result.layers.L4).toEqual([]);
+  });
+
   it('rejects missing nested required component fields and duplicate node ids', () => {
     const missingPaginationMode = validateContent({
       content: JSON.stringify({
@@ -492,6 +627,63 @@ describe('validate_content', () => {
       expect.objectContaining({ path: 'body.children[1].id' }),
     ]));
   });
+
+  it('supports table titleKey and validates real ISO date boundaries', () => {
+    const table = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'table-title-key', title: 'Table title key', protocolVersion: '0.2' },
+        body: {
+          type: 'table',
+          props: {
+            titleKey: 'orders.title',
+            rowKey: 'id',
+            pagination: { mode: 'none' },
+            columns: [{ field: 'id', label: 'ID' }],
+          },
+        },
+      }),
+      format: 'json',
+    });
+    const validDate = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'valid-date', title: 'Valid date', protocolVersion: '0.2' },
+        body: { type: 'datePicker', props: { field: 'due', label: 'Due', min: '2024-02-29' } },
+      }),
+      format: 'json',
+    });
+    const invalidDate = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'invalid-date', title: 'Invalid date', protocolVersion: '0.2' },
+        body: {
+          type: 'dateRangePicker',
+          props: { startField: 'from', endField: 'to', label: 'Range', max: '2026-02-30' },
+        },
+      }),
+      format: 'json',
+    });
+
+    expect(table.passed).toBe(true);
+    expect(validDate.passed).toBe(true);
+    expect(invalidDate.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.max', message: expect.stringContaining('YYYY-MM-DD') }),
+    ]));
+  });
+
+  it.each(['2026/01/01', '2026-13-01', '2026-02-30', '2023-02-29'])(
+    'rejects invalid ISO date boundary %s',
+    boundary => {
+      const result = validateContent({
+        content: JSON.stringify({
+          meta: { pageId: 'invalid-boundary', title: 'Invalid boundary', protocolVersion: '0.2' },
+          body: { type: 'datePicker', props: { field: 'due', label: 'Due', min: boundary } },
+        }),
+        format: 'json',
+      });
+      expect(result.layers.L2).toEqual(expect.arrayContaining([
+        expect.objectContaining({ path: 'body.props.min' }),
+      ]));
+    },
+  );
 
   it.each([
     ['pagination', {
@@ -624,6 +816,26 @@ describe('validate_content', () => {
     ]));
   });
 
+  it('rejects responseMapping when source ref targets a static datasource', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'static-ref-mapping', title: 'Static ref mapping', protocolVersion: '0.2' },
+        datasources: { rows: { source: 'static', value: [] } },
+        body: {
+          type: 'table',
+          props: { rowKey: 'id', pagination: { mode: 'none' }, columns: [{ field: 'id', label: 'ID' }] },
+          data: { source: 'ref', ref: 'rows', responseMapping: { list: 'result.items' } },
+        },
+      }),
+      format: 'json',
+      filename: 'static-ref-mapping.json',
+    });
+
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.data.responseMapping' }),
+    ]));
+  });
+
   it('reports inherited datasources.responseMapping missing list for table source:ref through L2', () => {
     const result = validateContent({
       content: tableRefResponseMappingInheritedMissingListYaml,
@@ -717,6 +929,66 @@ describe('validate_content', () => {
       expect.objectContaining({ path: 'body.props.submitAction' }),
     ]));
     expect(result.suggestedDocs).toContain('docs/03-component-registry.md');
+  });
+
+  it('rejects GET for form submitAction without affecting row GET query requests', () => {
+    const formGet = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'form-get', title: 'Form GET', protocolVersion: '0.2' },
+        body: { type: 'form', props: { submitAction: 'search' } },
+        actions: { search: { type: 'request', method: 'GET', url: '/search' } },
+      }),
+      format: 'json',
+      filename: 'form-get.json',
+    });
+    const rowGet = validateContent({
+      content: JSON.stringify({
+        meta: {
+          pageId: 'row-get',
+          title: 'Row GET',
+          protocolVersion: '0.2',
+          requiredCapabilities: ['actions.row.request'],
+        },
+        body: {
+          type: 'table',
+          props: {
+            rowKey: 'id',
+            pagination: { mode: 'none' },
+            columns: [{ field: 'id', label: 'ID' }],
+            actions: [{
+              key: 'view',
+              label: 'View',
+              actionRef: 'viewOrder',
+              requestMapping: { query: { orderId: '$row.id' } },
+            }],
+          },
+        },
+        actions: { viewOrder: { type: 'request', method: 'GET', url: '/orders' } },
+      }),
+      format: 'json',
+      filename: 'row-get.json',
+    });
+
+    expect(formGet.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'body.props.submitAction',
+        message: expect.stringContaining('不得引用 GET request'),
+      }),
+    ]));
+    expect(rowGet.passed).toBe(true);
+  });
+
+  it.each(['POST', 'PUT', 'PATCH', 'DELETE'] as const)('allows %s request for form submitAction', method => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: `form-${method}`, title: `Form ${method}`, protocolVersion: '0.2' },
+        body: { type: 'form', props: { submitAction: 'save' } },
+        actions: { save: { type: 'request', method, url: '/save' } },
+      }),
+      format: 'json',
+    });
+
+    expect(result.passed).toBe(true);
   });
 
   it('reports upload actionRef pointing to non-upload action type', () => {
@@ -825,6 +1097,75 @@ describe('validate_content', () => {
     expect(result.passed).toBe(false);
     expect(result.layers['L0/L1'].length).toBeGreaterThan(0);
     expect(result.suggestedDocs).toContain('docs/01-node-protocol.md');
+  });
+
+  it.each([
+    ['null', 'json'],
+    ['[]', 'json'],
+    ['"text"', 'json'],
+    ['', 'yaml'],
+  ] as const)('classifies valid non-object root %s as L0/L1 instead of parseError', (content, format) => {
+    const result = validateContent({ content, format, filename: `root.${format}` });
+
+    expect(result.passed).toBe(false);
+    expect(result.parseError).toBeNull();
+    expect(result.internalError).toBeNull();
+    expect(result.layers['L0/L1'].length).toBeGreaterThan(0);
+    expect(result.layers.L2).toEqual([]);
+    expect(result.layers.L3a).toEqual([]);
+    expect(result.layers.L4).toEqual([]);
+  });
+
+  it('keeps high-cardinality validate_content tool text within 20KB', () => {
+    const response = handleValidateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'many-errors', title: 'Many errors', protocolVersion: '0.2' },
+        body: {
+          type: 'grid',
+          props: { columns: 1 },
+          children: Array.from({ length: 300 }, (_, index) => ({ type: `unknown_${index}`, props: {} })),
+        },
+      }),
+      format: 'json',
+      filename: 'many-errors.json',
+    });
+    const text = response.content[0].text;
+    const result = JSON.parse(text) as ValidateContentResult;
+
+    expect(Buffer.byteLength(text, 'utf8')).toBeLessThanOrEqual(20 * 1024);
+    expect(result.truncated).toBe(true);
+    expect(result.layerStats?.L2.total).toBe(300);
+    expect(result.layerStats?.L2.omitted).toBeGreaterThan(0);
+    expect(result.layers.L2.length).toBeGreaterThan(0);
+  });
+
+  it('budgets multi-layer violations with UTF-8 messages', () => {
+    setLayerScriptExecutorForTest((_scriptName, _filePath, layer) => JSON.stringify({
+      violations: Array.from({ length: 120 }, (_, index) => ({
+        path: `body.children[${index}].中文字段`,
+        rule: `${layer}_RULE`,
+        message: `第 ${index} 条中文校验消息：字段不符合协议要求`,
+      })),
+    }));
+    const response = handleValidateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'multi-layer', title: 'Multi layer', protocolVersion: '0.2' },
+        body: { type: 'text', props: { content: 'Value' } },
+      }),
+      format: 'json',
+      filename: '中文页面.json',
+    });
+    const text = response.content[0].text;
+    const result = JSON.parse(text) as ValidateContentResult;
+
+    expect(Buffer.byteLength(text, 'utf8')).toBeLessThanOrEqual(20 * 1024);
+    expect(result.truncated).toBe(true);
+    expect(result.layerStats?.L2.total).toBe(120);
+    expect(result.layerStats?.L3a.total).toBe(120);
+    expect(result.layerStats?.L4.total).toBe(120);
+    expect(result.layers.L2.length).toBeGreaterThan(0);
+    expect(result.layers.L3a.length).toBeGreaterThan(0);
+    expect(result.layers.L4.length).toBeGreaterThan(0);
   });
 
   it('returns structured parseError for invalid YAML', () => {

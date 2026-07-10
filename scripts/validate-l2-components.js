@@ -99,6 +99,15 @@ function checkEnum(value, enumValues, fieldPath, violations) {
   }
 }
 
+function isValidIsoDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year
+    && date.getUTCMonth() === month - 1
+    && date.getUTCDate() === day;
+}
+
 function validateStringArray(value, fieldPath, violations) {
   if (!Array.isArray(value)) {
     violations.push({ path: fieldPath, message: '期望 array，实际 ' + (value === null ? 'null' : typeof value) });
@@ -381,6 +390,17 @@ function validateNode(node, nodePath, violations, doc, parentIsForm = false) {
 
     // --- props 校验 ---
     validateProps(props, compDef, type, nodePath, violations);
+
+    if (type === 'datePicker' || type === 'dateRangePicker') {
+      for (const dateBoundary of ['min', 'max']) {
+        if (props[dateBoundary] !== undefined && !isValidIsoDate(props[dateBoundary])) {
+          violations.push({
+            path: `${nodePath}.props.${dateBoundary}`,
+            message: `${type}.${dateBoundary} 必须是有效的 ISO 日期 YYYY-MM-DD`,
+          });
+        }
+      }
+    }
 
     // --- responseMapping 语义规则（传入 doc 以支持 source:ref 继承解析） ---
     validateResponseMapping(node, type, compDef, nodePath, violations, doc);
@@ -767,7 +787,7 @@ function validateRowActionRefs(doc, violations) {
  * 校验页面级 action 引用完整性（V85）
  *
  * 规则：
- *   - form.props.submitAction 必须存在于 doc.actions（类型不限）
+ *   - form.props.submitAction 必须存在于 doc.actions；request action 不得使用 GET
  *   - upload.props.actionRef 必须存在于 doc.actions，且 type 必须为 upload
  */
 function validatePageActionRefs(doc, violations) {
@@ -780,10 +800,16 @@ function validatePageActionRefs(doc, violations) {
     if (node.type === 'form' && node.props && node.props.submitAction !== undefined) {
       const submitAction = node.props.submitAction;
       if (typeof submitAction === 'string') {
-        if (!actions[submitAction]) {
+        const actionDef = actions[submitAction];
+        if (!actionDef) {
           violations.push({
             path: `${nodePath}.props.submitAction`,
             message: `submitAction 引用了不存在的顶层 action "${submitAction}"`,
+          });
+        } else if (actionDef.type === 'request' && actionDef.method === 'GET') {
+          violations.push({
+            path: `${nodePath}.props.submitAction`,
+            message: `普通表单 submitAction 不得引用 GET request "${submitAction}"；表单字段按 JSON 请求体提交，请使用 POST、PUT、PATCH 或 DELETE`,
           });
         }
       }
@@ -888,10 +914,16 @@ function validateDataRefsAndTargetTable(doc, violations) {
     if (node.data && node.data.source === 'ref' && node.data.ref !== undefined) {
       const ref = node.data.ref;
       if (typeof ref === 'string') {
-        if (!datasources[ref]) {
+        const targetDatasource = datasources[ref];
+        if (!targetDatasource) {
           violations.push({
             path: `${nodePath}.data.ref`,
             message: `data.ref 引用了不存在的 datasource "${ref}"`,
+          });
+        } else if (targetDatasource.source === 'static' && node.data.responseMapping !== undefined) {
+          violations.push({
+            path: `${nodePath}.data.responseMapping`,
+            message: `data.ref 引用静态 datasource "${ref}" 时不得声明 responseMapping；响应映射仅适用于 API 数据源`,
           });
         }
       }
@@ -1060,6 +1092,7 @@ function validateParamsResponseMappingBan(doc, violations) {
 // ---------------------------------------------------------------------------
 function validatePage(doc, fileLabel) {
   const violations = [];
+  if (!isPlainObject(doc)) return violations;
   if (doc.body) {
     validateNode(doc.body, 'body', violations, doc);
   }

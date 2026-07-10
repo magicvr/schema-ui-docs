@@ -149,7 +149,7 @@ data:
 
 | props 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| `title` | string | 否 | 表格标题 |
+| `title` / `titleKey` | string | 否 | 表格标题；`titleKey` 可替代 `title` 提供 i18n key |
 | `rowKey` | string | 是 | 行唯一标识字段名 |
 | `pagination.mode` | enum: `server`\|`client`\|`none` | 是 | 分页模式 |
 | `pagination.pageSize` | number | 否 | 默认页大小 |
@@ -420,8 +420,8 @@ props:
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 | `format` | string | 否 | 日期展示格式（仅控制前端展示，如 `YYYY/MM/DD`）；数据格式统一使用 ISO 8601（`YYYY-MM-DD`） |
-| `min` | string | 否 | 可选最小日期（ISO 8601 格式 `YYYY-MM-DD`） |
-| `max` | string | 否 | 可选最大日期（ISO 8601 格式 `YYYY-MM-DD`） |
+| `min` | string | 否 | 可选最小日期（有效的 ISO 8601 日历日期，严格 `YYYY-MM-DD`） |
+| `max` | string | 否 | 可选最大日期（有效的 ISO 8601 日历日期，严格 `YYYY-MM-DD`） |
 | `required` | boolean | 否 | 是否必填 |
 | `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
@@ -449,8 +449,8 @@ props:
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
-| `min` | string | 否 | 可选最小日期（ISO 8601 格式 `YYYY-MM-DD`） |
-| `max` | string | 否 | 可选最大日期（ISO 8601 格式 `YYYY-MM-DD`） |
+| `min` | string | 否 | 可选最小日期（有效的 ISO 8601 日历日期，严格 `YYYY-MM-DD`） |
+| `max` | string | 否 | 可选最大日期（有效的 ISO 8601 日历日期，严格 `YYYY-MM-DD`） |
 | `required` | boolean | 否 | 是否必填 |
 | `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |

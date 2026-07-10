@@ -348,7 +348,7 @@ function validateExpression(expr, exprPath, context) {
 
   const rowDepFields = vars
     .filter(v => v.startsWith('$row.'))
-    .map(v => v.slice('$row.'.length).split('.')[0]); // 取第一段字段名
+    .map(v => v.slice('$row.'.length));
   // 1a. scope: row 仅允许在表格 columns/actions 表达式中使用
   if (scope === 'row' && !['tableColumn', 'tableAction'].includes(location)) {
     violations.push({
@@ -464,12 +464,12 @@ function validateExpression(expr, exprPath, context) {
     });
   }
 
-  // 7. 非表单节点 visibleWhen 不能用 $deps.*（§10.1）
-  if (location === 'visibleWhen' && !hasFormContext && hasDepRef) {
+  // 7. 非表单节点 visibleWhen 只允许 $context.*（§10.1）
+  if (location === 'visibleWhen' && !hasFormContext && vars.some(variableName => !variableName.startsWith('$context.'))) {
     violations.push({
       path: exprPath,
       rule: 'NON_FORM_VISIBLEWHEN',
-      message: '非表单节点的 visibleWhen 中不能出现 $deps.*',
+      message: '非表单节点的 visibleWhen 中只允许使用 $context.*，不得使用 $deps.*、$self、$row.* 或 $parentRow.*',
     });
   }
 
@@ -676,8 +676,8 @@ function scanDataParams(params, paramsPath, violations, hasFormContext) {
   const paramsLabel = isOptionsSource ? 'optionsSource.params' : 'data.params';
 
   for (const [key, value] of Object.entries(params)) {
-    const valuePath = `${paramsPath}.${key}`;
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const valuePath = Array.isArray(params) ? `${paramsPath}[${key}]` : `${paramsPath}.${key}`;
+    if (value && typeof value === 'object') {
       scanDataParams(value, valuePath, violations, hasFormContext);
       continue;
     }
@@ -708,6 +708,7 @@ function scanDataParams(params, paramsPath, violations, hasFormContext) {
 
 function validatePage(doc, fileLabel) {
   const violations = [];
+  if (!doc || typeof doc !== 'object' || Array.isArray(doc)) return violations;
   if (doc.body) scanNode(doc.body, 'body', violations, false);
 
   // --- datasources.*.params 中的 $deps.* 值替换（页面级预声明，永远非 form 上下文）---

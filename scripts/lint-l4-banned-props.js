@@ -30,6 +30,8 @@ const BANNED_PROPS = new Set([
   'lineHeight', 'letterSpacing', 'textAlign',
 ]);
 
+const OPEN_BUSINESS_MAP_PATH = /(?:\.data\.params|\.optionsSource\.params|\.requestMapping\.(?:path|query|body))$/;
+
 // ---------------------------------------------------------------------------
 // YAML/JSON 解析
 // ---------------------------------------------------------------------------
@@ -117,6 +119,7 @@ function scanNode(node, nodePath, violations) {
  */
 function checkObjectForBannedKeys(obj, objPath, violations) {
   if (!obj || typeof obj !== 'object') return;
+  if (OPEN_BUSINESS_MAP_PATH.test(objPath)) return;
   if (Array.isArray(obj)) {
     // 数组：对每个元素继续递归（不在键名上报违规，只在嵌套值里检查）
     obj.forEach((item, idx) => {
@@ -151,6 +154,7 @@ function checkObjectForBannedKeys(obj, objPath, violations) {
  */
 function scanPage(doc, fileLabel) {
   const violations = [];
+  if (!doc || typeof doc !== 'object' || Array.isArray(doc)) return violations;
   if (doc.body) {
     scanNode(doc.body, 'body', violations);
   }
