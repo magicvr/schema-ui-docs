@@ -199,7 +199,7 @@ L3a 对 `$row.*` 做精确包含匹配：`dependencies.includes(fieldPathAfterDo
 
 `scope: row` **仅**允许出现在表格 `columns[]` / `actions[]` 的 `visibleWhen` 或 `reactions` 上。普通 Node（含表单字段）声明 `scope: row` 时，L3a 以 `ROW_SCOPE_MOUNT` 静态拒绝。需要行数据时，应把表达式挂在对应列或行操作上。
 
-### 10.6 `$deps` 出现在非表单 `data.params` / `optionsSource.params` 中
+### 10.7 `$deps` 出现在非表单 `data.params` / `optionsSource.params` 中
 
 `data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做请求参数值替换，规则完全一致。若节点不处于表单上下文，上述 params 中出现 `$deps.*` 时，静态校验直接拒绝。二者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。规则递归作用于对象和数组中的所有值，不能通过数组元素绕过变量限制。
 
