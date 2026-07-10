@@ -23,6 +23,9 @@
 - 审计 `0042 / V143-V151`：要求搜索目标表格具有有效 API 数据源，闭合 dateRangePicker/upload/bodyMapping/HTTP 错误处理语义，并修复 search submitAction、option value、RowAction URL 模板和 upload maxSize 校验边界。
 - 审计 `0042 / V152`：L2/L3a/L4 输出结构化 JSON 后改用 `process.exitCode` 自然冲刷 stdout，修复 Linux 管道中 `process.exit(1)` 截断大 JSON；MCP 父进程改用 `spawnSync`、设置显式 16MB 上限并区分 `ENOBUFS`，最终 20KB 裁剪保持不变。
 - 审计 `0042 / V153-V154`：为历史 V1-V4 冲突建立 `NNNN/Vn` 复合引用规则，并统一 Windows 绝对反斜杠 glob 在 AJV/L2/L3a/L4 的匹配行为。
+- 审计 `0043 / V155-V156`：执行 `tabs.items[].content` 的完整 Node L2 契约，并保持页面内部合法 JSON 结构错误为 L0/L1 违规，不再误报 `parseError`。
+- 审计 `0043 / V157-V159`：拒绝 YAML 非有限数值，支持固定 select 选项使用 `labelKey`，并让统一校验入口保留调用错误退出码 `2`。
+- 审计 `0043 / V160-V161`：修正 0042 plan 的归档索引范围，并将历史冲突 V1-V4 在归档入口统一改用 `NNNN/Vn` 复合引用。
 
 **涉及的文档、包与配置：**
 - 入口文档：`README.md`、`docs/00-overview.md`
@@ -31,6 +34,7 @@
 - MCP 说明：`docs/mcp/README.md`
 - 协议与 ADR：`docs/01-node-protocol.md`、`docs/02-reaction-expression.md`、`docs/03-component-registry.md`、`docs/06-validation.md`、`docs/07-actions-contract.md`、`docs/08-renderer-spec.md`、`docs/decisions/0003-0008`
 - 校验与 MCP 实现：`scripts/*.js`、`mcp/src/tools/docs.ts`、`mcp/src/tools/validate-content.ts`、`mcp/src/core/validation-runner.ts`、`mcp/tests/*.test.ts`
+- 机器可读契约：`docs/schemas/component-registry.json`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 

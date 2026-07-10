@@ -71,6 +71,10 @@ function allowsAdditionalProps(propsSpec) {
   return propsSpec.additionalProperties !== false;
 }
 
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
 /** 判断字段是否在 DSL props 中显式声明 */
 function getDeclaredFields(propsSpec) {
   const reserved = new Set(['additionalProperties', 'allOf', 'anyOf', 'oneOf']);
@@ -81,8 +85,11 @@ function getDeclaredFields(propsSpec) {
 function checkType(value, expectedType, fieldPath, violations) {
   if (expectedType === 'string' && typeof value !== 'string') {
     violations.push({ path: fieldPath, message: `期望 string，实际 ${typeof value}` });
-  } else if (expectedType === 'number' && typeof value !== 'number') {
-    violations.push({ path: fieldPath, message: `期望 number，实际 ${typeof value}` });
+  } else if (expectedType === 'number' && (typeof value !== 'number' || !Number.isFinite(value))) {
+    const actual = typeof value !== 'number'
+      ? typeof value
+      : Number.isNaN(value) ? 'NaN' : value > 0 ? 'Infinity' : '-Infinity';
+    violations.push({ path: fieldPath, message: `期望有限 number，实际 ${actual}` });
   } else if (expectedType === 'boolean' && typeof value !== 'boolean') {
     violations.push({ path: fieldPath, message: `期望 boolean，实际 ${typeof value}` });
   } else if (expectedType === 'array' && !Array.isArray(value)) {
@@ -93,7 +100,7 @@ function checkType(value, expectedType, fieldPath, violations) {
 }
 
 function checkNumberBounds(value, spec, fieldPath, violations) {
-  if (typeof value !== 'number') return;
+  if (typeof value !== 'number' || !Number.isFinite(value)) return;
   if (typeof spec.minimum === 'number' && value < spec.minimum) {
     violations.push({ path: fieldPath, message: `值 ${value} 小于最小值 ${spec.minimum}` });
   }
@@ -235,7 +242,14 @@ function validatePermissions(value, valuePath, violations) {
 }
 
 function validateKnownRef(value, ref, valuePath, violations) {
-  if (ref === 'node.schema.json#/definitions/VisibleWhen') {
+  if (ref === 'node.schema.json') {
+    if (!isPlainObject(value)) {
+      violations.push({
+        path: valuePath,
+        message: `完整 Node 必须是 object，实际 ${Array.isArray(value) ? 'array' : value === null ? 'null' : typeof value}`,
+      });
+    }
+  } else if (ref === 'node.schema.json#/definitions/VisibleWhen') {
     validateVisibleWhen(value, valuePath, violations);
   } else if (ref === 'reaction.schema.json') {
     validateReaction(value, valuePath, violations);
@@ -350,9 +364,10 @@ function checkOneOf(props, oneOfList, nodePath, violations) {
 // 核心：校验单个 Node
 // ---------------------------------------------------------------------------
 function validateNode(node, nodePath, violations, doc, parentIsForm = false) {
-  if (!node || typeof node !== 'object') return;
+  if (!isPlainObject(node)) return;
 
-  const { type, props = {}, children, reactions, data, states } = node;
+  const { type, children, reactions, data, states } = node;
+  const props = isPlainObject(node.props) ? node.props : {};
   const inFormContext = parentIsForm || type === 'form';
 
   // --- type 存在性 ---
@@ -453,7 +468,7 @@ function validateNode(node, nodePath, violations, doc, parentIsForm = false) {
   // --- tabs 内嵌 content ---
   if (props && Array.isArray(props.items)) {
     props.items.forEach((item, idx) => {
-      if (item && item.content) {
+      if (isPlainObject(item) && Object.prototype.hasOwnProperty.call(item, 'content')) {
         validateNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, doc, inFormContext);
       }
     });
