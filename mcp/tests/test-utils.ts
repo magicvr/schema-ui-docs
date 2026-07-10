@@ -329,3 +329,101 @@ body:
         source: ref
         ref: orders
 `;
+
+export const tableRefResponseMappingInheritedMissingListYaml = `
+meta:
+  pageId: table_ref_inherited_missing_list
+  title: Table Ref Inherited Missing List
+  protocolVersion: "0.2"
+datasources:
+  orders:
+    source: api
+    url: /api/orders
+    responseMapping:
+      total: result.total
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: id
+        label: ID
+  data:
+    source: ref
+    ref: orders
+`;
+
+export const chartRefResponseMappingInheritedMissingListYaml = `
+meta:
+  pageId: chart_ref_inherited_missing_list
+  title: Chart Ref Inherited Missing List
+  protocolVersion: "0.2"
+datasources:
+  sales:
+    source: api
+    url: /api/sales
+    responseMapping:
+      total: result.total
+body:
+  type: chart
+  props:
+    chartType: bar
+    xField: date
+    yField: amount
+  data:
+    source: ref
+    ref: sales
+`;
+
+export const tableRefResponseMappingInheritedCompleteYaml = `
+meta:
+  pageId: table_ref_inherited_complete
+  title: Table Ref Inherited Complete
+  protocolVersion: "0.2"
+datasources:
+  orders:
+    source: api
+    url: /api/orders
+    responseMapping:
+      list: result.records
+      total: result.total
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: id
+        label: ID
+  data:
+    source: ref
+    ref: orders
+`;
+
+export const chartRefResponseMappingLocalOverrideOkYaml = `
+meta:
+  pageId: chart_ref_local_override_ok
+  title: Chart Ref Local Override OK
+  protocolVersion: "0.2"
+datasources:
+  sales:
+    source: api
+    url: /api/sales
+    responseMapping:
+      total: result.total
+body:
+  type: chart
+  props:
+    chartType: bar
+    xField: date
+    yField: amount
+  data:
+    source: ref
+    ref: sales
+    responseMapping:
+      list: result.items
+`;
+

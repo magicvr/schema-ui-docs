@@ -138,7 +138,7 @@ mcp/
 - [x] 编写 Docker 启动示例
 - [x] 编写 Docker smoke test 脚本：发送 `initialize` 与 `tools/list`，断言返回五个工具名
 
-验收：`docker run --rm -i schema-ui-mcp:0.2.7` 可作为 stdio MCP 启动。
+验收：`docker run --rm -i schema-ui-mcp:0.2.8` 可作为 stdio MCP 启动。
 
 ### P7. 测试与回归
 
@@ -156,7 +156,7 @@ mcp/
 首个 MCP 镜像 tag 与当前协议 PATCH 对齐：
 
 ```text
-schema-ui-mcp:0.2.7
+schema-ui-mcp:0.2.8
 ```
 
 发布步骤：
@@ -165,7 +165,7 @@ schema-ui-mcp:0.2.7
 2. 跑 MCP 单元测试；
 3. 跑 Docker smoke test；
 4. 构建镜像；
-5. 推送 `0.2.7` tag；
+5. 推送 `0.2.8` tag；
 6. 可选更新 `0.2` 和 `latest` tag；
 7. 在 `docs/mcp/README.md` 或 CHANGELOG 记录镜像 tag。
 

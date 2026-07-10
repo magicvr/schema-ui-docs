@@ -322,7 +322,7 @@ function checkOneOf(props, oneOfList, nodePath, violations) {
 // ---------------------------------------------------------------------------
 // 核心：校验单个 Node
 // ---------------------------------------------------------------------------
-function validateNode(node, nodePath, violations) {
+function validateNode(node, nodePath, violations, doc) {
   if (!node || typeof node !== 'object') return;
 
   const { type, props = {}, children, reactions, data, states } = node;
@@ -372,14 +372,14 @@ function validateNode(node, nodePath, violations) {
     // --- props 校验 ---
     validateProps(props, compDef, type, nodePath, violations);
 
-    // --- responseMapping 语义规则 ---
-    validateResponseMapping(node, type, compDef, nodePath, violations);
+    // --- responseMapping 语义规则（传入 doc 以支持 source:ref 继承解析） ---
+    validateResponseMapping(node, type, compDef, nodePath, violations, doc);
   }
 
   // --- 递归 children ---
   if (Array.isArray(children)) {
     children.forEach((child, idx) => {
-      validateNode(child, `${nodePath}.children[${idx}]`, violations);
+      validateNode(child, `${nodePath}.children[${idx}]`, violations, doc);
     });
   }
 
@@ -387,7 +387,7 @@ function validateNode(node, nodePath, violations) {
   if (props && Array.isArray(props.items)) {
     props.items.forEach((item, idx) => {
       if (item && item.content) {
-        validateNode(item.content, `${nodePath}.props.items[${idx}].content`, violations);
+        validateNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, doc);
       }
     });
   }
@@ -516,33 +516,55 @@ function validateProps(props, compDef, type, nodePath, violations) {
 }
 
 /**
+ * 解析生效的 responseMapping：本地声明优先，否则继承 datasources[ref] 的预声明映射。
+ */
+function getEffectiveResponseMapping(node, doc) {
+  const { data } = node;
+  if (!data || !['api', 'ref'].includes(data.source)) return undefined;
+
+  // 本地声明优先
+  if (data.responseMapping !== undefined) {
+    return data.responseMapping;
+  }
+
+  // source: ref 时继承 datasources 上的预声明映射
+  if (data.source === 'ref' && data.ref && doc && doc.datasources && doc.datasources[data.ref]) {
+    return doc.datasources[data.ref].responseMapping;
+  }
+
+  return undefined;
+}
+
+/**
  * responseMapping 语义规则（ADR-0005 + 04-datasource-contract.md §4.1.1）
  *
  * 规则：
- *   - table 与 chart 是数组消费类接口；使用 API / ref 本地映射且声明了 responseMapping 时必须有 list。
+ *   - table 与 chart 是数组消费类接口；使用 API / ref 的生效映射存在时必须有 list。
  *     其他 supportsData 组件（statCard / text）是单值/聚合数据，不强制要求 list。
- *   - table.props.pagination.mode === 'server' 时，若声明了 responseMapping，则必须有 responseMapping.total。
+ *   - table.props.pagination.mode === 'server' 时，若生效映射存在，则必须有 responseMapping.total。
+ *
+ * 生效映射解析顺序：本地 data.responseMapping 优先，否则继承 doc.datasources[data.ref].responseMapping。
  */
-function validateResponseMapping(node, type, compDef, nodePath, violations) {
+function validateResponseMapping(node, type, compDef, nodePath, violations, doc) {
   const { data, props = {} } = node;
   if (!data || !['api', 'ref'].includes(data.source)) return;
 
-  const rm = data.responseMapping;
+  const effectiveRm = getEffectiveResponseMapping(node, doc);
 
-  // 数组消费类接口：table / chart 声明 responseMapping 时必须有 list
-  if ((type === 'table' || type === 'chart') && rm !== undefined && !rm?.list) {
+  // 数组消费类接口：table / chart 的生效映射存在时必须有 list
+  if ((type === 'table' || type === 'chart') && effectiveRm !== undefined && !effectiveRm?.list) {
     violations.push({
       path: `${nodePath}.data.responseMapping.list`,
-      message: `${type} 组件使用 API/ref 数据且声明了 responseMapping，必须提供 responseMapping.list`,
+      message: `${type} 组件使用 API/ref 数据且生效的 responseMapping 存在时，必须提供 responseMapping.list（本地或继承）`,
     });
   }
 
-  // table 服务端分页：若声明了 responseMapping，则必须有 total
+  // table 服务端分页：生效映射存在时必须有 total
   if (type === 'table' && props.pagination && props.pagination.mode === 'server') {
-    if (rm !== undefined && !rm?.total) {
+    if (effectiveRm !== undefined && !effectiveRm?.total) {
       violations.push({
         path: `${nodePath}.data.responseMapping.total`,
-        message: 'table 使用 pagination.mode=server 且声明了 responseMapping 时，必须在 responseMapping 中声明 total',
+        message: 'table 使用 pagination.mode=server 且生效的 responseMapping 存在时，必须在 responseMapping 中声明 total（本地或继承）',
       });
     }
   }
@@ -935,14 +957,14 @@ function validateRequiredCapabilities(doc, violations) {
 function validatePage(doc, fileLabel) {
   const violations = [];
   if (doc.body) {
-    validateNode(doc.body, 'body', violations);
+    validateNode(doc.body, 'body', violations, doc);
   }
 
   // --- 遍历 actions[].type: modal 的 content Node ---
   if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
     for (const [actionId, actionDef] of Object.entries(doc.actions)) {
       if (actionDef && actionDef.type === 'modal' && actionDef.content) {
-        validateNode(actionDef.content, `actions.${actionId}.content`, violations);
+        validateNode(actionDef.content, `actions.${actionId}.content`, violations, doc);
       }
     }
   }

@@ -44,8 +44,8 @@ CD 工作流会将镜像推送到 Docker Hub 仓库：
 当前版本示例：
 
 ```bash
-docker pull <dockerhub-namespace>/schema-ui-mcp:0.2.7
-docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:0.2.7
+docker pull <dockerhub-namespace>/schema-ui-mcp:0.2.8
+docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:0.2.8
 ```
 
 MCP 客户端配置示例：
@@ -59,7 +59,7 @@ MCP 客户端配置示例：
         "run",
         "--rm",
         "-i",
-        "<dockerhub-namespace>/schema-ui-mcp:0.2.7"
+        "<dockerhub-namespace>/schema-ui-mcp:0.2.8"
       ]
     }
   }
@@ -70,7 +70,7 @@ MCP 客户端配置示例：
 
 | Tag | 用途 |
 |---|---|
-| `0.2.7` | 固定 PATCH 版本，推荐团队接入使用 |
+| `0.2.8` | 固定 PATCH 版本，推荐团队接入使用 |
 | `0.2` | 当前 `0.2.x` 最新 PATCH |
 | `latest` | 最新发布版本，不建议写入稳定接入示例 |
 | `<commit-sha>` | 精确追踪一次 CD 构建产物 |
@@ -84,19 +84,19 @@ MCP 使用 stdio transport，Docker 启动参数需要保留 `-i`，不需要 `-
 从仓库根目录构建镜像：
 
 ```bash
-docker build -f mcp/Dockerfile -t schema-ui-mcp:0.2.7 .
+docker build -f mcp/Dockerfile -t schema-ui-mcp:0.2.8 .
 ```
 
 作为 stdio MCP server 启动：
 
 ```bash
-docker run --rm -i schema-ui-mcp:0.2.7
+docker run --rm -i schema-ui-mcp:0.2.8
 ```
 
 Docker smoke test：
 
 ```bash
-npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.7
+npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.8
 ```
 
-文档示例固定使用 PATCH tag `0.2.7`，不使用 `latest`。
+文档示例固定使用 PATCH tag `0.2.8`，不使用 `latest`。

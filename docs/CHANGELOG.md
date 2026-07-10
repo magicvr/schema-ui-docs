@@ -5,6 +5,20 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
+## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
+
+> **版本说明：** v0.2.8 基于审计 0034–0035 发现的引用完整性校验缺口与继承 `responseMapping` 语义校验缺口的修补。不改变 `meta.protocolVersion`。
+
+**修复（基于审计 0034 / 0035）：**
+- **V85：** L2 校验器新增 `form.props.submitAction` / `upload.props.actionRef` 引用存在性与 action 类型校验。
+- **V86：** L2 校验器新增 `data.ref` 引用存在性及 `form.mode: search` 的 `targetTable` 引用存在性与类型校验。
+- **V88：** `source: ref` 节点解析继承的 `datasources.*.responseMapping`，并对生效映射执行列表/分页条件必填；本地声明优先覆盖。
+
+**涉及的文档、Schema 与脚本：**
+- 协议文档：`docs/06-validation.md`
+- 校验脚本：`scripts/validate-l2-components.js`
+- MCP 测试：`mcp/tests/validate-content.test.ts`、`mcp/tests/test-utils.ts`
+
 ## v0.1.0 — 2026-07-07
 
 初版发布。
