@@ -36,7 +36,7 @@ applies_to: schema-ui-protocol v0.2
 | [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
 | [schemas/](./schemas/) | 工具 / AI | 机器可读的 JSON Schema |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
-| [audit/](./audit/) | 维护者 / AI | 过程性审计与迭代记录，编号规则：`NNNN-YYYY-MM-DD-{review,checklist}` |
+| [audit/](./audit/) | 维护者 / AI | 过程性审计与迭代记录，编号规则：`NNNN-YYYY-MM-DD-{review,checklist,plan}`（完整规则见 [audit/README.md](./audit/README.md)） |
 | [CHANGELOG.md](./CHANGELOG.md) | 所有人 | 协议版本变更记录 |
 
 **阅读建议：**
@@ -56,7 +56,7 @@ applies_to: schema-ui-protocol v0.2
 | **props** | Node 上表示"业务级配置参数"的字段，只包含语义信息，不含任何 CSS/DOM 细节 |
 | **data** | Node 上表示"数据来源"的字段，描述值是静态的、引用页面数据源的、还是来自独立 API 请求的 |
 | **children** | Node 的子节点数组，用于表达树形嵌套结构（布局容器场景） |
-| **reactions** | 声明式联动规则数组；主要挂载在表单字段 Node（默认 `scope: form`）上，也可挂载在表格 `columns[]` / `actions[]`（需 `scope: row`，且 `fulfill` 仅允许 `visible`/`disabled`） |
+| **reactions** | 声明式联动规则数组；主要挂载在表单字段 Node（默认 `scope: form`）上，也可挂载在表格 `columns[]` / `actions[]`（使用 `$row.*` / `$parentRow.*` 或行级 `$self` 时需 `scope: row`，且 `fulfill` 仅允许 `visible`/`disabled`；仅使用 `$deps.*` / `$context.*` 时可使用默认 `scope: form`） |
 | **Renderer（渲染器）** | 前端负责递归解析 Node 树、按 `type` 分发到具体组件的核心模块 |
 | **组件注册表** | 前端维护的 `type` → 组件实现 的映射表，是协议与具体 UI 实现之间的唯一桥梁 |
 

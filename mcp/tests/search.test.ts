@@ -28,11 +28,40 @@ describe('protocol docs', () => {
       expect(doc.availableSections).toContain('第一章');
       expect(doc.availableSections).toContain('第二章');
       expect(doc.content).toContain('availableSections');
+      expect(Buffer.byteLength(doc.content, 'utf8')).toBeLessThanOrEqual(20 * 1024);
+      expect(doc.content).not.toContain('\uFFFD');
     } finally {
       DOC_MAP[0]!.absolutePath = originalPath;
       fs.writeFileSync(originalPath, originalContent, 'utf8');
       fs.unlinkSync(tempPath);
     }
+  });
+
+  it('truncates multibyte content by UTF-8 bytes', () => {
+    const tempPath = path.join(os.tmpdir(), 'schema-ui-mcp-multibyte-doc.md');
+    const originalPath = DOC_MAP[0]!.absolutePath;
+    const largeContent = `# 临时中文文档\n\n## 第一章\n${'中'.repeat(8 * 1024)}\n`;
+
+    fs.writeFileSync(tempPath, largeContent, 'utf8');
+    DOC_MAP[0]!.absolutePath = tempPath;
+
+    try {
+      const doc = getDoc(DOC_MAP[0]!.docId);
+      expect(doc.truncated).toBe(true);
+      expect(Buffer.byteLength(doc.content, 'utf8')).toBeLessThanOrEqual(20 * 1024);
+      expect(doc.content).not.toContain('\uFFFD');
+      expect(doc.availableSections).toContain('第一章');
+    } finally {
+      DOC_MAP[0]!.absolutePath = originalPath;
+      fs.unlinkSync(tempPath);
+    }
+  });
+
+  it('searches content from the document preamble', () => {
+    const results = searchProtocol('唯一涉及 类代码', 10).results;
+    expect(results).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'docs/02-reaction-expression.md', section: '导言' }),
+    ]));
   });
 
   it('searches row scope content with stable protocol docs first', () => {

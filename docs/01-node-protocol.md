@@ -28,8 +28,8 @@ meta:            # 页面元信息
   protocolVersion: string   # 必填（since 0.2）。如 "0.2"，Renderer 版本兼容锚点
   requiredCapabilities: [string] # 可选（since 0.2.6）。PATCH 级执行能力协商，如 actions.upload / actions.row.request
 
-datasources:     # 【可选】页面级预声明数据源，供 body 内节点通过 ref 引用
-  <sourceId>: DataRef
+datasources:     # 【可选】页面级预声明数据源，供 body 内节点通过 ref 引用；仅允许 source: api 或 source: static，禁止 source: ref（引用链会导致递归风险）
+  <sourceId>: DatasourceDeclaration
 
 body: Node        # 页面主体，根 Node
 
@@ -40,7 +40,7 @@ actions:          # 【可选】页面级可复用动作定义（完整契约见
 | 字段 | 必填 | 说明 |
 |---|---|---|
 | `meta` | 是 | 页面元信息；其中 `pageId`、`title`、`protocolVersion` 必填，`description`、`requiredCapabilities` 可选 |
-| `datasources` | 否 | 见 [04-datasource-contract.md](./04-datasource-contract.md) |
+| `datasources` | 否 | 页面级数据源声明，仅允许 `source: api` / `source: static`，见 [04-datasource-contract.md](./04-datasource-contract.md) |
 | `body` | 是 | 页面主体的根 Node |
 | `actions` | 否 | 供 Node 内按钮/表单提交等引用的动作定义，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
 
@@ -117,7 +117,7 @@ data:
 | 挂载位置 | 默认/要求的 `scope` | 典型用途 |
 |---|---|---|
 | 表单字段类 Node（如 `input` / `select`） | `scope: form`（默认） | 字段间显隐/必填/禁用/赋值联动 |
-| 表格 `columns[]` / `actions[]` | 必须显式 `scope: row` | 行内单元格/操作的显隐与禁用 |
+| 表格 `columns[]` / `actions[]` | 使用 `$row.*` / `$parentRow.*` 或行级 `$self` 时必须显式 `scope: row`；仅使用 `$deps.*` / `$context.*` 时可使用 `scope: form`（默认） | 行内单元格/操作的显隐与禁用 |
 
 完整语法见 [02-reaction-expression.md](./02-reaction-expression.md)，结构如下：
 

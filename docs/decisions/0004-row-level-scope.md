@@ -63,7 +63,7 @@ columns:
 | `required` | 表格列/行内操作不存在"必填"这个概念(必填是表单字段校验语义) | ❌ 静态校验禁止 |
 | `value` | 修改当前行某字段值涉及数据回写,语义比显隐/禁用重得多(影响数据源、可能触发级联校验),v0.2 暂不支持 | ❌ 静态校验禁止 |
 
-**决策:`scope: row` 下的 `reactions`/`otherwise` 仅允许声明 `visible` 和 `disabled` 两个状态键,协议要求解析器在静态校验阶段拒绝出现 `required`/`value` 的 `scope: row` 配置。**
+**决策:`scope: row` 下的 `fulfill`/`otherwise` 仅允许声明 `visible` 和 `disabled` 两个状态键,协议要求解析器在静态校验阶段拒绝出现 `required`/`value` 的 `scope: row` 配置。**
 
 若未来出现"行内字段联动赋值"的真实需求(即需要 `value` 键),留待另开 ADR 专门讨论求值/回写模型,不在本 ADR 中预先承诺具体会以什么结构实现(不预设一定是独立的 `rowReactions`,也可能是对现有结构的受限扩展,视届时的真实场景而定)。
 

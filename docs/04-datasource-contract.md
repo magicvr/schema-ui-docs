@@ -24,6 +24,8 @@ datasources:
 
 Node 内通过 `data.source: ref` + `data.ref: orderStats` 引用，避免同一接口在多个节点中重复声明。完整使用示例见 [05-scenarios/grid-dashboard.md](./05-scenarios/grid-dashboard.md)。
 
+> **限制：** `datasources` 声明中**禁止使用 `source: ref`**（引用链会导致递归风险，当前协议未定义链式解析与循环检测规则）。仅允许 `source: api` 或 `source: static`。若未来确需引用链，必须通过独立 ADR 定义存在性语义、终止条件与循环检测机制。
+
 ## 2. 节点内直接声明（`data.source: api`）
 
 ```yaml

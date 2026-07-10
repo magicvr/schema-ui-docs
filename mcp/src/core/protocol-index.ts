@@ -59,7 +59,16 @@ export function splitSections(markdown: string): Section[] {
     return [{ title: '全文', level: 1, content: markdown.trim(), start: 0 }];
   }
 
-  return matches.map((match, index) => {
+  const sections: Section[] = [];
+
+  // 插入第一个 ## 之前的非空内容作为"导言"区段（含 frontmatter、H1 标题与简介）
+  const firstHeadingIndex = matches[0].index ?? 0;
+  const preamble = markdown.slice(0, firstHeadingIndex).trim();
+  if (preamble) {
+    sections.push({ title: '导言', level: 0, content: preamble, start: 0 });
+  }
+
+  sections.push(...matches.map((match, index) => {
     const start = match.index ?? 0;
     const level = match[1].length;
     const next = matches.slice(index + 1).find(candidate => candidate[1].length <= level);
@@ -70,7 +79,9 @@ export function splitSections(markdown: string): Section[] {
       content: markdown.slice(start, end).trim(),
       start,
     };
-  });
+  }));
+
+  return sections;
 }
 
 export function getDoc(docId: string, section?: string): {
@@ -103,11 +114,17 @@ export function getDoc(docId: string, section?: string): {
     matchedSection = matched.title;
   }
 
-  const maxLength = 20 * 1024;
-  const truncated = content.length > maxLength;
+  const maxBytes = 20 * 1024;
+  const truncationNotice = '\n\n[内容已截断，请传入更精确的 section，并参考 availableSections]';
+  const byteLength = Buffer.byteLength(content, 'utf8');
+  const truncated = byteLength > maxBytes;
   const availableSections = truncated ? splitSections(markdown).map(item => item.title) : undefined;
   if (truncated) {
-    content = `${content.slice(0, maxLength)}\n\n[内容已截断，请传入更精确的 section，并参考 availableSections]`;
+    const noticeBytes = Buffer.byteLength(truncationNotice, 'utf8');
+    const contentBuffer = Buffer.from(content, 'utf8');
+    let sliceEnd = maxBytes - noticeBytes;
+    while (sliceEnd > 0 && (contentBuffer[sliceEnd] & 0xc0) === 0x80) sliceEnd--;
+    content = `${contentBuffer.subarray(0, sliceEnd).toString('utf8')}${truncationNotice}`;
   }
 
   return {

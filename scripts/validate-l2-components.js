@@ -242,6 +242,12 @@ function validateNestedObject(obj, spec, objPath, violations) {
       violations.push({ path: `${objPath}.${rf}`, message: `必填字段 "${rf}" 缺失` });
     }
   }
+  // 字段级布尔 required: true（嵌套 DSL 写法）
+  for (const [fieldName, fieldSpec] of Object.entries(props)) {
+    if (fieldSpec && typeof fieldSpec === 'object' && fieldSpec.required === true && obj[fieldName] === undefined) {
+      violations.push({ path: `${objPath}.${fieldName}`, message: `必填字段 "${fieldName}" 缺失` });
+    }
+  }
   // 字段类型 + enum
   for (const [k, v] of Object.entries(obj)) {
     const fs = props[k];
@@ -589,7 +595,7 @@ function hasNonEmptyRequestMapping(mapping) {
   );
 }
 
-function validateRequestMappingValues(mappingSection, sectionPath, violations) {
+function validateRequestMappingValues(mappingSection, sectionPath, violations, allowParentRow = false) {
   if (mappingSection === undefined) return;
   if (!isPlainObject(mappingSection)) {
     violations.push({ path: sectionPath, message: 'requestMapping 的 path/query/body 必须是对象' });
@@ -607,18 +613,26 @@ function validateRequestMappingValues(mappingSection, sectionPath, violations) {
       });
       continue;
     }
-    if (typeof mappingValue === 'string' && mappingValue.startsWith('$')) {
-      if (!rowRefPattern.test(mappingValue)) {
+    if (typeof mappingValue === 'string') {
+      // 只要包含 $ 就必须整体匹配，拒绝模板拼接（如 prefix-$row.id）
+      if (mappingValue.includes('$') && !rowRefPattern.test(mappingValue)) {
         violations.push({
           path: valuePath,
-          message: '行级 requestMapping 仅允许单个 $row.* / $parentRow.* 点路径引用；不得使用 $deps.*、$context.* 或表达式',
+          message: '行级 requestMapping 仅允许单个 $row.* / $parentRow.* 点路径引用；不得使用 $deps.*、$context.*、模板拼接或表达式',
+        });
+      }
+      // $parentRow.* 仅在嵌套表格中允许
+      if (mappingValue.startsWith('$parentRow.') && !allowParentRow) {
+        violations.push({
+          path: valuePath,
+          message: '$parentRow.* 仅允许在嵌套表格的 requestMapping 中使用',
         });
       }
     }
   }
 }
 
-function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPath, violations) {
+function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPath, violations, tableDepth = 0) {
   if (!hasNonEmptyRequestMapping(rowAction.requestMapping)) {
     violations.push({
       path: `${rowActionPath}.requestMapping`,
@@ -628,9 +642,10 @@ function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPat
   }
 
   const mapping = rowAction.requestMapping;
-  validateRequestMappingValues(mapping.path, `${rowActionPath}.requestMapping.path`, violations);
-  validateRequestMappingValues(mapping.query, `${rowActionPath}.requestMapping.query`, violations);
-  validateRequestMappingValues(mapping.body, `${rowActionPath}.requestMapping.body`, violations);
+  const allowParentRow = tableDepth > 1; // tableDepth > 1 表示嵌套表格
+  validateRequestMappingValues(mapping.path, `${rowActionPath}.requestMapping.path`, violations, allowParentRow);
+  validateRequestMappingValues(mapping.query, `${rowActionPath}.requestMapping.query`, violations, allowParentRow);
+  validateRequestMappingValues(mapping.body, `${rowActionPath}.requestMapping.body`, violations, allowParentRow);
 
   const placeholders = new Set(extractUrlPathParams(actionDef.url));
   const pathMapping = isPlainObject(mapping.path) ? mapping.path : {};
@@ -662,8 +677,10 @@ function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPat
 function validateRowActionRefs(doc, violations) {
   const actions = isPlainObject(doc.actions) ? doc.actions : {};
 
-  const scanNode = (node, nodePath) => {
+  const scanNode = (node, nodePath, tableDepth = 0) => {
     if (!node || typeof node !== 'object') return;
+
+    const currentTableDepth = node.type === 'table' ? tableDepth + 1 : tableDepth;
 
     if (node.type === 'table' && node.props && Array.isArray(node.props.actions)) {
       node.props.actions.forEach((rowAction, rowActionIndex) => {
@@ -699,17 +716,17 @@ function validateRowActionRefs(doc, violations) {
           return;
         }
 
-        validateRowRequestAction(rowAction, rowActionPath, actionDef, `actions.${actionRef}`, violations);
+        validateRowRequestAction(rowAction, rowActionPath, actionDef, `actions.${actionRef}`, violations, currentTableDepth);
       });
     }
 
     if (Array.isArray(node.children)) {
-      node.children.forEach((child, childIndex) => scanNode(child, `${nodePath}.children[${childIndex}]`));
+      node.children.forEach((child, childIndex) => scanNode(child, `${nodePath}.children[${childIndex}]`, currentTableDepth));
     }
     if (node.props && Array.isArray(node.props.items)) {
       node.props.items.forEach((item, itemIndex) => {
         if (item && item.content) {
-          scanNode(item.content, `${nodePath}.props.items[${itemIndex}].content`);
+          scanNode(item.content, `${nodePath}.props.items[${itemIndex}].content`, currentTableDepth);
         }
       });
     }
@@ -806,13 +823,20 @@ function validatePageActionRefs(doc, violations) {
 function validateDataRefsAndTargetTable(doc, violations) {
   const datasources = isPlainObject(doc.datasources) ? doc.datasources : {};
 
-  // First pass：收集 Node 树中所有 id → { type, path }
+  // First pass：收集 Node 树中所有 id → { type, path }，并检测重复
   const nodeIds = {};
 
   const collectIds = (node, nodePath) => {
     if (!node || typeof node !== 'object') return;
     if (node.id && typeof node.id === 'string') {
-      nodeIds[node.id] = { type: node.type, path: nodePath };
+      if (nodeIds[node.id]) {
+        violations.push({
+          path: `${nodePath}.id`,
+          message: `重复的 Node id "${node.id}"（首次出现于 ${nodeIds[node.id].path}）`,
+        });
+      } else {
+        nodeIds[node.id] = { type: node.type, path: nodePath };
+      }
     }
     if (Array.isArray(node.children)) {
       node.children.forEach((child, childIndex) => collectIds(child, `${nodePath}.children[${childIndex}]`));

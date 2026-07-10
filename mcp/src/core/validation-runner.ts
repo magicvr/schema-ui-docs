@@ -86,9 +86,9 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
     const ajvResult = runAjv(tempFile);
     layers['L0/L1'] = ajvResult;
 
-    const l2 = runLayerScript('validate-l2-components.js', tempFile, 'L2');
-    const l3a = runLayerScript('validate-l3a-expressions.js', tempFile, 'L3a');
-    const l4 = runLayerScript('lint-l4-banned-props.js', tempFile, 'L4');
+    const l2 = runLayerScript('validate-l2-components.js', tempFile, 'L2', input.filename);
+    const l3a = runLayerScript('validate-l3a-expressions.js', tempFile, 'L3a', input.filename);
+    const l4 = runLayerScript('lint-l4-banned-props.js', tempFile, 'L4', input.filename);
 
     layers.L2 = l2.violations;
     layers.L3a = l3a.violations;
@@ -177,7 +177,7 @@ function mapAjvError(error: ErrorObject): LayerViolation {
   };
 }
 
-function runLayerScript(scriptName: string, filePath: string, layer: ValidationLayer): {
+function runLayerScript(scriptName: string, filePath: string, layer: ValidationLayer, callerFilename?: string): {
   violations: LayerViolation[];
   parseErrors: ParseError[];
   internalError: ToolError | null;
@@ -210,10 +210,10 @@ function runLayerScript(scriptName: string, filePath: string, layer: ValidationL
   }
 
   return {
-    violations: (parsed.violations ?? []).map(item => mapScriptViolation(item, layer)),
+    violations: (parsed.violations ?? []).map(item => mapScriptViolation(item, layer, callerFilename)),
     parseErrors: (parsed.parseErrors ?? []).map(item => ({
       message: item.error ?? '解析失败',
-      filename: item.file,
+      filename: callerFilename ?? item.file,
     })),
     internalError: null,
   };
@@ -227,14 +227,17 @@ function defaultLayerScriptExecutor(scriptName: string, filePath: string): strin
   });
 }
 
-function mapScriptViolation(item: Record<string, unknown>, layer: ValidationLayer): LayerViolation {
+function mapScriptViolation(item: Record<string, unknown>, layer: ValidationLayer, callerFilename?: string): LayerViolation {
   const pathValue = stringValue(item.path) || '';
   const message = layer === 'L4'
     ? `禁用 CSS 属性 "${stringValue(item.key) || pathValue}"`
     : stringValue(item.message) || '校验失败';
 
+  // 使用调用方 filename 替换子脚本的临时路径；未提供时省略 file 字段
+  const file = callerFilename ?? undefined;
+
   return {
-    file: stringValue(item.file),
+    file,
     path: pathValue,
     rule: stringValue(item.rule),
     key: stringValue(item.key),

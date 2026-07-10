@@ -14,7 +14,7 @@ applies_to: schema-ui-protocol v0.2
 | L0 页面结构校验 | [`schemas/page.schema.json`](./schemas/page.schema.json) | 后端 CI / 提交前 | 顶层文档结构（`meta` + `datasources` + `body` + `actions`）合法性；校验 `meta.protocolVersion` 为 MAJOR.MINOR 格式 |
 | L1 Node 结构校验 | [`schemas/node.schema.json`](./schemas/node.schema.json) | 后端 CI / 提交前 | Node 结构是否合法（字段名、类型）。L1 只能校验 `data.responseMapping` 的键名、点路径格式和最小字段数，不能单独判断列表类接口必须声明 `list`、服务端分页表格必须声明 `total` 等依赖组件类型和 props 的语义条件 |
 | L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) + [`scripts/validate-l2-components.js`](../scripts/validate-l2-components.js) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约；同时补充依赖组件语义的校验，如 `source: api` / `source: ref` 生效 `responseMapping`（本地优先，否则继承）条件必填、PATCH 级能力声明、`RowAction.actionRef` 引用和行级 `requestMapping` 规则；拒绝 `data.params.responseMapping` 与 `datasources.*.params.responseMapping`（`responseMapping` 不属于请求参数，ADR-0005 D1）。对组件 DSL 内 `$ref` 到 `VisibleWhen` / `Reaction` / `Permissions` 的字段（如 `table.props.columns[]` / `actions[]` 内嵌表达式对象），L2 必须执行等价结构校验，包括 `when` / `fulfill` 必填、额外字段拒绝，以及 `scope: row` 下 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`。校验遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node。该文件是自定义 DSL，校验器必须按 `03-component-registry.md` 的关键字白名单处理字段表、组合约束和受控 `$ref`，不能只读取 props 字段表，也不能直接当作标准 JSON Schema 交给 AJV |
-| L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + [`scripts/validate-l3a-expressions.js`](../scripts/validate-l3a-expressions.js) | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查；同时检查 `permissions.*` 仅使用 `$context.user.*` / `$context.features.*`，`data.params`、`select.props.optionsSource.params`、`datasources.*.params` 中 `$deps.*` 仅出现在表单上下文，且参数值替换不使用 `$row.*` / `$context.*` 等表达式变量；表格列/操作在 `scope: form` 下使用 `$deps.*` 时要求表格位于 `form` 上下文内。校验遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node |
+| L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + [`scripts/validate-l3a-expressions.js`](../scripts/validate-l3a-expressions.js) | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查；`scope: row` 仅允许表格 columns/actions 的表达式声明（普通 Node reactions/visibleWhen 不可使用）；`scope: row` 时 `$row.*` / `$parentRow.*` 必须在 `dependencies` 中声明；拒绝空 `when` 字符串与畸形变量路径（空段、连续点、结尾点）；同时检查 `permissions.*` 仅使用 `$context.user.*` / `$context.features.*`，`data.params`、`select.props.optionsSource.params`、`datasources.*.params` 中 `$deps.*` 仅出现在表单上下文，且参数值替换不使用 `$row.*` / `$context.*` 等表达式变量；表格列/操作在 `scope: form` 下使用 `$deps.*` 时要求表格位于 `form` 上下文内。校验遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node |
 | L3b 表达式运行时求值 | Renderer 表达式引擎 | 交互/数据变化时 | 仅在已通过 L3a 校验的表达式上执行实际求值 |
 | L4 语义禁用词校验 | [`scripts/lint-l4-banned-props.js`](../scripts/lint-l4-banned-props.js) | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`），可覆盖 Schema 表达力之外的场景（如深层嵌套结构）。校验遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node。**注意：本仓库已在 `scripts/lint-l4-banned-props.js` 中提供可执行 lint 脚本，各接入方可直接使用；也可复用 L1（JSON Schema `not.anyOf`）作为基础防线。** |
 
@@ -27,7 +27,7 @@ applies_to: schema-ui-protocol v0.2
 
 > **v0.2.7 变更（行级后端请求）：** 使用 `table.props.actions[].actionRef` 时，页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。L2 校验器还应检查 `actionRef` 是否存在、是否引用 `type: request` action、是否同时声明非空 `requestMapping`、`requestMapping.path` 是否与 URL `{param}` 占位符一致、映射值是否只使用字面量或单个 `$row.*` / `$parentRow.*` 点路径。
 
-> **v0.2.8 变更（引用完整性 & 继承 responseMapping 校验 & params.responseMapping 禁令）：** L2 校验器增加以下规则：
+> **v0.2.8 变更（引用完整性 & 继承 responseMapping 校验 & params.responseMapping 禁令 & Node id 唯一性 & 行级 requestMapping 模板禁令）：** L2 校验器增加以下规则：
 > - `form.props.submitAction` 必须引用顶层 `actions` 中已声明的动作 id（类型不限）。
 > - `upload.props.actionRef` 必须引用顶层 `actions` 中已声明的动作 id，且该动作的 `type` 必须为 `upload`。
 > - `data.source: ref` 时，`data.ref` 必须引用顶层 `datasources` 中已声明的 key。
@@ -35,6 +35,9 @@ applies_to: schema-ui-protocol v0.2
 > - `source: ref` 节点解析继承的 `datasources.*.responseMapping`，并对生效映射（本地优先，否则继承）执行 `table`/`chart` 的 `list` 条件必填和 `table` 服务端分页的 `total` 条件必填。
 > - 拒绝 `data.params.responseMapping` 与 `datasources.*.params.responseMapping`（`responseMapping` 不属于请求参数，ADR-0005 D1）。
 > - 以上校验的遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node。
+- 校验页面内 Node `id` 唯一性，重复 id 报错并标明首次出现与重复路径。
+- 行级 `requestMapping` 字符串只要包含 `$` 就必须整体匹配合法行引用（`$row.*` / `$parentRow.*`），拒绝模板拼接（如 `prefix-$row.id`）。
+- `$parentRow.*` 仅在嵌套表格的 `requestMapping` 中允许（通过 `tableDepth` 参数传递）。
 
 ## 2. CI 建议流程
 
