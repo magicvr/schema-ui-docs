@@ -57,7 +57,14 @@ data:
 
 ### 3.1 `data.params` / `optionsSource.params` 中 `$deps.*` 的空值省略规则
 
-`data.params` 和 `select.optionsSource.params` 中引用的 `$deps.*` 值在运行时为 `null` 或 `undefined` 时，该参数**从最终请求的 query 中整体省略**（不传空字符串、不传字面量 `"null"`）。目的是让后端能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
+`data.params` 和 `select.optionsSource.params` 中的参数值仅允许：
+
+1. **不含 `$` 的普通字面量**（string / number / boolean / null，或递归对象/数组中的同类字面量）；
+2. **完整单个 `$deps.<path>` 值替换**——整段字符串必须精确匹配合法 `$deps.*` 引用（如 `$deps.ownerId`、`$deps.customer.id`）。
+
+**不支持**字符串模板拼接（如 `prefix-$deps.ownerId`、`$deps.ownerId-suffix`）、转义、表达式求值或其他变量命名空间。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 时，静态校验以 `DATA_PARAMS_VARIABLE` 拒绝。
+
+引用的 `$deps.*` 值在运行时为 `null` 或 `undefined` 时，该参数**从最终请求的 query 中整体省略**（不传空字符串、不传字面量 `"null"`）。目的是让后端能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
 
 ```yaml
 data:
@@ -74,7 +81,7 @@ data:
 
 ### 3.2 `data.params` / `optionsSource.params` 中 `$deps.*` 的作用域边界
 
-`data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 引用**仅在表单上下文有效**，语义为「取当前表单中同名 `field` 的当前值」。非表单上下文（独立 `table`/`chart` 等节点的 `data.params`，或表单外误用的 `optionsSource.params`）中出现 `$deps.*` 时，Renderer 的静态校验应直接拒绝——与 `visibleWhen` 的非表单约束（[02-reaction-expression.md §10.1](./02-reaction-expression.md#101-deps-出现在非表单-visiblewhen-中)）保持一致。
+`data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 引用**仅在表单上下文有效**，语义为「取当前表单中同名 `field` 的当前值」，且必须是参数值的**整值替换**（见 §3.1）。非表单上下文（独立 `table`/`chart` 等节点的 `data.params`，或表单外误用的 `optionsSource.params`）中出现 `$deps.*` 时，Renderer 的静态校验应直接拒绝——与 `visibleWhen` 的非表单约束（[02-reaction-expression.md §10.1](./02-reaction-expression.md#101-非表单--表单-visiblewhen-的变量白名单)）保持一致。
 
 | 上下文 | `$deps.*` 在 `data.params` / `optionsSource.params` 中 | 说明 |
 |---|---|---|

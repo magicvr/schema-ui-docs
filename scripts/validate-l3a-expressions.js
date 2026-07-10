@@ -17,7 +17,7 @@
  *      - 非表单 visibleWhen 按 Node 树位置判定，仅允许 $context.user.* / $context.features.*
  *      - 表格 actions 任意 scope 不能出现 $self
  *      - 表格列/操作 scope:form 使用 $deps.* 时要求表格位于 form 上下文
- *      - data.params / optionsSource.params 中 $deps.* 仅允许出现在表单上下文，且不支持其他变量
+ *      - data.params / optionsSource.params 仅允许字面量或完整单个 $deps.* 值替换（禁止模板拼接），且 $deps.* 仅允许出现在表单上下文
  *   4. $deps.* 中使用的字段必须在 dependencies 中声明
  *
  * 用法：
@@ -685,6 +685,8 @@ function scanNode(node, nodePath, violations, parentIsForm) {
 function scanDataParams(params, paramsPath, violations, hasFormContext) {
   const isOptionsSource = paramsPath.includes('optionsSource.params');
   const paramsLabel = isOptionsSource ? 'optionsSource.params' : 'data.params';
+  // 与 requestMapping 一致：字符串只要包含 $，就必须完整匹配单个 $deps.* 值替换
+  const depsRefPattern = /^\$deps\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
 
   for (const [key, value] of Object.entries(params)) {
     const valuePath = Array.isArray(params) ? `${paramsPath}[${key}]` : `${paramsPath}.${key}`;
@@ -695,25 +697,25 @@ function scanDataParams(params, paramsPath, violations, hasFormContext) {
 
     if (typeof value !== 'string') continue;
 
-    const refs = value.match(/\$(?:deps|row|parentRow|context)(?:\.[A-Za-z_$][A-Za-z0-9_$]*)*|\$self\b/g) || [];
-    for (const ref of refs) {
-      if (ref.startsWith('$deps.')) {
-        if (!hasFormContext) {
-          violations.push({
-            path: valuePath,
-            rule: 'NON_FORM_DATA_PARAMS',
-            message: `非表单上下文的 ${paramsLabel} 中不能出现 $deps.*`,
-          });
-        }
-        continue;
-      }
+    // 不含 $ 的普通字面量直接放行；含 $ 时必须是完整单个 $deps.*
+    if (!value.includes('$')) continue;
 
-      violations.push({
-        path: valuePath,
-        rule: 'DATA_PARAMS_VARIABLE',
-        message: `${paramsLabel} 仅允许字面量或 $deps.* 值替换，不允许使用 $row.*、$parentRow.*、$self 或 $context.*`,
-      });
+    if (depsRefPattern.test(value)) {
+      if (!hasFormContext) {
+        violations.push({
+          path: valuePath,
+          rule: 'NON_FORM_DATA_PARAMS',
+          message: `非表单上下文的 ${paramsLabel} 中不能出现 $deps.*`,
+        });
+      }
+      continue;
     }
+
+    violations.push({
+      path: valuePath,
+      rule: 'DATA_PARAMS_VARIABLE',
+      message: `${paramsLabel} 仅允许字面量或完整单个 $deps.* 值替换，不支持模板拼接或其他变量（$row.* / $parentRow.* / $self / $context.*）`,
+    });
   }
 }
 

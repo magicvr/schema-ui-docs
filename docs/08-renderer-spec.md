@@ -167,9 +167,9 @@ body:
 
 - Renderer 在 `$deps.*` 值变化时自动重新请求该 Node 的数据。
 - 多参数依赖的情形下，Renderer 对同一 Node 的多次参数变化应做**去抖处理**（建议 300ms），避免高频触发 API 请求。
-- `$deps.*` 的引用声明在 `data.params` 中的结构与 `reactions` 的依赖机制复用同一套解析器，但**仅做值替换，不做条件判断**。
+- `$deps.*` 的引用声明在 `data.params` 中的结构与 `reactions` 的依赖机制复用同一套解析器，但**仅做完整单个参数值替换，不做条件判断**；禁止字符串模板拼接。
 - **传输位置与空值省略规则：** `data.params` 对所有 method 均编码为 URL query，不隐式生成请求体。当某个值引用的 `$deps.*` 在运行时为 `null` 或 `undefined` 时，该参数从最终 query 中整体省略（与 `select.optionsSource.params` 的空值规则保持一致，详见 [04-datasource-contract.md §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams-中-deps-的空值省略规则)）。
-- **作用域边界：** `$deps.*` 在 `data.params` 中的引用仅在表单上下文有效。非表单上下文（独立 `table`/`chart`）的 `data.params` 中出现 `$deps.*` 时，静态校验直接拒绝，与 `visibleWhen` 的非表单约束一致（详见 [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界)）。
+- **作用域边界：** `$deps.*` 在 `data.params` 中的引用仅在表单上下文有效，且必须是完整单个 `$deps.*` 值。非表单上下文（独立 `table`/`chart`）的 `data.params` 中出现 `$deps.*` 时，静态校验直接拒绝，与 `visibleWhen` 的非表单约束一致（详见 [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界)）。
 
 ### 2.4 加载状态管理
 
@@ -414,7 +414,7 @@ Renderer 在加载页面配置时，应覆盖 [02-reaction-expression.md §10](.
 - `scope: row` **仅**允许挂载在表格 `columns[]` / `actions[]` 的表达式上；普通表单字段 Node 声明 `scope: row` 时静态拒绝（`ROW_SCOPE_MOUNT`）。
 - 独立表格（非 `form.children` 上下文）的列/操作在 `scope: form` 下不能使用 `$deps.*`。
 - 表格 `columns[]` / `actions[]` 上的 `reactions`（无论 `scope: form` 或 `scope: row`）其 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`，禁止 `required` / `value`。
-- `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许字面量或 `$deps.*` 值替换；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.*`。
+- `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许字面量或完整单个 `$deps.*` 值替换（禁止模板拼接）；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.*`。
 
 其中，`table.props.columns[]` / `actions[]` 内嵌的 `visibleWhen` / `reactions` / `permissions` 对象属于组件 DSL 内的协议结构，CI 的 L2 校验应先保证其结构合法；Renderer 的 L3a 校验再检查表达式语法、变量声明与作用域隔离。无法通过的配置直接拒绝渲染，并在开发环境给出明确的校验错误信息。
 
