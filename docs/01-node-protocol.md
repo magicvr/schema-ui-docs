@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-10
+last_updated: 2026-07-11
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -125,7 +125,7 @@ data:
 
 ```yaml
 reactions:
-  - dependencies: [string]     # 依赖的字段名（form 作用域）或行内字段路径（row 作用域）
+  - dependencies: [string]     # form：依赖的表单字段名；row：`$row.` 之后的完整点路径（无 `$row.` 前缀，如 canRefund / user.id）
     when: string                 # 条件表达式
     fulfill: StateMap             # 条件为真时应用的状态
     otherwise: StateMap             # 【可选】条件为假时应用的状态
@@ -133,7 +133,7 @@ reactions:
 ```
 
 `StateMap` 只能包含以下语义级状态键：`visible`、`required`、`disabled`、`value`。
-不允许声明组件私有 props 或任何样式相关的键。`scope: row` 下仅允许 `visible` / `disabled`，`required` / `value` 由静态校验拒绝（见 [02-reaction-expression.md §9.3](./02-reaction-expression.md#93-fulfillotherwise-状态键的作用域限制)）。
+不允许声明组件私有 props 或任何样式相关的键。表格 `columns[]` / `actions[]` 上的 reactions（**无论** `scope`）以及任何 `scope: row` 的 reactions，其 `fulfill`/`otherwise` 仅允许 `visible` / `disabled`，`required` / `value` 由静态校验拒绝（见 [02-reaction-expression.md §9.3](./02-reaction-expression.md#93-fulfillotherwise-状态键的作用域限制)）。
 
 ### 3.6 `id`（可选，since 0.2）
 
@@ -224,7 +224,7 @@ permissions:
 2. `reactions` 始终求值，不因 `permissions.view` 或 `visibleWhen` 结果为 `false` 而跳过（保证赋值/校验等副作用正常执行）。
 3. 三者均未声明时，节点默认可见。
 
-> **注意：** `visibleWhen.when` 和 `reactions[].when` 中使用的 `$deps.*` 变量必须在对应位置的 `dependencies` 数组中显式声明，否则表达式无法正确求值。详见 [02-reaction-expression.md §8](./02-reaction-expression.md#8-校验建议)。
+> **注意：** `visibleWhen.when` 和 `reactions[].when` 中使用的 `$deps.*` 变量必须在对应位置的 `dependencies` 数组中显式声明；`scope: row` 下使用的 `$row.*` 必须将 **`$row.` 之后的完整点路径**（如 `canRefund`、`user.id`、`__index`）写入 `dependencies`，**不得**写 `"$row.canRefund"`。详见 [02-reaction-expression.md §8](./02-reaction-expression.md#8-校验建议)。
 >
 > **求值时序（since 0.2.4）：** 表达式引擎采用稳定快照模型。每一轮求值开始时，Renderer 冻结当前表单状态作为输入快照；本轮内 `visibleWhen`、`permissions` 与 `reactions.when` 都读取该快照。`reactions.fulfill.value` / `otherwise.value` 产生的写入在本轮结束时批量提交，不会影响同轮其他表达式读取；若写入改变了字段值，Renderer 在下一轮求值中读取新值。完整规则见 [02-reaction-expression.md §14](./02-reaction-expression.md#14-表达式求值时序模型since-024) 与 [decisions/0006](./decisions/0006-expression-evaluation-order.md)。
 

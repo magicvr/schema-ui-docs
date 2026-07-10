@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-10
+last_updated: 2026-07-11
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -388,7 +388,7 @@ Renderer 的表达式调度必须遵循稳定快照模型：
 4. 本轮结束时批量提交状态变更；若字段值发生实际变化，再安排下一轮求值。
 5. Renderer 必须设置循环保护，连续求值轮次超过实现上限（建议 10 轮）时停止求值并进入错误态。
 
-同一目标字段出现多处 `value` 写入时，按文档中 Node 的深度优先遍历顺序后写优先；开发环境应输出警告。
+`fulfill.value` / `otherwise.value` 仅作用于声明该 `reactions` 的当前字段，不支持跨字段、跨 Node 写入。同一字段上若有多条 `reactions` 写入 `value`，按该字段 `reactions` **数组顺序**后写优先（与 [02-reaction-expression.md §14.1](./02-reaction-expression.md#141-同一字段的多条-value-写入冲突) / [ADR-0006 D3](./decisions/0006-expression-evaluation-order.md) 一致），不得依赖组件树深度优先遍历顺序；开发环境应输出警告。
 
 ### 5.4 安全约束
 
@@ -411,7 +411,7 @@ Renderer 在加载页面配置时，应覆盖 [02-reaction-expression.md §10](.
 - 非表单上下文的 `visibleWhen` 中不能出现 `$deps.*`。
 - 表格 `actions` 的 `scope: row` 表达式中禁止 `$self`；表格列 `scope: form` 表达式中也禁止 `$self`。
 - 独立表格（非 `form.children` 上下文）的列/操作在 `scope: form` 下不能使用 `$deps.*`。
-- `scope: row` 的 `fulfill` / `otherwise` 中禁止 `required` / `value`，仅允许 `visible` / `disabled`。
+- 表格 `columns[]` / `actions[]` 上的 `reactions`（无论 `scope: form` 或 `scope: row`）其 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`，禁止 `required` / `value`；表单字段上 `scope: row` 的同一限制仍适用。
 - `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许字面量或 `$deps.*` 值替换；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.*`。
 
 其中，`table.props.columns[]` / `actions[]` 内嵌的 `visibleWhen` / `reactions` / `permissions` 对象属于组件 DSL 内的协议结构，CI 的 L2 校验应先保证其结构合法；Renderer 的 L3a 校验再检查表达式语法、变量声明与作用域隔离。无法通过的配置直接拒绝渲染，并在开发环境给出明确的校验错误信息。

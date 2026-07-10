@@ -125,6 +125,40 @@ body:
     url: /api/items
 `;
 
+/** 表格列 scope:form 下仍禁止 required/value（0044/V167） */
+export const tableFormScopeReactionForbiddenStateYaml = `
+meta:
+  pageId: table_form_scope_reaction_forbidden_state
+  title: Table Form Scope Reaction Forbidden State
+  protocolVersion: "0.2"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: id
+        label: ID
+        reactions:
+          - dependencies: []
+            when: "\$context.features.highlight == true"
+            fulfill:
+              value: null
+              required: true
+    actions:
+      - key: edit
+        label: 编辑
+        reactions:
+          - dependencies: []
+            when: "\$context.user.roles contains 'admin'"
+            fulfill:
+              value: null
+  data:
+    source: api
+    url: /api/items
+`;
+
 export const tableRefResponseMappingMissingListYaml = `
 meta:
   pageId: table_ref_response_mapping_missing_list

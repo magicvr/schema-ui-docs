@@ -19,6 +19,7 @@ import {
   tableRefResponseMappingInheritedCompleteYaml,
   tableRefResponseMappingInheritedMissingListYaml,
   tableRefResponseMappingMissingListYaml,
+  tableFormScopeReactionForbiddenStateYaml,
   tableRowReactionForbiddenStateYaml,
   tableVisibleWhenMissingWhenYaml,
   unknownContextNamespaceYaml,
@@ -99,6 +100,21 @@ describe('validate_content', () => {
     expect(forbiddenState.passed).toBe(false);
     expect(forbiddenState.layers.L2).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: 'body.props.columns[0].reactions[0].fulfill.required' }),
+    ]));
+  });
+
+  it('rejects required/value on table column and action reactions even with scope form', () => {
+    const result = validateContent({
+      content: tableFormScopeReactionForbiddenStateYaml,
+      format: 'yaml',
+      filename: 'table-form-scope-reaction.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.columns[0].reactions[0].fulfill.required' }),
+      expect.objectContaining({ path: 'body.props.columns[0].reactions[0].fulfill.value' }),
+      expect.objectContaining({ path: 'body.props.actions[0].reactions[0].fulfill.value' }),
     ]));
   });
 

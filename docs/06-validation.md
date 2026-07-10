@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-10
+last_updated: 2026-07-11
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -13,8 +13,8 @@ applies_to: schema-ui-protocol v0.2
 |---|---|---|---|
 | L0 页面结构校验 | [`schemas/page.schema.json`](./schemas/page.schema.json) | 后端 CI / 提交前 | 顶层文档结构（`meta` + `datasources` + `body` + `actions`）合法性；校验 `meta.protocolVersion` 为 MAJOR.MINOR 格式 |
 | L1 Node 结构校验 | [`schemas/node.schema.json`](./schemas/node.schema.json) | 后端 CI / 提交前 | Node 结构是否合法（字段名、类型）。L1 只能校验 `data.responseMapping` 的键名、点路径格式和最小字段数，不能单独判断列表类接口必须声明 `list`、服务端分页表格必须声明 `total` 等依赖组件类型和 props 的语义条件 |
-| L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) + [`scripts/validate-l2-components.js`](../scripts/validate-l2-components.js) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约；同时补充依赖组件语义的校验，如 `source: api` / `source: ref` 生效 `responseMapping`（本地优先，否则继承）条件必填、PATCH 级能力声明、Action/数据引用完整性、RowAction URL 模板和 `requestMapping` 规则；搜索 form 的 targetTable 必须最终解析到 API 数据源，search 模式忽略 submitAction；upload actionRef 模式禁止组件重复声明上传约束；dateRangePicker reactions 禁止 value 写入。拒绝 `data.params.responseMapping` 与 `datasources.*.params.responseMapping`（`responseMapping` 不属于请求参数，ADR-0005 D1）。对组件 DSL 内 `$ref` 到完整 Node、`VisibleWhen` / `Reaction` / `Permissions` 的字段，L2 必须执行等价结构校验和 Node 递归，包括 `tabs.items[].content` 必须为普通对象、`when` / `fulfill` 必填、额外字段拒绝，以及 `scope: row` 下 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`。固定协议结构的嵌套对象（如 `tabs.items[]`、`pagination`、`select.options[]`）必须通过 `additionalProperties: false` 拒绝字段表之外的属性；固定 select 选项的 `label` / `labelKey` 至少提供一个；`tagMap` 等业务字典仅开放动态映射键，映射项本身仍封闭。L2 还按 Node 树位置执行 `visibleWhen.dependencies` 条件必填：表单上下文必须显式声明（无字段依赖时写 `[]`），非表单上下文可省略。校验遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node。该文件是自定义 DSL，校验器必须按 `03-component-registry.md` 的关键字白名单处理字段表、组合约束、有限数、数值 `minimum` 和受控 `$ref`，不能只读取 props 字段表，也不能直接当作标准 JSON Schema 交给 AJV |
-| L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + [`scripts/validate-l3a-expressions.js`](../scripts/validate-l3a-expressions.js) | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查；`scope: row` 仅允许表格 columns/actions 的表达式声明，且 `$row.*` 按完整点路径在 `dependencies` 中精确声明；非表单 `visibleWhen` 仅允许 `$context.user.*` / `$context.features.*`；`dateRangePicker` 自身 reactions 仅额外允许 `$self.start` / `$self.end`；v0.2 全面拒绝 `$parentRow.*`；拒绝空 `when`、畸形变量路径和链式比较表达式。同时检查 `permissions.*` 仅使用 `$context.user.*` / `$context.features.*`，并递归扫描 `data.params`、`select.props.optionsSource.params`、`datasources.*.params` 的对象和数组值：`$deps.*` 仅出现在表单上下文，不允许 `$row.*` / `$context.*` 等表达式变量。校验遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node |
+| L2 组件契约校验 | [`schemas/component-registry.json`](./schemas/component-registry.json) + [`scripts/validate-l2-components.js`](../scripts/validate-l2-components.js) | 后端 CI | `type` 是否存在、`props` 是否符合该组件的字段契约；同时补充依赖组件语义的校验，如 `source: api` / `source: ref` 生效 `responseMapping`（本地优先，否则继承）条件必填、PATCH 级能力声明、Action/数据引用完整性、RowAction URL 模板和 `requestMapping` 规则；搜索 form 的 targetTable 必须最终解析到 API 数据源，search 模式忽略 submitAction；upload actionRef 模式禁止组件重复声明上传约束；dateRangePicker reactions 禁止 value 写入。拒绝 `data.params.responseMapping` 与 `datasources.*.params.responseMapping`（`responseMapping` 不属于请求参数，ADR-0005 D1）。对组件 DSL 内 `$ref` 到完整 Node、`VisibleWhen` / `Reaction` / `Permissions` 的字段，L2 必须执行等价结构校验和 Node 递归，包括 `tabs.items[].content` 必须为普通对象、`when` / `fulfill` 必填、额外字段拒绝，以及 `scope: row` 与表格 `columns[]`/`actions[]` 上（任意 scope）的 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`。固定协议结构的嵌套对象（如 `tabs.items[]`、`pagination`、`select.options[]`）必须通过 `additionalProperties: false` 拒绝字段表之外的属性；固定 select 选项的 `label` / `labelKey` 至少提供一个；`tagMap` 等业务字典仅开放动态映射键，映射项本身仍封闭。L2 还按 Node 树位置执行 `visibleWhen.dependencies` 条件必填：表单上下文必须显式声明（无字段依赖时写 `[]`），非表单上下文可省略。校验遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node。该文件是自定义 DSL，校验器必须按 `03-component-registry.md` 的关键字白名单处理字段表、组合约束、有限数、数值 `minimum` 和受控 `$ref`，不能只读取 props 字段表，也不能直接当作标准 JSON Schema 交给 AJV |
+| L3a 表达式静态校验 | [`schemas/reaction.schema.json`](./schemas/reaction.schema.json) + [`scripts/validate-l3a-expressions.js`](../scripts/validate-l3a-expressions.js) | Renderer 加载页面配置时 / CI 可选前置 | 表达式语法合法性、变量是否在 `dependencies` 声明范围内、作用域规则（`$deps`/`$row`/`$self` 等）静态检查；`scope: row` 仅允许表格 columns/actions 的表达式声明，且 `$row.*` 须将 `$row.` 之后的完整点路径（无 `$row.` 前缀，如 `canRefund` / `user.id` / `__index`）在 `dependencies` 中精确声明；非表单 `visibleWhen` 仅允许 `$context.user.*` / `$context.features.*`；`dateRangePicker` 自身 reactions 仅额外允许 `$self.start` / `$self.end`；v0.2 全面拒绝 `$parentRow.*`；拒绝空 `when`、畸形变量路径和链式比较表达式。同时检查 `permissions.*` 仅使用 `$context.user.*` / `$context.features.*`，并递归扫描 `data.params`、`select.props.optionsSource.params`、`datasources.*.params` 的对象和数组值：`$deps.*` 仅出现在表单上下文，不允许 `$row.*` / `$context.*` 等表达式变量。校验遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node |
 | L3b 表达式运行时求值 | Renderer 表达式引擎 | 交互/数据变化时 | 仅在已通过 L3a 校验的表达式上执行实际求值 |
 | L4 语义禁用词校验 | [`scripts/lint-l4-banned-props.js`](../scripts/lint-l4-banned-props.js) | CI | `props`/`fulfill` 中是否混入禁止的 CSS 属性名（如 `color`/`margin`），可覆盖 Schema 表达力之外的场景（如深层嵌套结构）。扫描必须区分协议字段、开放业务字典和不透明业务值：`tagMap` 的映射键以及 DataRef/optionsSource params、RowAction requestMapping 的开放业务键不按 CSS 名称判定；`select.options[].value` 的内部载荷完全不解释；封闭协议对象和 tagMap 映射项内部仍继续扫描。校验遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node。**注意：本仓库已在 `scripts/lint-l4-banned-props.js` 中提供可执行 lint 脚本，各接入方可直接使用；也可复用 L1（JSON Schema `not.anyOf`）作为基础防线。** |
 
@@ -36,10 +36,12 @@ applies_to: schema-ui-protocol v0.2
 > - `source: ref` 指向静态 datasource 时不得声明本地 `responseMapping`；响应映射仅适用于 API 数据源。
 > - 拒绝 `data.params.responseMapping` 与 `datasources.*.params.responseMapping`（`responseMapping` 不属于请求参数，ADR-0005 D1）。
 > - 以上校验的遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node。
-- 校验页面内 Node `id` 唯一性，重复 id 报错并标明首次出现与重复路径。
-- 行级 `requestMapping` 字符串只要包含 `$` 就必须整体匹配合法 `$row.*` 引用，拒绝 `$parentRow.*` 和模板拼接（如 `prefix-$row.id`）。
+> - 校验页面内 Node `id` 唯一性，重复 id 报错并标明首次出现与重复路径。
+> - 行级 `requestMapping` 字符串只要包含 `$` 就必须整体匹配合法 `$row.*` 引用，拒绝 `$parentRow.*` 和模板拼接（如 `prefix-$row.id`）。
 
 > **0042 收敛：** L2 进一步要求搜索 `targetTable` 最终解析到 API 数据源；`mode: search` 完全忽略 `submitAction`；`dateRangePicker` reactions 禁止双字段目标不明确的 `value`；upload `actionRef` 模式以 UploadAction 为 `accept/maxSize/multiple` 唯一来源；RowAction URL 中所有花括号必须是合法 `{identifier}`；组件 DSL 的数值 `minimum` 由 L2 执行，upload `maxSize` 不得为负。
+
+> **0044 收敛：** 表格 `columns[]`/`actions[]` 上的 reactions 无论 scope 均禁止 `fulfill.required` / `fulfill.value`；`$row` dependencies 权威规则写入 `02` §8.1；`08` value 冲突规则对齐 ADR-0006 数组顺序后写优先。
 
 ## 2. CI 建议流程
 
