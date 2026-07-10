@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { setLayerScriptExecutorForTest, validateContent } from '../src/core/validation-runner.js';
+import { setLayerScriptExecutorForTest, setTempDirCreatorForTest, validateContent } from '../src/core/validation-runner.js';
 import {
   chartRefResponseMappingInheritedMissingListYaml,
   chartRefResponseMappingLocalOverrideOkYaml,
@@ -28,6 +28,7 @@ import {
 describe('validate_content', () => {
   afterEach(() => {
     setLayerScriptExecutorForTest(null);
+    setTempDirCreatorForTest(null);
   });
 
   it.each([
@@ -493,6 +494,54 @@ describe('validate_content', () => {
   });
 
   it.each([
+    ['pagination', {
+      type: 'table',
+      props: {
+        rowKey: 'id',
+        pagination: { mode: 'none', unexpected: true },
+        columns: [{ field: 'id', label: 'ID' }],
+      },
+    }, 'body.props.pagination.unexpected'],
+    ['tabs item', {
+      type: 'tabs',
+      props: {
+        items: [{
+          key: 'summary',
+          label: 'Summary',
+          content: { type: 'text', props: { content: 'Summary' } },
+          unexpected: true,
+        }],
+      },
+    }, 'body.props.items[0].unexpected'],
+    ['select option', {
+      type: 'form',
+      props: { submitAction: 'save' },
+      children: [{
+        type: 'select',
+        props: {
+          field: 'kind',
+          label: 'Kind',
+          options: [{ label: 'A', value: 'a', unexpected: true }],
+        },
+      }],
+    }, 'body.children[0].props.options[0].unexpected'],
+  ])('rejects unknown fields in closed nested DSL object %s', (_name, body, expectedPath) => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'closed-nested', title: 'Closed nested', protocolVersion: '0.2' },
+        body,
+        actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+      }),
+      format: 'json',
+      filename: 'closed-nested.json',
+    });
+
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: expectedPath }),
+    ]));
+  });
+
+  it.each([
     ['prefix-$row.id', '模板拼接'],
     ['$parentRow.id', '嵌套表格'],
   ])('rejects invalid top-level row request mapping %s', (mappingValue, messageFragment) => {
@@ -792,6 +841,22 @@ describe('validate_content', () => {
     expect(result.passed).toBe(false);
     expect(result.internalError).toMatchObject({ message: 'content 超过 1MB 限制' });
     expect(result.summary).toContain('content 超过 1MB 限制');
+  });
+
+  it('returns internalError when the temporary directory cannot be created', () => {
+    setTempDirCreatorForTest(() => {
+      throw new Error('ENOENT: C:\\internal\\temp\\schema-ui-mcp');
+    });
+
+    const result = validateContent({
+      content: extractFirstYamlFence('docs/05-scenarios/data-table.md'),
+      format: 'yaml',
+      filename: 'data-table.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.internalError).toEqual({ message: '无法创建校验临时目录' });
+    expect(result.summary).toContain('校验内部错误');
   });
 
   it('returns internalError when a layer script emits non-json output', () => {

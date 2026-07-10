@@ -1,11 +1,14 @@
 #!/usr/bin/env node
+import { createRequire } from 'node:module';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { handleGetComponent, handleListComponents, getComponentInputSchema } from './tools/components.js';
 import { handleGetDoc, getDocInputSchema } from './tools/docs.js';
 import { handleSearch, searchInputSchema } from './tools/search.js';
 import { handleValidateContent, validateContentInputSchema } from './tools/validate-content.js';
-import packageJson from '../package.json' with { type: 'json' };
+
+const require = createRequire(import.meta.url);
+const packageJson = require('../package.json') as { version: string };
 
 export function createServer(): McpServer {
   const server = new McpServer({ name: 'schema-ui-mcp', version: packageJson.version }, {
