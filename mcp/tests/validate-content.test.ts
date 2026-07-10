@@ -15,6 +15,8 @@ import {
   nodeParamsResponseMappingOnlyYaml,
   nodeParamsResponseMappingYaml,
   nodePermissionSelfYaml,
+  formVisibleWhenSelfYaml,
+  tableActionFormScopeSelfYaml,
   tableActionPermissionSelfYaml,
   tableRefResponseMappingInheritedCompleteYaml,
   tableRefResponseMappingInheritedMissingListYaml,
@@ -38,6 +40,8 @@ describe('validate_content', () => {
     'docs/05-scenarios/form-with-reactions.md',
     'docs/05-scenarios/grid-dashboard.md',
     'docs/05-scenarios/row-backend-actions.md',
+    'docs/05-scenarios/search-form-table.md',
+    'docs/05-scenarios/form-with-upload.md',
   ])('passes official scenario %s', relativePath => {
     const result = validateContent({
       content: extractFirstYamlFence(relativePath),
@@ -359,6 +363,32 @@ describe('validate_content', () => {
         expect.objectContaining({ rule: 'NON_FORM_VISIBLEWHEN' }),
       ]));
     }
+  });
+
+  it('rejects $self in form-context visibleWhen', () => {
+    const result = validateContent({
+      content: formVisibleWhenSelfYaml,
+      format: 'yaml',
+      filename: 'form-visiblewhen-self.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'FORM_VISIBLEWHEN_VARS' }),
+    ]));
+  });
+
+  it('rejects $self on table actions with scope form', () => {
+    const result = validateContent({
+      content: tableActionFormScopeSelfYaml,
+      format: 'yaml',
+      filename: 'table-action-form-self.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'TABLE_ACTION_NO_SELF' }),
+    ]));
   });
 
   it('recursively checks variables in params arrays', () => {

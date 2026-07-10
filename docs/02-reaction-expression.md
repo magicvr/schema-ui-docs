@@ -133,60 +133,71 @@ L3a 对 `$row.*` 做精确包含匹配：`dependencies.includes(fieldPathAfterDo
 
 | 作用域 | `scope` 值 | 可用变量 | 默认场景 |
 |---|---|---|---|
-| 表单级 | `form`（默认） | `$deps.*`、`$self`、`$context.*` | 表单字段 `reactions`、表单内 `visibleWhen` |
-| 行级 | `row` | `$row.*`、`$self`（列表达式）、`$context.*` | 表格 `columns`/`actions` 内表达式 |
+| 表单级 | `form`（默认） | `$deps.*`、`$context.*`；`$self` **仅**表单字段 `reactions` | 表单字段 `reactions`；表单内 `visibleWhen`（无 `$self`） |
+| 行级 | `row` | `$row.*`、`$context.*`；`$self` **仅**列表达式 | 表格 `columns`/`actions`（`actions` 无 `$self`；仅 columns/actions 可挂载） |
 
 ### 9.1 作用域隔离规则
 
 - **`$row` 与 `$deps` 互斥**：`scope: row` 的表达式中不能出现 `$deps.*`；`scope: form` 的表达式中不能出现 `$row.*`。违反该规则的配置由静态校验直接拒绝（见 §10 静态校验规则）。
 - **`$context` 跨作用域可访问**：`$context.*` 在两种作用域下均可访问，不受隔离规则限制。
 - **非表单节点 `visibleWhen` 只能访问 `$context.*`**：非表单节点不绑定表单字段，即使其表达式默认属于 `scope: form`，也不得访问 `$deps.*`、`$self`、`$row.*` 或 `$parentRow.*`。
+- **表单 `visibleWhen` 不得使用 `$self`**：节点级条件渲染无字段自身值注入；仅允许 `$deps.*` 与 `$context.user.*` / `$context.features.*`（见 §10.1）。
 - **跨作用域联合判断不支持**：若业务需要同时依赖表单级字段和行内字段（如"表单审批模式为严格且当前行金额超阈值"），v0.2 **不提供协议级语法支持**。该场景无法通过现有表达式机制在协议层实现变通，应由后端预计算为行数据字段（如行数据中增加 `canHighlight` 布尔字段），或通过 ADR 新增标准机制。
 
 ### 9.2 `$self` 的作用域语义
 
 - `scope: form`（表单字段 `reactions`）：`$self` 指当前字段自身的当前值（与 v0.1 一致）。
-- `scope: row`（表格列表达式）：`$self` 指**当前列对应单元格的原始数据值**（即 `$row[column.field]`，未经 `format` 处理的原始值）。`$self` 在表格 `actions` 的 `scope: row` 中不适用（无"当前单元格"概念），静态校验拒绝。
+- `scope: row`（表格列表达式）：`$self` 指**当前列对应单元格的原始数据值**（即 `$row[column.field]`，未经 `format` 处理的原始值）。`$self` 在表格 `actions` 的表达式中不适用（无"当前单元格"概念，**任意 scope**），静态校验拒绝。
 
 ### 9.3 `fulfill`/`otherwise` 状态键的作用域限制
 
-`reactions` 的 `fulfill`/`otherwise` 支持四个状态键，但按挂载位置与 `scope` 收窄：
+`reactions` 的 `fulfill`/`otherwise` 支持四个状态键，但按挂载位置收窄：
 
-| 状态键 | 表单字段 `scope: form` | 表单字段 `scope: row` | 表格 `columns[]`/`actions[]`（任意 scope） | 说明 |
-|---|---|---|---|---|
-| `visible` | ✅ 允许 | ✅ 允许 | ✅ 允许 | 控制字段/单元格/操作是否可见 |
-| `disabled` | ✅ 允许 | ✅ 允许 | ✅ 允许 | 控制字段/单元格/操作是否禁用 |
-| `required` | ✅ 允许 | ❌ 静态校验禁止 | ❌ 静态校验禁止 | 表格列/操作无"必填"语义 |
-| `value` | ✅ 允许 | ❌ 静态校验禁止 | ❌ 静态校验禁止 | 列/操作不是表单字段，无单一回写目标；v0.2 不支持行内回写 |
+| 状态键 | 表单字段（`scope: form`，默认） | 表格 `columns[]`/`actions[]`（任意 scope） | 说明 |
+|---|---|---|---|
+| `visible` | ✅ 允许 | ✅ 允许 | 控制字段/单元格/操作是否可见 |
+| `disabled` | ✅ 允许 | ✅ 允许 | 控制字段/单元格/操作是否禁用 |
+| `required` | ✅ 允许 | ❌ 静态校验禁止 | 表格列/操作无"必填"语义 |
+| `value` | ✅ 允许 | ❌ 静态校验禁止 | 列/操作不是表单字段，无单一回写目标；v0.2 不支持行内回写 |
 
 > **0044 / V167：** 表格列与行操作不是表单字段，即使声明 `scope: form`，也不得使用 `required`/`value`。L2 对 `table.props.columns[]` / `actions[]` 上的 reactions 一律仅允许 `visible`/`disabled`。
+>
+> **0045 / V177：** `scope: row` **仅**允许挂载在表格 `columns[]` / `actions[]` 上；普通表单字段 Node 不得声明 `scope: row`（L3a `ROW_SCOPE_MOUNT`）。上表因此不再包含「表单字段 `scope: row`」列。
 
 ## 10. 静态校验规则
 
 以下规则由解析器在静态校验阶段（非运行时）执行，违反即视为协议格式错误、直接拒绝。
 
-### 10.1 `$deps` 出现在非表单 `visibleWhen` 中
+### 10.1 非表单 / 表单 `visibleWhen` 的变量白名单
 
-节点所处的表单上下文由 Node 树位置决定（节点位于 `type: form` 子树中即为表单上下文）。非表单上下文的节点不绑定表单字段，其 `visibleWhen` 中 `dependencies` 可省略，但表达式只允许 `$context.user.*` / `$context.features.*`；出现 `$deps.*`、`$self`、`$row.*` 或 `$parentRow.*` 时静态校验直接拒绝。注意：表单上下文内缺失 `dependencies` 是配置错误，不会因此变成非表单上下文。
+节点所处的表单上下文由 Node 树位置决定（节点位于 `type: form` 子树中即为表单上下文）。
+
+- **非表单上下文**：`dependencies` 可省略，`when` 中**仅**允许 `$context.user.*` / `$context.features.*`；出现 `$deps.*`、`$self`、`$row.*` 或 `$parentRow.*` 时静态校验直接拒绝。
+- **表单上下文**：`dependencies` 必填（无字段依赖时写 `[]`），`when` 中只允许 `$deps.*`（须声明）与 `$context.user.*` / `$context.features.*`；**不得**使用 `$self`、`$row.*` 或 `$parentRow.*`（`visibleWhen` 不是字段 `reactions`，无 `$self` 注入语义）。
+
+注意：表单上下文内缺失 `dependencies` 是配置错误，不会因此变成非表单上下文。
 
 ### 10.2 `$deps` 出现在 `permissions.*` 中
 
 `permissions.*` 的表达式中禁止出现 `$deps.*`，只允许使用 `$context.*`。理由：权限判断只应依赖用户身份，不应混入业务字段状态，避免职责不清、难以审计。
 
-### 10.3 `scope: row` 下 `$self` 出现在 `actions` 中
+### 10.3 表格 `actions` 表达式中出现 `$self`
 
-表格 `actions` 的 `scope: row` 表达式中禁止使用 `$self`（行内操作按钮不对应具体某一列，无"当前单元格"概念）。
+表格 `actions` 的表达式（`visibleWhen` / `reactions`，**任意** `scope`）中禁止使用 `$self`（行内操作按钮不对应具体某一列，无"当前单元格"概念；只能使用 `$row.*` / `$context.*`，或 form-scope 下的 `$deps.*` / `$context.*`）。
 
-### 10.4 表格列/操作与 `scope: row` 下 `fulfill` 出现 `required`/`value`
+### 10.4 表格列/操作上 `fulfill` 出现 `required`/`value`
 
-以下挂载点的 `fulfill`/`otherwise` 中禁止声明 `required` 或 `value`（仅允许 `visible` 和 `disabled`）：
+表格 `columns[]` / `actions[]` 上的 reactions（**无论** `scope: form` 或 `scope: row`）的 `fulfill`/`otherwise` 中禁止声明 `required` 或 `value`（仅允许 `visible` 和 `disabled`）。
 
-- 任意 `scope: row` 的 reactions；
-- 表格 `columns[]` / `actions[]` 上的 reactions（**无论** `scope: form` 或 `scope: row`）。
+> 注：历史上曾写「任意 `scope: row` 的 reactions」；因 `scope: row` 仅允许挂载在表格列/操作上（见 §10.6），该表述与上列等价。
 
 ### 10.5 表格列 `scope: form` 表达式中出现 `$self`
 
 表格列在 `scope: form` 下没有当前行/当前单元格上下文，也不是表单字段，因此 `$self` 没有绑定对象。该场景中出现 `$self` 时，静态校验直接拒绝；需要访问单元格原始值时应使用 `scope: row`。
+
+### 10.6 `scope: row` 挂载点限制（`ROW_SCOPE_MOUNT`）
+
+`scope: row` **仅**允许出现在表格 `columns[]` / `actions[]` 的 `visibleWhen` 或 `reactions` 上。普通 Node（含表单字段）声明 `scope: row` 时，L3a 以 `ROW_SCOPE_MOUNT` 静态拒绝。需要行数据时，应把表达式挂在对应列或行操作上。
 
 ### 10.6 `$deps` 出现在非表单 `data.params` / `optionsSource.params` 中
 

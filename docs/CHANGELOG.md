@@ -32,19 +32,24 @@
 - 审计 `0044 / V167`：表格 `columns[]`/`actions[]` 上 reactions 无论 scope 均禁止 `required`/`value`，L2 执行。
 - 审计 `0044 / V168-V171`：更新 ADR-0005 执行层标注；新增 search/upload 场景；修复 `06` blockquote；附录 A 补 actions form-scope。
 - 审计 `0044 / V172-V174`：根 `package.json` 版本对齐 0.2.8；调整 CHANGELOG 历史排序；注明 v0.2.7 `$parentRow` 表述已由 0039/V120 取代。
+- 审计 `0045 / V175-V176`：L3a 拒绝表单 `visibleWhen` 与表格 `actions`（任意 scope）中的 `$self`。
+- 审计 `0045 / V177-V179` / `V190`：删除表单字段 `scope: row` 死路径表述；对齐 `requestMapping` 的 `$` 判定与非表单 `visibleWhen` 白名单；§10 收录 `ROW_SCOPE_MOUNT`。
+- 审计 `0045 / V180`：MCP 官方场景回归覆盖 search/upload 场景。
+- 审计 `0045 / V181-V183`：ADR-0004/0006 与 `06` 自检清单同步 V164/V167/V171。
+- 审计 `0045 / V184-V189`：CHANGELOG 审计路径、lock 版本、场景 BOM/文案、L4 文档范围、MCP 实施计划目录树。
 
 **说明（`$parentRow`）：** v0.2.7 F2 等历史条目中的 `$parentRow` 描述记录当时设计；当前协议以 0039/V120 为准，v0.2 **全面拒绝** `$parentRow.*`。
 
 **涉及的文档、包与配置：**
-- 入口文档：`README.md`、`docs/00-overview.md`、根 `package.json`
+- 入口文档：`README.md`、`docs/00-overview.md`、根 `package.json`、根 `package-lock.json`
 - 版本记录：`docs/CHANGELOG.md`
 - MCP 包：`mcp/package.json`、`mcp/package-lock.json`
-- MCP 说明：`docs/mcp/README.md`
+- MCP 说明：`docs/mcp/README.md`、`docs/mcp/v1-implementation-plan.md`
 - 协议与 ADR：`docs/01-node-protocol.md`、`docs/02-reaction-expression.md`、`docs/03-component-registry.md`、`docs/06-validation.md`、`docs/07-actions-contract.md`、`docs/08-renderer-spec.md`、`docs/decisions/0003-0008`
 - 场景示例：`docs/05-scenarios/*`
 - 校验与 MCP 实现：`scripts/*.js`、`mcp/src/tools/docs.ts`、`mcp/src/tools/validate-content.ts`、`mcp/src/core/validation-runner.ts`、`mcp/tests/*.test.ts`
 - 机器可读契约：`docs/schemas/component-registry.json`
-- 审计：`docs/audit/0044-2026-07-11-*`
+- 审计：`docs/audit/archived/0044-2026-07-11-*`、`docs/audit/archived/0045-2026-07-11-*`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 
