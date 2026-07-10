@@ -5,6 +5,24 @@
 
 ---
 
+## 0039 — 2026-07-10 — 表达式校验边界 + 嵌套表格决策 + Renderer 初始化契约 + MCP 返回预算
+
+**主题：** 修复 `dateRangePicker` `$self.start/end` 与 L3a 冲突（V117🔴）、表单内 `visibleWhen.dependencies` 条件必填缺口（V118🟡）、L4 `tagMap` 业务键误报（V119🟡）、`$parentRow` 不可构造能力（V120🔴）、链式比较放行（V121🟡）、`$context` 生命周期冲突（V122🟡）、Renderer 初始化参数遗漏（V123🟡）及 MCP 完整工具文本超 20KB（V124🟡）。
+**性质：** 协议能力保守收敛 + L2/L3a/L4 行为修复 + ADR 生命周期统一 + MCP 工具边界修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0039-2026-07-10-review.md](./0039-2026-07-10-review.md) | 审视报告 — V117-V124（8 项） |
+| [0039-2026-07-10-checklist.md](./0039-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+| [0039-2026-07-10-plan.md](./0039-2026-07-10-plan.md) | 修复计划与 V120/V122 决策记录 |
+
+**关键修复：**
+- V117-V121: L3a 受控支持 `dateRangePicker` `$self.start/end`，L2 执行表单内 visibleWhen 条件必填，L4 区分 `tagMap` 业务键，v0.2 保守拒绝不可构造的 `$parentRow.*`，并拒绝链式比较
+- V122-V123: `$context` 统一为 Renderer 实例初始化时的只读快照，更新通过重挂载生效；`RendererOptions` 组合完整 `RendererRequestConfig`
+- V124: `protocol.get_doc` 在最终 JSON 工具文本边界执行 UTF-8 20KB 预算；MCP 51 项测试、tools smoke、镜像构建与 Docker smoke 全部通过
+
+---
+
 ## 0038 — 2026-07-10 — 版本说明漂移 + schemas 入口索引误导 + MCP SDK 依赖版本策略
 
 **主题：** 修复最新 PATCH 发布说明落后当前仓库状态（V114🟡）、入口文档将 `docs/schemas/` 笼统写为标准 JSON Schema（V115🟡）、以及 MCP 核心 SDK 依赖仍使用 `latest`（V116🟢）。

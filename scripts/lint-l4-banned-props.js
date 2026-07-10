@@ -124,6 +124,16 @@ function checkObjectForBannedKeys(obj, objPath, violations) {
     });
     return;
   }
+
+  if (objPath.endsWith('.tagMap')) {
+    for (const [mappingKey, mappingValue] of Object.entries(obj)) {
+      if (mappingValue && typeof mappingValue === 'object') {
+        checkObjectForBannedKeys(mappingValue, `${objPath}.${mappingKey}`, violations);
+      }
+    }
+    return;
+  }
+
   for (const key of Object.keys(obj)) {
     if (BANNED_PROPS.has(key)) {
       violations.push({ path: `${objPath}.${key}`, key });

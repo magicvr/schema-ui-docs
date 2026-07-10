@@ -9,6 +9,8 @@ date: 2026-07-09
 
 已接受(Accepted)。本 ADR 标准化表格行内按钮直接调用后端接口的声明式模型，并明确它与既有 `RowAction.key` 本地分发模型的关系。
 
+> **0039 / V120 修订：** `requestMapping` 的 `$row.*` 与字面量绑定继续有效；因 v0.2 没有嵌套表格挂载结构，原 `$parentRow.*` 分支暂缓并由 L2 拒绝。
+
 ## 背景
 
 中后台列表页中，行级的“退款 / 审批 / 删除 / 启停 / 重试 / 下架”等操作非常普遍。这类操作通常需要：
@@ -85,11 +87,11 @@ requestMapping:
 ```yaml
 requestMapping:
   path:  # 替换 action.url 中的 {name} 占位符
-    <name>: $row.<field> | $parentRow.<field> | literal
+    <name>: $row.<field> | literal
   query: # 生成 query string
-    <name>: $row.<field> | $parentRow.<field> | literal
+    <name>: $row.<field> | literal
   body:  # 生成 JSON 请求体
-    <name>: $row.<field> | $parentRow.<field> | literal
+    <name>: $row.<field> | literal
 ```
 
 `requestMapping` 放在 RowAction 层的原因是：同一个 `request` action 可以被不同表格或不同按钮以不同的行字段绑定触发；行上下文是触发点上下文，不是 action 本身的全局属性。
@@ -100,7 +102,7 @@ requestMapping:
 
 - 字符串、数字、布尔、`null` 字面量；
 - 单个 `$row.*` 点路径；
-- 单个 `$parentRow.*` 点路径（仅嵌套表格场景）。
+- `$parentRow.*` 在 v0.2 中静态拒绝；未来需在嵌套表格挂载结构完成 ADR 后再讨论恢复。
 
 `requestMapping.path` / `query` / `body` 都是扁平 key-value map，不支持嵌套对象或数组值。
 

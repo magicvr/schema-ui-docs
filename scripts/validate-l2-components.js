@@ -331,10 +331,11 @@ function checkOneOf(props, oneOfList, nodePath, violations) {
 // ---------------------------------------------------------------------------
 // 核心：校验单个 Node
 // ---------------------------------------------------------------------------
-function validateNode(node, nodePath, violations, doc) {
+function validateNode(node, nodePath, violations, doc, parentIsForm = false) {
   if (!node || typeof node !== 'object') return;
 
   const { type, props = {}, children, reactions, data, states } = node;
+  const inFormContext = parentIsForm || type === 'form';
 
   // --- type 存在性 ---
   if (!type) {
@@ -385,10 +386,38 @@ function validateNode(node, nodePath, violations, doc) {
     validateResponseMapping(node, type, compDef, nodePath, violations, doc);
   }
 
+  if (node.visibleWhen && inFormContext && node.visibleWhen.dependencies === undefined) {
+    violations.push({
+      path: `${nodePath}.visibleWhen.dependencies`,
+      message: '表单上下文中的 visibleWhen 必须显式声明 dependencies（无字段依赖时使用空数组）',
+    });
+  }
+
+  if (type === 'table' && inFormContext) {
+    for (const [collectionName, entries] of [
+      ['columns', props.columns],
+      ['actions', props.actions],
+    ]) {
+      if (!Array.isArray(entries)) continue;
+      entries.forEach((entry, index) => {
+        if (
+          entry?.visibleWhen
+          && (entry.visibleWhen.scope || 'form') === 'form'
+          && entry.visibleWhen.dependencies === undefined
+        ) {
+          violations.push({
+            path: `${nodePath}.props.${collectionName}[${index}].visibleWhen.dependencies`,
+            message: '表单上下文中 scope: form 的 visibleWhen 必须显式声明 dependencies（无字段依赖时使用空数组）',
+          });
+        }
+      });
+    }
+  }
+
   // --- 递归 children ---
   if (Array.isArray(children)) {
     children.forEach((child, idx) => {
-      validateNode(child, `${nodePath}.children[${idx}]`, violations, doc);
+      validateNode(child, `${nodePath}.children[${idx}]`, violations, doc, inFormContext);
     });
   }
 
@@ -396,7 +425,7 @@ function validateNode(node, nodePath, violations, doc) {
   if (props && Array.isArray(props.items)) {
     props.items.forEach((item, idx) => {
       if (item && item.content) {
-        validateNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, doc);
+        validateNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, doc, inFormContext);
       }
     });
   }
@@ -595,14 +624,14 @@ function hasNonEmptyRequestMapping(mapping) {
   );
 }
 
-function validateRequestMappingValues(mappingSection, sectionPath, violations, allowParentRow = false) {
+function validateRequestMappingValues(mappingSection, sectionPath, violations) {
   if (mappingSection === undefined) return;
   if (!isPlainObject(mappingSection)) {
     violations.push({ path: sectionPath, message: 'requestMapping 的 path/query/body 必须是对象' });
     return;
   }
 
-  const rowRefPattern = /^\$(row|parentRow)\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
+  const rowRefPattern = /^\$row\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
   for (const [mappingKey, mappingValue] of Object.entries(mappingSection)) {
     const valuePath = `${sectionPath}.${mappingKey}`;
     const valueType = mappingValue === null ? 'null' : Array.isArray(mappingValue) ? 'array' : typeof mappingValue;
@@ -618,21 +647,14 @@ function validateRequestMappingValues(mappingSection, sectionPath, violations, a
       if (mappingValue.includes('$') && !rowRefPattern.test(mappingValue)) {
         violations.push({
           path: valuePath,
-          message: '行级 requestMapping 仅允许单个 $row.* / $parentRow.* 点路径引用；不得使用 $deps.*、$context.*、模板拼接或表达式',
-        });
-      }
-      // $parentRow.* 仅在嵌套表格中允许
-      if (mappingValue.startsWith('$parentRow.') && !allowParentRow) {
-        violations.push({
-          path: valuePath,
-          message: '$parentRow.* 仅允许在嵌套表格的 requestMapping 中使用',
+          message: '行级 requestMapping 仅允许单个 $row.* 点路径引用；v0.2 暂不支持嵌套表格及 $parentRow.*，也不得使用 $deps.*、$context.*、模板拼接或表达式',
         });
       }
     }
   }
 }
 
-function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPath, violations, tableDepth = 0) {
+function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPath, violations) {
   if (!hasNonEmptyRequestMapping(rowAction.requestMapping)) {
     violations.push({
       path: `${rowActionPath}.requestMapping`,
@@ -642,10 +664,9 @@ function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPat
   }
 
   const mapping = rowAction.requestMapping;
-  const allowParentRow = tableDepth > 1; // tableDepth > 1 表示嵌套表格
-  validateRequestMappingValues(mapping.path, `${rowActionPath}.requestMapping.path`, violations, allowParentRow);
-  validateRequestMappingValues(mapping.query, `${rowActionPath}.requestMapping.query`, violations, allowParentRow);
-  validateRequestMappingValues(mapping.body, `${rowActionPath}.requestMapping.body`, violations, allowParentRow);
+  validateRequestMappingValues(mapping.path, `${rowActionPath}.requestMapping.path`, violations);
+  validateRequestMappingValues(mapping.query, `${rowActionPath}.requestMapping.query`, violations);
+  validateRequestMappingValues(mapping.body, `${rowActionPath}.requestMapping.body`, violations);
 
   const placeholders = new Set(extractUrlPathParams(actionDef.url));
   const pathMapping = isPlainObject(mapping.path) ? mapping.path : {};
@@ -677,10 +698,8 @@ function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPat
 function validateRowActionRefs(doc, violations) {
   const actions = isPlainObject(doc.actions) ? doc.actions : {};
 
-  const scanNode = (node, nodePath, tableDepth = 0) => {
+  const scanNode = (node, nodePath) => {
     if (!node || typeof node !== 'object') return;
-
-    const currentTableDepth = node.type === 'table' ? tableDepth + 1 : tableDepth;
 
     if (node.type === 'table' && node.props && Array.isArray(node.props.actions)) {
       node.props.actions.forEach((rowAction, rowActionIndex) => {
@@ -716,17 +735,17 @@ function validateRowActionRefs(doc, violations) {
           return;
         }
 
-        validateRowRequestAction(rowAction, rowActionPath, actionDef, `actions.${actionRef}`, violations, currentTableDepth);
+        validateRowRequestAction(rowAction, rowActionPath, actionDef, `actions.${actionRef}`, violations);
       });
     }
 
     if (Array.isArray(node.children)) {
-      node.children.forEach((child, childIndex) => scanNode(child, `${nodePath}.children[${childIndex}]`, currentTableDepth));
+      node.children.forEach((child, childIndex) => scanNode(child, `${nodePath}.children[${childIndex}]`));
     }
     if (node.props && Array.isArray(node.props.items)) {
       node.props.items.forEach((item, itemIndex) => {
         if (item && item.content) {
-          scanNode(item.content, `${nodePath}.props.items[${itemIndex}].content`, currentTableDepth);
+          scanNode(item.content, `${nodePath}.props.items[${itemIndex}].content`);
         }
       });
     }
