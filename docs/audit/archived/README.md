@@ -6,6 +6,24 @@
 
 ---
 
+## 0049 — 2026-07-11 — V197 后 params 整值替换入口残留 + CHANGELOG/元数据卫生
+
+**主题：** 闭合 V197 后组件表与 Schema 描述残留（V199🟡），补齐 CHANGELOG 文件清单（V200🟢）与 `04` `last_updated`（V201🟢）。
+**性质：** V197 入口/Schema 残留收敛 + 发布说明与元数据卫生。
+
+| 文件 | 说明 |
+|---|---|
+| [0049-2026-07-11-review.md](./0049-2026-07-11-review.md) | 审视报告 — V199-V201（3 项） |
+| [0049-2026-07-11-checklist.md](./0049-2026-07-11-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V199: 同步 `03` OptionsSource.params、`04` §9、`01` data.params 注释与 `node.schema.json` / `component-registry.json` 为完整单个 `$deps.*`、禁止模板拼接
+- V200: CHANGELOG Unreleased 补 `04`、`node.schema.json` 与 0048/0049 审计路径，并记录本轮修复
+- V201: `04` `last_updated` → 2026-07-11
+- MCP build + **108** 项测试通过（实现未改行为）
+
+---
+
 ## 0048 — 2026-07-11 — params `$deps.*` 整值替换边界 + 跨文档 fragment 漂移
 
 **主题：** L3a 将 `data.params` / `optionsSource.params` / `datasources.*.params` 中的 `$deps.*` 收紧为完整单个值替换（V197🟡），并修复 `04` 指向表达式 §10.1 的失效 fragment（V198🟢）。

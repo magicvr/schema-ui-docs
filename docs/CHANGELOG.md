@@ -10,6 +10,9 @@
 > **说明：** 以下变更已在当前仓库工作区落地，但尚未单独切出新的 PATCH 版本号；正式发布时应合并为下一个 `0.2.x` 条目。
 
 **修复：**
+- 审计 `0049 / V199`：同步 `03` OptionsSource.params、`04` §9、`01` data.params 注释与 `node.schema.json` / `component-registry.json` 描述，与 V197「完整单个 `$deps.*` 整值替换、禁止模板拼接」口径一致。
+- 审计 `0049 / V200`：CHANGELOG Unreleased 文件清单补 `04` 与 0048/0049 审计路径。
+- 审计 `0049 / V201`：`04-datasource-contract.md` `last_updated` 同步为 2026-07-11。
 - 审计 `0048 / V197`：L3a 将 `data.params` / `optionsSource.params` / `datasources.*.params` 中的 `$deps.*` 收紧为完整单个值替换，拒绝模板拼接；同步 `02`/`04`/`06`/`08` 说明。
 - 审计 `0048 / V198`：修复 `04-datasource-contract.md` 指向表达式 §10.1 的失效 Markdown fragment。
 - 审计 `0038 / V114`：澄清最新已发布版本与当前工作区未发布修订的关系，避免继续让最新 PATCH 说明落后于仓库状态。
@@ -50,11 +53,11 @@
 - 版本记录：`docs/CHANGELOG.md`
 - MCP 包：`mcp/package.json`、`mcp/package-lock.json`
 - MCP 说明：`docs/mcp/README.md`、`docs/mcp/v1-implementation-plan.md`
-- 协议与 ADR：`docs/01-node-protocol.md`、`docs/02-reaction-expression.md`、`docs/03-component-registry.md`、`docs/06-validation.md`、`docs/07-actions-contract.md`、`docs/08-renderer-spec.md`、`docs/decisions/0003-0008`
+- 协议与 ADR：`docs/01-node-protocol.md`、`docs/02-reaction-expression.md`、`docs/03-component-registry.md`、`docs/04-datasource-contract.md`、`docs/06-validation.md`、`docs/07-actions-contract.md`、`docs/08-renderer-spec.md`、`docs/decisions/0003-0008`
 - 场景示例：`docs/05-scenarios/*`
 - 校验与 MCP 实现：`scripts/*.js`、`mcp/src/tools/docs.ts`、`mcp/src/tools/validate-content.ts`、`mcp/src/core/validation-runner.ts`、`mcp/tests/*.test.ts`
-- 机器可读契约：`docs/schemas/component-registry.json`
-- 审计：`docs/audit/archived/0044-2026-07-11-*`、`docs/audit/archived/0045-2026-07-11-*`、`docs/audit/archived/0046-2026-07-11-*`、`docs/audit/archived/0047-2026-07-11-*`
+- 机器可读契约：`docs/schemas/node.schema.json`、`docs/schemas/component-registry.json`
+- 审计：`docs/audit/archived/0044-2026-07-11-*`、`docs/audit/archived/0045-2026-07-11-*`、`docs/audit/archived/0046-2026-07-11-*`、`docs/audit/archived/0047-2026-07-11-*`、`docs/audit/archived/0048-2026-07-11-*`、`docs/audit/archived/0049-2026-07-11-*`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 
