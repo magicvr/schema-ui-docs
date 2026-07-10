@@ -324,7 +324,7 @@ Renderer 的表达式调度必须遵循稳定快照模型：
 |---|---|
 | 禁止 `eval` / `new Function` | 在任何场景下均不得使用 |
 | 禁止访问全局对象 | 表达式引擎不应暴露 `window`/`global`/`globalThis`/`process` 等 |
-| 变量名白名单 | 只允许 `$deps.*` / `$self` / `$context.*` / `$row.*` / `$parentRow.*` |
+| 变量名白名单 | 一般表达式允许 `$deps.*` / `$self` / `$context.*` / `$row.*` / `$parentRow.*`；`permissions.*` 额外受限为仅 `$context.user.*` / `$context.features.*` |
 | 运算符白名单 | `==` `!=` `>` `>=` `<` `<=` `contains` `&&` `\|\|` `!` `(` `)` |
 | 禁止函数调用 | 不允许任何函数调用；`contains` 是二元运算符而非函数 |
 
@@ -335,7 +335,7 @@ Renderer 在加载页面配置时，应覆盖 [02-reaction-expression.md §10](.
 - 所有 `when` 表达式中的 `$deps.*` 变量必须在对应位置的 `dependencies` 声明中。
 - `scope: row` 表达式中禁止 `$deps.*`，`scope: form` 表达式中禁止 `$row.*` / `$parentRow.*`。
 - `$parentRow.*` 仅允许嵌套表格内的 `scope: row` 表达式。
-- `permissions.*` 表达式中不能出现 `$deps.*`，只允许 `$context.*`。
+- `permissions.*` 表达式中不能出现 `$deps.*`、`$self`、`$row.*`、`$parentRow.*`，只允许 `$context.user.*` / `$context.features.*`；禁止未登记的 `$context` 根命名空间（如 `$context.tenant.*`）。
 - 非表单上下文的 `visibleWhen` 中不能出现 `$deps.*`。
 - 表格 `actions` 的 `scope: row` 表达式中禁止 `$self`；表格列 `scope: form` 表达式中也禁止 `$self`。
 - 独立表格（非 `form.children` 上下文）的列/操作在 `scope: form` 下不能使用 `$deps.*`。

@@ -1,6 +1,6 @@
 {
   "name": "schema-ui-mcp",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "private": true,
   "type": "module",
   "description": "Schema-UI protocol reader and validator MCP server",

@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { setLayerScriptExecutorForTest, validateContent } from '../src/core/validation-runner.js';
 import {
+  chartRefResponseMappingInheritedMissingListYaml,
+  chartRefResponseMappingLocalOverrideOkYaml,
   danglingDataRefYaml,
   extractFirstYamlFence,
   invalidTargetTableYaml,
@@ -10,6 +12,8 @@ import {
   missingUploadCapabilityYaml,
   nodePermissionSelfYaml,
   tableActionPermissionSelfYaml,
+  tableRefResponseMappingInheritedCompleteYaml,
+  tableRefResponseMappingInheritedMissingListYaml,
   tableRefResponseMappingMissingListYaml,
   tableRowReactionForbiddenStateYaml,
   tableVisibleWhenMissingWhenYaml,
@@ -104,6 +108,56 @@ describe('validate_content', () => {
     expect(result.layers.L2).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: 'body.data.responseMapping.list' }),
     ]));
+  });
+
+  it('reports inherited datasources.responseMapping missing list for table source:ref through L2', () => {
+    const result = validateContent({
+      content: tableRefResponseMappingInheritedMissingListYaml,
+      format: 'yaml',
+      filename: 'table-ref-inherited-missing-list.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.data.responseMapping.list' }),
+    ]));
+  });
+
+  it('reports inherited datasources.responseMapping missing list for chart source:ref through L2', () => {
+    const result = validateContent({
+      content: chartRefResponseMappingInheritedMissingListYaml,
+      format: 'yaml',
+      filename: 'chart-ref-inherited-missing-list.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.data.responseMapping.list' }),
+    ]));
+  });
+
+  it('passes table source:ref with complete inherited datasources.responseMapping', () => {
+    const result = validateContent({
+      content: tableRefResponseMappingInheritedCompleteYaml,
+      format: 'yaml',
+      filename: 'table-ref-inherited-complete.yaml',
+    });
+
+    expect(result.passed).toBe(true);
+    expect(result.parseError).toBeNull();
+    expect(result.internalError).toBeNull();
+  });
+
+  it('passes chart source:ref with local responseMapping override', () => {
+    const result = validateContent({
+      content: chartRefResponseMappingLocalOverrideOkYaml,
+      format: 'yaml',
+      filename: 'chart-ref-local-override.yaml',
+    });
+
+    expect(result.passed).toBe(true);
+    expect(result.parseError).toBeNull();
+    expect(result.internalError).toBeNull();
   });
 
   it('reports permissions variables outside $context and unknown context roots through L3a', () => {

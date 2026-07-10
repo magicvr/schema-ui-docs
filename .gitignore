@@ -35,3 +35,7 @@ ehthumbs.db
 *.tmp
 *.log
 mcp/dist/
+
+# --- 临时目录 / 生成文件 ---
+.tmp/
+.tmp-audit-check/

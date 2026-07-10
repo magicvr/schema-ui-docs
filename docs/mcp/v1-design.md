@@ -308,7 +308,7 @@ v1 使用固定映射：
 镜像入口为 stdio MCP server。使用示例：
 
 ```bash
-docker run --rm -i schema-ui-mcp:0.2.7
+docker run --rm -i schema-ui-mcp:0.2.8
 ```
 
 不需要 `-v` 挂载业务项目目录。

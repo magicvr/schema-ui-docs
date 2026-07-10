@@ -23,15 +23,16 @@ applies_to: schema-ui-protocol v0.2
 > - **L4** 是更细致的深度补充，可覆盖 Schema 表达力之外的场景（如嵌套对象内部、`reactions[].fulfill` 中的禁用词），但需要团队额外接入 lint 流程才会生效。
 > - **同步要求：** L1 的 `anyOf` 清单与 L4 的禁用词清单必须保持一致，任一方新增禁用词时需同步更新另一方，避免两层防线出现漂移。
 
-> **v0.2.4 变更（`responseMapping` 条件必填）：** `schemas/node.schema.json` 只能表达 `responseMapping` 的结构下限，不能仅凭 `DataRef` 判断组件消费数据的语义。校验器必须在 L2、L4 或人工 review 中结合组件类型和 `props` 补充检查：`table` / `chart` 这类数组消费组件在 `source: api` 或 `source: ref` 本地声明 `responseMapping` 时必须提供 `list`；`table.props.pagination.mode: server` 时必须提供 `total`。这两条规则与 `04-datasource-contract.md` §4.1.1 和 ADR-0005 保持一致。
+> **v0.2.4 变更（`responseMapping` 条件必填）：** `schemas/node.schema.json` 只能表达 `responseMapping` 的结构下限，不能仅凭 `DataRef` 判断组件消费数据的语义。校验器必须在 L2、L4 或人工 review 中结合组件类型和 `props` 补充检查：`table` / `chart` 这类数组消费组件在 `source: api` 或 `source: ref` 的生效 `responseMapping` 时必须提供 `list`；`table.props.pagination.mode: server` 时必须提供 `total`。生效映射解析规则：节点本地 `data.responseMapping` 优先，否则当 `data.source: ref` 时继承 `datasources[data.ref].responseMapping`；无任何映射时不强制（沿用默认字段名语义）。这两条规则与 `04-datasource-contract.md` §4.1.1 和 ADR-0005 保持一致。
 
 > **v0.2.7 变更（行级后端请求）：** 使用 `table.props.actions[].actionRef` 时，页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。L2 校验器还应检查 `actionRef` 是否存在、是否引用 `type: request` action、是否同时声明非空 `requestMapping`、`requestMapping.path` 是否与 URL `{param}` 占位符一致、映射值是否只使用字面量或单个 `$row.*` / `$parentRow.*` 点路径。
 
-> **v0.2.8 变更（引用完整性校验）：** L2 校验器增加以下引用存在性规则：
+> **v0.2.8 变更（引用完整性 & 继承 responseMapping 校验）：** L2 校验器增加以下规则：
 > - `form.props.submitAction` 必须引用顶层 `actions` 中已声明的动作 id（类型不限）。
 > - `upload.props.actionRef` 必须引用顶层 `actions` 中已声明的动作 id，且该动作的 `type` 必须为 `upload`。
 > - `data.source: ref` 时，`data.ref` 必须引用顶层 `datasources` 中已声明的 key。
 > - `form.mode: search` 时，`form.props.targetTable` 必须在页面 Node 树中存在 `id` 匹配且 `type` 为 `table` 的节点。
+> - `source: ref` 节点解析继承的 `datasources.*.responseMapping`，并对生效映射（本地优先，否则继承）执行 `table`/`chart` 的 `list` 条件必填和 `table` 服务端分页的 `total` 条件必填。
 > - 以上校验的遍历范围包括 `body`、`tabs.items[].content` 以及 `actions[].type: modal` 的 `content` Node。
 
 ## 2. CI 建议流程
@@ -167,8 +168,8 @@ Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
 - [ ] `data.source: api` 的节点是否在 `data.params` 中正确声明了请求参数？
 - [ ] `data.responseMapping` 是否与 `params` 同级，且未误放入 `data.params`？
 - [ ] `data.responseMapping.list` / `total` 是否为合法点路径，且映射结果类型符合组件预期？
-- [ ] `table` / `chart` 这类数组消费组件声明 `data.responseMapping` 时，是否提供了 `responseMapping.list`？
-- [ ] `table.props.pagination.mode: server` 时，是否提供了 `responseMapping.total`？
+- [ ] `table` / `chart` 这类数组消费组件的生效 `responseMapping`（本地或继承自 `datasources.*`）是否提供了 `list`？
+- [ ] `table.props.pagination.mode: server` 时，生效 `responseMapping` 是否提供了 `total`？
 - [ ] 表格类 Node 的 `columns[].field` 是否与后端响应体字段名一致？
 - [ ] 使用 `table.props.actions[].actionRef` 时，是否声明了 `actions.row.request` 能力，并提供了合法的 `requestMapping`？
 - [ ] `form.props.submitAction` 是否引用了顶层 `actions` 中存在的动作 id？

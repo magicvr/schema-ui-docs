@@ -5,6 +5,23 @@
 
 ---
 
+## 0035 — 2026-07-10 — source:ref 继承 responseMapping 校验缺口 + v0.2.8 版本漂移 + Renderer permissions 白名单描述
+
+**主题：** 修复 `source: ref` 未解析继承的 `datasources.*.responseMapping`（V88🟡）、v0.2.8 版本声明未同步到 CHANGELOG/总纲/MCP 包（V89🟡）、以及 `08-renderer-spec.md` §5.5 permissions 白名单描述落后（V90🟢）。
+**性质：** L2 生效映射语义收敛 + 协议/MCP 版本闭环 + Renderer 清单同步。
+
+| 文件 | 说明 |
+|---|---|
+| [0035-2026-07-10-review.md](./0035-2026-07-10-review.md) | 审视报告 — V88🟡/V89🟡/V90🟢 |
+| [0035-2026-07-10-checklist.md](./0035-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V88: L2 新增 `getEffectiveResponseMapping()`；`source: ref` 继承 `datasources.*.responseMapping` 后执行 list/total 条件必填；同步 `06-validation.md` 与 MCP 反例
+- V89: 新增 CHANGELOG v0.2.8；`00-overview` 最新补丁与 MCP 包/文档示例升至 `0.2.8`
+- V90: `08` §5.4/§5.5 将 permissions 白名单收紧为 `$context.user.*` / `$context.features.*`
+
+---
+
 ## 0034 — 2026-07-10 — L2 引用完整性校验不对称 + 文档元数据漂移
 
 **主题：** 修复 `form.props.submitAction` / `upload.props.actionRef` 缺少 L2 引用完整性校验（V85🔴）、`data.ref` / `form.props.targetTable` 缺少 L2 引用存在性校验（V86🟡）、以及 0033 触达文档 `last_updated` 未同步（V87🟢）。
