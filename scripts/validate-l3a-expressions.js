@@ -5,7 +5,8 @@
  * 对页面配置中所有出现表达式的位置（reactions[].when、visibleWhen.when、
  * permissions.*）进行静态校验：
  *
- *   1. 语法合法性 —— 仅允许白名单运算符，禁止函数调用、算术运算
+ *   1. 语法合法性 —— 仅允许白名单运算符，禁止函数调用、算术运算；
+ *      contains 的右操作数必须为字符串、数字、布尔或 null 字面量
  *   2. 变量命名空间 —— 只允许 $deps.* / $self / $row.* / $context.*；
  *      dateRangePicker 自身 reactions 额外允许 $self.start / $self.end；
  *      表单 visibleWhen 禁 $self/$row；表格 actions 任意 scope 禁 $self
@@ -213,7 +214,10 @@ function checkTokenSyntax(tokens) {
     }
 
     // --- 函数调用检测（下一个 token 是左括号即为调用）---
-    if ((tok.type === TT.VAR || tok.type === TT.IDENT) && next && next.type === TT.LPAREN) {
+    const isContainsOperator = tok.type === TT.IDENT
+      && tok.value === 'contains'
+      && expecting === 'OPERATOR';
+    if ((tok.type === TT.VAR || tok.type === TT.IDENT) && !isContainsOperator && next && next.type === TT.LPAREN) {
       errors.push(`禁止函数调用：${tok.value}(...)`);
       // 不再做序列校验，跳过本 token
       continue;
@@ -268,6 +272,16 @@ function checkTokenSyntax(tokens) {
     if (isBinaryOp) {
       if (expecting !== 'OPERATOR') {
         errors.push(`语法错误：在 "${tok.value}" 处期望操作数，但遇到操作符`);
+      }
+      if (tok.value === 'contains') {
+        const hasLiteralRightOperand = next && (
+          next.type === TT.STRING
+          || next.type === TT.NUMBER
+          || (next.type === TT.IDENT && ['true', 'false', 'null'].includes(next.value))
+        );
+        if (!hasLiteralRightOperand) {
+          errors.push('语法错误：contains 的右操作数必须是字符串、数字、布尔或 null 字面量');
+        }
       }
       if (COMPARISON_OPERATORS.has(tok.value)) {
         if (comparisonSeenByDepth.get(depth)) {
@@ -601,7 +615,8 @@ function scanNode(node, nodePath, violations, parentIsForm) {
 
   // --- 表格列/actions 内表达式 ---
   if (node.type === 'table' && node.props) {
-    const { columns = [], actions = [] } = node.props;
+    const columns = Array.isArray(node.props.columns) ? node.props.columns : [];
+    const actions = Array.isArray(node.props.actions) ? node.props.actions : [];
     columns.forEach((col, ci) => {
       if (!col) return;
       const colBase = `${nodePath}.props.columns[${ci}]`;

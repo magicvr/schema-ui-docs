@@ -10,6 +10,8 @@
 > **说明：** 以下变更已在当前仓库工作区落地，但尚未单独切出新的 PATCH 版本号；正式发布时应合并为下一个 `0.2.x` 条目。
 
 **修复：**
+- 审计 `0051 / V204`：L3a 对非数组 `table.props.columns/actions` 跳过表达式扫描，保持页面内部类型错误为结构违规，不再误报 `parseError`；补 object/string/null MCP 回归。
+- 审计 `0051 / V205`：L3a 执行 `contains` 右操作数字面量约束，拒绝变量与分组表达式，保留字符串、数字、布尔和 `null` 正例。
 - 审计 `0050 / V202`：同步 `page.schema.json` DatasourceDeclaration.params 描述为完整单个 `$deps.*` 整值替换、禁止模板拼接，并注明页面级无 form 上下文。
 - 审计 `0050 / V203`：修正 `08` §5.2 expr-eval 示例，按完整点路径读取 `$deps` / `$context`，dependencies 校验取字段首段。
 - 审计 `0049 / V199`：同步 `03` OptionsSource.params、`04` §9、`01` data.params 注释与 `node.schema.json` / `component-registry.json` 描述，与 V197「完整单个 `$deps.*` 整值替换、禁止模板拼接」口径一致。
@@ -59,7 +61,7 @@
 - 场景示例：`docs/05-scenarios/*`
 - 校验与 MCP 实现：`scripts/*.js`、`mcp/src/tools/docs.ts`、`mcp/src/tools/validate-content.ts`、`mcp/src/core/validation-runner.ts`、`mcp/tests/*.test.ts`
 - 机器可读契约：`docs/schemas/page.schema.json`、`docs/schemas/node.schema.json`、`docs/schemas/component-registry.json`
-- 审计：`docs/audit/archived/0044-2026-07-11-*`、`docs/audit/archived/0045-2026-07-11-*`、`docs/audit/archived/0046-2026-07-11-*`、`docs/audit/archived/0047-2026-07-11-*`、`docs/audit/archived/0048-2026-07-11-*`、`docs/audit/archived/0049-2026-07-11-*`、`docs/audit/archived/0050-2026-07-11-*`
+- 审计：`docs/audit/archived/0044-2026-07-11-*`、`docs/audit/archived/0045-2026-07-11-*`、`docs/audit/archived/0046-2026-07-11-*`、`docs/audit/archived/0047-2026-07-11-*`、`docs/audit/archived/0048-2026-07-11-*`、`docs/audit/archived/0049-2026-07-11-*`、`docs/audit/archived/0050-2026-07-11-*`、`docs/audit/archived/0051-2026-07-11-*`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 

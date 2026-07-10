@@ -195,6 +195,36 @@ describe('validate_content', () => {
     expect(result.internalError).toBeNull();
   });
 
+  it.each([
+    ['columns object', { columns: {} }],
+    ['columns string', { columns: 'invalid' }],
+    ['columns null', { columns: null }],
+    ['actions object', { actions: {} }],
+    ['actions string', { actions: 'invalid' }],
+    ['actions null', { actions: null }],
+  ])('keeps invalid table %s as a structural violation instead of a parse error', (_label, tableProps) => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'invalid-table-array', title: 'Invalid table array', protocolVersion: '0.2' },
+        body: {
+          type: 'table',
+          props: {
+            rowKey: 'id',
+            pagination: { mode: 'none' },
+            ...tableProps,
+          },
+        },
+      }),
+      format: 'json',
+      filename: 'invalid-table-array.json',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers['L0/L1'].length + result.layers.L2.length).toBeGreaterThan(0);
+    expect(result.parseError).toBeNull();
+    expect(result.internalError).toBeNull();
+  });
+
   it('maps layered violations to the caller filename', () => {
     const result = validateContent({
       content: JSON.stringify({
@@ -706,6 +736,49 @@ describe('validate_content', () => {
       expect.objectContaining({ rule: 'SYNTAX', message: expect.stringContaining('不支持链式使用') }),
     ]));
     expect(logical.passed).toBe(true);
+  });
+
+  it('requires a literal right operand for contains', () => {
+    const makePage = (expression: string) => JSON.stringify({
+      meta: { pageId: 'contains-operand', title: 'Contains operand', protocolVersion: '0.2' },
+      body: {
+        type: 'form',
+        props: { submitAction: 'save' },
+        children: [{
+          type: 'input',
+          props: { field: 'roles', label: 'Roles' },
+          reactions: [{
+            dependencies: ['roles', 'targetRole'],
+            when: expression,
+            fulfill: { visible: true },
+          }],
+        }],
+      },
+      actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+    });
+
+    for (const expression of [
+      "$deps.roles contains 'admin'",
+      '$deps.roles contains 1',
+      '$deps.roles contains true',
+      '$deps.roles contains null',
+    ]) {
+      const result = validateContent({ content: makePage(expression), format: 'json' });
+      expect(result.passed).toBe(true);
+    }
+
+    for (const expression of [
+      '$deps.roles contains $deps.targetRole',
+      '$deps.roles contains ($deps.targetRole)',
+    ]) {
+      const result = validateContent({ content: makePage(expression), format: 'json' });
+      expect(result.layers.L3a).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          rule: 'SYNTAX',
+          message: expect.stringContaining('contains 的右操作数必须'),
+        }),
+      ]));
+    }
   });
 
   it('treats tagMap keys as data while still scanning mapping entries', () => {
