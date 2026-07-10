@@ -407,9 +407,17 @@ describe('validate_content', () => {
     });
     const valid = validateContent({ content: makePage(['$deps.ownerId', 'fixed']), format: 'json' });
     const invalid = validateContent({ content: makePage(['$context.user.id']), format: 'json' });
+    const templatePrefix = validateContent({ content: makePage(['prefix-$deps.ownerId']), format: 'json' });
+    const templateSuffix = validateContent({ content: makePage(['$deps.ownerId-suffix']), format: 'json' });
 
     expect(valid.passed).toBe(true);
     expect(invalid.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].data.params.owners[0]', rule: 'DATA_PARAMS_VARIABLE' }),
+    ]));
+    expect(templatePrefix.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].data.params.owners[0]', rule: 'DATA_PARAMS_VARIABLE' }),
+    ]));
+    expect(templateSuffix.layers.L3a).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: 'body.children[0].data.params.owners[0]', rule: 'DATA_PARAMS_VARIABLE' }),
     ]));
 
@@ -437,6 +445,30 @@ describe('validate_content', () => {
       }),
       format: 'json',
     });
+    const optionsSourceTemplate = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'options-template', title: 'Options template', protocolVersion: '0.2' },
+        body: {
+          type: 'form',
+          props: { submitAction: 'save' },
+          children: [{
+            type: 'select',
+            props: {
+              field: 'owner',
+              label: 'Owner',
+              optionsSource: {
+                url: '/owners',
+                params: { keyword: 'prefix-$deps.owner' },
+                labelField: 'name',
+                valueField: 'id',
+              },
+            },
+          }],
+        },
+        actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+      }),
+      format: 'json',
+    });
     const datasource = validateContent({
       content: JSON.stringify({
         meta: { pageId: 'datasource-array', title: 'Datasource array', protocolVersion: '0.2' },
@@ -445,12 +477,32 @@ describe('validate_content', () => {
       }),
       format: 'json',
     });
+    const datasourceTemplate = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'datasource-template', title: 'Datasource template', protocolVersion: '0.2' },
+        datasources: { owners: { source: 'api', url: '/owners', params: { keyword: 'prefix-$deps.owner' } } },
+        body: { type: 'text', props: { content: 'Owners' } },
+      }),
+      format: 'json',
+    });
 
     expect(optionsSource.layers.L3a).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: 'body.children[0].props.optionsSource.params.ids[0]' }),
     ]));
+    expect(optionsSourceTemplate.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'body.children[0].props.optionsSource.params.keyword',
+        rule: 'DATA_PARAMS_VARIABLE',
+      }),
+    ]));
     expect(datasource.layers.L3a).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: 'datasources.owners.params.ids[0]', rule: 'NON_FORM_DATA_PARAMS' }),
+    ]));
+    expect(datasourceTemplate.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'datasources.owners.params.keyword',
+        rule: 'DATA_PARAMS_VARIABLE',
+      }),
     ]));
   });
 

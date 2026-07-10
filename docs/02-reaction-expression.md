@@ -21,8 +21,8 @@ applies_to: schema-ui-protocol v0.2
 | 节点条件渲染 | `visibleWhen.when` | [01-node-protocol.md §3.8](./01-node-protocol.md#38-visiblewhen节点级条件渲染可选since-02) |
 | 权限判定 | `permissions.*` | [01-node-protocol.md §3.9](./01-node-protocol.md#39-permissions权限控制可选since-02) |
 | 表格列/行内操作 | `columns[].{visibleWhen,reactions}.when` | [03-component-registry.md](./03-component-registry.md) `table` 组件章节 |
-| 数据请求参数 | `data.params`（仅值替换，不做条件判断） | [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界) |
-| 远程选项参数 | `props.optionsSource.params`（仅值替换，不做条件判断） | [03-component-registry.md](./03-component-registry.md) `select` 组件章节 |
+| 数据请求参数 | `data.params`（仅整值替换，禁止模板拼接，不做条件判断） | [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界) |
+| 远程选项参数 | `props.optionsSource.params`（仅整值替换，禁止模板拼接，不做条件判断） | [03-component-registry.md](./03-component-registry.md) `select` 组件章节 |
 
 ## 2. 变量命名空间（白名单）
 
@@ -201,7 +201,7 @@ L3a 对 `$row.*` 做精确包含匹配：`dependencies.includes(fieldPathAfterDo
 
 ### 10.7 `$deps` 出现在非表单 `data.params` / `optionsSource.params` 中
 
-`data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做请求参数值替换，规则完全一致。若节点不处于表单上下文，上述 params 中出现 `$deps.*` 时，静态校验直接拒绝。二者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。规则递归作用于对象和数组中的所有值，不能通过数组元素绕过变量限制。
+`data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做**完整单个参数值替换**，规则完全一致：参数值要么是不含 `$` 的普通字面量，要么整段精确匹配单个 `$deps.<path>`；禁止 `prefix-$deps.ownerId` 一类模板拼接。若节点不处于表单上下文，上述 params 中出现 `$deps.*` 时，静态校验直接拒绝。二者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。规则递归作用于对象和数组中的所有值，不能通过数组元素绕过变量限制。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 时，以 `DATA_PARAMS_VARIABLE` 拒绝。
 
 ## 11. `$context` 最小字段集（since 0.2.5）
 

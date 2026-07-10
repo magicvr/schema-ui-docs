@@ -10,6 +10,8 @@
 > **说明：** 以下变更已在当前仓库工作区落地，但尚未单独切出新的 PATCH 版本号；正式发布时应合并为下一个 `0.2.x` 条目。
 
 **修复：**
+- 审计 `0048 / V197`：L3a 将 `data.params` / `optionsSource.params` / `datasources.*.params` 中的 `$deps.*` 收紧为完整单个值替换，拒绝模板拼接；同步 `02`/`04`/`06`/`08` 说明。
+- 审计 `0048 / V198`：修复 `04-datasource-contract.md` 指向表达式 §10.1 的失效 Markdown fragment。
 - 审计 `0038 / V114`：澄清最新已发布版本与当前工作区未发布修订的关系，避免继续让最新 PATCH 说明落后于仓库状态。
 - 审计 `0038 / V115`：修正 `README.md` 与 `00-overview.md` 对 `docs/schemas/` 的入口层描述，明确其中同时包含标准 JSON Schema 与组件注册 DSL。
 - 审计 `0038 / V116`：固定 `mcp/package.json` 中 `@modelcontextprotocol/sdk` 的依赖版本策略，避免继续使用 `latest`。
