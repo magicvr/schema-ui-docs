@@ -84,7 +84,7 @@
         },
         "params": {
           "type": "object",
-          "description": "【可选】请求参数映射，值可引用 $deps.*（仅做值替换，不做条件判断），见 docs/08-renderer-spec.md §2.3",
+          "description": "【可选】URL query 参数映射，对所有 HTTP method 均不隐式进入请求体；值可引用 $deps.*（仅做值替换，不做条件判断），见 docs/08-renderer-spec.md §2.3",
           "not": {
             "required": ["responseMapping"],
             "description": "responseMapping 禁止放入 params——它不属于请求参数（ADR-0005 D1），应声明在 data 顶级字段中"

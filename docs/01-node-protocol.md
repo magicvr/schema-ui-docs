@@ -88,7 +88,7 @@ data:
   ref: string        # source=ref 时，指向 datasources 中的 key
   url: string        # source=api 时，独立请求的地址
   method: GET | POST | PUT | DELETE | PATCH  # source=api 时可选，缺省为 GET
-  params: map        # 【可选】请求参数映射，值可引用 $deps.*，空值规则见 04-datasource-contract.md §3.1
+  params: map        # 【可选】query 参数映射（不因 method 改变），值可引用 $deps.*，空值规则见 04-datasource-contract.md §3.1
   responseMapping: map # 【可选，since 0.2.4】响应字段名映射，见 04-datasource-contract.md §4.1.1
 ```
 
@@ -101,6 +101,8 @@ data:
 各来源形态的字段集合互斥：`source: static` 仅携带 `value`；`source: api` 可携带 `url`、`method`、`params` 与 `responseMapping`；`source: ref` 仅携带 `ref`，并可在引用目标为 API 数据源时携带本地 `responseMapping` 覆盖响应解析。`source: ref` 不得混入 `url`、`method`、`params` 或 `value`，避免同一 `DataRef` 同时表现为引用和内联请求。
 
 `source: api` 时 `method` **可选**，缺省为 `GET`。示例与生成配置可省略 `method`；Renderer 与静态校验均按 `GET` 解释缺省值。
+
+`source: api` 的 `params` 对所有 method 均编码为 URL query 参数。`POST` / `PUT` / `PATCH` / `DELETE` 不会把 `params` 隐式改写为请求体；v0.2 的 DataRef 不定义请求体字段。需要携带 JSON body 的命令式请求应使用 Action，未来若数据加载确需请求体，应通过 ADR 增加独立字段。
 
 `responseMapping` 仅用于 `source: api` 或引用到 API 数据源的响应解析，声明位置与 `params` 同级，不属于请求参数。协议禁止将 `responseMapping` 放入 `params`，也禁止在引用静态 datasource 的 `source: ref` 节点上声明本地 `responseMapping`；后者由能解析引用目标的 L2 校验执行。
 

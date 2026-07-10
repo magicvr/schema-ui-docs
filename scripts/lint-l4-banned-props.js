@@ -18,7 +18,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { globSync } = require('glob');
+const { expandFilePatterns } = require('./file-patterns');
 
 // ---------------------------------------------------------------------------
 // L4 禁用词清单（必须与 node.schema.json props.not.anyOf 保持一致）
@@ -31,6 +31,7 @@ const BANNED_PROPS = new Set([
 ]);
 
 const OPEN_BUSINESS_MAP_PATH = /(?:\.data\.params|\.optionsSource\.params|\.requestMapping\.(?:path|query|body))$/;
+const OPAQUE_BUSINESS_VALUE_PATH = /\.options\[\d+\]\.value$/;
 
 // ---------------------------------------------------------------------------
 // YAML/JSON 解析
@@ -120,6 +121,7 @@ function scanNode(node, nodePath, violations) {
 function checkObjectForBannedKeys(obj, objPath, violations) {
   if (!obj || typeof obj !== 'object') return;
   if (OPEN_BUSINESS_MAP_PATH.test(objPath)) return;
+  if (OPAQUE_BUSINESS_VALUE_PATH.test(objPath)) return;
   if (Array.isArray(obj)) {
     // 数组：对每个元素继续递归（不在键名上报违规，只在嵌套值里检查）
     obj.forEach((item, idx) => {
@@ -184,11 +186,7 @@ function main() {
     process.exit(2);
   }
 
-  const files = patterns.flatMap(p => {
-    // 如果直接是文件就直接用，否则走 glob
-    if (fs.existsSync(p) && fs.statSync(p).isFile()) return [p];
-    return globSync(p, { cwd: process.cwd() });
-  });
+  const files = expandFilePatterns(patterns);
 
   if (files.length === 0) {
     console.error(`[L4] 未找到匹配文件：${patterns.join(', ')}`);

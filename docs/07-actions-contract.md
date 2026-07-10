@@ -50,7 +50,17 @@ onSuccess: OutcomeBehavior   # 【可选】
 onError: OutcomeBehavior     # 【可选】
 ```
 
-- `bodyMapping` 是表单字段名到请求体字段名的映射，key 为源字段名、value 为目标请求体字段名（非空字符串）。`bodyMapping` 缺省时，表单各字段按原字段名直接组成请求体 JSON。值必须为字符串，不允许嵌套对象、数组或数字。
+- `bodyMapping` 是表单字段名到请求体字段名的映射，key 为源字段名、value 为目标请求体字段名（非空字符串）。`bodyMapping` 缺省时，表单各字段按原字段名直接组成请求体 JSON；一旦声明（包括空对象），它就是请求体字段白名单，只发送明确列出的源字段，未列字段不发送。值必须为字符串，不允许嵌套对象、数组或数字。
+
+假设表单值为 `{ customerName: "A", orderType: "normal", remark: "..." }`：
+
+| `bodyMapping` | 请求体 |
+|---|---|
+| 缺省 | `{ "customerName": "A", "orderType": "normal", "remark": "..." }` |
+| `{ customerName: name }` | `{ "name": "A" }` |
+| `{ customerName: name, orderType: type }` | `{ "name": "A", "type": "normal" }` |
+| `{}` | `{}` |
+
 - 普通表单通过 `form.props.submitAction` 提交字段时不得引用 `method: GET` 的 request；浏览器请求不能为 GET 携带该 JSON 请求体。v0.2 不为普通表单定义隐式 query 映射，请使用 `POST` / `PUT` / `PATCH` / `DELETE`。该限制不影响行级 Action 使用 `requestMapping.query` 构造 GET 请求。
 - `onSuccess` / `onError` 缺省时，Renderer 使用默认行为（如 `toast` 展示通用成功/失败提示）。
 
@@ -120,7 +130,7 @@ requestMapping:
 规则：
 
 - `actionRef` 只能引用顶层 `actions` 中的 `type: request` action。
-- `action.url` 中每个 `{name}` 都必须在 `requestMapping.path.<name>` 中声明。
+- `action.url` 中的路径占位符只允许完整 `{name}` 形式，其中 name 匹配 `[A-Za-z_][A-Za-z0-9_]*`；空、数字开头、连字符、嵌套、孤立或未闭合花括号均非法。每个合法 `{name}` 都必须在 `requestMapping.path.<name>` 中声明。
 - `requestMapping.path` 不得声明 URL 中不存在的 key。
 - `requestMapping` 值若以 `$` 开头，只允许单个 `$row.*` 点路径；v0.2 暂不支持嵌套表格及 `$parentRow.*`，也不允许 `$deps.*`、`$context.*`、表达式、函数或模板字符串。
 - `requestMapping.path` / `query` / `body` 不支持嵌套对象或数组值；需要复杂结构时应由后端适配，或使用前端预注册 handler。
@@ -223,6 +233,8 @@ Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fiel
 
 若表单字段使用 `upload` 组件（见 [03-component-registry.md](./03-component-registry.md)），并通过 `props.actionRef` 引用本 action，上传完成后字段值默认取 `url`（若存在），否则取 `id`。`multiple: true` 时字段值为数组。
 
+使用 `props.actionRef` 时，`accept` / `maxSize` / `multiple` 以本 UploadAction 为唯一来源，upload 组件 props 不得重复声明这三项；L2 对重复配置静态拒绝。使用组件 `props.action` 直接 URL 时，这三项仍由组件 props 控制。
+
 ### 7.3 错误处理
 
 上传失败时，后端应返回标准错误响应体（见 [04-datasource-contract.md §6.2](./04-datasource-contract.md#62-通用错误响应体结构)）。常见的语义化 `code` 值供参考（不强制）：
@@ -234,6 +246,8 @@ Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fiel
 | `STORAGE_UNAVAILABLE` | 存储服务暂时不可用 |
 
 > **注意：** `accept`/`maxSize` 的客户端校验由 `upload` 组件在选择文件时完成（前端拦截）；服务端仍应独立做文件类型和大小校验，不依赖前端声明。
+
+当组件使用 `actionRef` 时，“由 upload 组件完成”指组件 UI 执行客户端拦截，约束值读取自被引用的 UploadAction，而不是组件上的重复 props。
 
 ## 8. `OutcomeBehavior`（`onSuccess` / `onError` 通用结构）
 
@@ -252,6 +266,15 @@ onSuccess:
 | `closeModal` | 关闭当前弹窗 | — |
 
 不允许出现协议未列出的行为类型或任意脚本回调。
+
+### 8.1 `onError` 与标准 HTTP 错误处理顺序
+
+Action 请求失败时，Renderer 先执行 [04-datasource-contract.md §5-§6](./04-datasource-contract.md#5-认证约定since-025) 的协议级状态处理，再执行不冲突的 `onError`：
+
+- `401` / `403`：触发 `onAuthFailure` 并进入规定错误态，忽略 Action `onError`，防止配置绕过认证/授权流程。
+- `400` 且存在 `errors`：始终回填字段错误；忽略 `navigate` / `reload` / `closeModal`，保留用户修正入口。若 `onError.behavior: toast`，只展示配置的 toast message；否则展示响应 `message`，避免双重 toast。
+- `400` 无字段错误、`404`、其他 `4xx`、`5xx` 及网络错误：先确定协议规定的安全错误信息，再执行 `onError`。若 `onError.behavior: toast`，配置 message 替代默认/响应 message；其他行为在错误状态记录完成后执行。
+- `onError` 缺省时，仅执行标准 HTTP 错误处理。
 
 ## 9. 完整示例
 

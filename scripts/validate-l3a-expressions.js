@@ -32,7 +32,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { globSync } = require('glob');
+const { expandFilePatterns } = require('./file-patterns');
 
 // ---------------------------------------------------------------------------
 // YAML / JSON 解析
@@ -745,10 +745,7 @@ function main() {
     process.exit(2);
   }
 
-  const files = patterns.flatMap(p => {
-    if (fs.existsSync(p) && fs.statSync(p).isFile()) return [p];
-    return globSync(p, { cwd: process.cwd() });
-  });
+  const files = expandFilePatterns(patterns);
 
   if (files.length === 0) {
     console.error(`[L3a] 未找到匹配文件：${patterns.join(', ')}`); process.exit(2);

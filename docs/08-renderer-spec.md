@@ -168,7 +168,7 @@ body:
 - Renderer 在 `$deps.*` 值变化时自动重新请求该 Node 的数据。
 - 多参数依赖的情形下，Renderer 对同一 Node 的多次参数变化应做**去抖处理**（建议 300ms），避免高频触发 API 请求。
 - `$deps.*` 的引用声明在 `data.params` 中的结构与 `reactions` 的依赖机制复用同一套解析器，但**仅做值替换，不做条件判断**。
-- **空值省略规则：** 当 `params` 中某个值引用的 `$deps.*` 在运行时为 `null` 或 `undefined` 时，该参数从最终请求的 query/body 中整体省略（与 `select.optionsSource.params` 的空值规则保持一致，详见 [04-datasource-contract.md §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams-中-deps-的空值省略规则)）。
+- **传输位置与空值省略规则：** `data.params` 对所有 method 均编码为 URL query，不隐式生成请求体。当某个值引用的 `$deps.*` 在运行时为 `null` 或 `undefined` 时，该参数从最终 query 中整体省略（与 `select.optionsSource.params` 的空值规则保持一致，详见 [04-datasource-contract.md §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams-中-deps-的空值省略规则)）。
 - **作用域边界：** `$deps.*` 在 `data.params` 中的引用仅在表单上下文有效。非表单上下文（独立 `table`/`chart`）的 `data.params` 中出现 `$deps.*` 时，静态校验直接拒绝，与 `visibleWhen` 的非表单约束一致（详见 [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界)）。
 
 ### 2.4 加载状态管理
@@ -449,7 +449,9 @@ const renderer = new Renderer({
 
 ## 7. Action 执行策略
 
-普通表单提交时，Renderer 根据 `form.props.submitAction` 读取顶层 Action。若目标为 `type: request`，表单字段按 `bodyMapping`（缺省时按原字段名）组成 JSON 请求体；普通表单不得引用 `method: GET` 的 request，配置加载时应由 L2 拒绝。v0.2 不为普通表单隐式生成 query 参数。`POST` / `PUT` / `PATCH` / `DELETE` 按上述 JSON 请求体规则执行。
+普通表单提交时，Renderer 根据 `form.props.submitAction` 读取顶层 Action。若目标为 `type: request`，`bodyMapping` 缺省时全部表单字段按原名组成 JSON；一旦声明，mapping 作为源字段白名单，只发送列出的字段并按 value 重命名。普通表单不得引用 `method: GET` 的 request，配置加载时应由 L2 拒绝。v0.2 不为普通表单隐式生成 query 参数。`POST` / `PUT` / `PATCH` / `DELETE` 按上述 JSON 请求体规则执行。
+
+Action 失败时先执行协议级 HTTP 状态处理，再执行不冲突的 `onError`。`401`/`403` 忽略 Action `onError`；`400 + errors` 必须保留字段错误并抑制 navigate/reload/closeModal；toast message 与其他状态的详细优先级见 [07-actions-contract.md §8.1](./07-actions-contract.md#81-onerror-与标准-http-错误处理顺序)。
 
 ### 7.1 行级后端请求动作（since 0.2.7）
 

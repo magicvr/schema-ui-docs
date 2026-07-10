@@ -592,6 +592,31 @@ describe('validate_content', () => {
     expect(result.layers.L4).toEqual([]);
   });
 
+  it('treats select option values as opaque business data in L4', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'option-value', title: 'Option value', protocolVersion: '0.2' },
+        body: {
+          type: 'form',
+          props: { submitAction: 'save' },
+          children: [{
+            type: 'select',
+            props: {
+              field: 'theme',
+              label: 'Theme',
+              options: [{ label: 'Red', value: { color: 'red', width: 10 } }],
+            },
+          }],
+        },
+        actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+      }),
+      format: 'json',
+    });
+
+    expect(result.passed).toBe(true);
+    expect(result.layers.L4).toEqual([]);
+  });
+
   it('rejects missing nested required component fields and duplicate node ids', () => {
     const missingPaginationMode = validateContent({
       content: JSON.stringify({
@@ -1033,6 +1058,196 @@ describe('validate_content', () => {
     expect(result.suggestedDocs).toContain('docs/03-component-registry.md');
   });
 
+  it('requires search targetTable to resolve to an API datasource', () => {
+    const makePage = (tableData?: object, datasources?: object) => JSON.stringify({
+      meta: { pageId: 'search-target-data', title: 'Search target data', protocolVersion: '0.2' },
+      ...(datasources ? { datasources } : {}),
+      body: {
+        type: 'section',
+        children: [
+          { type: 'form', props: { mode: 'search', targetTable: 'orders' } },
+          {
+            type: 'table',
+            id: 'orders',
+            ...(tableData ? { data: tableData } : {}),
+            props: { rowKey: 'id', pagination: { mode: 'none' }, columns: [{ field: 'id', label: 'ID' }] },
+          },
+        ],
+      },
+    });
+
+    const invalidTargets = [
+      makePage(),
+      makePage({ source: 'static', value: [] }),
+      makePage({ source: 'ref', ref: 'ordersData' }, { ordersData: { source: 'static', value: [] } }),
+    ].map(content => validateContent({ content, format: 'json' }));
+    const validTargets = [
+      makePage({ source: 'api', url: '/orders' }),
+      makePage({ source: 'ref', ref: 'ordersData' }, { ordersData: { source: 'api', url: '/orders' } }),
+    ].map(content => validateContent({ content, format: 'json' }));
+
+    invalidTargets.forEach(result => {
+      expect(result.layers.L2).toEqual(expect.arrayContaining([
+        expect.objectContaining({ path: 'body.children[0].props.targetTable' }),
+      ]));
+    });
+    validTargets.forEach(result => expect(result.passed).toBe(true));
+  });
+
+  it('rejects dateRangePicker reaction value writes', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'date-range-value', title: 'Date range value', protocolVersion: '0.2' },
+        body: {
+          type: 'form',
+          props: { submitAction: 'save' },
+          children: [{
+            type: 'dateRangePicker',
+            props: { startField: 'from', endField: 'to', label: 'Range' },
+            reactions: [{
+              dependencies: [],
+              when: 'true == true',
+              fulfill: { value: null },
+              otherwise: { value: { start: null, end: null } },
+            }],
+          }],
+        },
+        actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+      }),
+      format: 'json',
+    });
+
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].reactions[0].fulfill.value' }),
+      expect.objectContaining({ path: 'body.children[0].reactions[0].otherwise.value' }),
+    ]));
+  });
+
+  it('uses upload Action as the sole upload constraint source with actionRef', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: {
+          pageId: 'upload-constraints',
+          title: 'Upload constraints',
+          protocolVersion: '0.2',
+          requiredCapabilities: ['actions.upload'],
+        },
+        body: {
+          type: 'upload',
+          props: {
+            field: 'file',
+            label: 'File',
+            actionRef: 'uploadFile',
+            accept: '.pdf',
+            maxSize: 10,
+            multiple: true,
+          },
+        },
+        actions: {
+          uploadFile: { type: 'upload', url: '/upload', maxSize: 20 },
+        },
+      }),
+      format: 'json',
+    });
+
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.accept' }),
+      expect.objectContaining({ path: 'body.props.maxSize' }),
+      expect.objectContaining({ path: 'body.props.multiple' }),
+    ]));
+  });
+
+  it('ignores submitAction references in search mode', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'search-ignored-action', title: 'Search ignored action', protocolVersion: '0.2' },
+        body: {
+          type: 'section',
+          children: [
+            { type: 'form', props: { mode: 'search', targetTable: 'orders', submitAction: 'missing' } },
+            {
+              type: 'table',
+              id: 'orders',
+              data: { source: 'api', url: '/orders' },
+              props: { rowKey: 'id', pagination: { mode: 'none' }, columns: [{ field: 'id', label: 'ID' }] },
+            },
+          ],
+        },
+      }),
+      format: 'json',
+    });
+
+    expect(result.passed).toBe(true);
+  });
+
+  it.each([
+    '/orders/{order-id}',
+    '/orders/{123}',
+    '/orders/{}',
+    '/orders/{{id}}',
+    '/orders/{id',
+    '/orders/id}',
+  ])('rejects malformed RowAction URL placeholder %s', url => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: {
+          pageId: 'invalid-url-template',
+          title: 'Invalid URL template',
+          protocolVersion: '0.2',
+          requiredCapabilities: ['actions.row.request'],
+        },
+        body: {
+          type: 'table',
+          props: {
+            rowKey: 'id',
+            pagination: { mode: 'none' },
+            columns: [{ field: 'id', label: 'ID' }],
+            actions: [{
+              key: 'open',
+              label: 'Open',
+              actionRef: 'openOrder',
+              requestMapping: { query: { audit: true } },
+            }],
+          },
+        },
+        actions: { openOrder: { type: 'request', method: 'GET', url } },
+      }),
+      format: 'json',
+    });
+
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'actions.openOrder.url' }),
+    ]));
+  });
+
+  it('rejects negative upload component maxSize', () => {
+    const negative = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'negative-upload-size', title: 'Negative upload size', protocolVersion: '0.2' },
+        body: {
+          type: 'upload',
+          props: { field: 'file', label: 'File', action: '/upload', maxSize: -1 },
+        },
+      }),
+      format: 'json',
+    });
+    const zero = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'zero-upload-size', title: 'Zero upload size', protocolVersion: '0.2' },
+        body: {
+          type: 'upload',
+          props: { field: 'file', label: 'File', action: '/upload', maxSize: 0 },
+        },
+      }),
+      format: 'json',
+    });
+
+    expect(negative.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.maxSize' }),
+    ]));
+    expect(zero.passed).toBe(true);
+  });
+
   it('passes valid all references YAML', () => {
     const result = validateContent({
       content: validAllReferencesYaml,
@@ -1139,6 +1354,26 @@ describe('validate_content', () => {
     expect(result.layers.L2.length).toBeGreaterThan(0);
   });
 
+  it('preserves real L2 violations beyond the default child-process buffer size', () => {
+    const content = JSON.stringify({
+      meta: { pageId: 'large-l2-output', title: 'Large L2 output', protocolVersion: '0.2' },
+      body: {
+        type: 'section',
+        children: Array.from({ length: 6000 }, (_, index) => ({ type: `unknown_${index}` })),
+      },
+    });
+    const result = validateContent({ content, format: 'json', filename: 'large-l2.json' });
+    const response = handleValidateContent({ content, format: 'json', filename: 'large-l2.json' });
+    const text = response.content[0].text;
+    const transportResult = JSON.parse(text) as ValidateContentResult;
+
+    expect(result.internalError).toBeNull();
+    expect(result.layers.L2).toHaveLength(6000);
+    expect(text).not.toContain('无法解析校验脚本 JSON 输出');
+    expect(Buffer.byteLength(text, 'utf8')).toBeLessThanOrEqual(20 * 1024);
+    expect(transportResult.layerStats?.L2.total).toBe(6000);
+  });
+
   it('budgets multi-layer violations with UTF-8 messages', () => {
     setLayerScriptExecutorForTest((_scriptName, _filePath, layer) => JSON.stringify({
       violations: Array.from({ length: 120 }, (_, index) => ({
@@ -1182,6 +1417,22 @@ describe('validate_content', () => {
     expect(result.passed).toBe(false);
     expect(result.internalError).toMatchObject({ message: 'content 超过 1MB 限制' });
     expect(result.summary).toContain('content 超过 1MB 限制');
+  });
+
+  it('classifies child-process buffer overflow without parsing truncated JSON', () => {
+    setLayerScriptExecutorForTest(() => {
+      throw Object.assign(new Error('spawnSync ENOBUFS'), { code: 'ENOBUFS' });
+    });
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'buffer-overflow', title: 'Buffer overflow', protocolVersion: '0.2' },
+        body: { type: 'text', props: { content: 'Value' } },
+      }),
+      format: 'json',
+    });
+
+    expect(result.internalError?.message).toContain('校验脚本输出超过 16MB 内部上限');
+    expect(result.internalError?.message).not.toContain('无法解析');
   });
 
   it('returns internalError when the temporary directory cannot be created', () => {

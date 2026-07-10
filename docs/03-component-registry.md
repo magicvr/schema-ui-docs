@@ -280,7 +280,7 @@ body:
             format: tag
 ```
 
-> **搜索模式下数据流：** 搜索表单字段值 → Renderer 收集为请求参数 → 附加到 `targetTable` 的 `data.url` 查询参数 → 触发该表格重新请求。表格原有的 `data.params` 与搜索表单参数自动合并，搜索参数优先级更高。`mode: search` 下的 `dateRangePicker` 以 `startField`/`endField` 作为两个独立参数传递，参数名分别使用 `startField` 和 `endField` 的值。其他字段类组件（`input`/`select`/`datePicker` 等）以各自的 `field` 值作为参数名传递。
+> **搜索模式下数据流：** 搜索表单字段值 → Renderer 收集为 query 参数 → 附加到 `targetTable` 的有效 API 数据源 → 触发该表格重新请求。有效数据源必须是目标 table 的内联 `data.source: api`，或 `data.source: ref` 最终指向的 API datasource；无 `data`、静态数据或静态引用由 L2 拒绝。表格原有的 `data.params` 与搜索表单参数自动合并，搜索参数优先级更高。`mode: search` 下的 `dateRangePicker` 以 `startField`/`endField` 作为两个独立参数传递，参数名分别使用 `startField` 和 `endField` 的值。其他字段类组件（`input`/`select`/`datePicker` 等）以各自的 `field` 值作为参数名传递。
 >
 > **搜索模式与 actions 的关系：** `mode: search` 时 `submitAction` 被忽略。搜索表单不需要独立的动作定义——提交行为被协议层定义为"刷新目标表格"，不经过 `actions` 路由。
 
@@ -338,7 +338,7 @@ props:
 | `field` | string | 是 | 字段名（表单提交时的 key，提交时值为已上传文件的 URL 或文件 ID 数组） |
 | `label` / `labelKey` | string | 是 | 字段标签 |
 | `accept` | string | 否 | 接受的文件类型（MIME，如 `image/*,.pdf`） |
-| `maxSize` | number | 否 | 最大文件大小，单位字节（如 `5242880` 表示 5MB） |
+| `maxSize` | number | 否 | 最大文件大小，单位字节且必须 ≥ 0（如 `5242880` 表示 5MB） |
 | `multiple` | boolean | 否 | 是否支持多文件上传（默认 `false`） |
 | `action` | string | 与 `actionRef` 二选一 | 上传接口地址（相对路径，baseURL 由 Renderer 拼接） |
 | `actionRef` | string | 与 `action` 二选一（since 0.2.5） | 引用顶层 `actions` 中 `type: upload` 的动作 id；使用时页面必须声明 `meta.requiredCapabilities: [actions.upload]` |
@@ -361,7 +361,7 @@ props:
   required: true
 ```
 
-> **上传流程：** Renderer 在文件选择后自动发起上传请求。若声明 `action`，请求发送到该 URL；若声明 `actionRef`，请求按对应顶层 `upload` action 的配置执行。上传成功后，`field` 的值设置为后端返回的文件 URL 或文件 ID。提交表单时（通过 `submitAction`），该字段值随表单一起提交，不再重新上传文件。
+> **上传流程：** Renderer 在文件选择后自动发起上传请求。若声明 `action`，请求发送到该 URL，`accept` / `maxSize` / `multiple` 由组件 props 控制；若声明 `actionRef`，请求和这三项上传约束均以对应顶层 `upload` action 为唯一来源，组件不得重复声明。上传成功后，`field` 的值设置为后端返回的文件 URL 或文件 ID。提交表单时（通过 `submitAction`），该字段值随表单一起提交，不再重新上传文件。
 >
 > **数据格式：** 单文件上传时值为字符串，多文件上传时值为字符串数组。具体返回结构由后端上传接口决定，协议层约束仅到"值类型为 string | string[]"。
 
@@ -473,6 +473,7 @@ props:
 > | 其他字段如何依赖 `dateRangePicker`？ | 在 `dependencies` 中填写 `startField` 和/或 `endField` 的**值**（而非组件 `id`）。`$deps.<startField>` 取起始日期（ISO 8601 字符串），`$deps.<endField>` 取结束日期（ISO 8601 字符串） |
 > | `dateRangePicker` 自身的 `reactions` 中 `$self` 代表什么？ | `$self` 在此处代表一个 `{ start: string, end: string }` 对象（两个字段均为 ISO 8601 字符串或 `null`），可通过 `$self.start` / `$self.end` 分别访问。`$self` 的单个字段值变化即触发联动求值 |
 > | `dateRangePicker` 自身 `reactions` 中能否引用自己的 `startField`/`endField`？ | 可以，在自己的 `dependencies` 中也填写 `startField`/`endField` 的值，通过 `$deps.<startField>` / `$deps.<endField>` 访问，语义与外部引用一致 |
+> | `dateRangePicker` 自身 `reactions` 能否写入 `value`？ | v0.2 禁止。该组件绑定两个字段，没有单一写入目标；`fulfill` / `otherwise` 仅使用 `visible` / `required` / `disabled` |
 >
 > ```yaml
 > # 示例：当日期范围起始日期早于 2026-01-01 时，隐藏备注字段

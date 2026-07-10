@@ -36,7 +36,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { globSync } = require('glob');
+const { expandFilePatterns } = require('./file-patterns');
 
 // ---------------------------------------------------------------------------
 // 加载 component-registry.json
@@ -89,6 +89,13 @@ function checkType(value, expectedType, fieldPath, violations) {
     violations.push({ path: fieldPath, message: `期望 array，实际 ${typeof value}` });
   } else if (expectedType === 'object' && (typeof value !== 'object' || Array.isArray(value) || value === null)) {
     violations.push({ path: fieldPath, message: `期望 object，实际 ${Array.isArray(value) ? 'array' : typeof value}` });
+  }
+}
+
+function checkNumberBounds(value, spec, fieldPath, violations) {
+  if (typeof value !== 'number') return;
+  if (typeof spec.minimum === 'number' && value < spec.minimum) {
+    violations.push({ path: fieldPath, message: `值 ${value} 小于最小值 ${spec.minimum}` });
   }
 }
 
@@ -264,6 +271,7 @@ function validateNestedObject(obj, spec, objPath, violations) {
     if (fs.$ref) validateKnownRef(v, fs.$ref, `${objPath}.${k}`, violations);
     if (fs.type) checkType(v, fs.type, `${objPath}.${k}`, violations);
     if (fs.enum && v !== undefined) checkEnum(v, fs.enum, `${objPath}.${k}`, violations);
+    checkNumberBounds(v, fs, `${objPath}.${k}`, violations);
     // 再深一层：有 properties 或 additionalProperties schema 的 object 都递归
     if (fs.type === 'object' && v && typeof v === 'object' && !Array.isArray(v) &&
         (fs.properties || (fs.additionalProperties && typeof fs.additionalProperties === 'object'))) {
@@ -296,6 +304,7 @@ function validateNestedObject(obj, spec, objPath, violations) {
       if (k in props) continue; // 已由 properties 覆盖
       const v = obj[k];
       if (addlSpec.type) checkType(v, addlSpec.type, `${objPath}.${k}`, violations);
+      checkNumberBounds(v, addlSpec, `${objPath}.${k}`, violations);
       if (addlSpec.properties && v && typeof v === 'object' && !Array.isArray(v)) {
         validateNestedObject(v, addlSpec, `${objPath}.${k}`, violations);
       }
@@ -477,6 +486,7 @@ function validateProps(props, compDef, type, nodePath, violations) {
     if (fieldSpec.enum && value !== undefined) {
       checkEnum(value, fieldSpec.enum, `${nodePath}.props.${key}`, violations);
     }
+    checkNumberBounds(value, fieldSpec, `${nodePath}.props.${key}`, violations);
     // 嵌套 object：递归校验其 properties / required / additionalProperties（含只有 additionalProperties schema 的对象）
     if (fieldSpec.type === 'object' && value && typeof value === 'object' && !Array.isArray(value) &&
         (fieldSpec.properties || (fieldSpec.additionalProperties && typeof fieldSpec.additionalProperties === 'object'))) {
@@ -637,6 +647,12 @@ function extractUrlPathParams(url) {
   return Array.from(url.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g), match => match[1]);
 }
 
+function hasInvalidUrlTemplate(url) {
+  if (typeof url !== 'string') return false;
+  return url.replace(/\{[A-Za-z_][A-Za-z0-9_]*\}/g, '').includes('{')
+    || url.replace(/\{[A-Za-z_][A-Za-z0-9_]*\}/g, '').includes('}');
+}
+
 function hasNonEmptyRequestMapping(mapping) {
   if (!isPlainObject(mapping)) return false;
   return ['path', 'query', 'body'].some(section =>
@@ -687,6 +703,14 @@ function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPat
   validateRequestMappingValues(mapping.path, `${rowActionPath}.requestMapping.path`, violations);
   validateRequestMappingValues(mapping.query, `${rowActionPath}.requestMapping.query`, violations);
   validateRequestMappingValues(mapping.body, `${rowActionPath}.requestMapping.body`, violations);
+
+  if (hasInvalidUrlTemplate(actionDef.url)) {
+    violations.push({
+      path: `${actionPath}.url`,
+      message: 'url 路径参数只允许完整的 {identifier} 占位符；禁止空、数字开头、连字符、嵌套、孤立或未闭合花括号',
+    });
+    return;
+  }
 
   const placeholders = new Set(extractUrlPathParams(actionDef.url));
   const pathMapping = isPlainObject(mapping.path) ? mapping.path : {};
@@ -797,7 +821,12 @@ function validatePageActionRefs(doc, violations) {
     if (!node || typeof node !== 'object') return;
 
     // --- form.props.submitAction ---
-    if (node.type === 'form' && node.props && node.props.submitAction !== undefined) {
+    if (
+      node.type === 'form'
+      && node.props
+      && node.props.mode !== 'search'
+      && node.props.submitAction !== undefined
+    ) {
       const submitAction = node.props.submitAction;
       if (typeof submitAction === 'string') {
         const actionDef = actions[submitAction];
@@ -830,8 +859,30 @@ function validatePageActionRefs(doc, violations) {
             path: `${nodePath}.props.actionRef`,
             message: `upload.props.actionRef 仅可引用 type: upload 的 action，当前为 "${actionDef.type}"`,
           });
+        } else {
+          for (const constraint of ['accept', 'maxSize', 'multiple']) {
+            if (node.props[constraint] !== undefined) {
+              violations.push({
+                path: `${nodePath}.props.${constraint}`,
+                message: `使用 actionRef 时 ${constraint} 只能在被引用的 upload action 中声明，避免组件与 Action 约束冲突`,
+              });
+            }
+          }
         }
       }
+    }
+
+    if (node.type === 'dateRangePicker' && Array.isArray(node.reactions)) {
+      node.reactions.forEach((reaction, reactionIndex) => {
+        for (const branch of ['fulfill', 'otherwise']) {
+          if (reaction?.[branch] && Object.prototype.hasOwnProperty.call(reaction[branch], 'value')) {
+            violations.push({
+              path: `${nodePath}.reactions[${reactionIndex}].${branch}.value`,
+              message: 'v0.2 的 dateRangePicker 有 startField/endField 两个字段，reactions 不支持 value 写入；仅允许 visible、required、disabled',
+            });
+          }
+        }
+      });
     }
 
     if (Array.isArray(node.children)) {
@@ -880,7 +931,7 @@ function validateDataRefsAndTargetTable(doc, violations) {
           message: `重复的 Node id "${node.id}"（首次出现于 ${nodeIds[node.id].path}）`,
         });
       } else {
-        nodeIds[node.id] = { type: node.type, path: nodePath };
+        nodeIds[node.id] = { type: node.type, path: nodePath, node };
       }
     }
     if (Array.isArray(node.children)) {
@@ -944,6 +995,17 @@ function validateDataRefsAndTargetTable(doc, violations) {
             path: `${nodePath}.props.targetTable`,
             message: `targetTable "${targetTable}" 的节点类型为 "${targetNode.type}"，期望 "table"`,
           });
+        } else {
+          const targetData = targetNode.node.data;
+          const effectiveDatasource = targetData?.source === 'ref'
+            ? datasources[targetData.ref]
+            : targetData;
+          if (!effectiveDatasource || effectiveDatasource.source !== 'api') {
+            violations.push({
+              path: `${nodePath}.props.targetTable`,
+              message: `targetTable "${targetTable}" 必须具有有效 API 数据源（内联 source: api，或 source: ref 指向 API datasource）`,
+            });
+          }
         }
       }
     }
@@ -1127,10 +1189,7 @@ function main() {
     process.exit(2);
   }
 
-  const files = patterns.flatMap(p => {
-    if (fs.existsSync(p) && fs.statSync(p).isFile()) return [p];
-    return globSync(p, { cwd: process.cwd() });
-  });
+  const files = expandFilePatterns(patterns);
 
   if (files.length === 0) {
     console.error(`[L2] 未找到匹配文件：${patterns.join(', ')}`); process.exit(2);
