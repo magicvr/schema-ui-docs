@@ -4,12 +4,15 @@ import {
   chartRefResponseMappingInheritedMissingListYaml,
   chartRefResponseMappingLocalOverrideOkYaml,
   danglingDataRefYaml,
+  datasourceParamsResponseMappingYaml,
   extractFirstYamlFence,
   invalidTargetTableYaml,
   missingRowRequestCapabilityYaml,
   missingRowScopeYaml,
   missingSubmitActionTargetYaml,
   missingUploadCapabilityYaml,
+  nodeParamsResponseMappingOnlyYaml,
+  nodeParamsResponseMappingYaml,
   nodePermissionSelfYaml,
   tableActionPermissionSelfYaml,
   tableRefResponseMappingInheritedCompleteYaml,
@@ -257,6 +260,48 @@ describe('validate_content', () => {
     expect(result.passed).toBe(true);
     expect(result.parseError).toBeNull();
     expect(result.internalError).toBeNull();
+  });
+
+  it('reports node-level data.params.responseMapping through L2', () => {
+    const result = validateContent({
+      content: nodeParamsResponseMappingYaml,
+      format: 'yaml',
+      filename: 'node-params-rm.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.data.params.responseMapping' }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/01-node-protocol.md');
+  });
+
+  it('reports datasources-level params.responseMapping through L2', () => {
+    const result = validateContent({
+      content: datasourceParamsResponseMappingYaml,
+      format: 'yaml',
+      filename: 'ds-params-rm.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'datasources.orders.params.responseMapping' }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/01-node-protocol.md');
+  });
+
+  it('reports node-level params.responseMapping even without valid responseMapping at top level', () => {
+    const result = validateContent({
+      content: nodeParamsResponseMappingOnlyYaml,
+      format: 'yaml',
+      filename: 'node-params-rm-only.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.data.params.responseMapping' }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/01-node-protocol.md');
   });
 
   it('maps AJV schema errors into L0/L1', () => {

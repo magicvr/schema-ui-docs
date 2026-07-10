@@ -403,6 +403,83 @@ body:
     ref: orders
 `;
 
+export const nodeParamsResponseMappingYaml = `
+meta:
+  pageId: node_params_response_mapping
+  title: Node Params ResponseMapping
+  protocolVersion: "0.2"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: id
+        label: ID
+  data:
+    source: api
+    url: /api/orders
+    params:
+      status: pending
+      responseMapping:
+        list: result.records
+    responseMapping:
+      list: result.records
+`;
+
+export const datasourceParamsResponseMappingYaml = `
+meta:
+  pageId: ds_params_response_mapping
+  title: Datasource Params ResponseMapping
+  protocolVersion: "0.2"
+datasources:
+  orders:
+    source: api
+    url: /api/orders
+    params:
+      status: pending
+      responseMapping:
+        list: result.records
+    responseMapping:
+      list: result.records
+      total: result.total
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: id
+        label: ID
+  data:
+    source: ref
+    ref: orders
+`;
+
+export const nodeParamsResponseMappingOnlyYaml = `
+meta:
+  pageId: node_params_rm_only
+  title: Node Params RM Only
+  protocolVersion: "0.2"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: none
+    columns:
+      - field: id
+        label: ID
+  data:
+    source: api
+    url: /api/items
+    params:
+      responseMapping:
+        list: result.records
+`;
+
 export const chartRefResponseMappingLocalOverrideOkYaml = `
 meta:
   pageId: chart_ref_local_override_ok

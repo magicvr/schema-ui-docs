@@ -70,6 +70,43 @@ body:
       data: { source: api, url: /api/stats/sales-trend }
 ```
 
+### 2.1.1 `source: ref` 的请求协调（since 0.2.1）
+
+当 Node 声明 `data.source: ref` 时，Renderer 应读取页面级预声明 `datasources[data.ref]` 中的请求配置：
+
+```yaml
+datasources:
+  orderStats:
+    source: api
+    method: GET
+    url: /api/stats/order-count
+    params:
+      range: 7d
+body:
+  - type: statCard
+    props: { label: 今日订单数, valueField: total }
+    data:
+      source: ref
+      ref: orderStats
+```
+
+**解析规则：**
+- Renderer 从 `datasources[data.ref]` 读取 `url` / `method` / `params` 等请求配置，作为该 Node 的完整请求描述。
+- Node 本地声明与 `datasources` 预声明的关系：
+  - `url` / `method` / `params`：**仅使用 `datasources` 中的值**，Node 本地不得重复声明（由 L1 Schema 的 `oneOf` 约束强制）。
+  - `responseMapping`：本地 `data.responseMapping` 优先覆盖，否则继承 `datasources[data.ref].responseMapping`（见 §2.5）。
+  - 本地 `data.params` 被 L1 Schema 禁止（`source: ref` 不可携带 `params`），所有参数统一在 `datasources` 中声明。
+
+**同 `ref` 的请求协调策略（默认约定）：**
+- 同一页面中多个 Node 引用同一个 `data.ref` 时，Renderer **默认共享同一进行中的请求结果**：首个引用触发请求，后续引用等待该请求完成并复用其响应。
+- 请求失败时，所有引用该 `ref` 的 Node 各自独立进入节点级错误态（见 §2.2），互不影响。
+- 若未来需要"同 ref 各自独立请求"的行为，需通过独立 ADR 设计显式标识。
+
+**加载态 / 错误态：**
+- 加载态与 `source: api` 等价：每个消费该 `data` 的 Node 独立维护加载状态。
+- 错误归属消费该 `data` 的 Node，错误态行为同 §2.2。
+- 完整使用示例见 [05-scenarios/grid-dashboard.md](./05-scenarios/grid-dashboard.md)。
+
 ### 2.2 失败隔离（stale-while-render）
 
 单个 Node 的数据加载失败**不应阻断兄弟节点的渲染或页面整体展示**。
@@ -136,7 +173,11 @@ body:
 
 ### 2.5 响应字段名映射 `responseMapping`（since 0.2.4）
 
-Renderer 在 API 请求成功后、组件消费数据前，应先应用 `data.responseMapping`：
+Renderer 在 API 请求成功后、组件消费数据前，应先应用**生效的 `responseMapping`**。生效映射解析顺序如下：
+
+1. **节点本地 `data.responseMapping` 优先**（若存在直接使用）；
+2. **否则当 `data.source: ref` 时，继承 `datasources[data.ref].responseMapping`**；
+3. **无任何映射时**沿用协议默认字段名语义（`table` 列表数据读取 `list`，服务端分页总数读取 `total`；`chart` 默认期望响应体为裸数组）。
 
 ```yaml
 data:
@@ -147,11 +188,36 @@ data:
     total: result.totalCount
 ```
 
-- `responseMapping` 与 `params` 同级，只参与响应解析，不得作为请求参数发送给后端。
+```yaml
+# source: ref 继承 datasources 上的预声明映射
+datasources:
+  orders:
+    source: api
+    url: /api/orders
+    responseMapping:
+      list: result.items
+      total: result.totalCount
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: name
+        label: 名称
+  data:
+    source: ref
+    ref: orders
+    # 没有本地 responseMapping，生效映射 = datasources.orders.responseMapping
+```
+
+- `responseMapping` 与 `params` 同级，只参与响应解析，**不得作为请求参数发送给后端**。继承的映射同样遵守此禁令。
 - 映射值是响应 JSON 对象中的点路径字符串，不执行表达式、函数或数组过滤。
-- 未声明 `responseMapping` 时，Renderer 按协议默认字段名解析：`table` 列表数据读取 `list`，服务端分页总数读取 `total`；`chart` 默认期望响应体为裸数组。
-- 声明 `responseMapping` 时，`table` 与 `chart` 这类数组消费组件必须提供 `list`，服务端分页 `table` 还必须提供 `total`。
+- 生效映射存在时，`table` 与 `chart` 这类数组消费组件必须提供 `list`，服务端分页 `table` 还必须提供 `total`。
 - 若映射路径不存在或结果类型不符合组件预期，Renderer 应将该 Node 视为数据加载失败，进入节点级错误态；开发环境日志应包含缺失路径、Node `id`（若有）和组件 `type`。
+
+> 继承映射的校验规则详见 [06-validation.md](./06-validation.md#1-校验层级) v0.2.8 变更与 [04-datasource-contract.md §4.1.1](./04-datasource-contract.md#411-响应字段名映射-responsemappingsince-024)。
 
 ### 2.6 请求初始化配置（since 0.2.5）
 

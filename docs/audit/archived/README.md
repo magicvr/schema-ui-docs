@@ -5,6 +5,25 @@
 
 ---
 
+## 0036 — 2026-07-10 — responseMapping 继承语义写回正文 + params 禁令校验 + Renderer source:ref 规格 + 版本/措辞残留
+
+**主题：** 修复 `responseMapping` 生效映射未写回 04/08（V91🟡）、禁止 `params.responseMapping` 无机器校验（V92🟡）、Renderer 缺少 `source: ref` 请求协调规格（V93🟡）、`smoke-docker` 默认 tag 残留 0.2.7（V94🟢）、以及 L2 文档/注释仍写“本地映射”（V95🟢）。
+**性质：** 生效映射正文闭环 + 禁令 enforce + Renderer ref 规格补齐 + 版本/措辞残留清理。
+
+| 文件 | 说明 |
+|---|---|
+| [0036-2026-07-10-review.md](./0036-2026-07-10-review.md) | 审视报告 — V91🟡/V92🟡/V93🟡/V94🟢/V95🟢 |
+| [0036-2026-07-10-checklist.md](./0036-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V91: `04` §4.1.1 / `08` §2.5 写明生效映射（本地优先，否则继承 `datasources`）；验证时修正“字段级继承”误述
+- V92: L2 `validateParamsResponseMappingBan()` + Schema `params.not`；`06` 与 MCP 反例同步
+- V93: `08` 新增 §2.1.1，默认共享同 ref 进行中请求，错误归属各消费节点
+- V94: `smoke-docker.mjs` 默认 tag → `0.2.8`
+- V95: `06` L2 总览表与 L2 脚本头注释改为生效映射用语
+
+---
+
 ## 0035 — 2026-07-10 — source:ref 继承 responseMapping 校验缺口 + v0.2.8 版本漂移 + Renderer permissions 白名单描述
 
 **主题：** 修复 `source: ref` 未解析继承的 `datasources.*.responseMapping`（V88🟡）、v0.2.8 版本声明未同步到 CHANGELOG/总纲/MCP 包（V89🟡）、以及 `08-renderer-spec.md` §5.5 permissions 白名单描述落后（V90🟢）。

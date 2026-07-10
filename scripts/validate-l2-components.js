@@ -7,9 +7,12 @@
  *   2. props 字段是否合法（required 字段、字段类型、enum 值、额外字段）
  *   3. supportsChildren / supportsData / supportsReactions / supportsStates 约束
  *   4. 组件级 anyOf / oneOf / allOf 约束
- *   5. responseMapping 语义规则：
- *      - table 组件使用 API 数据且声明了 responseMapping 时，必须声明 responseMapping.list
- *      - table.props.pagination.mode === 'server' 且声明了 responseMapping 时，必须声明 responseMapping.total
+ *   5. responseMapping 生效映射语义规则（本地优先，否则继承 datasources[ref].responseMapping）：
+ *      - table / chart 使用 API/ref 数据且生效的 responseMapping 存在时，必须声明 responseMapping.list
+ *      - table.props.pagination.mode === 'server' 且生效的 responseMapping 存在时，必须声明 responseMapping.total
+ *      - 生效映射解析顺序：本地 data.responseMapping 优先，否则当 source: ref 时继承 datasources[ref].responseMapping；无映射时不强制
+ *   9. params.responseMapping 禁令（ADR-0005 D1）：
+ *      - responseMapping 不属于请求参数，禁止放入 data.params 或 datasources.*.params
  *   6. 执行能力与行级 action 引用规则：
  *      - 使用 RowAction.actionRef 时必须声明 actions.row.request 能力
  *      - RowAction.actionRef 必须引用顶层 request action，且 RowAction 必须声明 requestMapping
@@ -951,6 +954,64 @@ function validateRequiredCapabilities(doc, violations) {
   }
 }
 
+/**
+ * 校验 params.responseMapping 禁令（ADR-0005 D1）
+ *
+ * responseMapping 属于响应解析配置，不属于请求参数。
+ * 禁止出现在 data.params 或 datasources.*.params 中。
+ *
+ * 扫描范围：
+ *   - body 及子树中所有节点的 data.params.responseMapping
+ *   - 顶层 datasources 中所有声明的 datasources.*.params.responseMapping
+ */
+function validateParamsResponseMappingBan(doc, violations) {
+  if (!doc || typeof doc !== 'object') return;
+
+  // 扫描顶层 datasources 中的 params.responseMapping
+  if (isPlainObject(doc.datasources)) {
+    for (const [dsKey, dsDef] of Object.entries(doc.datasources)) {
+      if (isPlainObject(dsDef) && isPlainObject(dsDef.params) && dsDef.params.responseMapping !== undefined) {
+        violations.push({
+          path: `datasources.${dsKey}.params.responseMapping`,
+          message: 'responseMapping 禁止放入 params——它不属于请求参数，应声明在 datasources 顶级字段中',
+        });
+      }
+    }
+  }
+
+  // 扫描节点树中的 data.params.responseMapping
+  const scanNode = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.data && isPlainObject(node.data.params) && node.data.params.responseMapping !== undefined) {
+      violations.push({
+        path: `${nodePath}.data.params.responseMapping`,
+        message: 'responseMapping 禁止放入 params——它不属于请求参数，应声明在 data 顶级字段中',
+      });
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, idx) => scanNode(child, `${nodePath}.children[${idx}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, idx) => {
+        if (item && item.content) {
+          scanNode(item.content, `${nodePath}.props.items[${idx}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+
+  // 遍历 actions[].type: modal 的 content Node
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        scanNode(actionDef.content, `actions.${actionId}.content`);
+      }
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // 扫描整个页面文档
 // ---------------------------------------------------------------------------
@@ -973,6 +1034,7 @@ function validatePage(doc, fileLabel) {
   validatePageActionRefs(doc, violations);
   validateDataRefsAndTargetTable(doc, violations);
   validateRequiredCapabilities(doc, violations);
+  validateParamsResponseMappingBan(doc, violations);
   return violations.map(v => ({ file: fileLabel, ...v }));
 }
 

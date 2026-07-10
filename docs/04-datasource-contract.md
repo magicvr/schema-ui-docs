@@ -103,14 +103,48 @@ data:
     total: result.totalCount
 ```
 
-映射值为响应 JSON 对象内的点路径字符串，不支持表达式、函数调用、数组过滤或模板语法。未声明 `responseMapping` 时，Renderer 按协议默认字段名解析：列表数据读取 `list`，服务端分页总数读取 `total`。
+映射值为响应 JSON 对象内的点路径字符串，不支持表达式、函数调用、数组过滤或模板语法。
+
+**生效映射解析顺序（since 0.2.4 / v0.2.8）：**
+1. 节点本地 `data.responseMapping` 优先；
+2. 否则当 `data.source: ref` 时，继承 `datasources[data.ref].responseMapping`；
+3. 无任何映射时沿用默认字段名语义（列表数据读取 `list`，服务端分页总数读取 `total`；`chart` 默认期望响应体为裸数组）。
+
+```yaml
+# 示例：节点本地 responseMapping 整体覆盖 datasources 上的预声明映射
+# （本地声明存在时不再与 datasources 做字段级合并）
+datasources:
+  orders:
+    source: api
+    url: /api/orders
+    responseMapping:
+      list: result.items
+      total: result.totalCount
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: name
+        label: 名称
+  data:
+    source: ref
+    ref: orders
+    responseMapping:
+      list: result.records
+      total: result.count   # 本地映射整体生效；未写出的键不会从 datasources 回退继承
+```
+
+> 继承的 `responseMapping` 同样只参与响应解析，不得进入请求参数。
 
 | 映射键 | 含义 | 是否必填 |
 |---|---|---|
-| `list` | 当前页数据数组 | 对列表类接口必填（未声明映射时默认读取响应体 `list`） |
-| `total` | 总条数 | `table.props.pagination.mode: server` 时必填（未声明映射时默认读取响应体 `total`） |
+| `list` | 当前页数据数组 | 对列表类接口必填——生效映射存在时必须提供（未声明映射时默认读取响应体 `list`） |
+| `total` | 总条数 | `table.props.pagination.mode: server` 时必填——生效映射存在时必须提供（未声明映射时默认读取响应体 `total`） |
 
-若映射路径不存在，或映射结果类型不符合组件预期，Renderer 应将该节点视为数据加载失败并进入节点级错误态。详见 [08-renderer-spec.md §2.5](./08-renderer-spec.md#25-响应字段名映射-responsemappingsince-024) 与 [decisions/0005](./decisions/0005-response-mapping.md)。
+若映射路径不存在，或映射结果类型不符合组件预期，Renderer 应将该节点视为数据加载失败并进入节点级错误态。详见 [08-renderer-spec.md §2.5](./08-renderer-spec.md#25-响应字段名映射-responsemappingsince-024)、[06-validation.md](./06-validation.md#1-校验层级) v0.2.8 变更与 [decisions/0005](./decisions/0005-response-mapping.md)。
 
 ### 4.2 单值类接口（配合 `statCard` / `text`）
 
