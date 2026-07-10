@@ -361,16 +361,32 @@ function evaluateWhen(expression, context, dependencies, options = {}) {
   // 3. 替换变量为实际值。本示例覆盖 form/context 场景；
   // $self / $row 由调用方按表达式位置注入 options，
   // 并必须先通过 02-reaction-expression.md 的变量可见性矩阵校验。
+  // form 的 dependencies 写字段名（无 $deps. 前缀）；表达式可访问 $deps.<field>.… 子路径。
+  // dependencies 校验取路径首段；值读取沿完整点路径从 context.deps 下钻。
   const prepared = normalized
-    .replace(/\$deps\.(\w+)/g, (_, key) => {
-      if (!dependencies || !dependencies.includes(key)) {
-        throw new Error(`未声明的依赖字段: ${key}`);
+    .replace(/\$deps\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)/g, (_, path) => {
+      const rootField = path.split('.')[0];
+      if (!dependencies || !dependencies.includes(rootField)) {
+        throw new Error(`未声明的依赖字段: ${rootField}`);
       }
-      return JSON.stringify(context.deps[key]);
+      const val = path.split('.').reduce(
+        (acc, segment) => (acc == null ? undefined : acc[segment]),
+        context.deps,
+      );
+      return JSON.stringify(val);
     })
-    .replace(/\$context\.(\w+)\.?(\w+)?/g, (_, ns, key) => {
-      const val = key ? context?.context?.[ns]?.[key] : context?.context?.[ns];
-      return JSON.stringify(val !== undefined ? val : undefined);
+    .replace(/\$context\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)/g, (_, path) => {
+      // 仅允许 user / features 根；完整点路径下钻（如 user.roles、features.newDashboard）
+      const segments = path.split('.');
+      const ns = segments[0];
+      if (ns !== 'user' && ns !== 'features') {
+        throw new Error(`未知 $context 根命名空间: ${ns}`);
+      }
+      const val = segments.reduce(
+        (acc, segment) => (acc == null ? undefined : acc[segment]),
+        context?.context,
+      );
+      return JSON.stringify(val);
     });
 
   // 4. 使用沙箱化解析器求值

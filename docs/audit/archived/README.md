@@ -6,6 +6,24 @@
 
 ---
 
+## 0050 — 2026-07-11 — page.schema datasources.params 残留 + Renderer 嵌套 `$deps` 示例
+
+**主题：** 同步 `page.schema.json` DatasourceDeclaration.params 整值替换口径（V202🟡），修正 `08` §5.2 expr-eval 嵌套 `$deps` / `$context` 路径示例（V203🟡）。
+**性质：** V199 Schema 漏项闭合 + Renderer 实现指引示例修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0050-2026-07-11-review.md](./0050-2026-07-11-review.md) | 审视报告 — V202-V203（2 项） |
+| [0050-2026-07-11-checklist.md](./0050-2026-07-11-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V202: `page.schema.json` DatasourceDeclaration.params 对齐完整单个 `$deps.*` / 禁模板拼接，并注明页面级无 form 上下文
+- V203: `08` §5.2 按完整点路径读取 `$deps` / `$context`，dependencies 校验取字段首段
+- CHANGELOG Unreleased 补 `page.schema.json` 与 0050 审计路径
+- MCP build + **108** 项测试通过（实现未改行为）
+
+---
+
 ## 0049 — 2026-07-11 — V197 后 params 整值替换入口残留 + CHANGELOG/元数据卫生
 
 **主题：** 闭合 V197 后组件表与 Schema 描述残留（V199🟡），补齐 CHANGELOG 文件清单（V200🟢）与 `04` `last_updated`（V201🟢）。
