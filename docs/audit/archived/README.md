@@ -6,6 +6,26 @@
 
 ---
 
+## 0044 — 2026-07-11 — 表达式冲突语义 + 表格 scope + row dependencies + 版本/场景覆盖
+
+**主题：** 对齐 Renderer `value` 冲突规则与 ADR-0006（V162🔴），修正表格 scope 措辞与 `$row` dependencies 权威文档（V163-V164🟡），闭合表格 form-scope `required`/`value` 并补 search/upload 场景（V167/V169🟡），版本叙事与文档卫生（V165-V166、V168、V170-V174）。
+**性质：** 表达式/Renderer 语义一致性 + 表格挂载契约闭合 + 场景与元数据补齐。
+
+| 文件 | 说明 |
+|---|---|
+| [0044-2026-07-11-review.md](./0044-2026-07-11-review.md) | 审视报告 — V162-V174（13 项） |
+| [0044-2026-07-11-checklist.md](./0044-2026-07-11-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V162: `08` §5.3 改为同字段 `reactions` 数组顺序后写优先，禁止跨 Node 深度优先 value 合并
+- V163-V164: 列/操作 scope 条件表述；`02` §8.1 明确 `$row` dependencies 无 `$row.` 前缀的完整点路径
+- V167: 表格 columns/actions reactions 无论 scope 禁止 `required`/`value`，L2 执行
+- V169: 新增 `search-form-table` 与 `form-with-upload` 完整场景
+- V165/V168/V170-V174: 总纲版本叙事、ADR-0005 执行层、blockquote、附录 A、根 package 0.2.8、CHANGELOG 排序与 `$parentRow` superseded 注记
+- MCP 104 项测试与 6 个官方场景完整 YAML L0-L4 全部通过
+
+---
+
 ## 0043 — 2026-07-10 — Node 嵌套挂载 + 校验错误分类 + 数值/i18n 边界 + CLI/审计身份
 
 **主题：** 执行 tabs content 完整 Node 契约并修复嵌套结构错误分类（V155-V156），拒绝非有限数、支持固定选项 i18n、传播调用错误退出码（V157-V159），修正 0042 索引范围和历史复合身份引用（V160-V161）。

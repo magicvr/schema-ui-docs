@@ -134,6 +134,11 @@ function validateStringArray(value, fieldPath, violations) {
   });
 }
 
+/** 表格 columns[] / actions[] 上的 reaction 状态挂载点（无表单字段语义） */
+function isTableColumnOrActionReactionPath(path) {
+  return /\.props\.(columns|actions)\[\d+\]\.reactions\[\d+\]\.(fulfill|otherwise)$/.test(path);
+}
+
 function validateStateMap(value, statePath, violations, scope) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     violations.push({ path: statePath, message: `期望 object，实际 ${Array.isArray(value) ? 'array' : typeof value}` });
@@ -151,12 +156,17 @@ function validateStateMap(value, statePath, violations, scope) {
     }
   }
 
-  if (scope === 'row') {
+  // 表格列/操作 reactions（任意 scope）与 scope:row：仅允许 visible/disabled
+  const restrictToVisibleDisabled = scope === 'row' || isTableColumnOrActionReactionPath(statePath);
+  if (restrictToVisibleDisabled) {
     for (const forbiddenKey of ['required', 'value']) {
       if (Object.prototype.hasOwnProperty.call(value, forbiddenKey)) {
+        const reason = isTableColumnOrActionReactionPath(statePath)
+          ? '表格 columns/actions 的 fulfill/otherwise 中禁止声明 required 或 value（仅允许 visible 和 disabled）'
+          : 'scope: row 的 fulfill/otherwise 中禁止声明 required 或 value（仅允许 visible 和 disabled）';
         violations.push({
           path: `${statePath}.${forbiddenKey}`,
-          message: 'scope: row 的 fulfill/otherwise 中禁止声明 required 或 value（仅允许 visible 和 disabled）',
+          message: reason,
         });
       }
     }

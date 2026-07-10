@@ -116,7 +116,9 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.8
     │   ├── grid-dashboard.md
     │   ├── data-table.md
     │   ├── form-with-reactions.md
-    │   └── row-backend-actions.md
+    │   ├── row-backend-actions.md
+    │   ├── search-form-table.md
+    │   └── form-with-upload.md
     ├── 06-validation.md            # 校验规则与工具链
     ├── 07-actions-contract.md      # Action 行为契约（since 0.2）
     ├── 08-renderer-spec.md         # Renderer 实现规范（since 0.2.1）

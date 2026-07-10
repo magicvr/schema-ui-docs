@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-10
+last_updated: 2026-07-11
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -75,10 +75,10 @@ applies_to: schema-ui-protocol v0.2
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v0.2`（最新补丁版本 `v0.2.8`，见 [CHANGELOG.md](./CHANGELOG.md)）。`meta.protocolVersion` 仅声明 MAJOR.MINOR（即 `"0.2"`），不含 PATCH 号——因此 `v0.2.0`、`v0.2.1`、`v0.2.2`、`v0.2.3`、`v0.2.4`、`v0.2.5`、`v0.2.6`、`v0.2.7` 与 `v0.2.8` 共享同一 `protocolVersion` 值。
+当前协议版本：`v0.2`（**已发布**最新补丁版本 `v0.2.8`，见 [CHANGELOG.md](./CHANGELOG.md)）。若工作区 `CHANGELOG` 顶部存在 `Unreleased` 条目，表示当前仓库已落地但尚未切出新 PATCH 的补充修订；接入已发布 MCP 镜像/标签时以已发布版本为准，本地校验脚本与文档以工作区内容为准。`meta.protocolVersion` 仅声明 MAJOR.MINOR（即 `"0.2"`），不含 PATCH 号——因此 `v0.2.0` 至 `v0.2.8` 与后续同为 `"0.2"` 的补丁共享同一 `protocolVersion` 值。
 
 PATCH 版本若新增需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同为 `"0.2"` 的新旧 Renderer 对执行能力产生误判。
 
-本协议目前覆盖四类场景：网格布局、数据表格、表单联动、表格行级后端动作。后续新增场景类型时，
+本协议场景示例覆盖：网格布局、数据表格、表单联动、表格行级后端动作、搜索表单筛选表格、文件上传。后续新增场景类型时，
 应遵循同一套 Node 结构（`type`/`props`/`data`/`children`/`reactions`），
 不应引入平行的、结构不一致的新概念。如需引入新概念，请先在 `decisions/` 下补充 ADR。

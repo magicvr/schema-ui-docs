@@ -1,8 +1,8 @@
 {
   "name": "schema-ui-docs",
-  "version": "0.1.0",
+  "version": "0.2.8",
   "private": true,
-  "description": "Schema-UI 协议文档及校验工具链",
+  "description": "Schema-UI 协议文档及校验工具链（版本与已发布协议/MCP PATCH 对齐；工作区未发布修订见 docs/CHANGELOG.md Unreleased）",
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:l2": "node scripts/validate-l2-components.js",

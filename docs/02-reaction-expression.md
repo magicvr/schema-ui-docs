@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-10
+last_updated: 2026-07-11
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -116,6 +116,17 @@ reactions:
 - 扫描表达式中出现的标识符，如果不在 `dependencies` 声明范围内，直接拒绝渲染并报错，
   防止后端误写了未声明依赖导致联动"看起来生效但实际读不到值"。
 
+### 8.1 `dependencies` 声明规则（form / row）
+
+| 作用域 | 表达式变量 | `dependencies` 中应写的内容 | 正例 | 反例 |
+|---|---|---|---|---|
+| `scope: form`（默认） | `$deps.<field>` | 表单字段名（无 `$deps.` 前缀） | `dependencies: [orderType]` + `when: "$deps.orderType == 'x'"` | `dependencies: ["$deps.orderType"]` |
+| `scope: row` | `$row.<path>` | **`$row.` 之后的完整点路径**（无 `$row.` 前缀） | `dependencies: [canRefund]` + `when: "$row.canRefund == true"` | `dependencies: ["$row.canRefund"]` |
+| `scope: row` | `$row.user.id`（嵌套） | 完整后缀路径 | `dependencies: ["user.id"]` | `dependencies: [user]`（不完整） |
+| `scope: row` | `$row.__index` / `$row.__key` | 保留字段名本身 | `dependencies: ["__index"]` | `dependencies: ["$row.__index"]` |
+
+L3a 对 `$row.*` 做精确包含匹配：`dependencies.includes(fieldPathAfterDollarRow)`。`$context.*` 不需要写入 `dependencies`。
+
 ## 9. 作用域（`scope`）规则
 
 自 v0.2 起，表达式引擎支持两种作用域，通过显式 `scope` 属性声明：
@@ -139,14 +150,16 @@ reactions:
 
 ### 9.3 `fulfill`/`otherwise` 状态键的作用域限制
 
-`reactions` 的 `fulfill`/`otherwise` 支持四个状态键，但在 `scope: row` 下并非全部适用：
+`reactions` 的 `fulfill`/`otherwise` 支持四个状态键，但按挂载位置与 `scope` 收窄：
 
-| 状态键 | `scope: form` | `scope: row` | 说明 |
-|---|---|---|---|
-| `visible` | ✅ 允许 | ✅ 允许 | 控制当前单元格/行内操作是否可见 |
-| `disabled` | ✅ 允许 | ✅ 允许 | 控制当前单元格/操作是否禁用 |
-| `required` | ✅ 允许 | ❌ 静态校验禁止 | 表格列/行内操作不存在"必填"语义 |
-| `value` | ✅ 允许 | ❌ 静态校验禁止 | v0.2 暂不支持行内数据回写，留待后续讨论 |
+| 状态键 | 表单字段 `scope: form` | 表单字段 `scope: row` | 表格 `columns[]`/`actions[]`（任意 scope） | 说明 |
+|---|---|---|---|---|
+| `visible` | ✅ 允许 | ✅ 允许 | ✅ 允许 | 控制字段/单元格/操作是否可见 |
+| `disabled` | ✅ 允许 | ✅ 允许 | ✅ 允许 | 控制字段/单元格/操作是否禁用 |
+| `required` | ✅ 允许 | ❌ 静态校验禁止 | ❌ 静态校验禁止 | 表格列/操作无"必填"语义 |
+| `value` | ✅ 允许 | ❌ 静态校验禁止 | ❌ 静态校验禁止 | 列/操作不是表单字段，无单一回写目标；v0.2 不支持行内回写 |
+
+> **0044 / V167：** 表格列与行操作不是表单字段，即使声明 `scope: form`，也不得使用 `required`/`value`。L2 对 `table.props.columns[]` / `actions[]` 上的 reactions 一律仅允许 `visible`/`disabled`。
 
 ## 10. 静态校验规则
 
@@ -164,9 +177,12 @@ reactions:
 
 表格 `actions` 的 `scope: row` 表达式中禁止使用 `$self`（行内操作按钮不对应具体某一列，无"当前单元格"概念）。
 
-### 10.4 `scope: row` 下 `fulfill` 出现 `required`/`value`
+### 10.4 表格列/操作与 `scope: row` 下 `fulfill` 出现 `required`/`value`
 
-`scope: row` 的 `fulfill`/`otherwise` 中禁止声明 `required` 或 `value` 状态键（仅允许 `visible` 和 `disabled`）。
+以下挂载点的 `fulfill`/`otherwise` 中禁止声明 `required` 或 `value`（仅允许 `visible` 和 `disabled`）：
+
+- 任意 `scope: row` 的 reactions；
+- 表格 `columns[]` / `actions[]` 上的 reactions（**无论** `scope: form` 或 `scope: row`）。
 
 ### 10.5 表格列 `scope: form` 表达式中出现 `$self`
 
@@ -278,6 +294,8 @@ visibleWhen:
 | 表格列 `scope: form` 表达式（仅表格位于 `form.children` 内） | ✅ | ❌（无绑定对象） | ✅ | ❌ |
 | 独立表格列 `scope: form` 表达式 | ❌（静态校验拒绝 `$deps.*`） | ❌（无绑定对象） | ✅ | ❌ |
 | 表格列 `scope: row` 表达式 | ❌ | ✅（单元格原始值） | ✅ | ✅ |
+| 表格 `actions` · `scope: form`（仅表格位于 `form.children` 内） | ✅ | ❌（不适用） | ✅ | ❌ |
+| 独立表格 `actions` · `scope: form` | ❌（静态校验拒绝 `$deps.*`） | ❌（不适用） | ✅ | ❌ |
 | 表格 `actions`（`scope: row`） | ❌ | ❌（不适用） | ✅ | ✅ |
 
 此矩阵仅描述协议允许出现哪些变量，不重复各变量的取值语义（原始值/格式化值、只读约束等），具体语义以各节正文为准。

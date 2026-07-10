@@ -26,15 +26,25 @@
 - 审计 `0043 / V155-V156`：执行 `tabs.items[].content` 的完整 Node L2 契约，并保持页面内部合法 JSON 结构错误为 L0/L1 违规，不再误报 `parseError`。
 - 审计 `0043 / V157-V159`：拒绝 YAML 非有限数值，支持固定 select 选项使用 `labelKey`，并让统一校验入口保留调用错误退出码 `2`。
 - 审计 `0043 / V160-V161`：修正 0042 plan 的归档索引范围，并将历史冲突 V1-V4 在归档入口统一改用 `NNNN/Vn` 复合引用。
+- 审计 `0044 / V162`：对齐 `08-renderer-spec` 的 `value` 冲突规则与 `02` §14.1 / ADR-0006（同字段数组顺序后写优先，禁止跨 Node 深度优先合并）。
+- 审计 `0044 / V163-V164`：修正表格列/操作 scope 强制措辞，并将 `$row` dependencies（无 `$row.` 前缀的完整点路径）写入 `01`/`02`/`06` 权威说明。
+- 审计 `0044 / V165-V166`：总纲区分已发布与 Unreleased；补齐 `input` 能力页脚。
+- 审计 `0044 / V167`：表格 `columns[]`/`actions[]` 上 reactions 无论 scope 均禁止 `required`/`value`，L2 执行。
+- 审计 `0044 / V168-V171`：更新 ADR-0005 执行层标注；新增 search/upload 场景；修复 `06` blockquote；附录 A 补 actions form-scope。
+- 审计 `0044 / V172-V174`：根 `package.json` 版本对齐 0.2.8；调整 CHANGELOG 历史排序；注明 v0.2.7 `$parentRow` 表述已由 0039/V120 取代。
+
+**说明（`$parentRow`）：** v0.2.7 F2 等历史条目中的 `$parentRow` 描述记录当时设计；当前协议以 0039/V120 为准，v0.2 **全面拒绝** `$parentRow.*`。
 
 **涉及的文档、包与配置：**
-- 入口文档：`README.md`、`docs/00-overview.md`
+- 入口文档：`README.md`、`docs/00-overview.md`、根 `package.json`
 - 版本记录：`docs/CHANGELOG.md`
 - MCP 包：`mcp/package.json`、`mcp/package-lock.json`
 - MCP 说明：`docs/mcp/README.md`
 - 协议与 ADR：`docs/01-node-protocol.md`、`docs/02-reaction-expression.md`、`docs/03-component-registry.md`、`docs/06-validation.md`、`docs/07-actions-contract.md`、`docs/08-renderer-spec.md`、`docs/decisions/0003-0008`
+- 场景示例：`docs/05-scenarios/*`
 - 校验与 MCP 实现：`scripts/*.js`、`mcp/src/tools/docs.ts`、`mcp/src/tools/validate-content.ts`、`mcp/src/core/validation-runner.ts`、`mcp/tests/*.test.ts`
 - 机器可读契约：`docs/schemas/component-registry.json`
+- 审计：`docs/audit/0044-2026-07-11-*`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 
@@ -49,18 +59,6 @@
 - 协议文档：`docs/06-validation.md`
 - 校验脚本：`scripts/validate-l2-components.js`
 - MCP 测试：`mcp/tests/validate-content.test.ts`、`mcp/tests/test-utils.ts`
-
-## v0.1.0 — 2026-07-07
-
-初版发布。
-
-**新增：**
-- 核心 Node 协议：`type` / `props` / `data` / `children` / `reactions`
-- 联动表达式引擎（`when` 白名单语法）
-- 组件类型：`grid`、`section`、`tabs`、`statCard`、`chart`、`text`、`table`、`form`、`input`、`inputNumber`、`select`
-- 数据源契约：`static` / `ref` / `api` 三种模式，`table` 分页契约
-- 三个基础场景示例：网格看板、数据表格、表单联动
-- JSON Schema 校验文件：`node.schema.json` / `reaction.schema.json` / `component-registry.json`
 
 ## v0.2.0 — 2026-07-07
 
@@ -218,3 +216,15 @@
 - JSON Schema / DSL：`schemas/page.schema.json` / `schemas/component-registry.json`
 - 校验脚本：`scripts/validate-l2-components.js`
 - 场景示例：`05-scenarios/row-backend-actions.md`
+
+## v0.1.0 — 2026-07-07
+
+初版发布。
+
+**新增：**
+- 核心 Node 协议：`type` / `props` / `data` / `children` / `reactions`
+- 联动表达式引擎（`when` 白名单语法）
+- 组件类型：`grid`、`section`、`tabs`、`statCard`、`chart`、`text`、`table`、`form`、`input`、`inputNumber`、`select`
+- 数据源契约：`static` / `ref` / `api` 三种模式，`table` 分页契约
+- 三个基础场景示例：网格看板、数据表格、表单联动
+- JSON Schema 校验文件：`node.schema.json` / `reaction.schema.json` / `component-registry.json`

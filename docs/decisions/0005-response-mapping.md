@@ -50,7 +50,7 @@ data:
     total: result.total
 ```
 
-协议明确禁止把 `responseMapping` 放入 `data.params`。若 `data.params.responseMapping` 出现，静态校验应拒绝或至少在 L3/L4 阶段报错。
+协议明确禁止把 `responseMapping` 放入 `data.params`。若 `data.params.responseMapping` 或 `datasources.*.params.responseMapping` 出现，**主路径**由 L1（DataRef 结构，`responseMapping` 不得作为 params 合法键）与 **L2 语义拒绝**执行；不以 L3a/L4 作为该规则的主归属层（见 `06-validation.md` v0.2.8 与后续收敛）。
 
 理由：请求参数与响应解析配置属于两个方向的契约，必须分离。`params` 只描述发给服务端的参数；`responseMapping` 只描述 Renderer 如何从服务端响应中取值。
 

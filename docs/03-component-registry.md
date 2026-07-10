@@ -1,7 +1,7 @@
 ---
 status: living-document
 owner: 前端组件库团队
-last_updated: 2026-07-10
+last_updated: 2026-07-11
 applies_to: schema-ui-protocol v0.2
 ---
 
@@ -165,8 +165,8 @@ data:
 | `label` / `labelKey` | string | 列标题（i18n：`labelKey` 可替代 `label`） |
 | `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 展示格式（默认 `plain`） |
 | `tagMap` | map | `format: tag` 时，值 → `{text, tone}` 的映射。`tone` 可选值：`warning`\|`success`\|`neutral`\|`info`\|`danger` |
-| `visibleWhen` | object | 可选（since 0.2.1）。行级条件渲染（需声明 `scope: row`），语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
-| `reactions` | array | 可选（since 0.2.1）。行内字段联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
+| `visibleWhen` | object | 可选（since 0.2.1）。列条件渲染；读取 `$row.*` 时必须 `scope: row`；仅 `$context.*`（或表格位于 `form` 内时的 `$deps.*`）可用默认 `scope: form`。语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
+| `reactions` | array | 可选（since 0.2.1）。列联动规则；读取 `$row.*` 或列级 `$self` 时必须 `scope: row`；`fulfill`/`otherwise` **无论 scope 仅允许** `visible`/`disabled` |
 | `permissions` | map | 可选（since 0.2.1）。列级权限控制，表达式仅允许 `$context.*` |
 
 **RowAction（since 0.2.1 重构）：**
@@ -179,15 +179,16 @@ data:
 | `label` / `labelKey` | string | 是 | 操作文案 |
 | `confirm` | string | 否 | 二次确认文案；行级后端请求中仅在 `visibleWhen` / `permissions` / `disabled` 判定通过后、构造请求前展示 |
 | `visibleField` | string | 否 | 行级显隐语法糖（`visibleWhen` 的简化写法），取行数据中同名字段的布尔值作为显隐依据。解析阶段等价展开为 `{ scope: row, dependencies: [field], when: "$row.<field> == true" }`，展开后纳入 [01-node-protocol.md §3.10](./01-node-protocol.md#310-最终可见性优先级公式) 公式 |
-| `visibleWhen` | object | 否（since 0.2.1） | 行级条件渲染，需声明 `scope: row`，语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
-| `reactions` | array | 否（since 0.2.1） | 行内操作联动规则，需声明 `scope: row`，`fulfill` 仅允许 `visible`/`disabled` |
+| `visibleWhen` | object | 否（since 0.2.1） | 操作条件渲染；读取 `$row.*` 时必须 `scope: row`；仅 `$context.*`（或表格位于 `form` 内时的 `$deps.*`）可用默认 `scope: form`。语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
+| `reactions` | array | 否（since 0.2.1） | 操作联动规则；读取 `$row.*` 时必须 `scope: row`；`fulfill`/`otherwise` **无论 scope 仅允许** `visible`/`disabled` |
 | `permissions` | map | 否（since 0.2.1） | 操作级权限控制，表达式仅允许 `$context.*` |
 
 > **行内操作执行边界：** 未声明 `actionRef` 时，`RowAction.key` 只用于 Renderer 将点击事件分发给前端预注册的行内操作处理器，并由该处理器接收当前行上下文。声明 `actionRef` 时，Renderer 按 [ADR-0008](./decisions/0008-row-action-backend-request.md) 与 [07-actions-contract.md §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) 执行标准行级后端请求；`key` 仍保留为操作类型标识，不变成顶层 action id。
 
 **作用域说明（since 0.2.1）：** 列/操作内的 `visibleWhen`/`reactions` 可通过 `scope` 属性声明求值作用域；`permissions` 固定仅允许 `$context.*`，不参与 `scope` 语义：
 - `scope: form`（默认）：表达式在表单级求值，可访问 `$deps.*`（表单字段），不可访问 `$row.*`。**注意：仅当表格本身位于 `form.children` 内（如搜索表单嵌入表格场景）时，`$deps.*` 才合法；独立表格的列/操作中即使声明 `scope: form`，`$deps.*` 仍被静态校验拒绝（见 [02-reaction-expression.md §9.1](./02-reaction-expression.md#91-作用域隔离规则)）。
-- `scope: row`（显式声明）：表达式在行级求值，可访问 `$row.*`（当前行数据），不可访问 `$deps.*`；`$context.*` 两种作用域下均可访问。`scope: row` 下的 `fulfill` 仅允许 `visible`/`disabled` 状态键。
+- `scope: row`（显式声明）：表达式在行级求值，可访问 `$row.*`（当前行数据），不可访问 `$deps.*`；`$context.*` 两种作用域下均可访问。
+- **状态键限制（列/操作 reactions）：** 表格 `columns[]` / `actions[]` 上的 `fulfill`/`otherwise` **无论 `scope`** 仅允许 `visible`/`disabled`，禁止 `required`/`value`（列与操作不是表单字段，无必填/回写语义）。
 
 > **`visibleField` 与 `visibleWhen` 关系：** `visibleField` 是 `scope: row` 的 `visibleWhen` 的语法糖。同时声明两者时，以显式 `visibleWhen` 为准，`visibleField` 被忽略。
 
@@ -299,6 +300,8 @@ body:
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
+
+支持 `children`：否。支持 `data`：否（表单字段不直接绑定 API）。支持 `reactions`：是。支持 `states`：否。
 
 ### `inputNumber`
 数字输入控件。
