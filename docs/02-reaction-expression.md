@@ -21,7 +21,7 @@ applies_to: schema-ui-protocol v0.2
 | 节点条件渲染 | `visibleWhen.when` | [01-node-protocol.md §3.8](./01-node-protocol.md#38-visiblewhen节点级条件渲染可选since-02) |
 | 权限判定 | `permissions.*` | [01-node-protocol.md §3.9](./01-node-protocol.md#39-permissions权限控制可选since-02) |
 | 表格列/行内操作 | `columns[].{visibleWhen,reactions}.when` | [03-component-registry.md](./03-component-registry.md) `table` 组件章节 |
-| 数据请求参数 | `data.params`（仅整值替换，禁止模板拼接，不做条件判断） | [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界) |
+| 数据请求参数 | `data.params`（仅整值替换，禁止模板拼接，不做条件判断） | [04-datasource-contract.md §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams-中-deps-的空值省略规则)（作用域见 [§3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界)） |
 | 远程选项参数 | `props.optionsSource.params`（仅整值替换，禁止模板拼接，不做条件判断） | [03-component-registry.md](./03-component-registry.md) `select` 组件章节 |
 
 ## 2. 变量命名空间（白名单）
@@ -30,8 +30,8 @@ applies_to: schema-ui-protocol v0.2
 |---|---|---|---|
 | `$deps.<字段名>` | `dependencies` 中声明的依赖字段的当前值；在 `data.params` / `optionsSource.params` 中表示同表单字段的当前值，不需要额外 `dependencies` 数组 | `reactions`、`visibleWhen`(表单内)、`scope: form` 表达式、表单上下文内的参数值替换 | `$deps.orderType` |
 | `$self` | 当前字段自身的当前值（字段级）；`dateRangePicker` 自身 reactions 中可受控访问 `$self.start` / `$self.end`；当前列对应单元格的原始数据值（`scope: row` 列表达式） | 表单字段 `reactions`、表格列 `scope: row` 表达式 | `$self` |
-| `$context.user.*` | 当前用户身份信息（只读快照，最小字段集见 §11.1） | 所有位置 | `$context.user.roles` |
-| `$context.features.*` | 功能开关映射表（只读快照，最小字段集见 §11.2） | 所有位置 | `$context.features.newDashboard` |
+| `$context.user.*` | 当前用户身份信息（只读快照，最小字段集见 §11.1） | 条件表达式挂载点：`reactions` / `visibleWhen` / `permissions` / 表格列与操作表达式；**不含** `data.params` / `optionsSource.params` / `datasources.*.params` 值替换（见附录 A / §10.7） | `$context.user.roles` |
+| `$context.features.*` | 功能开关映射表（只读快照，最小字段集见 §11.2） | 同上（条件表达式挂载点，不含 params 值替换） | `$context.features.newDashboard` |
 | `$row.<字段名>` | 当前行的原始数据对象（未经格式化处理） | 表格 `columns`/`actions` 中 `scope: row` 表达式 | `$row.level` |
 | `$row.__index` | 当前行在数据集中的序号（从 0 开始） | 同上 | `$row.__index` |
 | `$row.__key` | 当前行的唯一标识（取表格 `rowKey` 字段值） | 同上 | `$row.__key` |
@@ -59,7 +59,7 @@ applies_to: schema-ui-protocol v0.2
 
 > `contains` 归入 **比较** 优先级档（与 `==`/`!=` 同级）。
 
-`contains` 为数组包含判断运算符，语义定义为：左操作数为数组时判断是否包含右操作数字面量（等价于 `Array.prototype.includes`），返回布尔值；若左操作数不是数组（如为 `undefined`），短路返回 `false`，不抛异常。`contains` 与 `==`/`!=` 等比较运算符归入同一优先级档，不单独新增优先级层级。`contains` 是二元、非链式运算符（不存在 `a contains b contains c` 的连续使用场景），无需定义结合性。
+`contains` 为数组包含判断运算符，语义定义为：左操作数为数组时判断是否包含右操作数字面量（等价于 `Array.prototype.includes`），返回布尔值；若左操作数不是数组（如为 `undefined`），短路返回 `false`，不抛异常。右操作数**必须**是 §4 所列字面量类型之一：字符串、数字、布尔或 `null`；不得为变量（如 `$deps.x` / `$context.user.id`）或分组表达式（如 `('a')`）。`contains` 与 `==`/`!=` 等比较运算符归入同一优先级档，不单独新增优先级层级。`contains` 是二元、非链式运算符（不存在 `a contains b contains c` 的连续使用场景），无需定义结合性。
 
 所有比较运算符均不得链式连续使用；需要多个比较时必须通过 `&&` / `||` 拆分为独立比较表达式。
 
@@ -202,6 +202,16 @@ L3a 对 `$row.*` 做精确包含匹配：`dependencies.includes(fieldPathAfterDo
 ### 10.7 `$deps` 出现在非表单 `data.params` / `optionsSource.params` 中
 
 `data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做**完整单个参数值替换**，规则完全一致：参数值要么是不含 `$` 的普通字面量，要么整段精确匹配单个 `$deps.<path>`；禁止 `prefix-$deps.ownerId` 一类模板拼接。若节点不处于表单上下文，上述 params 中出现 `$deps.*` 时，静态校验直接拒绝。二者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。规则递归作用于对象和数组中的所有值，不能通过数组元素绕过变量限制。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 时，以 `DATA_PARAMS_VARIABLE` 拒绝。
+
+### 10.8 `contains` 右操作数字面量约束
+
+`contains` 的右操作数必须是 §4 所列字面量类型之一：字符串、数字、布尔或 `null`。静态校验拒绝：
+
+- 变量作为右操作数（如 `$deps.role`、`$context.user.id`、`$row.tag`、`$self`）；
+- 分组或其他表达式作为右操作数（如 `('admin')`、`('a' == 'a')` 的子表达式形态）。
+
+正例：`$context.user.roles contains 'admin'`、`$deps.tags contains 1`、`$deps.flags contains true`、`$deps.values contains null`。
+违反时 L3a 以语法错误拒绝（与 `06-validation.md` L3a 行一致）。
 
 ## 11. `$context` 最小字段集（since 0.2.5）
 

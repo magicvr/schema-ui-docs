@@ -2,7 +2,7 @@
 
 本目录记录 Schema-UI MCP 服务的设计、实施计划与后续交付说明。MCP 服务的职责边界以 [ADR-0007](../decisions/0007-mcp-protocol-reader-validator.md) 为准：v1 仅提供协议只读查询与 `validate_content` 内容校验，不读取宿主项目文件系统，不生成或修改页面配置。
 
-> 当前 **已发布** MCP 版本示例仍为 `0.2.8`；若工作区存在尚未发布的补充修订，以仓库根 `CHANGELOG.md` 顶部最新条目为准。
+> 当前 **已发布** MCP 版本示例仍为 `0.2.8`；若工作区存在尚未发布的补充修订，以 [`docs/CHANGELOG.md`](../CHANGELOG.md) 顶部最新条目为准。
 
 ## 文档列表
 

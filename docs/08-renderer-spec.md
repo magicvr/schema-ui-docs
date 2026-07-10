@@ -431,6 +431,7 @@ Renderer 在加载页面配置时，应覆盖 [02-reaction-expression.md §10](.
 - 独立表格（非 `form.children` 上下文）的列/操作在 `scope: form` 下不能使用 `$deps.*`。
 - 表格 `columns[]` / `actions[]` 上的 `reactions`（无论 `scope: form` 或 `scope: row`）其 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`，禁止 `required` / `value`。
 - `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许字面量或完整单个 `$deps.*` 值替换（禁止模板拼接）；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.*`。
+- `contains` 的右操作数仅允许字符串、数字、布尔或 `null` 字面量，拒绝变量与分组表达式（见 [02-reaction-expression.md §10.8](./02-reaction-expression.md#108-contains-右操作数字面量约束)）。
 
 其中，`table.props.columns[]` / `actions[]` 内嵌的 `visibleWhen` / `reactions` / `permissions` 对象属于组件 DSL 内的协议结构，CI 的 L2 校验应先保证其结构合法；Renderer 的 L3a 校验再检查表达式语法、变量声明与作用域隔离。无法通过的配置直接拒绝渲染，并在开发环境给出明确的校验错误信息。
 
