@@ -58,6 +58,7 @@ function runAjv(patterns, pageSchemaPath) {
       passed: false,
       stdout: '',
       stderr: '[L0/L1] ajv-cli 未安装，请运行: npm install\n         或使用 --skip-l0l1 跳过。',
+      code: 2,
     };
   }
   try {
@@ -73,7 +74,12 @@ function runAjv(patterns, pageSchemaPath) {
     );
     return { passed: true, stdout: output, stderr: '' };
   } catch (err) {
-    return { passed: false, stdout: err.stdout || '', stderr: err.stderr || '' };
+    return {
+      passed: false,
+      stdout: err.stdout || '',
+      stderr: err.stderr || '',
+      code: err.status,
+    };
   }
 }
 
@@ -161,7 +167,8 @@ function main() {
     console.log('');
   }
 
-  process.exitCode = overallPass ? 0 : 1;
+  const hasCallError = Object.values(results).some(result => result.code === 2);
+  process.exitCode = overallPass ? 0 : hasCallError ? 2 : 1;
 }
 
 main();

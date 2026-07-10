@@ -102,6 +102,79 @@ describe('validate_content', () => {
     ]));
   });
 
+  it.each([
+    ['string', 'not-a-node'],
+    ['null', null],
+    ['boolean', false],
+    ['number', 0],
+    ['array', []],
+  ])('rejects %s tabs content as a non-Node value', (_label, content) => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'tabs-content', title: 'Tabs content', protocolVersion: '0.2' },
+        body: {
+          type: 'tabs',
+          props: { items: [{ key: 'main', label: 'Main', content }] },
+        },
+      }),
+      format: 'json',
+      filename: 'tabs-content.json',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.items[0].content' }),
+    ]));
+    expect(result.parseError).toBeNull();
+  });
+
+  it('validates a complete Node nested in tabs content', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'tabs-node', title: 'Tabs Node', protocolVersion: '0.2' },
+        body: {
+          type: 'tabs',
+          props: {
+            items: [{
+              key: 'main',
+              label: 'Main',
+              content: { type: 'input', props: { field: 'name' } },
+            }],
+          },
+        },
+      }),
+      format: 'json',
+      filename: 'tabs-node.json',
+    });
+
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'body.props.items[0].content.props',
+        message: expect.stringContaining('label 或 labelKey'),
+      }),
+    ]));
+  });
+
+  it.each([
+    ['null', null],
+    ['string', 'invalid'],
+    ['array', []],
+  ])('keeps %s props as a structural violation instead of a parse error', (_label, props) => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'invalid-props', title: 'Invalid props', protocolVersion: '0.2' },
+        body: { type: 'grid', props, children: [] },
+      }),
+      format: 'json',
+      filename: 'invalid-props.json',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers['L0/L1'].length).toBeGreaterThan(0);
+    expect(result.parseError).toBeNull();
+    expect(result.internalError).toBeNull();
+  });
+
   it('maps layered violations to the caller filename', () => {
     const result = validateContent({
       content: JSON.stringify({
@@ -758,6 +831,37 @@ describe('validate_content', () => {
     ]));
   });
 
+  it('supports i18n labels for fixed select options', () => {
+    const makePage = (options: unknown[]) => JSON.stringify({
+      meta: { pageId: 'select-i18n', title: 'Select i18n', protocolVersion: '0.2' },
+      body: {
+        type: 'form',
+        props: { submitAction: 'save' },
+        children: [{
+          type: 'select',
+          props: { field: 'kind', label: 'Kind', options },
+        }],
+      },
+      actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+    });
+
+    for (const options of [
+      [{ label: 'Retail', value: 'retail' }],
+      [{ labelKey: 'options.retail', value: 'retail' }],
+      [{ label: 'Retail', labelKey: 'options.retail', value: 'retail' }],
+    ]) {
+      expect(validateContent({ content: makePage(options), format: 'json' }).passed).toBe(true);
+    }
+
+    const missingLabel = validateContent({
+      content: makePage([{ value: 'retail' }]),
+      format: 'json',
+    });
+    expect(missingLabel.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].props.options[0].props' }),
+    ]));
+  });
+
   it.each([
     ['prefix-$row.id', '模板拼接'],
     ['$parentRow.id', '嵌套表格'],
@@ -1246,6 +1350,35 @@ describe('validate_content', () => {
       expect.objectContaining({ path: 'body.props.maxSize' }),
     ]));
     expect(zero.passed).toBe(true);
+  });
+
+  it.each([
+    ['.nan', 'NaN'],
+    ['.inf', 'Infinity'],
+    ['-.inf', '-Infinity'],
+  ])('rejects non-finite DSL number %s', (yamlNumber, actualValue) => {
+    const result = validateContent({
+      content: `
+meta:
+  pageId: non-finite-number
+  title: Non-finite number
+  protocolVersion: "0.2"
+body:
+  type: grid
+  props:
+    columns: ${yamlNumber}
+  children: []
+`,
+      format: 'yaml',
+      filename: 'non-finite.yaml',
+    });
+
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'body.props.columns',
+        message: expect.stringContaining(actualValue),
+      }),
+    ]));
   });
 
   it('passes valid all references YAML', () => {

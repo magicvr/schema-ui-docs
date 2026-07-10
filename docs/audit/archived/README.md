@@ -6,6 +6,23 @@
 
 ---
 
+## 0043 — 2026-07-10 — Node 嵌套挂载 + 校验错误分类 + 数值/i18n 边界 + CLI/审计身份
+
+**主题：** 执行 tabs content 完整 Node 契约并修复嵌套结构错误分类（V155-V156），拒绝非有限数、支持固定选项 i18n、传播调用错误退出码（V157-V159），修正 0042 索引范围和历史复合身份引用（V160-V161）。
+**性质：** L2 Node 递归与错误分类闭环 + 组件 DSL 数值/i18n 契约同步 + CLI 退出码和归档证据链修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0043-2026-07-10-review.md](./0043-2026-07-10-review.md) | 审视报告 — V155-V161（7 项） |
+| [0043-2026-07-10-checklist.md](./0043-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V155-V156: `tabs.items[].content` 的完整 Node `$ref` 进入 L2 普通对象检查和递归；页面内部非对象 props 保持为 L0/L1 结构违规，不再误报 `parseError`
+- V157-V159: DSL number 只接受有限数；`select.options[]` 支持 `labelKey`；统一入口正确区分通过 0、内容违规 1、调用错误 2
+- V160-V161: 0042 plan 索引范围修正为 V142-V154；0010/0013/0014 冲突项统一使用 `NNNN/Vn`；MCP 103 项测试、build 和 tools smoke 全部通过
+
+---
+
 ## 0042 — 2026-07-10 — 请求与 Action 语义 + 组件校验边界 + MCP 输出容量 + 审计编号身份
 
 **主题：** 统一 DataRef 与搜索表单请求语义（V142-V143🔴），闭合 dateRangePicker/upload/HTTP 错误/bodyMapping 行为并修复 L2/L4/DSL 边界（V144-V151🟡），修复 MCP 子进程输出容量和历史 V 编号身份（V152-V153🟡），统一 Windows glob（V154🟢）。
@@ -15,7 +32,7 @@
 |---|---|
 | [0042-2026-07-10-review.md](./0042-2026-07-10-review.md) | 审视报告 — V142-V154（13 项） |
 | [0042-2026-07-10-checklist.md](./0042-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
-| [0042-2026-07-10-plan.md](./0042-2026-07-10-plan.md) | 修复计划与 V142-V152 决策记录 |
+| [0042-2026-07-10-plan.md](./0042-2026-07-10-plan.md) | 修复计划与 V142-V154 决策记录 |
 
 **关键修复：**
 - V142-V147: DataRef params 对所有 method 固定为 query；搜索目标必须解析到 API；禁止 dateRangePicker value 写入；upload Action 作为 actionRef 约束唯一来源；明确 HTTP/onError 时序和 bodyMapping 白名单
@@ -514,12 +531,12 @@
 
 | 文件 | 说明 |
 |---|---|
-| [0014-2026-07-08-review.md](./0014-2026-07-08-review.md) | 审视报告 — V4(🔴)/V5(🔴)/V6(🟡)/V7(🟡)/V8(🟢) |
+| [0014-2026-07-08-review.md](./0014-2026-07-08-review.md) | 审视报告 — 0014/V4(🔴)/V5(🔴)/V6(🟡)/V7(🟡)/V8(🟢) |
 | [0014-2026-07-08-checklist.md](./0014-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
 | [0014-2026-07-08-plan.md](./0014-2026-07-08-plan.md) | 处理计划 |
 
 **关键修复：**
-- V4: `archived/0013-checklist.md` 全部子项标记为 `[x]` + O1 决策记录回补 + `audit/README.md` 重复行清理与陈述修正
+- 0014/V4: `archived/0013-checklist.md` 全部子项标记为 `[x]` + O1 决策记录回补 + `audit/README.md` 重复行清理与陈述修正
 - V5: `08-renderer-spec.md` `applies_to` 版本声明 `v0.2.1`→`v0.2`（统一裸版本号）
 - V6: `component-registry.json` `$schema` 改为自定义 DSL 标识 `component-registry-dsl#` + `03-component-registry.md` 补充格式说明
 - V7: `decisions/0005`/`0006` 状态行"需合并入"→"已合并入"
@@ -538,9 +555,9 @@
 | [0013-2026-07-08-checklist.md](./0013-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
 
 **关键修复：**
-- V1: `00-overview.md` §5 版本声明 v0.2.3→v0.2.4，`last_updated` 同步
-- V2: `07-actions-contract.md` 代码注释 + `action.schema.json` 描述统一为 `since 0.2.1`
-- V3: `component-registry.json` 7 处 column/action `(since 0.2)`→`(since 0.2.1)`
+- 0013/V1: `00-overview.md` §5 版本声明 v0.2.3→v0.2.4，`last_updated` 同步
+- 0013/V2: `07-actions-contract.md` 代码注释 + `action.schema.json` 描述统一为 `since 0.2.1`
+- 0013/V3: `component-registry.json` 7 处 column/action `(since 0.2)`→`(since 0.2.1)`
 - O1: `01/02/04/08` 四篇文档 `last_updated` 同步为 2026-07-08
 
 ---
@@ -590,10 +607,10 @@
 | [0010-2026-07-08-checklist.md](./0010-2026-07-08-checklist.md) | 跟踪清单（全部已完成 ✅） |
 
 **关键修复：**
-- V1: `08-renderer-spec.md` §2.1 并行加载示例 `body` 数组 → `grid` 容器包裹
-- V2: `08-renderer-spec.md` §2.3 `$deps.*` 示例改为 `form` 表单上下文
-- V3: `02-reaction-expression.md` §9.1 收紧未定义的跨作用域变通描述
-- V4: `03-component-registry.md` / `component-registry.json` 清理"方案 A"历史措辞
+- 0010/V1: `08-renderer-spec.md` §2.1 并行加载示例 `body` 数组 → `grid` 容器包裹
+- 0010/V2: `08-renderer-spec.md` §2.3 `$deps.*` 示例改为 `form` 表单上下文
+- 0010/V3: `02-reaction-expression.md` §9.1 收紧未定义的跨作用域变通描述
+- 0010/V4: `03-component-registry.md` / `component-registry.json` 清理"方案 A"历史措辞
 
 ---
 

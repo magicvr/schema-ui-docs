@@ -410,10 +410,15 @@
           "items": {
             "type": "object",
             "properties": {
-              "label": { "type": "string", "description": "选项文案" },
+              "label": { "type": "string", "description": "选项文案，与 labelKey 至少提供一个" },
+              "labelKey": { "type": "string", "description": "选项文案 i18n key，与 label 至少提供一个" },
               "value": { "description": "选项值" }
             },
-            "required": ["label", "value"],
+            "required": ["value"],
+            "anyOf": [
+              { "required": ["label"] },
+              { "required": ["labelKey"] }
+            ],
             "additionalProperties": false
           }
         },

@@ -13,7 +13,7 @@ applies_to: schema-ui-protocol v0.2
 >
 > **关于 `schemas/component-registry.json` 的格式说明：** 该文件使用**自定义 DSL 格式**（非标准 JSON Schema），`$schema` 标识为 `component-registry-dsl#`。其结构以自造键 `components` 组织组件目录、使用内联布尔值 `"required": true` 表达必填性——这些均非标准 JSON Schema 语法，不应使用 `ajv` 等标准校验器直接验证。与之对比，协议中实际的 JSON Schema 文件（`node.schema.json`/`page.schema.json`/`action.schema.json`/`reaction.schema.json`）均为合法标准格式。
 >
-> **DSL 约束关键字白名单：** 该 DSL 允许在组件级或 `props` 对象内借用以下 JSON Schema 风格组合约束关键字：`anyOf`、`oneOf`、`allOf`、`if`、`then`、`else`、`properties`、`const`、数组形式 `required`、`additionalProperties`。这些关键字仅用于表达组件字段之间的组合关系，不代表整个文件可作为标准 JSON Schema 处理。实现 L2 组件契约校验时，必须同时处理字段表和这些组合约束。
+> **DSL 约束关键字白名单：** 该 DSL 允许在组件级或 `props` 对象内借用以下 JSON Schema 风格组合约束关键字：`anyOf`、`oneOf`、`allOf`、`if`、`then`、`else`、`properties`、`const`、数组形式 `required`、`additionalProperties`。数值字段还可使用 `minimum`；`type: number` 只接受有限数，不接受 YAML `.nan` / `.inf` / `-.inf`。这些关键字仅用于表达组件字段之间的组合关系，不代表整个文件可作为标准 JSON Schema 处理。实现 L2 组件契约校验时，必须同时处理字段表和这些组合约束。
 >
 > **嵌套对象封闭性：** 具有固定协议字段表的嵌套对象必须显式声明 `additionalProperties: false`，例如 `tabs.props.items[]`、`table.props.pagination`、`table.props.columns[]` / `actions[]`、`select.props.options[]` 与 `optionsSource`。只有业务字典才允许动态键，例如 `tagMap` 的键来自后端数据值；其映射项本身仍是封闭对象。
 >
@@ -374,7 +374,7 @@ props:
 |---|---|---|---|
 | `field` | string | 是 | 字段名（表单提交时的 key） |
 | `label` / `labelKey` | string | 是 | 字段标签 |
-| `options` | array\<{label,value}\> | 与 `optionsSource` 二选一 | 固定选项列表 |
+| `options` | array\<{label/labelKey,value}\> | 与 `optionsSource` 二选一 | 固定选项列表；选项文案可使用 `labelKey` 国际化，`label` / `labelKey` 至少提供一个 |
 | `optionsSource` | OptionsSource | 与 `options` 二选一（since 0.2） | 远程动态选项，见下 |
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
 | `required` | boolean | 否 | 是否必填 |
