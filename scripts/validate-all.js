@@ -161,7 +161,7 @@ function main() {
     console.log('');
   }
 
-  process.exit(overallPass ? 0 : 1);
+  process.exitCode = overallPass ? 0 : 1;
 }
 
 main();

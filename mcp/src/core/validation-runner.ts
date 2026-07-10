@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -259,11 +259,20 @@ function runLayerScript(scriptName: string, filePath: string, layer: ValidationL
 
 function defaultLayerScriptExecutor(scriptName: string, filePath: string): string {
   const scriptPath = protocolPath('scripts', scriptName);
-  return execFileSync(process.execPath, [scriptPath, filePath, '--json'], {
+  const result = spawnSync(process.execPath, [scriptPath, filePath, '--json'], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     maxBuffer: MAX_LAYER_SCRIPT_OUTPUT_BYTES,
   });
+  if (result.error) throw result.error;
+  if (result.status !== 0 && !result.stdout.trim()) {
+    throw Object.assign(new Error(result.stderr || `校验脚本退出码 ${result.status}`), {
+      status: result.status,
+      stdout: result.stdout,
+      stderr: result.stderr,
+    });
+  }
+  return result.stdout;
 }
 
 function mapScriptViolation(item: Record<string, unknown>, layer: ValidationLayer, callerFilename?: string): LayerViolation {
