@@ -219,6 +219,243 @@ describe('validate_content', () => {
     ]));
   });
 
+  it('allows dateRangePicker self properties and rejects them on other components', () => {
+    const makePage = (type: string, expression: string) => JSON.stringify({
+      meta: { pageId: 'self-property', title: 'Self property', protocolVersion: '0.2' },
+      body: {
+        type: 'form',
+        props: { submitAction: 'save' },
+        children: [{
+          type,
+          props: type === 'dateRangePicker'
+            ? { startField: 'from', endField: 'to', label: 'Range' }
+            : { field: 'from', label: 'From' },
+          reactions: [{
+            dependencies: [],
+            when: expression,
+            fulfill: { visible: true },
+          }],
+        }],
+      },
+      actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+    });
+
+    const valid = validateContent({
+      content: makePage('dateRangePicker', "$self.start < '2026-01-01' && $self.end != null"),
+      format: 'json',
+      filename: 'date-range-self.json',
+    });
+    const unknownProperty = validateContent({
+      content: makePage('dateRangePicker', '$self.unknown != null'),
+      format: 'json',
+      filename: 'date-range-unknown-self.json',
+    });
+    const wrongComponent = validateContent({
+      content: makePage('input', '$self.start != null'),
+      format: 'json',
+      filename: 'input-self-property.json',
+    });
+    const fakeNamespace = validateContent({
+      content: makePage('input', '$selfish != null'),
+      format: 'json',
+      filename: 'fake-self-namespace.json',
+    });
+
+    expect(valid.passed).toBe(true);
+    expect(unknownProperty.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'SELF_PROPERTY_SCOPE' }),
+    ]));
+    expect(wrongComponent.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'SELF_PROPERTY_SCOPE' }),
+    ]));
+    expect(fakeNamespace.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'UNKNOWN_VARIABLE' }),
+    ]));
+  });
+
+  it('requires visibleWhen dependencies only inside form context', () => {
+    const formMissingDependencies = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'form-visible', title: 'Form visible', protocolVersion: '0.2' },
+        body: {
+          type: 'form',
+          props: { submitAction: 'save' },
+          children: [{
+            type: 'input',
+            props: { field: 'name', label: 'Name' },
+            visibleWhen: { when: '$context.features.beta == true' },
+          }],
+        },
+        actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+      }),
+      format: 'json',
+      filename: 'form-visible.json',
+    });
+    const formEmptyDependencies = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'form-visible-empty', title: 'Form visible empty', protocolVersion: '0.2' },
+        body: {
+          type: 'form',
+          props: { submitAction: 'save' },
+          children: [{
+            type: 'input',
+            props: { field: 'name', label: 'Name' },
+            visibleWhen: { dependencies: [], when: '$context.features.beta == true' },
+          }],
+        },
+        actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+      }),
+      format: 'json',
+      filename: 'form-visible-empty.json',
+    });
+    const nonForm = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'page-visible', title: 'Page visible', protocolVersion: '0.2' },
+        body: {
+          type: 'text',
+          props: { content: 'Beta' },
+          visibleWhen: { when: '$context.features.beta == true' },
+        },
+      }),
+      format: 'json',
+      filename: 'page-visible.json',
+    });
+    const embeddedTable = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'form-table-visible', title: 'Form table visible', protocolVersion: '0.2' },
+        body: {
+          type: 'form',
+          props: { mode: 'search', targetTable: 'orders' },
+          children: [{
+            type: 'table',
+            id: 'orders',
+            props: {
+              rowKey: 'id',
+              pagination: { mode: 'none' },
+              columns: [{
+                field: 'id',
+                label: 'ID',
+                visibleWhen: { when: '$context.features.beta == true' },
+              }],
+            },
+          }],
+        },
+      }),
+      format: 'json',
+      filename: 'form-table-visible.json',
+    });
+
+    expect(formMissingDependencies.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].visibleWhen.dependencies' }),
+    ]));
+    expect(formEmptyDependencies.passed).toBe(true);
+    expect(nonForm.passed).toBe(true);
+    expect(embeddedTable.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].props.columns[0].visibleWhen.dependencies' }),
+    ]));
+  });
+
+  it('rejects parentRow expressions until a nested table mount is defined', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'parent-row', title: 'Parent row', protocolVersion: '0.2' },
+        body: {
+          type: 'table',
+          props: {
+            rowKey: 'id',
+            pagination: { mode: 'none' },
+            columns: [{
+              field: 'id',
+              label: 'ID',
+              visibleWhen: {
+                scope: 'row',
+                dependencies: ['status'],
+                when: "$parentRow.status == 'active'",
+              },
+            }],
+          },
+        },
+      }),
+      format: 'json',
+      filename: 'parent-row.json',
+    });
+
+    expect(result.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'PARENT_ROW_UNSUPPORTED' }),
+    ]));
+  });
+
+  it('rejects chained comparisons but allows comparisons separated by logic', () => {
+    const makePage = (expression: string) => JSON.stringify({
+      meta: { pageId: 'comparison-chain', title: 'Comparison chain', protocolVersion: '0.2' },
+      body: {
+        type: 'form',
+        props: { submitAction: 'save' },
+        children: [{
+          type: 'input',
+          props: { field: 'roles', label: 'Roles' },
+          reactions: [{
+            dependencies: ['roles'],
+            when: expression,
+            fulfill: { visible: true },
+          }],
+        }],
+      },
+      actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+    });
+
+    const chained = validateContent({
+      content: makePage("$deps.roles contains 'admin' contains true"),
+      format: 'json',
+      filename: 'comparison-chain.json',
+    });
+    const logical = validateContent({
+      content: makePage("$deps.roles contains 'admin' && $deps.roles != null"),
+      format: 'json',
+      filename: 'comparison-logic.json',
+    });
+
+    expect(chained.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'SYNTAX', message: expect.stringContaining('不支持链式使用') }),
+    ]));
+    expect(logical.passed).toBe(true);
+  });
+
+  it('treats tagMap keys as data while still scanning mapping entries', () => {
+    const makePage = (mappingEntry: object) => JSON.stringify({
+      meta: { pageId: 'tag-map', title: 'Tag map', protocolVersion: '0.2' },
+      body: {
+        type: 'table',
+        props: {
+          rowKey: 'id',
+          pagination: { mode: 'none' },
+          columns: [{
+            field: 'status',
+            label: 'Status',
+            format: 'tag',
+            tagMap: { color: mappingEntry, width: { text: 'Wide', tone: 'info' } },
+          }],
+        },
+      },
+    });
+
+    const valid = validateContent({
+      content: makePage({ text: 'Color', tone: 'neutral' }),
+      format: 'json',
+      filename: 'tag-map-valid.json',
+    });
+    const invalidEntry = validateContent({
+      content: makePage({ text: 'Color', tone: 'neutral', color: 'red' }),
+      format: 'json',
+      filename: 'tag-map-invalid.json',
+    });
+
+    expect(valid.passed).toBe(true);
+    expect(invalidEntry.layers.L4).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.columns[0].tagMap.color.color' }),
+    ]));
+  });
+
   it('rejects missing nested required component fields and duplicate node ids', () => {
     const missingPaginationMode = validateContent({
       content: JSON.stringify({

@@ -188,7 +188,7 @@
               "actionRef": { "type": "string", "description": "【可选，since 0.2.7】引用顶层 actions 中的 request action，用于声明式行级后端请求；使用时必须声明 meta.requiredCapabilities: [actions.row.request]" },
               "requestMapping": {
                 "type": "object",
-                "description": "【可选，since 0.2.7】RowAction.actionRef 的请求参数绑定；path/query/body 均为扁平 key-value map；path 替换 url 中的 {param}，query 生成查询参数，body 生成 JSON 请求体；值仅允许字面量或单个 $row.* / $parentRow.* 点路径引用",
+                "description": "【可选，since 0.2.7】RowAction.actionRef 的请求参数绑定；path/query/body 均为扁平 key-value map；path 替换 url 中的 {param}，query 生成查询参数，body 生成 JSON 请求体；值仅允许字面量或单个 $row.* 点路径引用；v0.2 暂不支持 $parentRow.*",
                 "properties": {
                   "path": { "type": "object" },
                   "query": { "type": "object" },

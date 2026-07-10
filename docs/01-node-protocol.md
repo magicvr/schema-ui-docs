@@ -117,7 +117,7 @@ data:
 | 挂载位置 | 默认/要求的 `scope` | 典型用途 |
 |---|---|---|
 | 表单字段类 Node（如 `input` / `select`） | `scope: form`（默认） | 字段间显隐/必填/禁用/赋值联动 |
-| 表格 `columns[]` / `actions[]` | 使用 `$row.*` / `$parentRow.*` 或行级 `$self` 时必须显式 `scope: row`；仅使用 `$deps.*` / `$context.*` 时可使用 `scope: form`（默认） | 行内单元格/操作的显隐与禁用 |
+| 表格 `columns[]` / `actions[]` | 使用 `$row.*` 或行级 `$self` 时必须显式 `scope: row`；仅使用 `$deps.*` / `$context.*` 时可使用 `scope: form`（默认） | 行内单元格/操作的显隐与禁用 |
 
 完整语法见 [02-reaction-expression.md](./02-reaction-expression.md)，结构如下：
 
@@ -178,6 +178,7 @@ visibleWhen:
 
 - **表单上下文**（节点位于 `form` 内部）：`dependencies` 必填，表达式中可访问 `$deps.*`（声明字段）和 `$context.*`。
 - **非表单上下文**（如布局容器 `section`/`grid`）：`dependencies` 可省略，此时 `when` 中仅允许 `$context.*`，出现 `$deps.*` 为静态校验拒绝。
+- 表单上下文中的条件必填由能感知 Node 树位置的 L2 校验执行；即使表达式只读取 `$context.*`，也必须显式写 `dependencies: []`。
 - 表达式语法复用 [02-reaction-expression.md](./02-reaction-expression.md) 白名单解析器。
 
 > `visibleWhen` 与 `reactions` 是并列关系，不是包含关系。`reactions` 描述"字段值变化 → 字段级副作用"；`visibleWhen` 描述"给定当前状态 → 该节点是否渲染"的静态判断。

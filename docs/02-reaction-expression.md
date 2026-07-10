@@ -29,13 +29,14 @@ applies_to: schema-ui-protocol v0.2
 | 变量 | 含义 | 可用位置 | 示例 |
 |---|---|---|---|
 | `$deps.<字段名>` | `dependencies` 中声明的依赖字段的当前值；在 `data.params` / `optionsSource.params` 中表示同表单字段的当前值，不需要额外 `dependencies` 数组 | `reactions`、`visibleWhen`(表单内)、`scope: form` 表达式、表单上下文内的参数值替换 | `$deps.orderType` |
-| `$self` | 当前字段自身的当前值（字段级）；当前列对应单元格的原始数据值（`scope: row` 列表达式） | 表单字段 `reactions`、表格列 `scope: row` 表达式 | `$self` |
+| `$self` | 当前字段自身的当前值（字段级）；`dateRangePicker` 自身 reactions 中可受控访问 `$self.start` / `$self.end`；当前列对应单元格的原始数据值（`scope: row` 列表达式） | 表单字段 `reactions`、表格列 `scope: row` 表达式 | `$self` |
 | `$context.user.*` | 当前用户身份信息（只读快照，最小字段集见 §11.1） | 所有位置 | `$context.user.roles` |
 | `$context.features.*` | 功能开关映射表（只读快照，最小字段集见 §11.2） | 所有位置 | `$context.features.newDashboard` |
 | `$row.<字段名>` | 当前行的原始数据对象（未经格式化处理） | 表格 `columns`/`actions` 中 `scope: row` 表达式 | `$row.level` |
 | `$row.__index` | 当前行在数据集中的序号（从 0 开始） | 同上 | `$row.__index` |
 | `$row.__key` | 当前行的唯一标识（取表格 `rowKey` 字段值） | 同上 | `$row.__key` |
-| `$parentRow.<字段名>` | 直接父级表格的当前行数据（仅嵌套表格场景） | 嵌套表格内 `scope: row` 表达式 | `$parentRow.status` |
+
+> **v0.2 边界（审计 0039 / V120）：** 当前组件 DSL 没有嵌套表格 Node 挂载结构，因此 `$parentRow.*` 不属于 v0.2 可用变量，L2/L3a 保守拒绝。未来若通过 ADR 定义可校验的嵌套表格结构，可再同步恢复该变量。
 
 **禁止事项：**
 - ❌ 不允许访问 `dependencies` 之外未声明的字段。
@@ -46,6 +47,7 @@ applies_to: schema-ui-protocol v0.2
 - ❌ 不允许在 `permissions.*` 表达式中访问 `$deps.*`（静态校验拒绝，见 §10.2）。
 - ❌ 不允许在非表单节点的 `visibleWhen` 中访问 `$deps.*`（静态校验拒绝，见 §10.1）。
 - ❌ 不允许在表格 `actions` 的 `scope: row` 表达式中使用 `$self`（不适用，见 §10.3）。
+- ❌ 不允许使用 `$parentRow.*`；v0.2 尚未定义嵌套表格挂载结构。
 
 ## 3. 运算符白名单
 
@@ -58,6 +60,8 @@ applies_to: schema-ui-protocol v0.2
 > `contains` 归入 **比较** 优先级档（与 `==`/`!=` 同级）。
 
 `contains` 为数组包含判断运算符，语义定义为：左操作数为数组时判断是否包含右操作数字面量（等价于 `Array.prototype.includes`），返回布尔值；若左操作数不是数组（如为 `undefined`），短路返回 `false`，不抛异常。`contains` 与 `==`/`!=` 等比较运算符归入同一优先级档，不单独新增优先级层级。`contains` 是二元、非链式运算符（不存在 `a contains b contains c` 的连续使用场景），无需定义结合性。
+
+所有比较运算符均不得链式连续使用；需要多个比较时必须通过 `&&` / `||` 拆分为独立比较表达式。
 
 不支持算术运算符（`+` `-` `*` `/`）、三元表达式、字符串拼接、正则匹配。
 如果一个联动场景需要用到这些能力，说明它已经超出"简单显隐/必填联动"的范畴，
@@ -230,7 +234,7 @@ visibleWhen:
 
 ## 14. 表达式求值时序模型（since 0.2.4）
 
-表达式引擎采用稳定快照模型。每一轮由用户输入、数据加载、上下文刷新或显式重新求值触发的表达式求值，都按以下阶段执行：
+表达式引擎采用稳定快照模型。每一轮由用户输入、数据加载或显式重新求值触发的表达式求值，都按以下阶段执行。`$context` 在 Renderer 实例初始化时一次性注入；宿主需要更新 context 时必须重挂载并创建新实例，新实例的首次 Snapshot 才读取新值。
 
 1. **Snapshot**：冻结当前表单字段值、节点状态、`$context`、行数据上下文，形成本轮 `inputSnapshot`。
 2. **Evaluate**：本轮所有 `permissions.*`、`visibleWhen.when`、`reactions[].when` 均只读取 `inputSnapshot`。`reactions.fulfill.value` / `otherwise.value` 只产生待提交写入，不会立刻改变同轮其他表达式读取到的值。
@@ -259,21 +263,19 @@ visibleWhen:
 
 下表汇总各使用位置可访问的变量，是 §2（变量命名空间）与 §9（作用域规则）的交叉对照。合并入 `02-reaction-expression.md` 时作为独立附录。
 
-| 使用位置 | `$deps.*` | `$self` | `$context.*` | `$row.*` | `$parentRow.*` |
-|---|---|---|---|---|---|
-| 表单字段 `reactions` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| 表单字段 `visibleWhen` | ✅ | ❌ | ✅ | ❌ | ❌ |
-| 表单上下文内 `data.params` | ✅（仅值替换） | ❌ | ❌ | ❌ | ❌ |
-| 非表单上下文 `data.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ | ❌ |
-| 表单上下文内 `optionsSource.params` | ✅（仅值替换，同 `data.params`） | ❌ | ❌ | ❌ | ❌ |
-| 非表单上下文 `optionsSource.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ | ❌ |
-| 非表单节点 `visibleWhen` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ | ❌ |
-| 节点 `permissions.*` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ | ❌ |
-| 表格列 `scope: form` 表达式（仅表格位于 `form.children` 内） | ✅ | ❌（无绑定对象） | ✅ | ❌ | ❌ |
-| 独立表格列 `scope: form` 表达式 | ❌（静态校验拒绝 `$deps.*`） | ❌（无绑定对象） | ✅ | ❌ | ❌ |
-| 表格列 `scope: row` 表达式 | ❌ | ✅（单元格原始值） | ✅ | ✅ | ❌ |
-| 表格列 `scope: row`（嵌套表格内） | ❌ | ✅ | ✅ | ✅ | ✅（仅直接父级） |
-| 表格 `actions`（`scope: row`） | ❌ | ❌（不适用） | ✅ | ✅ | ❌ |
-| 表格 `actions`（`scope: row`,嵌套表格内） | ❌ | ❌（不适用） | ✅ | ✅ | ✅（仅直接父级） |
+| 使用位置 | `$deps.*` | `$self` | `$context.*` | `$row.*` |
+|---|---|---|---|---|
+| 表单字段 `reactions` | ✅ | ✅（`dateRangePicker` 额外允许 `.start` / `.end`） | ✅ | ❌ |
+| 表单字段 `visibleWhen` | ✅ | ❌ | ✅ | ❌ |
+| 表单上下文内 `data.params` | ✅（仅值替换） | ❌ | ❌ | ❌ |
+| 非表单上下文 `data.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ |
+| 表单上下文内 `optionsSource.params` | ✅（仅值替换，同 `data.params`） | ❌ | ❌ | ❌ |
+| 非表单上下文 `optionsSource.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ |
+| 非表单节点 `visibleWhen` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ |
+| 节点 `permissions.*` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ |
+| 表格列 `scope: form` 表达式（仅表格位于 `form.children` 内） | ✅ | ❌（无绑定对象） | ✅ | ❌ |
+| 独立表格列 `scope: form` 表达式 | ❌（静态校验拒绝 `$deps.*`） | ❌（无绑定对象） | ✅ | ❌ |
+| 表格列 `scope: row` 表达式 | ❌ | ✅（单元格原始值） | ✅ | ✅ |
+| 表格 `actions`（`scope: row`） | ❌ | ❌（不适用） | ✅ | ✅ |
 
 此矩阵仅描述协议允许出现哪些变量，不重复各变量的取值语义（原始值/格式化值、只读约束等），具体语义以各节正文为准。

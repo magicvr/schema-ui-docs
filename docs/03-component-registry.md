@@ -173,7 +173,7 @@ data:
 |---|---|---|---|
 | `key` | string | 是 | 操作标识；仅供前端识别行内操作类型，不引用顶层 `actions` |
 | `actionRef` | string | 否（since 0.2.7） | 引用顶层 `actions` 中的 `type: request` action，用于声明式行级后端请求；使用时页面必须声明 `meta.requiredCapabilities: [actions.row.request]` |
-| `requestMapping` | object | 否（since 0.2.7） | `actionRef` 的行数据绑定。支持 `path` / `query` / `body` 三段，均为扁平 key-value map；值只允许字面量或单个 `$row.*` / `$parentRow.*` 点路径引用；完整规则见 [07-actions-contract.md §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) |
+| `requestMapping` | object | 否（since 0.2.7） | `actionRef` 的行数据绑定。支持 `path` / `query` / `body` 三段，均为扁平 key-value map；值只允许字面量或单个 `$row.*` 点路径引用；v0.2 暂不支持 `$parentRow.*`；完整规则见 [07-actions-contract.md §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) |
 | `label` / `labelKey` | string | 是 | 操作文案 |
 | `confirm` | string | 否 | 二次确认文案；行级后端请求中仅在 `visibleWhen` / `permissions` / `disabled` 判定通过后、构造请求前展示 |
 | `visibleField` | string | 否 | 行级显隐语法糖（`visibleWhen` 的简化写法），取行数据中同名字段的布尔值作为显隐依据。解析阶段等价展开为 `{ scope: row, dependencies: [field], when: "$row.<field> == true" }`，展开后纳入 [01-node-protocol.md §3.10](./01-node-protocol.md#310-最终可见性优先级公式) 公式 |

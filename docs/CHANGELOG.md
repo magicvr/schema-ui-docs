@@ -13,12 +13,16 @@
 - 审计 `0038 / V114`：澄清最新已发布版本与当前工作区未发布修订的关系，避免继续让最新 PATCH 说明落后于仓库状态。
 - 审计 `0038 / V115`：修正 `README.md` 与 `00-overview.md` 对 `docs/schemas/` 的入口层描述，明确其中同时包含标准 JSON Schema 与组件注册 DSL。
 - 审计 `0038 / V116`：固定 `mcp/package.json` 中 `@modelcontextprotocol/sdk` 的依赖版本策略，避免继续使用 `latest`。
+- 审计 `0039 / V117-V121`：收敛 `$self.start/end`、表单内 `visibleWhen.dependencies`、`tagMap` L4 扫描、`$parentRow` 暂缓策略与非链式比较校验。
+- 审计 `0039 / V122-V124`：统一 `$context` 为实例初始化快照，补齐 Renderer 请求初始化接口，并将 MCP `get_doc` 20KB 预算施加到完整工具文本。
 
 **涉及的文档、包与配置：**
 - 入口文档：`README.md`、`docs/00-overview.md`
 - 版本记录：`docs/CHANGELOG.md`
 - MCP 包：`mcp/package.json`、`mcp/package-lock.json`
 - MCP 说明：`docs/mcp/README.md`
+- 协议与 ADR：`docs/01-node-protocol.md`、`docs/02-reaction-expression.md`、`docs/03-component-registry.md`、`docs/06-validation.md`、`docs/07-actions-contract.md`、`docs/08-renderer-spec.md`、`docs/decisions/0003-0008`
+- 校验与 MCP 实现：`scripts/*.js`、`mcp/src/tools/docs.ts`、`mcp/tests/*.test.ts`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 

@@ -6,11 +6,12 @@
  * permissions.*）进行静态校验：
  *
  *   1. 语法合法性 —— 仅允许白名单运算符，禁止函数调用、算术运算
- *   2. 变量命名空间 —— 只允许 $deps.* / $self / $row.* / $parentRow.* / $context.*
+ *   2. 变量命名空间 —— 只允许 $deps.* / $self / $row.* / $context.*；
+ *      dateRangePicker 自身 reactions 额外允许 $self.start / $self.end
  *   3. 作用域隔离规则（02-reaction-expression.md §9、§10）
  *      - scope:row 不能出现 $deps.*
- *      - scope:form 不能出现 $row.* / $parentRow.*
- *      - $parentRow.* 仅允许嵌套表格内的 scope:row 表达式
+ *      - scope:form 不能出现 $row.*
+ *      - v0.2 暂不支持 $parentRow.*（组件 DSL 尚无嵌套表格挂载结构）
  *      - permissions.* 不能出现 $deps.*
  *      - 非表单 visibleWhen（无 dependencies）不能出现 $deps.*
  *      - 表格 actions 的 scope:row 不能出现 $self
@@ -69,6 +70,7 @@ const TT = {
 const ALLOWED_KEYWORDS = new Set(['contains', 'true', 'false', 'null']);
 // 变量命名空间前缀白名单
 const ALLOWED_NS_PREFIXES = ['$deps.', '$self', '$row.', '$parentRow.', '$context.'];
+const COMPARISON_OPERATORS = new Set(['==', '!=', '>', '>=', '<', '<=', 'contains']);
 const ALLOWED_CONTEXT_ROOTS = new Set(['user', 'features']);
 
 /**
@@ -142,9 +144,13 @@ function tokenize(expr) {
       // 变量路径词法检查：$ 开头的变量路径中不能有空段（如 ..）、结尾点（如 $row.）
       // 或连续两点；命名空间前缀后必须有合法标识符或续段
       if (word.startsWith('$') && word !== '$self') {
-        const nsMatch = ALLOWED_NS_PREFIXES.find(prefix => word.startsWith(prefix));
+        const nsMatch = ALLOWED_NS_PREFIXES.find(prefix =>
+          prefix === '$self' ? word.startsWith('$self.') : word.startsWith(prefix),
+        );
         if (nsMatch) {
-          const suffix = word.slice(nsMatch.length);
+          const suffix = word.startsWith('$self.')
+            ? word.slice('$self.'.length)
+            : word.slice(nsMatch.length);
           // 后缀不能为空段、连续点或非法起始字符
           if (!/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/.test(suffix)) {
             tokens.push({ type: TT.INVALID, value: word });
@@ -189,6 +195,7 @@ function tokenize(expr) {
 function checkTokenSyntax(tokens) {
   const errors = [];
   let depth = 0;
+  const comparisonSeenByDepth = new Map();
 
   // 状态：'OPERAND'（当前位置期望操作数）或 'OPERATOR'（期望操作符或表达式结束）
   // 表达式从期望操作数开始；若 tokens 为空则合法（空串由外层拦截）
@@ -222,6 +229,7 @@ function checkTokenSyntax(tokens) {
     // --- 括号深度 ---
     if (tok.type === TT.LPAREN) {
       depth++;
+      comparisonSeenByDepth.set(depth, false);
       // 左括号出现在操作数位置：合法（开始一个分组）
       if (expecting !== 'OPERAND') {
         errors.push('语法错误：操作符后面不能直接出现操作数（在 "(" 之前）');
@@ -231,6 +239,7 @@ function checkTokenSyntax(tokens) {
       continue;
     }
     if (tok.type === TT.RPAREN) {
+      comparisonSeenByDepth.delete(depth);
       depth--;
       if (depth < 0) { errors.push('括号不匹配：多余的 ")"'); depth = 0; }
       // 右括号出现在操作数位置说明括号里是空的或已经有多余操作符
@@ -258,6 +267,14 @@ function checkTokenSyntax(tokens) {
     if (isBinaryOp) {
       if (expecting !== 'OPERATOR') {
         errors.push(`语法错误：在 "${tok.value}" 处期望操作数，但遇到操作符`);
+      }
+      if (COMPARISON_OPERATORS.has(tok.value)) {
+        if (comparisonSeenByDepth.get(depth)) {
+          errors.push(`语法错误：比较运算符 "${tok.value}" 不支持链式使用，请用逻辑运算符拆分为独立比较`);
+        }
+        comparisonSeenByDepth.set(depth, true);
+      } else if (tok.value === '&&' || tok.value === '||') {
+        comparisonSeenByDepth.set(depth, false);
       }
       expecting = 'OPERAND';
       continue;
@@ -304,10 +321,10 @@ function validateExpression(expr, exprPath, context) {
    *   dependencies: string[],          // reactions/visibleWhen 声明的 deps
   *   location: 'reaction' | 'visibleWhen' | 'permission' | 'tableAction' | 'tableColumn',
   *   hasFormContext: boolean,          // 节点是否处于 form 上下文（type===form 或其 form 子孙）
-  *   allowParentRow: boolean,          // 当前表达式是否处于嵌套表格的行级上下文
+  *   componentType: string | undefined, // 普通 Node reactions 所属组件类型
    * }
    */
-  const { scope = 'form', dependencies = [], location, hasFormContext = true, allowParentRow = false } = context;
+  const { scope = 'form', dependencies = [], location, hasFormContext = true, componentType } = context;
   const violations = [];
 
   if (typeof expr !== 'string' || !expr.trim()) {
@@ -332,10 +349,6 @@ function validateExpression(expr, exprPath, context) {
   const rowDepFields = vars
     .filter(v => v.startsWith('$row.'))
     .map(v => v.slice('$row.'.length).split('.')[0]); // 取第一段字段名
-  const parentRowDepFields = vars
-    .filter(v => v.startsWith('$parentRow.'))
-    .map(v => v.slice('$parentRow.'.length).split('.')[0]);
-
   // 1a. scope: row 仅允许在表格 columns/actions 表达式中使用
   if (scope === 'row' && !['tableColumn', 'tableAction'].includes(location)) {
     violations.push({
@@ -349,7 +362,22 @@ function validateExpression(expr, exprPath, context) {
   for (const variableName of vars) {
     // $self 精确匹配，单独处理
     if (variableName === '$self') continue;
-    const allowed = ALLOWED_NS_PREFIXES.some(prefix => variableName.startsWith(prefix));
+    if (variableName.startsWith('$self.')) {
+      const isDateRangeSelf = location === 'reaction'
+        && componentType === 'dateRangePicker'
+        && ['$self.start', '$self.end'].includes(variableName);
+      if (!isDateRangeSelf) {
+        violations.push({
+          path: exprPath,
+          rule: 'SELF_PROPERTY_SCOPE',
+          message: '$self 属性路径仅允许 dateRangePicker 自身 reactions 使用 $self.start 或 $self.end',
+        });
+      }
+      continue;
+    }
+    const allowed = ALLOWED_NS_PREFIXES.some(prefix =>
+      prefix === '$self' ? variableName.startsWith('$self.') : variableName.startsWith(prefix),
+    );
     if (!allowed) {
       violations.push({
         path: exprPath,
@@ -382,7 +410,7 @@ function validateExpression(expr, exprPath, context) {
     }
   }
 
-  // 3a. scope: row 时 $row.* / $parentRow.* 字段必须在 dependencies 中声明
+  // 3a. scope: row 时 $row.* 字段必须在 dependencies 中声明
   if (scope === 'row') {
     for (const field of rowDepFields) {
       if (!dependencies.includes(field)) {
@@ -393,21 +421,12 @@ function validateExpression(expr, exprPath, context) {
         });
       }
     }
-    for (const field of parentRowDepFields) {
-      if (!dependencies.includes(field)) {
-        violations.push({
-          path: exprPath,
-          rule: 'UNDECLARED_PARENT_ROW_DEP',
-          message: `$parentRow.${field} 未在 dependencies 中声明（scope: row 的 dependencies 应列出父行字段路径）`,
-        });
-      }
-    }
   }
 
   const hasDepRef = vars.some(v => v.startsWith('$deps.'));
   const hasRowRef = vars.some(v => v.startsWith('$row.'));
   const hasParentRowRef = vars.some(v => v.startsWith('$parentRow.'));
-  const hasSelfRef = vars.some(v => v === '$self');
+  const hasSelfRef = vars.some(v => v === '$self' || v.startsWith('$self.'));
 
   // 4. 作用域隔离：scope:row 不能用 $deps.*
   if (scope === 'row' && hasDepRef) {
@@ -427,12 +446,12 @@ function validateExpression(expr, exprPath, context) {
     });
   }
 
-  // 5a. $parentRow.* 仅允许嵌套表格内的行级表达式
-  if (hasParentRowRef && !allowParentRow) {
+  // 5a. v0.2 的组件 DSL 没有嵌套表格挂载结构，保守拒绝 $parentRow.*
+  if (hasParentRowRef) {
     violations.push({
       path: exprPath,
-      rule: 'PARENT_ROW_SCOPE',
-      message: '$parentRow.* 仅允许嵌套表格内的 scope:row 表达式使用',
+      rule: 'PARENT_ROW_UNSUPPORTED',
+      message: 'v0.2 暂不支持 $parentRow.*；待嵌套表格挂载结构通过后续 ADR 定义后再开放',
     });
   }
 
@@ -505,12 +524,10 @@ function isFormContext(node) {
   return node.type === 'form';
 }
 
-function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
+function scanNode(node, nodePath, violations, parentIsForm) {
   if (!node || typeof node !== 'object') return;
 
   const inFormCtx = parentIsForm || isFormContext(node);
-  const currentTableDepth = node.type === 'table' ? tableDepth + 1 : tableDepth;
-  const allowParentRow = tableDepth > 0;
 
   // --- data.params 中的变量值替换 ---
   if (node.data && node.data.params && typeof node.data.params === 'object') {
@@ -541,7 +558,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
       const exprPath = `${nodePath}.reactions[${idx}].when`;
       if (reaction.when !== undefined && reaction.when !== null) {
         const vs = validateExpression(String(reaction.when), exprPath, {
-          scope, dependencies: deps, location: 'reaction', hasFormContext: inFormCtx,
+          scope, dependencies: deps, location: 'reaction', hasFormContext: inFormCtx, componentType: node.type,
         });
         violations.push(...vs);
       }
@@ -581,7 +598,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
         const scope = col.visibleWhen.scope || 'form';
         const deps = Array.isArray(col.visibleWhen.dependencies) ? col.visibleWhen.dependencies : [];
         violations.push(...validateExpression(String(col.visibleWhen.when), `${colBase}.visibleWhen.when`, {
-          scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx, allowParentRow,
+          scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx,
         }));
       }
       if (Array.isArray(col.reactions)) {
@@ -590,7 +607,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(String(r.when), `${colBase}.reactions[${ri}].when`, {
-              scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx, allowParentRow,
+              scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx,
             }));
           }
         });
@@ -612,7 +629,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
         const scope = action.visibleWhen.scope || 'form';
         const deps = Array.isArray(action.visibleWhen.dependencies) ? action.visibleWhen.dependencies : [];
         violations.push(...validateExpression(String(action.visibleWhen.when), `${actBase}.visibleWhen.when`, {
-          scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx, allowParentRow,
+          scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx,
         }));
       }
       if (Array.isArray(action.reactions)) {
@@ -621,7 +638,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(String(r.when), `${actBase}.reactions[${ri}].when`, {
-              scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx, allowParentRow,
+              scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx,
             }));
           }
         });
@@ -640,7 +657,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
   // --- 递归 children ---
   if (Array.isArray(node.children)) {
     node.children.forEach((child, idx) => {
-      scanNode(child, `${nodePath}.children[${idx}]`, violations, inFormCtx, currentTableDepth);
+      scanNode(child, `${nodePath}.children[${idx}]`, violations, inFormCtx);
     });
   }
 
@@ -648,7 +665,7 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
   if (node.props && Array.isArray(node.props.items)) {
     node.props.items.forEach((item, idx) => {
       if (item && item.content) {
-        scanNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, inFormCtx, currentTableDepth);
+        scanNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, inFormCtx);
       }
     });
   }
@@ -691,7 +708,7 @@ function scanDataParams(params, paramsPath, violations, hasFormContext) {
 
 function validatePage(doc, fileLabel) {
   const violations = [];
-  if (doc.body) scanNode(doc.body, 'body', violations, false, 0);
+  if (doc.body) scanNode(doc.body, 'body', violations, false);
 
   // --- datasources.*.params 中的 $deps.* 值替换（页面级预声明，永远非 form 上下文）---
   if (doc.datasources && typeof doc.datasources === 'object' && !Array.isArray(doc.datasources)) {
@@ -706,7 +723,7 @@ function validatePage(doc, fileLabel) {
   if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
     for (const [actionId, actionDef] of Object.entries(doc.actions)) {
       if (actionDef && actionDef.type === 'modal' && actionDef.content) {
-        scanNode(actionDef.content, `actions.${actionId}.content`, violations, false, 0);
+        scanNode(actionDef.content, `actions.${actionId}.content`, violations, false);
       }
     }
   }

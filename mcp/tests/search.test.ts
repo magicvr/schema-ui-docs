@@ -4,6 +4,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { searchProtocol } from '../src/core/search.js';
 import { DOC_MAP, getDoc } from '../src/core/protocol-index.js';
+import { handleGetDoc } from '../src/tools/docs.js';
 
 describe('protocol docs', () => {
   it('returns whitelisted docs by docId', () => {
@@ -30,6 +31,9 @@ describe('protocol docs', () => {
       expect(doc.content).toContain('availableSections');
       expect(Buffer.byteLength(doc.content, 'utf8')).toBeLessThanOrEqual(20 * 1024);
       expect(doc.content).not.toContain('\uFFFD');
+      const toolText = handleGetDoc({ docId: DOC_MAP[0]!.docId }).content[0]!.text;
+      expect(Buffer.byteLength(toolText, 'utf8')).toBeLessThanOrEqual(20 * 1024);
+      expect(toolText).not.toContain('\uFFFD');
     } finally {
       DOC_MAP[0]!.absolutePath = originalPath;
       fs.writeFileSync(originalPath, originalContent, 'utf8');
@@ -51,6 +55,42 @@ describe('protocol docs', () => {
       expect(Buffer.byteLength(doc.content, 'utf8')).toBeLessThanOrEqual(20 * 1024);
       expect(doc.content).not.toContain('\uFFFD');
       expect(doc.availableSections).toContain('第一章');
+      const toolText = handleGetDoc({ docId: DOC_MAP[0]!.docId }).content[0]!.text;
+      expect(Buffer.byteLength(toolText, 'utf8')).toBeLessThanOrEqual(20 * 1024);
+      expect(toolText).not.toContain('\uFFFD');
+    } finally {
+      DOC_MAP[0]!.absolutePath = originalPath;
+      fs.unlinkSync(tempPath);
+    }
+  });
+
+  it.each(['component-registry', 'renderer-spec'])('limits complete get_doc tool text for %s', docId => {
+    const toolText = handleGetDoc({ docId }).content[0]!.text;
+    const parsed = JSON.parse(toolText);
+
+    expect(Buffer.byteLength(toolText, 'utf8')).toBeLessThanOrEqual(20 * 1024);
+    expect(parsed.truncated).toBe(true);
+    expect(parsed.availableSections.length).toBeGreaterThan(0);
+    expect(parsed.content).toContain('availableSections');
+    expect(parsed.content).not.toContain('\uFFFD');
+  });
+
+  it('marks the result truncated when metadata alone pushes tool text over budget', () => {
+    const tempPath = path.join(os.tmpdir(), 'schema-ui-mcp-metadata-budget.md');
+    const originalPath = DOC_MAP[0]!.absolutePath;
+    const content = `# Metadata budget\n\n## Body\n${'A'.repeat((20 * 1024) - 40)}`;
+
+    fs.writeFileSync(tempPath, content, 'utf8');
+    DOC_MAP[0]!.absolutePath = tempPath;
+
+    try {
+      expect(getDoc(DOC_MAP[0]!.docId).truncated).toBe(false);
+      const toolText = handleGetDoc({ docId: DOC_MAP[0]!.docId }).content[0]!.text;
+      const parsed = JSON.parse(toolText);
+      expect(Buffer.byteLength(toolText, 'utf8')).toBeLessThanOrEqual(20 * 1024);
+      expect(parsed.truncated).toBe(true);
+      expect(parsed.availableSections).toContain('Body');
+      expect(parsed.content).toContain('availableSections');
     } finally {
       DOC_MAP[0]!.absolutePath = originalPath;
       fs.unlinkSync(tempPath);
