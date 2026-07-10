@@ -6,6 +6,23 @@
 
 ---
 
+## 0052 — 2026-07-11 — ADR-0003 `contains` 函数式语法残留
+
+**主题：** 修正 Accepted ADR-0003 将中缀 `contains` 描述为方法调用并使用 `contains(...)` 形式的残留（V206🟡）。
+**性质：** Accepted ADR 与当前表达式语法模型同步。
+
+| 文件 | 说明 |
+|---|---|
+| [0052-2026-07-11-review.md](./0052-2026-07-11-review.md) | 审视报告 — V206（1 项） |
+| [0052-2026-07-11-checklist.md](./0052-2026-07-11-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V206: ADR-0003 D1a 仅描述属性路径的可选链式传播，删除方法调用与函数式 `contains(...)` 的合法语法暗示
+- 明确 `undefined` 作为 `contains` 等比较运算符的操作数时按 D1a 转为 `false`，且 `contains` 仍使用 `a contains b` 中缀语法
+- ADR 日期与 CHANGELOG 同步；MCP build + **115** 项测试 + tools smoke 全部通过
+
+---
+
 ## 0051 — 2026-07-11 — L3a 异常分类 + `contains` 操作数约束
 
 **主题：** 修复非数组 `table.props.columns/actions` 导致 L3a 异常并误报 `parseError`（V204🟡），执行 `contains` 右操作数必须为字面量的协议约束（V205🟡）。
