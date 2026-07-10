@@ -46,7 +46,7 @@ applies_to: schema-ui-protocol v0.2
 - ❌ 不允许在 `scope: form` 表达式中访问 `$row.*`。
 - ❌ 不允许在 `permissions.*` 表达式中访问 `$deps.*`（静态校验拒绝，见 §10.2）。
 - ❌ 不允许在非表单节点的 `visibleWhen` 中访问 `$deps.*`（静态校验拒绝，见 §10.1）。
-- ❌ 不允许在表格 `actions` 的 `scope: row` 表达式中使用 `$self`（不适用，见 §10.3）。
+- ❌ 不允许在表格 `actions` 的表达式（**任意** `scope`）中使用 `$self`（不适用，见 §10.3）。
 - ❌ 不允许使用 `$parentRow.*`；v0.2 尚未定义嵌套表格挂载结构。
 
 ## 3. 运算符白名单

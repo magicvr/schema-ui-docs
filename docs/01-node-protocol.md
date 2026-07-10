@@ -119,7 +119,8 @@ data:
 | 挂载位置 | 默认/要求的 `scope` | 典型用途 |
 |---|---|---|
 | 表单字段类 Node（如 `input` / `select`） | `scope: form`（默认） | 字段间显隐/必填/禁用/赋值联动 |
-| 表格 `columns[]` / `actions[]` | 使用 `$row.*` 或行级 `$self` 时必须显式 `scope: row`；仅使用 `$deps.*` / `$context.*` 时可使用 `scope: form`（默认） | 行内单元格/操作的显隐与禁用 |
+| 表格 `columns[]` | 使用 `$row.*` 或列级 `$self` 时必须显式 `scope: row`；仅使用 `$deps.*` / `$context.*` 时可使用 `scope: form`（默认；表格须位于 form 上下文） | 行内单元格显隐/禁用 |
+| 表格 `actions[]` | 使用 `$row.*` 时必须显式 `scope: row`；**任意 scope 禁止 `$self`**；仅使用 `$deps.*` / `$context.*` 时可使用 `scope: form`（默认；表格须位于 form 上下文） | 行内操作显隐/禁用 |
 
 完整语法见 [02-reaction-expression.md](./02-reaction-expression.md)，结构如下：
 
