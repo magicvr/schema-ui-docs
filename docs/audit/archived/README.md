@@ -5,6 +5,23 @@
 
 ---
 
+## 0034 — 2026-07-10 — L2 引用完整性校验不对称 + 文档元数据漂移
+
+**主题：** 修复 `form.props.submitAction` / `upload.props.actionRef` 缺少 L2 引用完整性校验（V85🔴）、`data.ref` / `form.props.targetTable` 缺少 L2 引用存在性校验（V86🟡）、以及 0033 触达文档 `last_updated` 未同步（V87🟢）。
+**性质：** L2 页面内引用扫描收敛 + 校验文档/MCP 反例同步 + 元数据修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0034-2026-07-10-review.md](./0034-2026-07-10-review.md) | 审视报告 — V85🔴/V86🟡/V87🟢 |
+| [0034-2026-07-10-checklist.md](./0034-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V85: L2 新增 `validatePageActionRefs()`；`submitAction` 必须存在于 `doc.actions`，`upload.actionRef` 必须存在且 `type: upload`；同步 `06-validation.md` 与 MCP 反例
+- V86: L2 新增 `validateDataRefsAndTargetTable()`；`data.ref` 必须存在于 `datasources`，`targetTable` 必须对应 `type: table` 节点；同步文档与 MCP 反例
+- V87: `03-component-registry.md` / `07-actions-contract.md` 的 `last_updated` 同步为 2026-07-10
+
+---
+
 ## 0033 — 2026-07-10 — upload.actionRef 能力声明提示缺失 + permissions 文档表述残留 + MCP get_doc 示例/截断偏差 + v1-design 状态漂移
 
 **主题：** 修复 `upload.props.actionRef` 的 `actions.upload` 能力声明提示未同步到入口文档（V79🟡）、`permissions` 仍被列为可通过 `scope` 声明作用域（V80🟡）、权限扩展键声明机制缺口（V81🟡）、`protocol.get_doc` 示例 docId 与白名单不一致（V82🟡）、`protocol.get_doc` 截断时未返回章节建议（V83🟡）、以及 v1-design.md frontmatter 仍为 draft（V84🟢）。

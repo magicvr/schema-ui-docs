@@ -1,7 +1,7 @@
 ---
 status: living-document
 owner: 前端组件库团队
-last_updated: 2026-07-09
+last_updated: 2026-07-10
 applies_to: schema-ui-protocol v0.2
 ---
 

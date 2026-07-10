@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-09
+last_updated: 2026-07-10
 applies_to: schema-ui-protocol v0.2
 ---
 

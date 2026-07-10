@@ -201,3 +201,131 @@ body:
   permissions:
     view: "$context.tenant.id == 't1'"
 `;
+
+export const missingSubmitActionTargetYaml = `
+meta:
+  pageId: missing_submit_action
+  title: Missing SubmitAction Target
+  protocolVersion: "0.2"
+actions:
+  someAction:
+    type: request
+    method: POST
+    url: /api/submit
+body:
+  type: form
+  props:
+    title: Missing Target
+    submitAction: nonExistentAction
+  children:
+    - type: input
+      props:
+        field: name
+        label: Name
+`;
+
+export const uploadActionRefWrongTypeYaml = `
+meta:
+  pageId: upload_wrong_type
+  title: Upload Wrong ActionRef Type
+  protocolVersion: "0.2"
+  requiredCapabilities:
+    - actions.upload
+actions:
+  myUpload:
+    type: request
+    method: POST
+    url: /api/upload
+body:
+  type: upload
+  props:
+    label: Attachment
+    actionRef: myUpload
+`;
+
+export const danglingDataRefYaml = `
+meta:
+  pageId: dangling_data_ref
+  title: Dangling Data Ref
+  protocolVersion: "0.2"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: none
+    columns:
+      - field: id
+        label: ID
+  data:
+    source: ref
+    ref: nonExistentDatasource
+`;
+
+export const invalidTargetTableYaml = `
+meta:
+  pageId: invalid_target_table
+  title: Invalid TargetTable
+  protocolVersion: "0.2"
+body:
+  type: form
+  props:
+    title: Search Form
+    mode: search
+    targetTable: missingTableId
+  children:
+    - type: input
+      props:
+        field: keyword
+        label: Keyword
+`;
+
+export const validAllReferencesYaml = `
+meta:
+  pageId: valid_all_refs
+  title: Valid All References
+  protocolVersion: "0.2"
+  requiredCapabilities:
+    - actions.upload
+datasources:
+  orders:
+    source: api
+    url: /api/orders
+actions:
+  submitOrder:
+    type: request
+    method: POST
+    url: /api/orders
+  uploadAttach:
+    type: upload
+    method: POST
+    url: /api/upload
+body:
+  type: grid
+  props:
+    columns: 2
+  children:
+    - type: form
+      id: searchForm
+      props:
+        title: Search
+        mode: search
+        targetTable: orderTable
+      children:
+        - type: input
+          props:
+            field: keyword
+            label: Keyword
+    - type: table
+      id: orderTable
+      props:
+        rowKey: id
+        pagination:
+          mode: server
+        columns:
+          - field: id
+            label: ID
+      data:
+        source: ref
+        ref: orders
+`;
