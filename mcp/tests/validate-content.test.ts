@@ -1,9 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { setLayerScriptExecutorForTest, validateContent } from '../src/core/validation-runner.js';
 import {
+  danglingDataRefYaml,
   extractFirstYamlFence,
+  invalidTargetTableYaml,
   missingRowRequestCapabilityYaml,
   missingRowScopeYaml,
+  missingSubmitActionTargetYaml,
   missingUploadCapabilityYaml,
   nodePermissionSelfYaml,
   tableActionPermissionSelfYaml,
@@ -11,6 +14,8 @@ import {
   tableRowReactionForbiddenStateYaml,
   tableVisibleWhenMissingWhenYaml,
   unknownContextNamespaceYaml,
+  uploadActionRefWrongTypeYaml,
+  validAllReferencesYaml,
 } from './test-utils.js';
 
 describe('validate_content', () => {
@@ -130,6 +135,74 @@ describe('validate_content', () => {
     expect(unknownContext.layers.L3a).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: 'body.permissions.view', rule: 'UNKNOWN_CONTEXT_NAMESPACE' }),
     ]));
+  });
+
+  it('reports missing submitAction target through L2', () => {
+    const result = validateContent({
+      content: missingSubmitActionTargetYaml,
+      format: 'yaml',
+      filename: 'missing-submit-action.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.submitAction' }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/03-component-registry.md');
+  });
+
+  it('reports upload actionRef pointing to non-upload action type', () => {
+    const result = validateContent({
+      content: uploadActionRefWrongTypeYaml,
+      format: 'yaml',
+      filename: 'upload-wrong-type.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.actionRef' }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/03-component-registry.md');
+  });
+
+  it('reports dangling data.ref through L2', () => {
+    const result = validateContent({
+      content: danglingDataRefYaml,
+      format: 'yaml',
+      filename: 'dangling-data-ref.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.data.ref' }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/03-component-registry.md');
+  });
+
+  it('reports invalid targetTable through L2', () => {
+    const result = validateContent({
+      content: invalidTargetTableYaml,
+      format: 'yaml',
+      filename: 'invalid-target-table.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.targetTable' }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/03-component-registry.md');
+  });
+
+  it('passes valid all references YAML', () => {
+    const result = validateContent({
+      content: validAllReferencesYaml,
+      format: 'yaml',
+      filename: 'valid-all-refs.yaml',
+    });
+
+    expect(result.passed).toBe(true);
+    expect(result.parseError).toBeNull();
+    expect(result.internalError).toBeNull();
   });
 
   it('maps AJV schema errors into L0/L1', () => {

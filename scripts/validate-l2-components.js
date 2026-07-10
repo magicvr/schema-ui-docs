@@ -13,6 +13,12 @@
  *   6. 执行能力与行级 action 引用规则：
  *      - 使用 RowAction.actionRef 时必须声明 actions.row.request 能力
  *      - RowAction.actionRef 必须引用顶层 request action，且 RowAction 必须声明 requestMapping
+ *   7. 页面级 action 引用完整性校验：
+ *      - form.props.submitAction 必须存在于 doc.actions
+ *      - upload.props.actionRef 必须存在于 doc.actions 且 type 必须为 upload
+ *   8. datasource / targetTable 引用存在性校验：
+ *      - data.source: ref 时，data.ref 必须存在于 doc.datasources
+ *      - form.mode: search 的 targetTable 必须在页面 Node 树中存在 id 匹配且 type: table 的节点
  *
  * 用法：
  *   node scripts/validate-l2-components.js <file-or-glob> [--json]
@@ -696,6 +702,176 @@ function validateRowActionRefs(doc, violations) {
   }
 }
 
+/**
+ * 校验页面级 action 引用完整性（V85）
+ *
+ * 规则：
+ *   - form.props.submitAction 必须存在于 doc.actions（类型不限）
+ *   - upload.props.actionRef 必须存在于 doc.actions，且 type 必须为 upload
+ */
+function validatePageActionRefs(doc, violations) {
+  const actions = isPlainObject(doc.actions) ? doc.actions : {};
+
+  const scanNode = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+
+    // --- form.props.submitAction ---
+    if (node.type === 'form' && node.props && node.props.submitAction !== undefined) {
+      const submitAction = node.props.submitAction;
+      if (typeof submitAction === 'string') {
+        if (!actions[submitAction]) {
+          violations.push({
+            path: `${nodePath}.props.submitAction`,
+            message: `submitAction 引用了不存在的顶层 action "${submitAction}"`,
+          });
+        }
+      }
+    }
+
+    // --- upload.props.actionRef ---
+    if (node.type === 'upload' && node.props && node.props.actionRef !== undefined) {
+      const actionRef = node.props.actionRef;
+      if (typeof actionRef === 'string') {
+        const actionDef = actions[actionRef];
+        if (!actionDef) {
+          violations.push({
+            path: `${nodePath}.props.actionRef`,
+            message: `upload.props.actionRef 引用了不存在的顶层 action "${actionRef}"`,
+          });
+        } else if (actionDef.type !== 'upload') {
+          violations.push({
+            path: `${nodePath}.props.actionRef`,
+            message: `upload.props.actionRef 仅可引用 type: upload 的 action，当前为 "${actionDef.type}"`,
+          });
+        }
+      }
+    }
+
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, childIndex) => scanNode(child, `${nodePath}.children[${childIndex}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, itemIndex) => {
+        if (item && item.content) {
+          scanNode(item.content, `${nodePath}.props.items[${itemIndex}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+
+  // --- 遍历 actions[].type: modal 的 content Node ---
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        scanNode(actionDef.content, `actions.${actionId}.content`);
+      }
+    }
+  }
+}
+
+/**
+ * 校验 data.ref / targetTable 引用存在性（V86）
+ *
+ * 规则：
+ *   - data.source: ref 时，data.ref 必须存在于 doc.datasources
+ *   - form.mode: search 的 targetTable 必须在页面 Node 树中存在 id 匹配且 type: table 的节点
+ */
+function validateDataRefsAndTargetTable(doc, violations) {
+  const datasources = isPlainObject(doc.datasources) ? doc.datasources : {};
+
+  // First pass：收集 Node 树中所有 id → { type, path }
+  const nodeIds = {};
+
+  const collectIds = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.id && typeof node.id === 'string') {
+      nodeIds[node.id] = { type: node.type, path: nodePath };
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, childIndex) => collectIds(child, `${nodePath}.children[${childIndex}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, itemIndex) => {
+        if (item && item.content) {
+          collectIds(item.content, `${nodePath}.props.items[${itemIndex}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) collectIds(doc.body, 'body');
+
+  // 也收集 modal content 中的 id
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        collectIds(actionDef.content, `actions.${actionId}.content`);
+      }
+    }
+  }
+
+  // Second pass：校验引用
+  const scanNode = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+
+    // --- data.source: ref → data.ref 必须存在于 doc.datasources ---
+    if (node.data && node.data.source === 'ref' && node.data.ref !== undefined) {
+      const ref = node.data.ref;
+      if (typeof ref === 'string') {
+        if (!datasources[ref]) {
+          violations.push({
+            path: `${nodePath}.data.ref`,
+            message: `data.ref 引用了不存在的 datasource "${ref}"`,
+          });
+        }
+      }
+    }
+
+    // --- form.mode: search → targetTable 必须存在于 Node 树 ---
+    if (node.type === 'form' && node.props && node.props.mode === 'search' && node.props.targetTable !== undefined) {
+      const targetTable = node.props.targetTable;
+      if (typeof targetTable === 'string') {
+        const targetNode = nodeIds[targetTable];
+        if (!targetNode) {
+          violations.push({
+            path: `${nodePath}.props.targetTable`,
+            message: `targetTable "${targetTable}" 在页面 Node 树中不存在`,
+          });
+        } else if (targetNode.type !== 'table') {
+          violations.push({
+            path: `${nodePath}.props.targetTable`,
+            message: `targetTable "${targetTable}" 的节点类型为 "${targetNode.type}"，期望 "table"`,
+          });
+        }
+      }
+    }
+
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, childIndex) => scanNode(child, `${nodePath}.children[${childIndex}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, itemIndex) => {
+        if (item && item.content) {
+          scanNode(item.content, `${nodePath}.props.items[${itemIndex}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+
+  // --- 遍历 actions[].type: modal 的 content Node ---
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        scanNode(actionDef.content, `actions.${actionId}.content`);
+      }
+    }
+  }
+}
+
 function validateRequiredCapabilities(doc, violations) {
   const declared = new Set(
     Array.isArray(doc?.meta?.requiredCapabilities) ? doc.meta.requiredCapabilities : [],
@@ -772,6 +948,8 @@ function validatePage(doc, fileLabel) {
   }
 
   validateRowActionRefs(doc, violations);
+  validatePageActionRefs(doc, violations);
+  validateDataRefsAndTargetTable(doc, violations);
   validateRequiredCapabilities(doc, violations);
   return violations.map(v => ({ file: fileLabel, ...v }));
 }
