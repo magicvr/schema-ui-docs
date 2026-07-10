@@ -37,6 +37,9 @@
 - 审计 `0045 / V180`：MCP 官方场景回归覆盖 search/upload 场景。
 - 审计 `0045 / V181-V183`：ADR-0004/0006 与 `06` 自检清单同步 V164/V167/V171。
 - 审计 `0045 / V184-V189`：CHANGELOG 审计路径、lock 版本、场景 BOM/文案、L4 文档范围、MCP 实施计划目录树。
+- 审计 `0046 / V191`：修复 `02-reaction-expression.md` 第 10 节重复的 `10.6` 小节编号（顺延为 `10.1`–`10.7`）。
+- 审计 `0047 / V192-V193`：闭合 V176 后 `$self` 口径残留——`02` §2 与 `00`/`01` 明确表格 `actions` **任意 scope** 禁止 `$self`，并拆分 columns/actions 概括。
+- 审计 `0047 / V194-V196`：对齐 L3a 文件头注释、补齐 CHANGELOG/归档索引卫生项，同步 `07` `last_updated`。
 
 **说明（`$parentRow`）：** v0.2.7 F2 等历史条目中的 `$parentRow` 描述记录当时设计；当前协议以 0039/V120 为准，v0.2 **全面拒绝** `$parentRow.*`。
 
@@ -49,7 +52,7 @@
 - 场景示例：`docs/05-scenarios/*`
 - 校验与 MCP 实现：`scripts/*.js`、`mcp/src/tools/docs.ts`、`mcp/src/tools/validate-content.ts`、`mcp/src/core/validation-runner.ts`、`mcp/tests/*.test.ts`
 - 机器可读契约：`docs/schemas/component-registry.json`
-- 审计：`docs/audit/archived/0044-2026-07-11-*`、`docs/audit/archived/0045-2026-07-11-*`
+- 审计：`docs/audit/archived/0044-2026-07-11-*`、`docs/audit/archived/0045-2026-07-11-*`、`docs/audit/archived/0046-2026-07-11-*`、`docs/audit/archived/0047-2026-07-11-*`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 

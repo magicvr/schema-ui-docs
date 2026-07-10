@@ -56,7 +56,7 @@ applies_to: schema-ui-protocol v0.2
 | **props** | Node 上表示"业务级配置参数"的字段，只包含语义信息，不含任何 CSS/DOM 细节 |
 | **data** | Node 上表示"数据来源"的字段，描述值是静态的、引用页面数据源的、还是来自独立 API 请求的 |
 | **children** | Node 的子节点数组，用于表达树形嵌套结构（布局容器场景） |
-| **reactions** | 声明式联动规则数组；主要挂载在表单字段 Node（默认 `scope: form`）上，也可挂载在表格 `columns[]` / `actions[]`（使用 `$row.*` 或行级 `$self` 时需 `scope: row`，且 `fulfill` 仅允许 `visible`/`disabled`；仅使用 `$deps.*` / `$context.*` 时可使用默认 `scope: form`） |
+| **reactions** | 声明式联动规则数组；主要挂载在表单字段 Node（默认 `scope: form`）上，也可挂载在表格 `columns[]` / `actions[]`。列表达式使用 `$row.*` 或列级 `$self` 时需 `scope: row`；行操作 `actions` **任意 scope 禁止 `$self`**（仅 `$row.*` / `$context.*`，或 form 上下文下的 `$deps.*`）。`fulfill` 在列/操作上仅允许 `visible`/`disabled`；仅使用 `$deps.*` / `$context.*` 时可使用默认 `scope: form`（表格须位于 form 上下文） |
 | **Renderer（渲染器）** | 前端负责递归解析 Node 树、按 `type` 分发到具体组件的核心模块 |
 | **组件注册表** | 前端维护的 `type` → 组件实现 的映射表，是协议与具体 UI 实现之间的唯一桥梁 |
 

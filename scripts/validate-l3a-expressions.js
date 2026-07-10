@@ -13,9 +13,9 @@
  *      - scope:row 不能出现 $deps.*
  *      - scope:form 不能出现 $row.*
  *      - v0.2 暂不支持 $parentRow.*（组件 DSL 尚无嵌套表格挂载结构）
- *      - permissions.* 不能出现 $deps.*
- *      - 非表单 visibleWhen（无 dependencies）不能出现 $deps.*
- *      - 表格 actions 的 scope:row 不能出现 $self
+ *      - permissions.* 不能出现 $deps.*（仅 $context.user.* / $context.features.*）
+ *      - 非表单 visibleWhen 按 Node 树位置判定，仅允许 $context.user.* / $context.features.*
+ *      - 表格 actions 任意 scope 不能出现 $self
  *      - 表格列/操作 scope:form 使用 $deps.* 时要求表格位于 form 上下文
  *      - data.params / optionsSource.params 中 $deps.* 仅允许出现在表单上下文，且不支持其他变量
  *   4. $deps.* 中使用的字段必须在 dependencies 中声明
