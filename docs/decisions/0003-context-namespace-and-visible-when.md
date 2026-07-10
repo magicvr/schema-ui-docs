@@ -1,6 +1,6 @@
 ---
 status: accepted
-date: 2026-07-07
+date: 2026-07-11
 ---
 
 # ADR-0003: `$context` 命名空间与 `visibleWhen` 节点级条件渲染
@@ -45,8 +45,8 @@ date: 2026-07-07
   - 这条规则是协议层约定,具体实现是否抛出告警日志由宿主环境自行决定,但**渲染流程不得因此中断**。
 - 理由:容错策略的优先级是"页面可渲染 > 表达式正确性"。在 `$context` 确实不存在的前提下,让不依赖 `$context` 的节点正常展示、依赖的节点安全降级,比硬性报错拒绝渲染更符合用户体验预期。
 - **属性链容错(补充)**:上述容错规则不仅适用于命名空间顶层(`$context.user` 本身缺失),也必须适用于**任意深度的属性链访问**。表达式引擎对 `$context.*` 的属性访问采用等价于"可选链"的语义:
-  - 若访问路径中任意一环为 `undefined`(如 `$context.user` 本身缺失,或 `$context.user.roles` 缺失),后续的属性访问和方法调用(如 `.roles`、`contains(...)`)一律短路返回 `undefined`,不抛出运行时异常;
-  - 参与比较运算或布尔判断时,该 `undefined` 结果按 D1a 主规则转为 `false`。
+  - 若访问路径中任意一环为 `undefined`(如 `$context.user` 本身缺失,或 `$context.user.roles` 缺失),后续属性访问一律短路返回 `undefined`,不抛出运行时异常;
+  - 该 `undefined` 值作为 `contains` 等比较运算符的操作数或参与布尔判断时,结果按 D1a 主规则转为 `false`。`contains` 仍使用 `a contains b` 中缀语法,不属于函数或方法调用。
   - 理由:D1a 主规则若只覆盖命名空间顶层,而 `permissions`/`visibleWhen` 中的实际表达式(如 `$context.user.roles contains 'admin'`)普遍是多级属性链,一旦 `$context.user` 缺失但规则本身没有显式覆盖属性链传播,容错承诺在实际场景中就会落空、被绕过。此处补充是为了让 D1a 的容错保证在真实表达式复杂度下依然成立。
 
 ### D1b. 白名单扩展流程
