@@ -6,6 +6,23 @@
 
 ---
 
+## 0051 — 2026-07-11 — L3a 异常分类 + `contains` 操作数约束
+
+**主题：** 修复非数组 `table.props.columns/actions` 导致 L3a 异常并误报 `parseError`（V204🟡），执行 `contains` 右操作数必须为字面量的协议约束（V205🟡）。
+**性质：** L3a 结构容错 + 表达式语法边界闭合。
+
+| 文件 | 说明 |
+|---|---|
+| [0051-2026-07-11-review.md](./0051-2026-07-11-review.md) | 审视报告 — V204-V205（2 项） |
+| [0051-2026-07-11-checklist.md](./0051-2026-07-11-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V204: L3a 对非数组 table columns/actions 跳过扫描，页面内部类型错误保持为结构违规；补 object/string/null 回归
+- V205: `contains` 右操作数仅允许字符串、数字、布尔或 `null` 字面量；拒绝变量与分组表达式
+- MCP build + **115** 项测试 + tools smoke 全部通过
+
+---
+
 ## 0050 — 2026-07-11 — page.schema datasources.params 残留 + Renderer 嵌套 `$deps` 示例
 
 **主题：** 同步 `page.schema.json` DatasourceDeclaration.params 整值替换口径（V202🟡），修正 `08` §5.2 expr-eval 嵌套 `$deps` / `$context` 路径示例（V203🟡）。
