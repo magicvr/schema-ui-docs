@@ -5,6 +5,21 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
+## Unreleased
+
+> **说明：** 以下变更已在当前仓库工作区落地，但尚未单独切出新的 PATCH 版本号；正式发布时应合并为下一个 `0.2.x` 条目。
+
+**修复：**
+- 审计 `0038 / V114`：澄清最新已发布版本与当前工作区未发布修订的关系，避免继续让最新 PATCH 说明落后于仓库状态。
+- 审计 `0038 / V115`：修正 `README.md` 与 `00-overview.md` 对 `docs/schemas/` 的入口层描述，明确其中同时包含标准 JSON Schema 与组件注册 DSL。
+- 审计 `0038 / V116`：固定 `mcp/package.json` 中 `@modelcontextprotocol/sdk` 的依赖版本策略，避免继续使用 `latest`。
+
+**涉及的文档、包与配置：**
+- 入口文档：`README.md`、`docs/00-overview.md`
+- 版本记录：`docs/CHANGELOG.md`
+- MCP 包：`mcp/package.json`、`mcp/package-lock.json`
+- MCP 说明：`docs/mcp/README.md`
+
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 
 > **版本说明：** v0.2.8 基于审计 0034–0035 发现的引用完整性校验缺口与继承 `responseMapping` 语义校验缺口的修补。不改变 `meta.protocolVersion`。
