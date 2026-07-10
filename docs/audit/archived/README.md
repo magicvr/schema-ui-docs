@@ -5,6 +5,24 @@
 
 ---
 
+## 0037 — 2026-07-10 — 表达式/DSL 校验边界 + 引用与映射约束 + Renderer/ADR 示例 + MCP 文档读取
+
+**主题：** 修复表格 scope 口径与 L3a 表达式边界（V96-V98🔴）、组件 DSL/RowAction/datasource 约束缺口（V99-V103）、Renderer 与 ADR 示例矛盾（V104-V107）、MCP UTF-8 截断/导言搜索/filename 映射（V108-V110），以及锚点、命名和归档元数据（V111-V113）。
+**性质：** 协议口径收敛 + L1/L2/L3a enforce + MCP 行为修复 + 文档与审计闭环。
+
+| 文件 | 说明 |
+|---|---|
+| [0037-2026-07-10-review.md](./0037-2026-07-10-review.md) | 审视报告 — V96-V113（18 项） |
+| [0037-2026-07-10-checklist.md](./0037-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V96-V103: 统一表格 scope 口径；L3a 拒绝非法 row scope、未声明行依赖、空/畸形表达式；L2 执行嵌套 required、RowAction parentRow/模板边界和 Node id 唯一性；Schema 禁止 datasource 引用链并约束 bodyMapping
+- V104-V107: Renderer source:ref 示例改为完整单根页面并通过 L0-L4；visibleWhen 上下文按 Node 树判断；ADR-0006 改为可表达的当前字段写入；清理 ADR-0004 术语
+- V108-V110: `get_doc` 按 UTF-8 字节边界截断且总返回不超 20KB；搜索纳入导言；分层违规映射调用方 filename 并隐藏临时路径
+- V111-V113: 修复当前文档锚点、补齐 plan 命名类型、同步归档最后更新时间
+
+---
+
 ## 0036 — 2026-07-10 — responseMapping 继承语义写回正文 + params 禁令校验 + Renderer source:ref 规格 + 版本/措辞残留
 
 **主题：** 修复 `responseMapping` 生效映射未写回 04/08（V91🟡）、禁止 `params.responseMapping` 无机器校验（V92🟡）、Renderer 缺少 `source: ref` 请求协调规格（V93🟡）、`smoke-docker` 默认 tag 残留 0.2.7（V94🟢）、以及 L2 文档/注释仍写“本地映射”（V95🟢）。
@@ -646,4 +664,4 @@
 
 ---
 
-> 最后更新：2026-07-07
+> 最后更新：2026-07-10

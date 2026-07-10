@@ -138,6 +138,25 @@ function tokenize(expr) {
       // 变量允许点路径（$deps.x.y、$context.user.roles 等）
       while (j < expr.length && /[A-Za-z0-9_$.]/.test(expr[j])) j++;
       const word = expr.slice(i, j);
+
+      // 变量路径词法检查：$ 开头的变量路径中不能有空段（如 ..）、结尾点（如 $row.）
+      // 或连续两点；命名空间前缀后必须有合法标识符或续段
+      if (word.startsWith('$') && word !== '$self') {
+        const nsMatch = ALLOWED_NS_PREFIXES.find(prefix => word.startsWith(prefix));
+        if (nsMatch) {
+          const suffix = word.slice(nsMatch.length);
+          // 后缀不能为空段、连续点或非法起始字符
+          if (!/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/.test(suffix)) {
+            tokens.push({ type: TT.INVALID, value: word });
+            i = j;
+            continue;
+          }
+        } else {
+          // 不在白名单命名空间中的 $ 变量 → 交给命名空间校验处理
+          // 这里不做额外处理，validateExpression 会报 UNKNOWN_VARIABLE
+        }
+      }
+
       if (word.startsWith('$')) {
         tokens.push({ type: TT.VAR, value: word });
       } else {
@@ -310,6 +329,22 @@ function validateExpression(expr, exprPath, context) {
     .filter(v => v.startsWith('$deps.'))
     .map(v => v.slice('$deps.'.length).split('.')[0]); // 取第一段字段名
 
+  const rowDepFields = vars
+    .filter(v => v.startsWith('$row.'))
+    .map(v => v.slice('$row.'.length).split('.')[0]); // 取第一段字段名
+  const parentRowDepFields = vars
+    .filter(v => v.startsWith('$parentRow.'))
+    .map(v => v.slice('$parentRow.'.length).split('.')[0]);
+
+  // 1a. scope: row 仅允许在表格 columns/actions 表达式中使用
+  if (scope === 'row' && !['tableColumn', 'tableAction'].includes(location)) {
+    violations.push({
+      path: exprPath,
+      rule: 'ROW_SCOPE_MOUNT',
+      message: 'scope: row 仅允许在表格 columns/actions 的表达式中使用，普通 Node reactions/visibleWhen 不可声明 scope: row',
+    });
+  }
+
   // 2. 变量命名空间白名单
   for (const variableName of vars) {
     // $self 精确匹配，单独处理
@@ -344,6 +379,28 @@ function validateExpression(expr, exprPath, context) {
         rule: 'UNDECLARED_DEP',
         message: `$deps.${field} 未在 dependencies 中声明`,
       });
+    }
+  }
+
+  // 3a. scope: row 时 $row.* / $parentRow.* 字段必须在 dependencies 中声明
+  if (scope === 'row') {
+    for (const field of rowDepFields) {
+      if (!dependencies.includes(field)) {
+        violations.push({
+          path: exprPath,
+          rule: 'UNDECLARED_ROW_DEP',
+          message: `$row.${field} 未在 dependencies 中声明（scope: row 的 dependencies 应列出行字段路径）`,
+        });
+      }
+    }
+    for (const field of parentRowDepFields) {
+      if (!dependencies.includes(field)) {
+        violations.push({
+          path: exprPath,
+          rule: 'UNDECLARED_PARENT_ROW_DEP',
+          message: `$parentRow.${field} 未在 dependencies 中声明（scope: row 的 dependencies 应列出父行字段路径）`,
+        });
+      }
     }
   }
 
@@ -482,8 +539,8 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
       const scope = reaction.scope || 'form';
       const deps = Array.isArray(reaction.dependencies) ? reaction.dependencies : [];
       const exprPath = `${nodePath}.reactions[${idx}].when`;
-      if (reaction.when) {
-        const vs = validateExpression(reaction.when, exprPath, {
+      if (reaction.when !== undefined && reaction.when !== null) {
+        const vs = validateExpression(String(reaction.when), exprPath, {
           scope, dependencies: deps, location: 'reaction', hasFormContext: inFormCtx,
         });
         violations.push(...vs);
@@ -492,11 +549,11 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
   }
 
   // --- visibleWhen.when ---
-  if (node.visibleWhen && node.visibleWhen.when) {
+  if (node.visibleWhen && node.visibleWhen.when !== undefined && node.visibleWhen.when !== null) {
     const scope = node.visibleWhen.scope || 'form';
     const deps = Array.isArray(node.visibleWhen.dependencies) ? node.visibleWhen.dependencies : [];
     const vs = validateExpression(
-      node.visibleWhen.when,
+      String(node.visibleWhen.when),
       `${nodePath}.visibleWhen.when`,
       { scope, dependencies: deps, location: 'visibleWhen', hasFormContext: inFormCtx },
     );
@@ -520,19 +577,19 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
     columns.forEach((col, ci) => {
       if (!col) return;
       const colBase = `${nodePath}.props.columns[${ci}]`;
-      if (col.visibleWhen && col.visibleWhen.when) {
+      if (col.visibleWhen && col.visibleWhen.when !== undefined && col.visibleWhen.when !== null) {
         const scope = col.visibleWhen.scope || 'form';
         const deps = Array.isArray(col.visibleWhen.dependencies) ? col.visibleWhen.dependencies : [];
-        violations.push(...validateExpression(col.visibleWhen.when, `${colBase}.visibleWhen.when`, {
+        violations.push(...validateExpression(String(col.visibleWhen.when), `${colBase}.visibleWhen.when`, {
           scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx, allowParentRow,
         }));
       }
       if (Array.isArray(col.reactions)) {
         col.reactions.forEach((r, ri) => {
-          if (r && r.when) {
+          if (r && r.when !== undefined && r.when !== null) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
-            violations.push(...validateExpression(r.when, `${colBase}.reactions[${ri}].when`, {
+            violations.push(...validateExpression(String(r.when), `${colBase}.reactions[${ri}].when`, {
               scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx, allowParentRow,
             }));
           }
@@ -551,19 +608,19 @@ function scanNode(node, nodePath, violations, parentIsForm, tableDepth = 0) {
     actions.forEach((action, ai) => {
       if (!action) return;
       const actBase = `${nodePath}.props.actions[${ai}]`;
-      if (action.visibleWhen && action.visibleWhen.when) {
+      if (action.visibleWhen && action.visibleWhen.when !== undefined && action.visibleWhen.when !== null) {
         const scope = action.visibleWhen.scope || 'form';
         const deps = Array.isArray(action.visibleWhen.dependencies) ? action.visibleWhen.dependencies : [];
-        violations.push(...validateExpression(action.visibleWhen.when, `${actBase}.visibleWhen.when`, {
+        violations.push(...validateExpression(String(action.visibleWhen.when), `${actBase}.visibleWhen.when`, {
           scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx, allowParentRow,
         }));
       }
       if (Array.isArray(action.reactions)) {
         action.reactions.forEach((r, ri) => {
-          if (r && r.when) {
+          if (r && r.when !== undefined && r.when !== null) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
-            violations.push(...validateExpression(r.when, `${actBase}.reactions[${ri}].when`, {
+            violations.push(...validateExpression(String(r.when), `${actBase}.reactions[${ri}].when`, {
               scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx, allowParentRow,
             }));
           }

@@ -100,6 +100,231 @@ describe('validate_content', () => {
     ]));
   });
 
+  it('maps layered violations to the caller filename', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'filename-test', title: 'Filename test', protocolVersion: '0.2' },
+        body: { type: 'unknown', props: { color: 'red' } },
+      }),
+      format: 'json',
+      filename: 'pages/caller.json',
+    });
+
+    expect(result.layers.L2[0]?.file).toBe('pages/caller.json');
+    expect(result.layers.L4[0]?.file).toBe('pages/caller.json');
+    expect(JSON.stringify(result.layers)).not.toContain('schema-ui-mcp-');
+  });
+
+  it('omits internal temporary paths when filename is absent', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'filename-test', title: 'Filename test', protocolVersion: '0.2' },
+        body: { type: 'unknown', props: {} },
+      }),
+      format: 'json',
+    });
+
+    expect(result.layers.L2[0]?.file).toBeUndefined();
+    expect(JSON.stringify(result.layers)).not.toContain('schema-ui-mcp-');
+  });
+
+  it.each([
+    ['$row.', ['$row.']],
+    ['$row..status', ['status']],
+  ])('rejects malformed row variable %s regardless of dependencies', (expression, dependencies) => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'malformed-row', title: 'Malformed row', protocolVersion: '0.2' },
+        body: {
+          type: 'table',
+          props: {
+            rowKey: 'id',
+            pagination: { mode: 'none' },
+            columns: [{
+              field: 'id',
+              label: 'ID',
+              visibleWhen: { scope: 'row', dependencies, when: `${expression} == 'ok'` },
+            }],
+          },
+        },
+      }),
+      format: 'json',
+      filename: 'malformed-row.json',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'SYNTAX' }),
+    ]));
+  });
+
+  it('rejects source api datasources carrying static value', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'api-value', title: 'API value', protocolVersion: '0.2' },
+        datasources: { badApi: { source: 'api', url: '/api/value', value: 1 } },
+        body: { type: 'text', props: { content: 'Value' } },
+      }),
+      format: 'json',
+      filename: 'api-value.json',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers['L0/L1'].length).toBeGreaterThan(0);
+  });
+
+  it('rejects row scope on ordinary nodes and undeclared row dependencies', () => {
+    const ordinaryNode = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'row-mount', title: 'Row mount', protocolVersion: '0.2' },
+        body: {
+          type: 'input',
+          props: { field: 'status', label: 'Status' },
+          reactions: [{
+            scope: 'row',
+            dependencies: ['status'],
+            when: "$row.status == 'ok'",
+            fulfill: { visible: true },
+          }],
+        },
+      }),
+      format: 'json',
+      filename: 'row-mount.json',
+    });
+    const missingDependency = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'row-dependency', title: 'Row dependency', protocolVersion: '0.2' },
+        body: {
+          type: 'table',
+          props: {
+            rowKey: 'id',
+            pagination: { mode: 'none' },
+            columns: [{
+              field: 'id',
+              label: 'ID',
+              visibleWhen: { scope: 'row', dependencies: [], when: "$row.status == 'ok'" },
+            }],
+          },
+        },
+      }),
+      format: 'json',
+      filename: 'row-dependency.json',
+    });
+
+    expect(ordinaryNode.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'ROW_SCOPE_MOUNT' }),
+    ]));
+    expect(missingDependency.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rule: 'UNDECLARED_ROW_DEP' }),
+    ]));
+  });
+
+  it('rejects missing nested required component fields and duplicate node ids', () => {
+    const missingPaginationMode = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'nested-required', title: 'Nested required', protocolVersion: '0.2' },
+        body: {
+          type: 'table',
+          props: { rowKey: 'id', pagination: {}, columns: [{ field: 'id', label: 'ID' }] },
+        },
+      }),
+      format: 'json',
+      filename: 'nested-required.json',
+    });
+    const duplicateId = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'duplicate-id', title: 'Duplicate ID', protocolVersion: '0.2' },
+        body: {
+          type: 'grid',
+          props: { columns: 2 },
+          children: [
+            { type: 'text', id: 'same', props: { content: 'A' } },
+            { type: 'text', id: 'same', props: { content: 'B' } },
+          ],
+        },
+      }),
+      format: 'json',
+      filename: 'duplicate-id.json',
+    });
+
+    expect(missingPaginationMode.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.pagination.mode' }),
+    ]));
+    expect(duplicateId.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[1].id' }),
+    ]));
+  });
+
+  it.each([
+    ['prefix-$row.id', '模板拼接'],
+    ['$parentRow.id', '嵌套表格'],
+  ])('rejects invalid top-level row request mapping %s', (mappingValue, messageFragment) => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: {
+          pageId: 'request-mapping',
+          title: 'Request mapping',
+          protocolVersion: '0.2',
+          requiredCapabilities: ['actions.row.request'],
+        },
+        body: {
+          type: 'table',
+          props: {
+            rowKey: 'id',
+            pagination: { mode: 'none' },
+            columns: [{ field: 'id', label: 'ID' }],
+            actions: [{
+              key: 'go',
+              label: 'Go',
+              actionRef: 'go',
+              requestMapping: { path: { id: mappingValue } },
+            }],
+          },
+        },
+        actions: { go: { type: 'request', method: 'POST', url: '/go/{id}' } },
+      }),
+      format: 'json',
+      filename: 'request-mapping.json',
+    });
+
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ message: expect.stringContaining(messageFragment) }),
+    ]));
+  });
+
+  it('rejects datasource reference declarations and non-string body mappings', () => {
+    const datasourceRef = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'datasource-ref', title: 'Datasource ref', protocolVersion: '0.2' },
+        datasources: { loop: { source: 'ref', ref: 'loop' } },
+        body: { type: 'text', props: { content: 'Value' } },
+      }),
+      format: 'json',
+      filename: 'datasource-ref.json',
+    });
+    const bodyMapping = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'body-mapping', title: 'Body mapping', protocolVersion: '0.2' },
+        body: { type: 'form', props: { submitAction: 'save' } },
+        actions: {
+          save: {
+            type: 'request',
+            method: 'POST',
+            url: '/save',
+            bodyMapping: { source: { nested: 'target' } },
+          },
+        },
+      }),
+      format: 'json',
+      filename: 'body-mapping.json',
+    });
+
+    expect(datasourceRef.layers['L0/L1'].length).toBeGreaterThan(0);
+    expect(bodyMapping.layers['L0/L1']).toEqual(expect.arrayContaining([
+      expect.objectContaining({ message: 'must be string' }),
+    ]));
+  });
+
   it('reports source ref responseMapping semantic errors through L2', () => {
     const result = validateContent({
       content: tableRefResponseMappingMissingListYaml,

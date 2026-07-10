@@ -32,9 +32,9 @@
     },
     "datasources": {
       "type": "object",
-      "description": "【可选】页面级预声明数据源，key-value 映射，供 body 内节点通过 ref 引用",
+      "description": "【可选】页面级预声明数据源，key-value 映射，供 body 内节点通过 ref 引用。禁止使用 source: ref（引用链），仅允许 source: api 或 source: static",
       "additionalProperties": {
-        "$ref": "node.schema.json#/definitions/DataRef"
+        "$ref": "#/definitions/DatasourceDeclaration"
       }
     },
     "body": {
@@ -50,5 +50,58 @@
     }
   },
   "required": ["meta", "body"],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "definitions": {
+    "DatasourceDeclaration": {
+      "type": "object",
+      "description": "页面级数据源声明。仅允许 source: api 或 source: static，禁止 source: ref（引用链会导致递归风险，需 ADR 定义持久性/循环检测后方可开放）",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["api", "static"],
+          "description": "数据源类型。仅 api 或 static，禁止 ref"
+        },
+        "value": {},
+        "url": { "type": "string" },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+          "default": "GET"
+        },
+        "params": {
+          "type": "object",
+          "description": "【可选】请求参数映射",
+          "not": {
+            "required": ["responseMapping"],
+            "description": "responseMapping 禁止放入 params——它不属于请求参数（ADR-0005 D1），应声明在顶级字段中"
+          }
+        },
+        "responseMapping": {
+          "$ref": "node.schema.json#/definitions/ResponseMapping",
+          "description": "【可选，since 0.2.4】响应字段名映射"
+        }
+      },
+      "required": ["source"],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": { "source": { "const": "static" } },
+          "required": ["source", "value"],
+          "not": {
+            "anyOf": [
+              { "required": ["url"] },
+              { "required": ["method"] },
+              { "required": ["params"] },
+              { "required": ["responseMapping"] }
+            ]
+          }
+        },
+        {
+          "properties": { "source": { "const": "api" } },
+          "required": ["source", "url"],
+          "not": { "required": ["value"] }
+        }
+      ]
+    }
+  }
 }

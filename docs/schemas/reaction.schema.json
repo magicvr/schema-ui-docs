@@ -13,6 +13,7 @@
     },
     "when": {
       "type": "string",
+      "minLength": 1,
       "description": "条件表达式，语法白名单见 02-reaction-expression.md，禁止函数调用/算术运算"
     },
     "scope": {

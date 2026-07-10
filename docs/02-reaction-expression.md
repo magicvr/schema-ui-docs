@@ -18,10 +18,10 @@ applies_to: schema-ui-protocol v0.2
 | 使用位置 | 所属字段 | 目标文档 |
 |---|---|---|
 | 表单字段联动 | `reactions[].when` | [01-node-protocol.md §3.5](./01-node-protocol.md#35-reactions可选) |
-| 节点条件渲染 | `visibleWhen.when` | [01-node-protocol.md §3.8](./01-node-protocol.md#38-visiblewhen-节点级条件渲染可选since-02) |
-| 权限判定 | `permissions.*` | [01-node-protocol.md §3.9](./01-node-protocol.md#39-permissions-权限控制可选since-02) |
+| 节点条件渲染 | `visibleWhen.when` | [01-node-protocol.md §3.8](./01-node-protocol.md#38-visiblewhen节点级条件渲染可选since-02) |
+| 权限判定 | `permissions.*` | [01-node-protocol.md §3.9](./01-node-protocol.md#39-permissions权限控制可选since-02) |
 | 表格列/行内操作 | `columns[].{visibleWhen,reactions}.when` | [03-component-registry.md](./03-component-registry.md) `table` 组件章节 |
-| 数据请求参数 | `data.params`（仅值替换，不做条件判断） | [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams-中-deps-的作用域边界) |
+| 数据请求参数 | `data.params`（仅值替换，不做条件判断） | [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界) |
 | 远程选项参数 | `props.optionsSource.params`（仅值替换，不做条件判断） | [03-component-registry.md](./03-component-registry.md) `select` 组件章节 |
 
 ## 2. 变量命名空间（白名单）
@@ -150,7 +150,7 @@ reactions:
 
 ### 10.1 `$deps` 出现在非表单 `visibleWhen` 中
 
-若节点未声明 `dependencies`（即处于非表单上下文），但其 `when` 表达式中出现了 `$deps.*`，静态校验直接拒绝。理由：`$deps` 出现在不该出现的位置几乎总是配置错误（拼写误用、复制粘贴遗留），直接拒绝能在问题发生的第一时间暴露。
+节点所处的表单上下文由 Node 树位置决定（节点位于 `type: form` 子树中即为表单上下文）。非表单上下文的节点不绑定表单字段，其 `visibleWhen` 中 `dependencies` 可省略，但若 `when` 表达式中出现了 `$deps.*`，静态校验直接拒绝。理由：`$deps` 出现在不该出现的位置几乎总是配置错误（拼写误用、复制粘贴遗留），直接拒绝能在问题发生的第一时间暴露。注意：表单上下文内缺失 `dependencies` 是配置错误，不会因此变成非表单上下文。
 
 ### 10.2 `$deps` 出现在 `permissions.*` 中
 
@@ -239,13 +239,12 @@ visibleWhen:
 
 因此，同一轮内的规则是：**本轮读旧快照，本轮末尾批量写入，下一轮读取新值**。这条规则用于消除 `visibleWhen` / `permissions` 读取字段值与 `reactions.fulfill.value` 写字段值之间的时序歧义。
 
-### 14.1 同一目标字段的写入冲突
+### 14.1 同一字段的多条 `value` 写入冲突
 
-同一轮中若多条 `reactions` 写入同一个字段值，采用确定性的后写优先规则：
+`fulfill.value` / `otherwise.value` 仅作用于当前字段（即声明该 `reactions` 的字段自身），不支持跨字段写入。同一字段上若有多条 `reactions` 写入 `value`，采用确定性的后写优先规则：
 
-- 同一字段上的多条 `reactions` 按数组顺序求值，后一条对同一状态键覆盖前一条。
-- 不同字段 / 不同节点的 `reactions` 若写入同一个目标字段，按文档中 Node 的深度优先遍历顺序排序，后遍历到的写入覆盖先遍历到的写入。
-- Renderer 在开发环境应输出警告，提示存在多处写同一字段的配置，建议合并规则或拆分字段。
+- 同一字段上的多条 `reactions` 按数组顺序求值，后一条对 `value` 覆盖前一条。
+- Renderer 在开发环境应输出警告，提示存在多处写同一字段 `value` 的配置，建议合并规则或拆分字段。
 
 ### 14.2 循环保护
 
