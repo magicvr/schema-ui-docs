@@ -777,7 +777,7 @@ function main() {
     }
   }
 
-  process.exit(allViolations.length > 0 || fileErrors.length > 0 ? 1 : 0);
+  process.exitCode = allViolations.length > 0 || fileErrors.length > 0 ? 1 : 0;
 }
 
 main();
