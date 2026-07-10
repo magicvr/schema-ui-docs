@@ -6,6 +6,24 @@
 
 ---
 
+## 0053 — 2026-07-11 — `$context` 位置 + `contains` 静态规则 + Schema 描述卫生
+
+**主题：** 闭合 `$context.*` 可用位置、`contains` 右操作数静态规则、`dependencies` 无前缀路径描述及文档卫生问题（V207-V212：3🟡 + 3🟢）。
+**性质：** 表达式权威正文、Renderer 清单、机器可读 Schema 与文档引用同步。
+
+| 文件 | 说明 |
+|---|---|
+| [0053-2026-07-11-review.md](./0053-2026-07-11-review.md) | 审视报告 — V207-V212（6 项） |
+| [0053-2026-07-11-checklist.md](./0053-2026-07-11-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V207-V208: 收窄 `$context.*` 可用位置并将 `contains` 右操作数字面量约束补入表达式与 Renderer 权威规则
+- V209: `reaction.schema.json` 明确 `dependencies` 使用无变量前缀的完整路径；未引用 `$deps.*` / `$row.*` 时可为空数组
+- V210-V212: 修正 MCP CHANGELOG 路径、`$parentRow.*` 静态拒绝措辞与整值替换章节链接
+- `git diff --check`、Schema JSON 解析、L3a 常量表达式探针、MCP build、**115** 项测试与 tools smoke 全部通过
+
+---
+
 ## 0052 — 2026-07-11 — ADR-0003 `contains` 函数式语法残留
 
 **主题：** 修正 Accepted ADR-0003 将中缀 `contains` 描述为方法调用并使用 `contains(...)` 形式的残留（V206🟡）。
