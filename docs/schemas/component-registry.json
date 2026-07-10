@@ -49,7 +49,8 @@
             "anyOf": [
               { "required": ["label"] },
               { "required": ["labelKey"] }
-            ]
+            ],
+            "additionalProperties": false
           }
         },
         "span": { "type": "number", "required": false, "since": "0.2" },
@@ -139,7 +140,8 @@
               "required": false,
               "description": "默认页大小"
             }
-          }
+          },
+          "additionalProperties": false
         },
         "columns": {
           "type": "array",
@@ -410,7 +412,8 @@
               "label": { "type": "string", "description": "选项文案" },
               "value": { "description": "选项值" }
             },
-            "required": ["label", "value"]
+            "required": ["label", "value"],
+            "additionalProperties": false
           }
         },
         "optionsSource": {

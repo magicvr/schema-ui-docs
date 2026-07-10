@@ -15,6 +15,8 @@
 - 审计 `0038 / V116`：固定 `mcp/package.json` 中 `@modelcontextprotocol/sdk` 的依赖版本策略，避免继续使用 `latest`。
 - 审计 `0039 / V117-V121`：收敛 `$self.start/end`、表单内 `visibleWhen.dependencies`、`tagMap` L4 扫描、`$parentRow` 暂缓策略与非链式比较校验。
 - 审计 `0039 / V122-V124`：统一 `$context` 为实例初始化快照，补齐 Renderer 请求初始化接口，并将 MCP `get_doc` 20KB 预算施加到完整工具文本。
+- 审计 `0040 / V125-V127`：封闭组件 DSL 的固定嵌套对象，补齐 MCP 临时目录创建异常边界，并恢复编译产物对所声明 Node 18 下限的兼容性。
+- 审计 `0040 / V128-V129`：回填早期归档清单终态并修复归档报告的失效相对链接。
 
 **涉及的文档、包与配置：**
 - 入口文档：`README.md`、`docs/00-overview.md`

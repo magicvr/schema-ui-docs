@@ -15,6 +15,8 @@ applies_to: schema-ui-protocol v0.2
 >
 > **DSL 约束关键字白名单：** 该 DSL 允许在组件级或 `props` 对象内借用以下 JSON Schema 风格组合约束关键字：`anyOf`、`oneOf`、`allOf`、`if`、`then`、`else`、`properties`、`const`、数组形式 `required`、`additionalProperties`。这些关键字仅用于表达组件字段之间的组合关系，不代表整个文件可作为标准 JSON Schema 处理。实现 L2 组件契约校验时，必须同时处理字段表和这些组合约束。
 >
+> **嵌套对象封闭性：** 具有固定协议字段表的嵌套对象必须显式声明 `additionalProperties: false`，例如 `tabs.props.items[]`、`table.props.pagination`、`table.props.columns[]` / `actions[]`、`select.props.options[]` 与 `optionsSource`。只有业务字典才允许动态键，例如 `tagMap` 的键来自后端数据值；其映射项本身仍是封闭对象。
+>
 > **两种 `required` 语义：** 字段定义中的布尔值 `required: true/false` 表示该字段在普通情况下是否必填；组合约束中的数组形式 `required: ["field"]` 表示当前 `anyOf` / `oneOf` / `if` / `then` / `else` 分支要求这些字段存在。若二者同时出现，以更具体的组合约束分支决定条件必填关系，例如 `form.mode=search` 时要求 `targetTable`，默认模式要求 `submitAction`。
 >
 > **v0.2 变更说明：** 本次更新涉及多处破坏性/新增字段，详见 [audit/0001-2026-07-07-plan.md](./audit/archived/0001-2026-07-07-plan.md)。表格中新增字段标注 `(since 0.2)`。

@@ -5,6 +5,24 @@
 
 ---
 
+## 0040 — 2026-07-10 — 组件 DSL 嵌套封闭性 + MCP 异常边界与运行时兼容 + 归档证据链
+
+**主题：** 修复组件 DSL 固定嵌套对象放行未知字段（V125🟡）、MCP 临时目录创建失败绕过结构化 `internalError`（V126🟡）、Node `>=18` 声明与编译产物语法不兼容（V127🟡）、早期归档清单终态未回填（V128🟢），以及归档报告中的 7 个失效相对链接（V129🟢）。
+**性质：** 组件 DSL 封闭性收敛 + MCP 异常与最低运行时兼容修复 + 审计证据链修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0040-2026-07-10-review.md](./0040-2026-07-10-review.md) | 审视报告 — V125-V129（5 项） |
+| [0040-2026-07-10-checklist.md](./0040-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V125: 为 `tabs.items[]`、`pagination`、`select.options[]` 固定对象补齐 `additionalProperties: false`，同步 DSL 文档与反例测试
+- V126: 将临时目录创建纳入结构化异常边界，创建失败返回稳定错误消息且不泄露内部路径
+- V127: 使用 `createRequire` 替代 JSON import attributes，保留 Node `>=18` 并通过 Node 18.19 tools smoke
+- V128-V129: 回填 0001/0002 清单终态，修复 5 份归档报告中的 7 个相对链接
+
+---
+
 ## 0039 — 2026-07-10 — 表达式校验边界 + 嵌套表格决策 + Renderer 初始化契约 + MCP 返回预算
 
 **主题：** 修复 `dateRangePicker` `$self.start/end` 与 L3a 冲突（V117🔴）、表单内 `visibleWhen.dependencies` 条件必填缺口（V118🟡）、L4 `tagMap` 业务键误报（V119🟡）、`$parentRow` 不可构造能力（V120🔴）、链式比较放行（V121🟡）、`$context` 生命周期冲突（V122🟡）、Renderer 初始化参数遗漏（V123🟡）及 MCP 完整工具文本超 20KB（V124🟡）。

@@ -36,11 +36,17 @@ type LayerScriptResult = {
 };
 
 type LayerScriptExecutor = (scriptName: string, filePath: string, layer: ValidationLayer) => string;
+type TempDirCreator = (prefix: string) => string;
 
 let layerScriptExecutor: LayerScriptExecutor = defaultLayerScriptExecutor;
+let tempDirCreator: TempDirCreator = fs.mkdtempSync;
 
 export function setLayerScriptExecutorForTest(executor: LayerScriptExecutor | null): void {
   layerScriptExecutor = executor ?? defaultLayerScriptExecutor;
+}
+
+export function setTempDirCreatorForTest(creator: TempDirCreator | null): void {
+  tempDirCreator = creator ?? fs.mkdtempSync;
 }
 
 export function validateContent(input: RunnerInput): ValidateContentResult {
@@ -75,11 +81,12 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
     });
   }
 
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'schema-ui-mcp-'));
   const ext = input.format === 'json' ? 'json' : 'yaml';
-  const tempFile = path.join(tempDir, `page-${crypto.randomUUID()}.${ext}`);
+  let tempDir: string | null = null;
 
   try {
+    tempDir = tempDirCreator(path.join(os.tmpdir(), 'schema-ui-mcp-'));
+    const tempFile = path.join(tempDir, `page-${crypto.randomUUID()}.${ext}`);
     fs.writeFileSync(tempFile, input.content, { encoding: 'utf8' });
 
     const layers = emptyLayers();
@@ -112,13 +119,19 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
   } catch (error) {
     return finalize({
       ...baseResult,
-      internalError: { message: error instanceof Error ? error.message : String(error) },
+      internalError: {
+        message: tempDir === null
+          ? '无法创建校验临时目录'
+          : error instanceof Error ? error.message : String(error),
+      },
     });
   } finally {
-    try {
-      fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch {
-      // Best-effort cleanup only.
+    if (tempDir) {
+      try {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      } catch {
+        // Best-effort cleanup only.
+      }
     }
   }
 }
