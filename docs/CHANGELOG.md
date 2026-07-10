@@ -19,6 +19,10 @@
 - 审计 `0040 / V128-V129`：回填早期归档清单终态并修复归档报告的失效相对链接。
 - 审计 `0041 / V130-V137`：闭合普通表单 GET 请求语义，修复表达式/params/L4/responseMapping 校验边界，并补齐 table `titleKey` 与日期边界机器校验。
 - 审计 `0041 / V138-V141`：为 `validate_content` 增加完整 20KB 响应预算和根标量错误分类，补齐 0011 归档索引并修复 0002 章节锚点。
+- 审计 `0042 / V142`：统一 DataRef `params` 的传输语义，对所有 HTTP method 均编码为 URL query，不隐式生成请求体。
+- 审计 `0042 / V143-V151`：要求搜索目标表格具有有效 API 数据源，闭合 dateRangePicker/upload/bodyMapping/HTTP 错误处理语义，并修复 search submitAction、option value、RowAction URL 模板和 upload maxSize 校验边界。
+- 审计 `0042 / V152`：为 MCP 校验子进程设置显式 16MB stdout 上限并区分 `ENOBUFS`，避免真实违规在最终 20KB 裁剪前丢失。
+- 审计 `0042 / V153-V154`：为历史 V1-V4 冲突建立 `NNNN/Vn` 复合引用规则，并统一 Windows 绝对反斜杠 glob 在 AJV/L2/L3a/L4 的匹配行为。
 
 **涉及的文档、包与配置：**
 - 入口文档：`README.md`、`docs/00-overview.md`

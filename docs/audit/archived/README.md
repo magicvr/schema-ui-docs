@@ -2,6 +2,26 @@
 
 > 审计文件完成所有跟踪条目的修复后，移入本目录归档。
 > 最新归档靠前排列。
+> 历史 0010、0013、0014 曾重复使用 V1-V4；引用冲突项时使用 `NNNN/Vn` 复合标识（如 `0013/V1`），不改写历史报告原文。
+
+---
+
+## 0042 — 2026-07-10 — 请求与 Action 语义 + 组件校验边界 + MCP 输出容量 + 审计编号身份
+
+**主题：** 统一 DataRef 与搜索表单请求语义（V142-V143🔴），闭合 dateRangePicker/upload/HTTP 错误/bodyMapping 行为并修复 L2/L4/DSL 边界（V144-V151🟡），修复 MCP 子进程输出容量和历史 V 编号身份（V152-V153🟡），统一 Windows glob（V154🟢）。
+**性质：** 请求传输与 Action 运行时语义收敛 + 组件/校验工具链同步 + MCP 容量闭环 + 审计身份和跨平台 CLI 修复。
+
+| 文件 | 说明 |
+|---|---|
+| [0042-2026-07-10-review.md](./0042-2026-07-10-review.md) | 审视报告 — V142-V154（13 项） |
+| [0042-2026-07-10-checklist.md](./0042-2026-07-10-checklist.md) | 跟踪清单（全部已完成 ✅） |
+| [0042-2026-07-10-plan.md](./0042-2026-07-10-plan.md) | 修复计划与 V142-V152 决策记录 |
+
+**关键修复：**
+- V142-V147: DataRef params 对所有 method 固定为 query；搜索目标必须解析到 API；禁止 dateRangePicker value 写入；upload Action 作为 actionRef 约束唯一来源；明确 HTTP/onError 时序和 bodyMapping 白名单
+- V148-V151: search 模式忽略 submitAction；L4 跳过 option value 业务载荷；L2 拒绝非法 RowAction URL 模板；upload maxSize 不得为负
+- V152: MCP 子脚本使用显式 16MB stdout 上限并正确分类 ENOBUFS；真实 6000 条 L2 违规保留统计，最终响应仍不超过 20KB
+- V153-V154: 历史 V1-V4 使用 `NNNN/Vn` 复合引用；AJV/L2/L3a/L4 统一 Windows 绝对反斜杠 glob；MCP 90 项测试、tools/Docker smoke 全部通过
 
 ---
 

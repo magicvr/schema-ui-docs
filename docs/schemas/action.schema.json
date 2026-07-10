@@ -19,7 +19,7 @@
         "url": { "type": "string" },
         "bodyMapping": {
           "type": "object",
-          "description": "表单字段名 -> 请求体字段名的映射，缺省时按字段名原样传递",
+          "description": "表单字段名 -> 请求体字段名的映射；缺省时全部字段按原名传递，声明时作为源字段白名单，仅发送列出的字段",
           "additionalProperties": {
             "type": "string",
             "minLength": 1,

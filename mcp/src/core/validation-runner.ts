@@ -10,6 +10,7 @@ import { buildSuggestedDocs } from './suggested-docs.js';
 import type { LayerViolation, ParseError, ToolError, ValidateContentResult, ValidationLayer } from '../types.js';
 
 const MAX_CONTENT_BYTES = 1024 * 1024;
+const MAX_LAYER_SCRIPT_OUTPUT_BYTES = 16 * 1024 * 1024;
 
 const emptyLayers = (): Record<ValidationLayer, LayerViolation[]> => ({
   'L0/L1': [],
@@ -217,6 +218,13 @@ function runLayerScript(scriptName: string, filePath: string, layer: ValidationL
   try {
     raw = layerScriptExecutor(scriptName, filePath, layer);
   } catch (error) {
+    if (isChildBufferOverflow(error)) {
+      return {
+        violations: [],
+        parseErrors: [],
+        internalError: { message: `[${layer}] 校验脚本输出超过 16MB 内部上限` },
+      };
+    }
     const childOutput = getChildOutput(error, 'stdout') || getChildOutput(error, 'stderr');
     if (!childOutput.trim()) {
       return {
@@ -254,6 +262,7 @@ function defaultLayerScriptExecutor(scriptName: string, filePath: string): strin
   return execFileSync(process.execPath, [scriptPath, filePath, '--json'], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    maxBuffer: MAX_LAYER_SCRIPT_OUTPUT_BYTES,
   });
 }
 
@@ -326,6 +335,11 @@ function getChildOutput(error: unknown, key: 'stdout' | 'stderr'): string {
     if (typeof value === 'string') return value;
   }
   return '';
+}
+
+function isChildBufferOverflow(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false;
+  return (error as { code?: unknown }).code === 'ENOBUFS';
 }
 
 function stringValue(value: unknown): string | undefined {

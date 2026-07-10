@@ -259,6 +259,8 @@ visibleWhen:
 
 `scope: row` 下仍禁止 `value` 状态键；行内字段回写若未来需要支持，必须另开 ADR 决策。
 
+`dateRangePicker` 虽处于表单 scope，但由 `startField` / `endField` 绑定两个独立字段，没有单一“当前字段”写入目标。因此 v0.2 禁止其 `reactions[].fulfill.value` / `otherwise.value`；仍可使用 `visible`、`required` 和 `disabled`。未来若需要范围回写，必须通过 ADR 定义完整 `{ start, end }` 结构、部分更新和空值规则。
+
 ## 附录 A：变量可见性矩阵
 
 下表汇总各使用位置可访问的变量，是 §2（变量命名空间）与 §9（作用域规则）的交叉对照。合并入 `02-reaction-expression.md` 时作为独立附录。

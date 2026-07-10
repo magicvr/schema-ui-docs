@@ -25,6 +25,7 @@
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { normalizeGlobPattern } = require('./file-patterns');
 
 const SCRIPTS_DIR = __dirname;
 
@@ -80,7 +81,7 @@ function main() {
   const args = process.argv.slice(2);
   const skipL0L1 = args.includes('--skip-l0l1');
   const jsonMode = args.includes('--json');
-  const patterns = args.filter(a => !a.startsWith('--'));
+  const patterns = args.filter(a => !a.startsWith('--')).map(normalizeGlobPattern);
 
   if (patterns.length === 0) {
     console.error('用法: node scripts/validate-all.js <file-or-glob> [--skip-l0l1] [--json]');
