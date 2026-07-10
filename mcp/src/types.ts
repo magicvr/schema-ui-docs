@@ -38,6 +38,8 @@ export type ToolError = {
 export type ValidateContentResult = {
   passed: boolean;
   layers: Record<ValidationLayer, LayerViolation[]>;
+  layerStats?: Record<ValidationLayer, { total: number; returned: number; omitted: number }>;
+  truncated?: boolean;
   summary: string;
   parseError: ParseError | null;
   internalError: ToolError | null;

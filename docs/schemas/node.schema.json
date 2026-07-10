@@ -92,7 +92,7 @@
         },
         "responseMapping": {
           "$ref": "#/definitions/ResponseMapping",
-          "description": "【可选，since 0.2.4】响应字段名映射，点路径字符串，见 docs/04-datasource-contract.md §4.1.1"
+          "description": "【可选，since 0.2.4】响应字段名映射，点路径字符串，仅适用于 source: api 或 source: ref 指向 API datasource；静态引用目标禁用规则由 L2 执行，见 docs/04-datasource-contract.md §4.1.1"
         }
       },
       "required": ["source"],

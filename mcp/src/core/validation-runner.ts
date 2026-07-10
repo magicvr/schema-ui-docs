@@ -73,11 +73,11 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
     });
   }
 
-  const parseError = parseInput(input.content, input.format, input.filename);
-  if (parseError) {
+  const parsedInput = parseInput(input.content, input.format, input.filename);
+  if (parsedInput.error) {
     return finalize({
       ...baseResult,
-      parseError,
+      parseError: parsedInput.error,
     });
   }
 
@@ -92,6 +92,13 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
     const layers = emptyLayers();
     const ajvResult = runAjv(tempFile);
     layers['L0/L1'] = ajvResult;
+
+    if (!isPlainObject(parsedInput.value)) {
+      return finalize({
+        ...baseResult,
+        layers,
+      });
+    }
 
     const l2 = runLayerScript('validate-l2-components.js', tempFile, 'L2', input.filename);
     const l3a = runLayerScript('validate-l3a-expressions.js', tempFile, 'L3a', input.filename);
@@ -136,23 +143,33 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
   }
 }
 
-function parseInput(content: string, format: 'yaml' | 'json', filename?: string): ParseError | null {
+function parseInput(content: string, format: 'yaml' | 'json', filename?: string): {
+  value?: unknown;
+  error: ParseError | null;
+} {
   try {
-    if (format === 'json') JSON.parse(content);
-    else yaml.load(content);
-    return null;
+    return {
+      value: format === 'json' ? JSON.parse(content) : yaml.load(content),
+      error: null,
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const mark = typeof error === 'object' && error !== null && 'mark' in error
       ? (error as { mark?: { line?: number; column?: number } }).mark
       : undefined;
     return {
-      message,
-      line: mark?.line === undefined ? undefined : mark.line + 1,
-      column: mark?.column === undefined ? undefined : mark.column + 1,
-      filename,
+      error: {
+        message,
+        line: mark?.line === undefined ? undefined : mark.line + 1,
+        column: mark?.column === undefined ? undefined : mark.column + 1,
+        filename,
+      },
     };
   }
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function runAjv(filePath: string): LayerViolation[] {

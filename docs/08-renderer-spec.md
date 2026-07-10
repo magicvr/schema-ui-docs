@@ -449,6 +449,8 @@ const renderer = new Renderer({
 
 ## 7. Action 执行策略
 
+普通表单提交时，Renderer 根据 `form.props.submitAction` 读取顶层 Action。若目标为 `type: request`，表单字段按 `bodyMapping`（缺省时按原字段名）组成 JSON 请求体；普通表单不得引用 `method: GET` 的 request，配置加载时应由 L2 拒绝。v0.2 不为普通表单隐式生成 query 参数。`POST` / `PUT` / `PATCH` / `DELETE` 按上述 JSON 请求体规则执行。
+
 ### 7.1 行级后端请求动作（since 0.2.7）
 
 当 `table.props.actions[]` 声明 `actionRef` 时，Renderer 按以下流程执行：

@@ -17,6 +17,8 @@
 - 审计 `0039 / V122-V124`：统一 `$context` 为实例初始化快照，补齐 Renderer 请求初始化接口，并将 MCP `get_doc` 20KB 预算施加到完整工具文本。
 - 审计 `0040 / V125-V127`：封闭组件 DSL 的固定嵌套对象，补齐 MCP 临时目录创建异常边界，并恢复编译产物对所声明 Node 18 下限的兼容性。
 - 审计 `0040 / V128-V129`：回填早期归档清单终态并修复归档报告的失效相对链接。
+- 审计 `0041 / V130-V137`：闭合普通表单 GET 请求语义，修复表达式/params/L4/responseMapping 校验边界，并补齐 table `titleKey` 与日期边界机器校验。
+- 审计 `0041 / V138-V141`：为 `validate_content` 增加完整 20KB 响应预算和根标量错误分类，补齐 0011 归档索引并修复 0002 章节锚点。
 
 **涉及的文档、包与配置：**
 - 入口文档：`README.md`、`docs/00-overview.md`
@@ -24,7 +26,7 @@
 - MCP 包：`mcp/package.json`、`mcp/package-lock.json`
 - MCP 说明：`docs/mcp/README.md`
 - 协议与 ADR：`docs/01-node-protocol.md`、`docs/02-reaction-expression.md`、`docs/03-component-registry.md`、`docs/06-validation.md`、`docs/07-actions-contract.md`、`docs/08-renderer-spec.md`、`docs/decisions/0003-0008`
-- 校验与 MCP 实现：`scripts/*.js`、`mcp/src/tools/docs.ts`、`mcp/tests/*.test.ts`
+- 校验与 MCP 实现：`scripts/*.js`、`mcp/src/tools/docs.ts`、`mcp/src/tools/validate-content.ts`、`mcp/src/core/validation-runner.ts`、`mcp/tests/*.test.ts`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 

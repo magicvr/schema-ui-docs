@@ -129,7 +129,7 @@ reactions:
 
 - **`$row` 与 `$deps` 互斥**：`scope: row` 的表达式中不能出现 `$deps.*`；`scope: form` 的表达式中不能出现 `$row.*`。违反该规则的配置由静态校验直接拒绝（见 §10 静态校验规则）。
 - **`$context` 跨作用域可访问**：`$context.*` 在两种作用域下均可访问，不受隔离规则限制。
-- **非表单节点 `visibleWhen` 只能访问 `$context.*`**：非表单节点不绑定表单字段，即使其表达式默认属于 `scope: form`，也不得访问 `$deps.*` 或 `$self`。
+- **非表单节点 `visibleWhen` 只能访问 `$context.*`**：非表单节点不绑定表单字段，即使其表达式默认属于 `scope: form`，也不得访问 `$deps.*`、`$self`、`$row.*` 或 `$parentRow.*`。
 - **跨作用域联合判断不支持**：若业务需要同时依赖表单级字段和行内字段（如"表单审批模式为严格且当前行金额超阈值"），v0.2 **不提供协议级语法支持**。该场景无法通过现有表达式机制在协议层实现变通，应由后端预计算为行数据字段（如行数据中增加 `canHighlight` 布尔字段），或通过 ADR 新增标准机制。
 
 ### 9.2 `$self` 的作用域语义
@@ -154,7 +154,7 @@ reactions:
 
 ### 10.1 `$deps` 出现在非表单 `visibleWhen` 中
 
-节点所处的表单上下文由 Node 树位置决定（节点位于 `type: form` 子树中即为表单上下文）。非表单上下文的节点不绑定表单字段，其 `visibleWhen` 中 `dependencies` 可省略，但若 `when` 表达式中出现了 `$deps.*`，静态校验直接拒绝。理由：`$deps` 出现在不该出现的位置几乎总是配置错误（拼写误用、复制粘贴遗留），直接拒绝能在问题发生的第一时间暴露。注意：表单上下文内缺失 `dependencies` 是配置错误，不会因此变成非表单上下文。
+节点所处的表单上下文由 Node 树位置决定（节点位于 `type: form` 子树中即为表单上下文）。非表单上下文的节点不绑定表单字段，其 `visibleWhen` 中 `dependencies` 可省略，但表达式只允许 `$context.user.*` / `$context.features.*`；出现 `$deps.*`、`$self`、`$row.*` 或 `$parentRow.*` 时静态校验直接拒绝。注意：表单上下文内缺失 `dependencies` 是配置错误，不会因此变成非表单上下文。
 
 ### 10.2 `$deps` 出现在 `permissions.*` 中
 
@@ -174,7 +174,7 @@ reactions:
 
 ### 10.6 `$deps` 出现在非表单 `data.params` / `optionsSource.params` 中
 
-`data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做请求参数值替换，规则完全一致。若节点不处于表单上下文，上述 params 中出现 `$deps.*` 时，静态校验直接拒绝。二者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。
+`data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做请求参数值替换，规则完全一致。若节点不处于表单上下文，上述 params 中出现 `$deps.*` 时，静态校验直接拒绝。二者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。规则递归作用于对象和数组中的所有值，不能通过数组元素绕过变量限制。
 
 ## 11. `$context` 最小字段集（since 0.2.5）
 

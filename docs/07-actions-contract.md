@@ -51,6 +51,7 @@ onError: OutcomeBehavior     # 【可选】
 ```
 
 - `bodyMapping` 是表单字段名到请求体字段名的映射，key 为源字段名、value 为目标请求体字段名（非空字符串）。`bodyMapping` 缺省时，表单各字段按原字段名直接组成请求体 JSON。值必须为字符串，不允许嵌套对象、数组或数字。
+- 普通表单通过 `form.props.submitAction` 提交字段时不得引用 `method: GET` 的 request；浏览器请求不能为 GET 携带该 JSON 请求体。v0.2 不为普通表单定义隐式 query 映射，请使用 `POST` / `PUT` / `PATCH` / `DELETE`。该限制不影响行级 Action 使用 `requestMapping.query` 构造 GET 请求。
 - `onSuccess` / `onError` 缺省时，Renderer 使用默认行为（如 `toast` 展示通用成功/失败提示）。
 
 ### 3.1 行级后端请求绑定（since 0.2.7）

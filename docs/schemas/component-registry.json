@@ -123,6 +123,7 @@
       "supportsStates": true,
       "props": {
         "title": { "type": "string", "required": false },
+        "titleKey": { "type": "string", "required": false, "description": "表格标题 i18n key，可替代 title" },
         "rowKey": { "type": "string", "required": true },
         "pagination": {
           "type": "object",

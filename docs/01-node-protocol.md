@@ -102,7 +102,7 @@ data:
 
 `source: api` 时 `method` **可选**，缺省为 `GET`。示例与生成配置可省略 `method`；Renderer 与静态校验均按 `GET` 解释缺省值。
 
-`responseMapping` 仅用于 `source: api` 或引用到 API 数据源的响应解析，声明位置与 `params` 同级，不属于请求参数。协议禁止将 `responseMapping` 放入 `params`，避免 Renderer 误把响应解析配置发送给后端。
+`responseMapping` 仅用于 `source: api` 或引用到 API 数据源的响应解析，声明位置与 `params` 同级，不属于请求参数。协议禁止将 `responseMapping` 放入 `params`，也禁止在引用静态 datasource 的 `source: ref` 节点上声明本地 `responseMapping`；后者由能解析引用目标的 L2 校验执行。
 
 ### 3.4 `children`（可选）
 
