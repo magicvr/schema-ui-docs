@@ -208,6 +208,58 @@ body:
     value: []
 `;
 
+/** 表单内 visibleWhen 误用 $self（0045/V175） */
+export const formVisibleWhenSelfYaml = `
+meta:
+  pageId: form_visiblewhen_self
+  title: Form VisibleWhen Self
+  protocolVersion: "0.2"
+body:
+  type: form
+  props:
+    submitAction: save
+  children:
+    - type: input
+      props:
+        field: name
+        label: Name
+      visibleWhen:
+        dependencies: []
+        when: "$self == true"
+actions:
+  save:
+    type: request
+    method: POST
+    url: /api/save
+`;
+
+/** 表格 actions scope:form 误用 $self（0045/V176） */
+export const tableActionFormScopeSelfYaml = `
+meta:
+  pageId: table_action_form_self
+  title: Table Action Form Scope Self
+  protocolVersion: "0.2"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination:
+      mode: server
+    columns:
+      - field: id
+        label: ID
+    actions:
+      - key: approve
+        label: Approve
+        visibleWhen:
+          scope: form
+          dependencies: []
+          when: "$self == true"
+  data:
+    source: api
+    url: /api/items
+`;
+
 export const nodePermissionSelfYaml = `
 meta:
   pageId: node_permission_self

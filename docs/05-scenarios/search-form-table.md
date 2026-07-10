@@ -1,4 +1,4 @@
-﻿---
+---
 status: example
 protocol_version: v0.2
 last_updated: 2026-07-11

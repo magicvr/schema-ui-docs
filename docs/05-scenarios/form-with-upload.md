@@ -1,4 +1,4 @@
-﻿---
+---
 status: example
 protocol_version: v0.2
 last_updated: 2026-07-11
@@ -65,7 +65,7 @@ body:
         label: 合同附件
         actionRef: uploadContract
         required: true
-        description: 支持 PDF/Word，单文件不超过 10MB
+        description: 支持 PDF/Word，每文件不超过 10MB
 ```
 
 ## 流程说明

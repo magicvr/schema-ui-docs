@@ -178,8 +178,8 @@ visibleWhen:
   when: string               # 白名单表达式（与 reactions[].when 同语法）
 ```
 
-- **表单上下文**（节点位于 `form` 内部）：`dependencies` 必填，表达式中可访问 `$deps.*`（声明字段）和 `$context.*`。
-- **非表单上下文**（如布局容器 `section`/`grid`）：`dependencies` 可省略，此时 `when` 中仅允许 `$context.*`，出现 `$deps.*` 为静态校验拒绝。
+- **表单上下文**（节点位于 `form` 内部）：`dependencies` 必填，表达式中可访问 `$deps.*`（声明字段）和 `$context.user.*` / `$context.features.*`；**不得**使用 `$self`、`$row.*` 或 `$parentRow.*`（`visibleWhen` 不是字段 `reactions`，无 `$self` 注入语义）。
+- **非表单上下文**（如布局容器 `section`/`grid`）：`dependencies` 可省略，此时 `when` 中**仅**允许 `$context.user.*` / `$context.features.*`；出现 `$deps.*`、`$self`、`$row.*` 或 `$parentRow.*` 时静态校验拒绝。
 - 表单上下文中的条件必填由能感知 Node 树位置的 L2 校验执行；即使表达式只读取 `$context.*`，也必须显式写 `dependencies: []`。
 - 表达式语法复用 [02-reaction-expression.md](./02-reaction-expression.md) 白名单解析器。
 

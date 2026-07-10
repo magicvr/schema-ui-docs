@@ -132,7 +132,7 @@ requestMapping:
 - `actionRef` 只能引用顶层 `actions` 中的 `type: request` action。
 - `action.url` 中的路径占位符只允许完整 `{name}` 形式，其中 name 匹配 `[A-Za-z_][A-Za-z0-9_]*`；空、数字开头、连字符、嵌套、孤立或未闭合花括号均非法。每个合法 `{name}` 都必须在 `requestMapping.path.<name>` 中声明。
 - `requestMapping.path` 不得声明 URL 中不存在的 key。
-- `requestMapping` 值若以 `$` 开头，只允许单个 `$row.*` 点路径；v0.2 暂不支持嵌套表格及 `$parentRow.*`，也不允许 `$deps.*`、`$context.*`、表达式、函数或模板字符串。
+- `requestMapping` 值只允许字面量或单个 `$row.*` 点路径。字符串中**任意位置**出现 `$` 时，整段必须是合法 `$row.*` 引用（L2 精确匹配）；拒绝 `$parentRow.*`、模板拼接（如 `prefix-$row.id`）以及字面量中夹带 `$` 的值。v0.2 暂不支持嵌套表格，也不允许 `$deps.*`、`$context.*`、表达式或函数。
 - `requestMapping.path` / `query` / `body` 不支持嵌套对象或数组值；需要复杂结构时应由后端适配，或使用前端预注册 handler。
 - `GET` / `DELETE` 行级请求不得声明 `requestMapping.body`；请使用 `path` 或 `query` 传递当前行标识。
 - `confirm` 保留在 `RowAction` 层声明，因为确认文案属于按钮触发入口，而不是后端请求定义。

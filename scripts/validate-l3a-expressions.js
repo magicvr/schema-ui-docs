@@ -7,7 +7,8 @@
  *
  *   1. 语法合法性 —— 仅允许白名单运算符，禁止函数调用、算术运算
  *   2. 变量命名空间 —— 只允许 $deps.* / $self / $row.* / $context.*；
- *      dateRangePicker 自身 reactions 额外允许 $self.start / $self.end
+ *      dateRangePicker 自身 reactions 额外允许 $self.start / $self.end；
+ *      表单 visibleWhen 禁 $self/$row；表格 actions 任意 scope 禁 $self
  *   3. 作用域隔离规则（02-reaction-expression.md §9、§10）
  *      - scope:row 不能出现 $deps.*
  *      - scope:form 不能出现 $row.*
@@ -473,12 +474,22 @@ function validateExpression(expr, exprPath, context) {
     });
   }
 
-  // 8. 表格 actions 的 scope:row 不能用 $self（§10.3）
-  if (location === 'tableAction' && scope === 'row' && hasSelfRef) {
+  // 7b. 表单上下文 visibleWhen 不允许 $self / $row.* / $parentRow.*（§2 附录 A / 01 §3.8）
+  // visibleWhen 不是字段 reactions，无 $self 注入语义
+  if (location === 'visibleWhen' && hasFormContext && (hasSelfRef || hasRowRef || hasParentRowRef)) {
+    violations.push({
+      path: exprPath,
+      rule: 'FORM_VISIBLEWHEN_VARS',
+      message: '表单上下文的 visibleWhen 中只允许使用 $deps.* 与 $context.*，不得使用 $self、$row.* 或 $parentRow.*',
+    });
+  }
+
+  // 8. 表格 actions 任意 scope 不能用 $self（§10.3 / ADR-0004 D2b）
+  if (location === 'tableAction' && hasSelfRef) {
     violations.push({
       path: exprPath,
       rule: 'TABLE_ACTION_NO_SELF',
-      message: '表格 actions 的 scope:row 表达式中禁止使用 $self（行内操作无当前单元格概念）',
+      message: '表格 actions 的表达式中禁止使用 $self（行内操作无当前单元格概念；任意 scope）',
     });
   }
 

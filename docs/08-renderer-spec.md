@@ -408,10 +408,12 @@ Renderer 在加载页面配置时，应覆盖 [02-reaction-expression.md §10](.
 - `scope: row` 表达式中禁止 `$deps.*`，`scope: form` 表达式中禁止 `$row.*`。
 - v0.2 尚未定义嵌套表格挂载结构，所有 `$parentRow.*` 使用均静态拒绝。
 - `permissions.*` 表达式中不能出现 `$deps.*`、`$self`、`$row.*`、`$parentRow.*`，只允许 `$context.user.*` / `$context.features.*`；禁止未登记的 `$context` 根命名空间（如 `$context.tenant.*`）。
-- 非表单上下文的 `visibleWhen` 中不能出现 `$deps.*`。
-- 表格 `actions` 的 `scope: row` 表达式中禁止 `$self`；表格列 `scope: form` 表达式中也禁止 `$self`。
+- 非表单上下文的 `visibleWhen` 中**仅**允许 `$context.user.*` / `$context.features.*`，不得出现 `$deps.*`、`$self`、`$row.*` 或 `$parentRow.*`。
+- 表单上下文的 `visibleWhen` 中只允许 `$deps.*` 与 `$context.user.*` / `$context.features.*`，不得使用 `$self` / `$row.*` / `$parentRow.*`。
+- 表格 `actions` 的表达式（**任意** `scope`）禁止 `$self`；表格列 `scope: form` 表达式中也禁止 `$self`。
+- `scope: row` **仅**允许挂载在表格 `columns[]` / `actions[]` 的表达式上；普通表单字段 Node 声明 `scope: row` 时静态拒绝（`ROW_SCOPE_MOUNT`）。
 - 独立表格（非 `form.children` 上下文）的列/操作在 `scope: form` 下不能使用 `$deps.*`。
-- 表格 `columns[]` / `actions[]` 上的 `reactions`（无论 `scope: form` 或 `scope: row`）其 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`，禁止 `required` / `value`；表单字段上 `scope: row` 的同一限制仍适用。
+- 表格 `columns[]` / `actions[]` 上的 `reactions`（无论 `scope: form` 或 `scope: row`）其 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`，禁止 `required` / `value`。
 - `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许字面量或 `$deps.*` 值替换；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.*`。
 
 其中，`table.props.columns[]` / `actions[]` 内嵌的 `visibleWhen` / `reactions` / `permissions` 对象属于组件 DSL 内的协议结构，CI 的 L2 校验应先保证其结构合法；Renderer 的 L3a 校验再检查表达式语法、变量声明与作用域隔离。无法通过的配置直接拒绝渲染，并在开发环境给出明确的校验错误信息。

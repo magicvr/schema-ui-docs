@@ -52,20 +52,22 @@ columns:
   - 这与 ADR-0003 D3 中"`visibleWhen` 复用 `reactions` 解析器而非新造语法"的理由完全一致:两套结构意味着两套语义和两套安全校验逻辑,维护成本翻倍,而实际语义并无本质差异。
 - 具体做法:`reactions` 与 `visibleWhen` 这两处已有字段,在 `table.columns`/`table.actions` 的上下文里,**新增一个可选的 `scope` 属性**(默认值为 `form`,行级显式声明为 `row`),而不是为表格场景发明平行的字段名。`permissions` 继续沿用 ADR-0003 的 `$context.*` 只读权限语义,不参与 `scope` 切换。
   - `scope: form`(默认):`dependencies` 声明的是表单级字段,`$deps` 语义与现有 `reactions` 完全一致,`$row` 在此作用域下不可访问(静态校验拦截)。
-  - `scope: row`:`dependencies` 声明的是**当前行内的字段**(即 `$row` 下的属性路径),表达式中可访问 `$row.*`,不可访问表单级 `$deps`(与 D3 的隔离边界一致)。
+  - `scope: row`:`dependencies` 声明的是**当前行内字段的点路径**,即 `$row.` **之后**的完整后缀(无 `$row.` 前缀;如 `canRefund`、`user.id`、`__index`),表达式中可访问 `$row.*`,不可访问表单级 `$deps`(与 D3 的隔离边界一致)。L3a 对 `$row.*` 做精确路径包含匹配;写成 `dependencies: ["$row.canRefund"]` 非法。
 
-### D2a. `scope: row` 下 `fulfill` 状态键的取舍
+### D2a. 表格列/操作上 `fulfill` 状态键的取舍
 
-`reactions` 的 `fulfill`/`otherwise` 支持四个状态键:`visible`/`required`/`disabled`/`value`。这四个键并非在 `scope: row` 下都有合理语义,需要逐一判断,不能笼统地说"复用整个结构"就意味着四个键照单全收:
+`reactions` 的 `fulfill`/`otherwise` 支持四个状态键:`visible`/`required`/`disabled`/`value`。表格列与行内操作不是表单字段,这四个键并非都有合理语义。
 
-| 状态键 | 在 `scope: row` 下的语义 | 是否允许(v0.2) |
+| 状态键 | 在表格 `columns[]`/`actions[]` 上的语义 | 是否允许(v0.2) |
 |---|---|---|
 | `visible` | 当前单元格/行内操作是否可见 | ✅ 允许 |
 | `disabled` | 当前单元格/操作是否禁用 | ✅ 允许 |
 | `required` | 表格列/行内操作不存在"必填"这个概念(必填是表单字段校验语义) | ❌ 静态校验禁止 |
-| `value` | 修改当前行某字段值涉及数据回写,语义比显隐/禁用重得多(影响数据源、可能触发级联校验),v0.2 暂不支持 | ❌ 静态校验禁止 |
+| `value` | 修改当前行某字段值涉及数据回写,语义比显隐/禁用重得多;列/操作亦无单一表单回写目标 | ❌ 静态校验禁止 |
 
-**决策:`scope: row` 下的 `fulfill`/`otherwise` 仅允许声明 `visible` 和 `disabled` 两个状态键,协议要求解析器在静态校验阶段拒绝出现 `required`/`value` 的 `scope: row` 配置。**
+**决策(0044/V167 修订):** 表格 `columns[]` / `actions[]` 上的 `fulfill`/`otherwise` **无论** `scope: form` 或 `scope: row`,均仅允许 `visible` 和 `disabled`;L2 按挂载路径执行。历史上 D2a 仅约束 `scope: row`;扩展后与「列/操作不是表单字段」一致,避免默认 form-scope 误用 `required`/`value`。
+
+`scope: row` **仅**允许挂载在表格列/操作上(L3a `ROW_SCOPE_MOUNT`);普通表单字段不得声明 `scope: row`。
 
 若未来出现"行内字段联动赋值"的真实需求(即需要 `value` 键),留待另开 ADR 专门讨论求值/回写模型,不在本 ADR 中预先承诺具体会以什么结构实现(不预设一定是独立的 `rowReactions`,也可能是对现有结构的受限扩展,视届时的真实场景而定)。
 
@@ -76,7 +78,7 @@ columns:
 **决策:`$self` 在 `scope: row` 下明确指"当前列对应的单元格的原始数据值"(即 `$row[column.field]`,未经格式化/渲染处理的原始值),不指整行数据(整行数据已由 `$row` 承担,`$self` 与 `$row` 不应语义重复)。**
 
 - 若某列配置了 `format`(如 `format: currency` 将 `99.5` 格式化为 `"$99.50"`),`$self` 取的是格式化**之前**的原始值(`99.5`),不是格式化后的展示值。理由:格式化是渲染层的最终呈现步骤,不应该进入表达式求值管道——否则 `$self > 100` 这类数值比较在格式化为字符串后会直接失效或产生意外的字符串比较行为。此规则同样适用于 `$row` 中暴露的字段值(D4):`$row.*` 取的都是原始数据值,与展示格式无关。
-- `scope: row` 的 `actions` 定义(行内操作按钮,不对应具体某一列)不涉及"当前单元格"概念,此时 `$self` 不适用,协议要求静态校验禁止在 `actions` 的表达式中使用 `$self`(只能使用 `$row`/`$context`)。
+- 表格 `actions` 定义(行内操作按钮,不对应具体某一列)不涉及"当前单元格"概念,此时 `$self` 不适用,协议要求静态校验禁止在 `actions` 的表达式中使用 `$self`(**任意** `scope`;只能使用 `$row`/`$context`,或 form-scope 下的 `$deps`/`$context`)。
 
 ### D3. `$row` 与表单 `$deps` 的隔离边界
 
@@ -188,6 +190,8 @@ columns:
 | 表格列 `scope: form`（仅表格位于 `form.children` 内）表达式 | ✅ | ❌(无绑定对象) | ✅ | ❌ |
 | 独立表格列 `scope: form` 表达式 | ❌（静态校验拒绝 `$deps.*`） | ❌(无绑定对象) | ✅ | ❌ |
 | 表格列 `scope: row` 表达式 | ❌ | ✅(单元格原始值) | ✅ | ✅ |
+| 表格 `actions` · `scope: form`（仅表格位于 `form.children` 内） | ✅ | ❌(不适用) | ✅ | ❌ |
+| 独立表格 `actions` · `scope: form` | ❌（静态校验拒绝 `$deps.*`） | ❌(不适用) | ✅ | ❌ |
 | 表格 `actions`(`scope: row`) | ❌ | ❌(不适用) | ✅ | ✅ |
 
-此矩阵仅描述当前协议允许出现哪些变量，不重复各变量的取值语义。`$parentRow.*` 不在当前矩阵中，并由 L2/L3a 保守拒绝。
+此矩阵仅描述当前协议允许出现哪些变量，不重复各变量的取值语义。`$parentRow.*` 不在当前矩阵中，并由 L2/L3a 保守拒绝。与 `02-reaction-expression.md` 附录 A 对齐(0045/V171/V182)。

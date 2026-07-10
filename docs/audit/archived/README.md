@@ -6,6 +6,27 @@
 
 ---
 
+## 0045 — 2026-07-11 — L3a `$self` 挂载漏检 + 文档/ADR 残留 + MCP 场景回归 + 元数据卫生
+
+**主题：** 闭合表单 `visibleWhen` 与表格 `actions` 的 `$self` L3a 漏检（V175-V176🟡），清理 `scope: row` 死路径与 requestMapping/`visibleWhen` 口径漂移（V177-V179🟡），补 MCP 官方场景回归与 ADR/自检同步（V180-V183🟡），元数据与文档卫生（V184-V190🟢）。
+**性质：** L3a 挂载点闭环 + 文档/ADR 与 V164/V167/V171 残留收敛 + MCP 回归覆盖。
+
+| 文件 | 说明 |
+|---|---|
+| [0045-2026-07-11-review.md](./0045-2026-07-11-review.md) | 审视报告 — V175-V190（16 项） |
+| [0045-2026-07-11-checklist.md](./0045-2026-07-11-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V175-V176: L3a 拒绝表单 `visibleWhen` 与表格 `actions`（任意 scope）中的 `$self`；MCP 反例覆盖
+- V177/V190: 删除表单字段 `scope: row` 死路径；`02` §10.6 收录 `ROW_SCOPE_MOUNT`
+- V178-V179: 对齐 `requestMapping` 含 `$` 判定与非表单/表单 `visibleWhen` 白名单
+- V180: MCP 官方场景回归覆盖 search/upload（共 6 个）
+- V181-V183: ADR-0004/0006 与 `06` 自检清单同步 V164/V167/V171
+- V184-V189: CHANGELOG 路径、lock `0.2.8`、场景 BOM/文案、L4 文档范围、MCP 实施计划目录树
+- MCP build + **108** 项测试 + tools smoke 全部通过
+
+---
+
 ## 0044 — 2026-07-11 — 表达式冲突语义 + 表格 scope + row dependencies + 版本/场景覆盖
 
 **主题：** 对齐 Renderer `value` 冲突规则与 ADR-0006（V162🔴），修正表格 scope 措辞与 `$row` dependencies 权威文档（V163-V164🟡），闭合表格 form-scope `required`/`value` 并补 search/upload 场景（V167/V169🟡），版本叙事与文档卫生（V165-V166、V168、V170-V174）。
