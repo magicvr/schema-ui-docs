@@ -7,7 +7,7 @@
 本仓库当前包含两部分交付物：
 
 - `docs/`：Schema-UI 协议、场景示例、标准 JSON Schema、组件注册 DSL、ADR 与校验说明。
-- `mcp/`：Schema-UI MCP stdio 服务初版实现，提供协议只读查询与内容校验工具。
+- `mcp/`：Schema-UI MCP stdio 服务实现，提供协议只读查询与内容校验工具。
 
 ## MCP 服务
 
