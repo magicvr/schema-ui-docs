@@ -85,9 +85,26 @@ function buildRowActionRequest(input) {
   };
 }
 
+function buildFormActionRequest(input) {
+  const body = input.action.bodyMapping
+    ? Object.fromEntries(Object.entries(input.action.bodyMapping).map(([source, target]) => [target, input.formValues[source]]))
+    : { ...input.formValues };
+  const serialized = serializeQuery(input.action.url, []);
+  if (!serialized.ok) return serialized;
+  return {
+    ok: true,
+    request: {
+      method: input.action.method,
+      url: serialized.url,
+      body,
+    },
+  };
+}
+
 function buildRequest(input) {
   if (input.kind === 'dataRef') return buildDataRefRequest(input.dataRef);
   if (input.kind === 'rowAction') return buildRowActionRequest(input);
+  if (input.kind === 'formAction') return buildFormActionRequest(input);
   return failure('INVALID_REQUEST_KIND', 'kind');
 }
 

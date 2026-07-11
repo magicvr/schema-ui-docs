@@ -366,7 +366,7 @@ props:
 
 > **上传流程：** Renderer 在文件选择后自动发起上传请求。若声明 `action`，请求发送到该 URL，`accept` / `maxSize` / `multiple` 由组件 props 控制；若声明 `actionRef`，请求和这三项上传约束均以对应顶层 `upload` action 为唯一来源，组件不得重复声明。上传成功后，`field` 的值设置为后端返回的文件 URL 或文件 ID。提交表单时（通过 `submitAction`），该字段值随表单一起提交，不再重新上传文件。
 >
-> **数据格式：** 单文件上传时值为字符串，多文件上传时值为字符串数组。具体返回结构由后端上传接口决定，协议层约束仅到"值类型为 string | string[]"。
+> **数据格式：** 单文件上传时值为字符串，多文件上传时值为字符串数组。每文件一个 multipart 请求，多文件按选择顺序串行；全部成功后一次性提交数组，任一失败不提交部分值。响应优先取非空 `url`，否则取非空 `id`。完整规则见 [ADR-0012](./decisions/0012-upload-execution.md)。
 
 支持 `children`：否。支持 `data`：否。支持 `reactions`：是。支持 `states`：否。
 

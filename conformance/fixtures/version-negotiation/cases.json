@@ -1,6 +1,11 @@
-[
+{
+  "fixtureVersion": "1.0",
+  "category": "version-negotiation",
+  "cases": [
   {
     "id": "supported-version-without-capabilities",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": { "protocolVersion": "0.3" },
       "rendererSupport": { "supportedVersions": ["0.3"] }
@@ -15,6 +20,8 @@
   },
   {
     "id": "supported-version-and-capabilities",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": {
         "protocolVersion": "0.3",
@@ -35,6 +42,8 @@
   },
   {
     "id": "supported-v1-version",
+    "protocolVersion": "1.0",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": { "protocolVersion": "1.0" },
       "rendererSupport": { "supportedVersions": ["1.0"] }
@@ -49,6 +58,8 @@
   },
   {
     "id": "unknown-minor",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": { "protocolVersion": "0.4" },
       "rendererSupport": { "supportedVersions": ["0.3"] }
@@ -63,6 +74,8 @@
   },
   {
     "id": "unknown-major",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": { "protocolVersion": "1.0" },
       "rendererSupport": { "supportedVersions": ["0.3"] }
@@ -77,6 +90,8 @@
   },
   {
     "id": "missing-version",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": {},
       "rendererSupport": { "supportedVersions": ["0.3"] }
@@ -91,6 +106,8 @@
   },
   {
     "id": "malformed-version",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": { "protocolVersion": "0.3.1" },
       "rendererSupport": { "supportedVersions": ["0.3"] }
@@ -105,6 +122,8 @@
   },
   {
     "id": "empty-renderer-version-list",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": { "protocolVersion": "0.3" },
       "rendererSupport": { "supportedVersions": [] }
@@ -119,6 +138,8 @@
   },
   {
     "id": "duplicate-renderer-version",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": { "protocolVersion": "0.3" },
       "rendererSupport": { "supportedVersions": ["0.3", "0.3"] }
@@ -133,6 +154,8 @@
   },
   {
     "id": "invalid-renderer-version",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": { "protocolVersion": "0.3" },
       "rendererSupport": { "supportedVersions": ["0.3.x"] }
@@ -147,6 +170,8 @@
   },
   {
     "id": "invalid-required-capabilities",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": {
         "protocolVersion": "0.3",
@@ -167,6 +192,8 @@
   },
   {
     "id": "invalid-required-capabilities-precede-invalid-renderer-capabilities",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": {
         "protocolVersion": "0.3",
@@ -187,6 +214,8 @@
   },
   {
     "id": "missing-required-capabilities-preserve-order",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": {
         "protocolVersion": "0.3",
@@ -207,6 +236,8 @@
   },
   {
     "id": "version-rejection-precedes-capability-rejection",
+    "protocolVersion": "0.3",
+    "category": "version-negotiation",
     "input": {
       "pageMeta": {
         "protocolVersion": "1.0",
@@ -225,4 +256,5 @@
       "missingCapabilities": []
     }
   }
-]
+  ]
+}

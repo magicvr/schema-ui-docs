@@ -212,6 +212,8 @@ onError: OutcomeBehavior       # 【可选】上传失败后的行为
 
 Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fieldName` 指定（默认 `file`）。宿主应用注入的认证 header（见 [04-datasource-contract.md §5](./04-datasource-contract.md#5-认证约定since-025)）同样适用于上传请求。
 
+每个文件对应一个 multipart 请求；`multiple: true` 时按选择顺序逐文件串行上传。任一文件失败则停止后续请求，当前批次不提交部分字段值；全部成功后才一次性提交按选择顺序排列的字符串数组并执行一次 `onSuccess`。完整约束、`accept` 匹配和失败原子性见 [ADR-0012](./decisions/0012-upload-execution.md)。
+
 ### 7.2 上传响应体契约
 
 后端上传接口应返回 `200` + 以下结构，Renderer 将 `url`（或 `id`）写入对应表单字段的值：
@@ -233,6 +235,8 @@ Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fiel
 | `size` | number | 否 | 文件大小（字节），用于校验展示 |
 
 若表单字段使用 `upload` 组件（见 [03-component-registry.md](./03-component-registry.md)），并通过 `props.actionRef` 引用本 action，上传完成后字段值默认取 `url`（若存在），否则取 `id`。`multiple: true` 时字段值为数组。
+
+`url` / `id` 必须是非空 string；两者同时存在时固定优先取 `url`。多文件数组顺序与用户选择顺序一致，不按请求完成顺序重排。
 
 使用 `props.actionRef` 时，`accept` / `maxSize` / `multiple` 以本 UploadAction 为唯一来源，upload 组件 props 不得重复声明这三项；L2 对重复配置静态拒绝。使用组件 `props.action` 直接 URL 时，这三项仍由组件 props 控制。
 
