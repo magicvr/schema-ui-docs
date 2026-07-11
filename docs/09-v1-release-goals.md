@@ -9,6 +9,8 @@ applies_to: schema-ui-protocol v0.3
 
 本文档跟踪 `v0.3.0-rc.1` 到 `v1.0.0` 的收敛工作。RC 已冻结前后端 MVP 的组件与业务能力范围；完成本文件全部门禁前，不发布 `v1.0.0`。
 
+当前缺口审视、依赖顺序和分阶段实施计划见 [`audit/0055-2026-07-11-review.md`](./audit/0055-2026-07-11-review.md)、[`audit/0055-2026-07-11-plan.md`](./audit/0055-2026-07-11-plan.md) 与 [`audit/0055-2026-07-11-checklist.md`](./audit/0055-2026-07-11-checklist.md)。
+
 ## 1. RC 范围冻结
 
 RC 期间只接受以下变更：
