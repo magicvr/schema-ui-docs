@@ -6,6 +6,7 @@
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:scenarios": "node scripts/validate-scenarios.js",
+    "test:conformance:version": "node conformance/runner/run-version-negotiation.js",
     "validate:l2": "node scripts/validate-l2-components.js",
     "validate:l3a": "node scripts/validate-l3a-expressions.js",
     "lint:l4": "node scripts/lint-l4-banned-props.js"

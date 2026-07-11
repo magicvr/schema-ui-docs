@@ -260,22 +260,31 @@ Renderer 在初始化时宣告自身支持的协议版本范围：
 ```javascript
 const renderer = new Renderer({
   supportedVersions: ["0.3"],   // 支持的协议版本列表
-  supportedCapabilities: ["actions.upload", "actions.row.request"], // 支持的 PATCH 级执行能力（可选）
-  // 可选：最低兼容版本（低于此版本拒绝渲染）
-  minCompatibleVersion: "0.1"
+  supportedCapabilities: ["actions.upload", "actions.row.request"] // 支持的 PATCH 级执行能力（可选）
 })
 ```
+
+`supportedVersions` 必须是非空、无重复的 MAJOR.MINOR 字符串列表。每个值都表示 Renderer 已完整实现并通过一致性 fixtures 的协议版本；不支持范围表达式或最低兼容版本。
 
 ### 3.2 版本匹配规则
 
 | 页面 `protocolVersion` | Renderer 行为 |
 |---|---|
-| 在 `supportedVersions` 中 | 按该版本规则正常解析渲染 |
-| 低于 `minCompatibleVersion` | 拒绝渲染，在页面展示明确错误信息（含期望版本和实际版本） |
-| 不在 `supportedVersions` 中但 >= `minCompatibleVersion` | 尝试按最接近的已知版本解析，输出兼容性警告 |
-| 缺失（v0.1 旧文档） | 视为 `"0.1"`，按兼容模式处理 |
+| 格式不是 MAJOR.MINOR | 以 `INVALID_PROTOCOL_VERSION` 拒绝渲染 |
+| 精确包含在 `supportedVersions` 中 | 继续执行 capability 匹配 |
+| 同一 MAJOR 下的未知 MINOR | 以 `UNSUPPORTED_PROTOCOL_VERSION` 拒绝渲染 |
+| 未知 MAJOR | 以 `UNSUPPORTED_PROTOCOL_VERSION` 拒绝渲染 |
+| 缺失（v0.1 旧文档） | 标准入口以 `MISSING_PROTOCOL_VERSION` 拒绝；仅可在入口前显式调用 legacy adapter |
 
-### 3.3 执行能力匹配规则（since 0.2.6）
+Renderer 不得按版本大小、距离或列表顺序猜测兼容性。即使页面版本看似低于某个受支持版本，也只有被 `supportedVersions` 精确列出的版本才能加载。完整判定顺序和错误码见 [ADR-0009](./decisions/0009-strict-version-negotiation.md)。
+
+### 3.3 legacy adapter 边界
+
+旧 v0.1 页面缺失 `protocolVersion` 时，宿主应用必须在调用标准 Renderer 前显式选择 adapter。adapter 输出必须包含目标 MAJOR.MINOR，并重新通过目标版本 L0-L4 与标准协商；转换失败时不得把原页面继续交给 Renderer。
+
+Renderer 不自动发现、选择或串联 adapter。本协议只定义 adapter 接入边界，不要求标准 Renderer 内置 v0.1 adapter。
+
+### 3.4 执行能力匹配规则（since 0.2.6）
 
 页面可在 `meta.requiredCapabilities` 中声明所需执行能力。Renderer 初始化时可声明 `supportedCapabilities`，用于判断当前运行时是否具备这些能力。
 
@@ -287,14 +296,28 @@ const renderer = new Renderer({
 
 能力键由协议或接入方白名单定义。Renderer 不认识的能力键视为不支持，不得静默忽略。当前协议预定义能力键：`actions.upload`、`actions.row.request`。
 
-### 3.4 版本或能力不匹配时的错误信息格式
+### 3.5 协商结果与错误信息格式
 
-当 Renderer 拒绝渲染时，应在页面展示位置和浏览器控制台同时输出以下信息：
+Renderer 应先产生与一致性 fixtures 相同的结构化协商结果，再由宿主将其转换为界面和日志文案：
+
+```json
+{
+  "accepted": false,
+  "code": "UNSUPPORTED_PROTOCOL_VERSION",
+  "pageVersion": "0.4",
+  "supportedVersions": ["0.3"],
+  "missingCapabilities": []
+}
+```
+
+当 Renderer 拒绝渲染时，应在页面展示位置和浏览器控制台同时输出明确错误信息，例如：
 
 ```
-[Schema-UI] 协议版本不匹配：页面版本 "0.3"，Renderer 支持版本 ["0.2"]，最小兼容版本 "0.1"
+[Schema-UI] 协议版本不匹配：页面版本 "0.4"，Renderer 支持版本 ["0.3"]
 [Schema-UI] Renderer 缺少必需能力：页面要求 ["actions.row.request"]，Renderer 支持 []
 ```
+
+机器可执行输入和期望输出见 [`../conformance/fixtures/version-negotiation/cases.json`](../conformance/fixtures/version-negotiation/cases.json)。
 
 ---
 
@@ -499,7 +522,6 @@ Action 失败时先执行协议级 HTTP 状态处理，再执行不冲突的 `on
 interface RendererOptions extends RendererRequestConfig {
   supportedVersions: string[];               // 支持的协议版本列表
   supportedCapabilities?: string[];          // 支持的 PATCH 级执行能力（默认：[]）
-  minCompatibleVersion?: string;             // 最低兼容版本（默认：'0.1'）
   context?: {                                // $context 注入（见 02-reaction-expression.md §2）
     user?: Record<string, any>;
     features?: Record<string, boolean | string>;

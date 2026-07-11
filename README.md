@@ -7,6 +7,7 @@
 本仓库当前包含两部分交付物：
 
 - `docs/`：Schema-UI 协议、场景示例、标准 JSON Schema、组件注册 DSL、ADR 与校验说明。
+- `conformance/`：框架无关的一致性 fixtures、JavaScript 参考算法与 runner。
 - `mcp/`：Schema-UI MCP stdio 服务实现，提供协议只读查询与内容校验工具。
 
 当前工作区候选版本为 `0.3.0-rc.1`，页面配置使用 `meta.protocolVersion: "0.3"`。该 RC 冻结前后端 MVP 实现范围；`v1.0.0` 前的发布目标与门禁见 [`docs/09-v1-release-goals.md`](./docs/09-v1-release-goals.md)。
@@ -76,6 +77,7 @@ npm install
 npm install --prefix mcp
 npm run validate -- "<page-file-or-glob>"
 npm run validate:scenarios
+npm run test:conformance:version
 npm --prefix mcp run build
 npm --prefix mcp run test
 npm --prefix mcp run smoke:tools
@@ -110,6 +112,7 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.3.0-rc.1
 │   ├── src/
 │   └── tests/
 ├── scripts/                      # 协议校验脚本
+├── conformance/                  # 跨实现 fixtures、JavaScript reference 与 runner
 └── docs/
     ├── 00-overview.md              # 总纲、术语表（第一个要读的文件）
     ├── 01-node-protocol.md         # 核心协议规范
@@ -146,7 +149,8 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.3.0-rc.1
     │   ├── 0005-response-mapping.md
     │   ├── 0006-expression-evaluation-order.md
     │   ├── 0007-mcp-protocol-reader-validator.md
-    │   └── 0008-row-action-backend-request.md
+    │   ├── 0008-row-action-backend-request.md
+    │   └── 0009-strict-version-negotiation.md
     ├── audit/                      # 过程性审计与迭代记录（详见 audit/README.md）
     │   ├── README.md               # 活跃清单 + 编号规则
     │   └── archived/               # 已归档历史审计（详见 archived/README.md）

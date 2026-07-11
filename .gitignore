@@ -35,6 +35,8 @@ ehthumbs.db
 *.tmp
 *.log
 mcp/dist/
+mcp/src/**/*.js
+mcp/tests/**/*.js
 
 # --- 临时目录 / 生成文件 ---
 .tmp/
