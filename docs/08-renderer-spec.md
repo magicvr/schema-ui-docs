@@ -171,7 +171,13 @@ body:
 - **传输位置与序列化规则：** `data.params` 对所有 method 均编码为 URL query，不隐式生成请求体。key 必须非空，最终值只允许 string / finite number / boolean / null；对象和数组静态拒绝。`null` / `undefined` 删除最终 query 中的同名 key。已有 query、排序、UTF-8 与 RFC 3986 编码统一遵循 [04-datasource-contract.md §3.1.1](./04-datasource-contract.md#311-query-字节级序列化) / [ADR-0010](./decisions/0010-query-serialization.md)。
 - **作用域边界：** `$deps.*` 在 `data.params` 中的引用仅在表单上下文有效，且必须是完整单个 `$deps.*` 值。非表单上下文（独立 `table`/`chart`）的 `data.params` 中出现 `$deps.*` 时，静态校验直接拒绝，与 `visibleWhen` 的非表单约束一致（详见 [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界)）。
 
-### 2.4 加载状态管理
+### 2.4 表格搜索、分页与排序状态
+
+服务端分页表格的请求状态由筛选快照、从 1 开始的 `page`、`pageSize` 和可空 `sort` 组成。`page`、`pageSize`、`sort` 是 Renderer 保留 query 名；标准入口必须拒绝静态 params 或搜索字段的同名冲突。
+
+Renderer 按已有 URL query < 静态 params < 搜索字段 < 分页/排序状态调用 ADR-0010 公共序列化器。搜索提交整体替换筛选快照并将 `page` 重置为 `1`；清空筛选清除快照并重置页码；翻页保留筛选和排序；排序变化保留筛选并重置页码。完整规则与可执行向量见 [ADR-0011](./decisions/0011-reserved-query-params.md) 和 [`../conformance/fixtures/table-query-state/cases.json`](../conformance/fixtures/table-query-state/cases.json)。
+
+### 2.4.1 加载状态管理
 
 - 每个声明 `data.source: api` 的 Node 应独立维护自己的加载状态。
 - 并行加载期间，已加载完成的 Node 立即渲染，不等待尚未完成的 Node。

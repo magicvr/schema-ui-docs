@@ -49,13 +49,15 @@ data:
 | `method: POST` + `params: { status: paid }` | `POST ...?status=paid`，无隐式 body |
 | `method: PUT/PATCH/DELETE` + `params` | 对应 method + query，无隐式 body |
 
-前端 Renderer 会自动附加以下标准 query 参数，后端接口需要支持：
+前端 Renderer 会自动附加以下保留 query 参数，后端接口需要支持：
 
 | 参数 | 说明 |
 |---|---|
 | `page` | 当前页码，从 1 开始 |
 | `pageSize` | 每页条数 |
 | `sort` | 排序字段，格式 `field:asc` / `field:desc` |
+
+`page`、`pageSize`、`sort` 由 Renderer 表格状态独占。`data.params`、`datasources.*.params` 与搜索表单导出的字段名不得使用这些名称，L2 静态拒绝冲突配置。表格请求的唯一合并顺序为：已有 URL query < 有效 API 数据源静态 params < 搜索字段 < Renderer 分页/排序状态。搜索提交与清空筛选将 `page` 重置为 `1`；翻页保留筛选和排序；排序变化保留筛选并将 `page` 重置为 `1`。完整状态转换见 [ADR-0011](./decisions/0011-reserved-query-params.md)。
 
 ### 3.1 `data.params` / `optionsSource.params` / `datasources.*.params` 中 `$deps.*` 的空值省略规则
 
@@ -85,7 +87,7 @@ data:
 
 DataRef、`select.optionsSource.params` 和行级 `requestMapping.query` 必须复用 [ADR-0010](./decisions/0010-query-serialization.md) 的公共算法：已有 URL query 先解析，后来源覆盖前来源，最终 key 按 Unicode code point 升序；key/value 以 UTF-8 和 RFC 3986 编码，空格固定为 `%20`，不使用 `+`，最终不产生重复 key。`null` / `undefined` 删除同名 key，空字符串保留为 `key=`，fragment 原样附回。
 
-框架无关字节级向量见 [`../conformance/fixtures/query-serialization/cases.json`](../conformance/fixtures/query-serialization/cases.json)。具体搜索、分页、排序来源优先级由 G3/ADR-0011 定义，不在本节提前推断。
+框架无关字节级向量见 [`../conformance/fixtures/query-serialization/cases.json`](../conformance/fixtures/query-serialization/cases.json)。搜索、分页和排序来源优先级及状态转换由 [ADR-0011](./decisions/0011-reserved-query-params.md) 与 [`../conformance/fixtures/table-query-state/cases.json`](../conformance/fixtures/table-query-state/cases.json) 定义。
 
 ### 3.2 `data.params` / `optionsSource.params` / `datasources.*.params` 中 `$deps.*` 的作用域边界
 

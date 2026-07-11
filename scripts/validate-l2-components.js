@@ -1224,6 +1224,82 @@ function validateParamsResponseMappingBan(doc, violations) {
   }
 }
 
+const RESERVED_TABLE_QUERY_PARAMS = new Set(['page', 'pageSize', 'sort']);
+
+function validateReservedTableQueryParams(doc, violations) {
+  if (!doc || typeof doc !== 'object') return;
+
+  const validateParams = (params, paramsPath) => {
+    if (!isPlainObject(params)) return;
+    for (const key of Object.keys(params)) {
+      if (RESERVED_TABLE_QUERY_PARAMS.has(key)) {
+        violations.push({
+          path: `${paramsPath}.${key}`,
+          message: `query 参数 "${key}" 由 Renderer 分页/排序状态保留，静态 params 不得声明`,
+        });
+      }
+    }
+  };
+
+  if (isPlainObject(doc.datasources)) {
+    for (const [datasourceKey, datasource] of Object.entries(doc.datasources)) {
+      validateParams(datasource?.params, `datasources.${datasourceKey}.params`);
+    }
+  }
+
+  const scanSearchFields = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    for (const propName of ['field', 'startField', 'endField']) {
+      const fieldName = node.props?.[propName];
+      if (typeof fieldName === 'string' && RESERVED_TABLE_QUERY_PARAMS.has(fieldName)) {
+        violations.push({
+          path: `${nodePath}.props.${propName}`,
+          message: `搜索字段名 "${fieldName}" 由 Renderer 分页/排序状态保留`,
+        });
+      }
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, index) => scanSearchFields(child, `${nodePath}.children[${index}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, index) => {
+        if (item && item.content) {
+          scanSearchFields(item.content, `${nodePath}.props.items[${index}].content`);
+        }
+      });
+    }
+  };
+
+  const scanNode = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    validateParams(node.data?.params, `${nodePath}.data.params`);
+    if (node.type === 'form' && node.props?.mode === 'search') {
+      if (Array.isArray(node.children)) {
+        node.children.forEach((child, index) => scanSearchFields(child, `${nodePath}.children[${index}]`));
+      }
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, index) => scanNode(child, `${nodePath}.children[${index}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, index) => {
+        if (item && item.content) {
+          scanNode(item.content, `${nodePath}.props.items[${index}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+  if (isPlainObject(doc.actions)) {
+    for (const [actionId, action] of Object.entries(doc.actions)) {
+      if (action?.type === 'modal' && action.content) {
+        scanNode(action.content, `actions.${actionId}.content`);
+      }
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // 扫描整个页面文档
 // ---------------------------------------------------------------------------
@@ -1248,6 +1324,7 @@ function validatePage(doc, fileLabel) {
   validateDataRefsAndTargetTable(doc, violations);
   validateRequiredCapabilities(doc, violations);
   validateParamsResponseMappingBan(doc, violations);
+  validateReservedTableQueryParams(doc, violations);
   return violations.map(v => ({ file: fileLabel, ...v }));
 }
 

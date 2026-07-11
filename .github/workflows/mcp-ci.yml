@@ -48,6 +48,9 @@ jobs:
       - name: Test Python query serialization conformance
         run: npm run test:conformance:query:python
 
+      - name: Test table query state conformance
+        run: npm run test:conformance:table-state
+
   mcp:
     name: Build, test, and smoke MCP
     runs-on: ubuntu-latest

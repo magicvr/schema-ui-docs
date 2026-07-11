@@ -1445,6 +1445,108 @@ ${queryYaml}
     validTargets.forEach(result => expect(result.passed).toBe(true));
   });
 
+  it('rejects reserved pagination and sort names in table params and search fields', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'reserved-query-params', title: 'Reserved query params', protocolVersion: '0.3' },
+        datasources: {
+          orders: { source: 'api', url: '/orders?tenant=acme', params: { pageSize: 100 } },
+        },
+        body: {
+          type: 'section',
+          children: [
+            {
+              type: 'form',
+              props: { mode: 'search', targetTable: 'ordersTable' },
+              children: [
+                { type: 'input', props: { field: 'sort', label: 'Sort' } },
+                {
+                  type: 'dateRangePicker',
+                  props: { startField: 'page', endField: 'pageSize', label: 'Range' },
+                },
+              ],
+            },
+            {
+              type: 'table',
+              id: 'ordersTable',
+              props: {
+                rowKey: 'id',
+                pagination: { mode: 'server', pageSize: 20 },
+                columns: [{ field: 'id', label: 'ID' }],
+              },
+              data: { source: 'ref', ref: 'orders', params: { page: 2 } },
+            },
+          ],
+        },
+      }),
+      format: 'json',
+    });
+
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'datasources.orders.params.pageSize' }),
+      expect.objectContaining({ path: 'body.children[0].children[0].props.field' }),
+      expect.objectContaining({ path: 'body.children[0].children[1].props.startField' }),
+      expect.objectContaining({ path: 'body.children[0].children[1].props.endField' }),
+      expect.objectContaining({ path: 'body.children[1].data.params.page' }),
+    ]));
+
+    const independentRequests = validateContent({
+      content: JSON.stringify({
+        meta: {
+          pageId: 'independent-reserved-query-names',
+          title: 'Independent reserved query names',
+          protocolVersion: '0.3',
+          requiredCapabilities: ['actions.row.request'],
+        },
+        actions: {
+          load: { type: 'request', method: 'GET', url: '/items' },
+          save: { type: 'request', method: 'POST', url: '/save' },
+        },
+        body: {
+          type: 'form',
+          props: { submitAction: 'save' },
+          children: [
+            {
+              type: 'input',
+              props: { field: 'page', label: 'Business page' },
+            },
+            {
+              type: 'select',
+              props: {
+                field: 'owner',
+                label: 'Owner',
+                optionsSource: {
+                  url: '/owners',
+                  params: { page: 1 },
+                  labelField: 'name',
+                  valueField: 'id',
+                },
+              },
+            },
+            {
+              type: 'table',
+              props: {
+                rowKey: 'id',
+                pagination: { mode: 'none' },
+                columns: [{ field: 'id', label: 'ID' }],
+                actions: [{
+                  key: 'load',
+                  label: 'Load',
+                  actionRef: 'load',
+                  requestMapping: { query: { sort: '$row.id' } },
+                }],
+              },
+              data: { source: 'static', value: [] },
+            },
+          ],
+        },
+      }),
+      format: 'json',
+    });
+
+    expect(independentRequests.passed).toBe(true);
+  });
+
   it('rejects dateRangePicker reaction value writes', () => {
     const result = validateContent({
       content: JSON.stringify({
