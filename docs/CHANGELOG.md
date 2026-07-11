@@ -16,6 +16,8 @@
 - CI 校验根包、MCP 包与两个 lockfile 的版本一致性；CD 仅从匹配包版本的 `v<version>` Git tag 发布，预发布版本不更新 minor 或 `latest` 镜像别名。
 
 **修复：**
+- 审计 `0055 / V224`：移除 `mcp/src` / `mcp/tests` 中会遮蔽 TypeScript 源码并导致 Vitest 加载 CommonJS 的旧同目录 `.js` 编译产物，`.gitignore` 阻止其再次生成到源码树；标准构建产物仍只写入 `mcp/dist/`。
+- 审计 `0055 / V218`：新增 ADR-0009，Renderer 版本协商改为精确 MAJOR.MINOR fail-closed，删除 `minCompatibleVersion` 与最近版本 fallback；缺失版本仅允许显式 legacy adapter；新增 14 个框架无关版本/capability fixtures、JavaScript reference 和 CI/CD runner。
 - 审计 `0055 / V222`：新增六个官方场景公共 YAML fence 提取器与 `npm run validate:scenarios`，使根 L0-L4 可独立校验 Markdown 场景；MCP tests 复用同一提取入口；CI 使用独立协议 job，CD 在镜像发布前执行同一门禁。
 - 审计 `0054 / V213`：修正 L3a `scanDataParams()` 由三类扫描入口传入固定 `paramsLabel` 并在递归中保持，`datasources.*.params` 违规不再误标为 `data.params`，业务键名也不会反向污染挂载面标签；文件头注释列出三类扫描面；MCP tests 锁定 datasources 与嵌套 `data.params` 标签。
 - 审计 `0054 / V214`：`02` §10.7 标题/正文与 `04` §1/§3.1–§3.2 纳入页面级 `datasources.*.params` 三面 params；附录 A 增补 `datasources.*.params` 行；§2 交叉引用达闭合。

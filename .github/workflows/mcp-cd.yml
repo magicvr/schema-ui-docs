@@ -41,6 +41,9 @@ jobs:
       - name: Validate official scenarios
         run: npm run validate:scenarios
 
+      - name: Test version negotiation conformance
+        run: npm run test:conformance:version
+
       - name: Read and verify release version
         id: mcp-version
         shell: bash
