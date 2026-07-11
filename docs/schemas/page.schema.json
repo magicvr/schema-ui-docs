@@ -70,7 +70,11 @@
         },
         "params": {
           "type": "object",
-          "description": "【可选】URL query 参数映射，对所有 HTTP method 均不隐式进入请求体；值仅允许不含 $ 的字面量，或完整单个 $deps.<path> 整值替换（禁止模板拼接，不做条件判断）。页面级 datasources 无 form 上下文，完整 $deps.* 会由 L3a 以 NON_FORM_DATA_PARAMS 拒绝；见 docs/04-datasource-contract.md §3.1 与 docs/08-renderer-spec.md §2.3",
+          "description": "【可选】URL query 参数映射，对所有 HTTP method 均不隐式进入请求体；key 必须非空，值只允许 string/finite number/boolean/null 标量（禁止对象和数组）。页面级 datasources 无 form 上下文，完整 $deps.* 会由 L3a 以 NON_FORM_DATA_PARAMS 拒绝；见 ADR-0010、docs/04-datasource-contract.md §3.1 与 docs/08-renderer-spec.md §2.3",
+          "propertyNames": { "type": "string", "minLength": 1 },
+          "additionalProperties": {
+            "type": ["string", "number", "boolean", "null"]
+          },
           "not": {
             "required": ["responseMapping"],
             "description": "responseMapping 禁止放入 params——它不属于请求参数（ADR-0005 D1），应声明在顶级字段中"

@@ -1,0 +1,129 @@
+[
+  {
+    "id": "empty-query",
+    "input": { "baseUrl": "/api/items", "sources": [] },
+    "expected": { "ok": true, "url": "/api/items" }
+  },
+  {
+    "id": "scalar-text-and-key-order",
+    "input": {
+      "baseUrl": "/api/items",
+      "sources": [[
+        ["text", "hello world"],
+        ["count", 12.5],
+        ["enabled", true],
+        ["empty", ""],
+        ["zero", -0.0]
+      ]]
+    },
+    "expected": {
+      "ok": true,
+      "url": "/api/items?count=12.5&empty=&enabled=true&text=hello%20world&zero=0"
+    }
+  },
+  {
+    "id": "rfc3986-encoding",
+    "input": {
+      "baseUrl": "/api/items",
+      "sources": [[
+        ["符号", "!*'()~ /+"]
+      ]]
+    },
+    "expected": {
+      "ok": true,
+      "url": "/api/items?%E7%AC%A6%E5%8F%B7=%21%2A%27%28%29~%20%2F%2B"
+    }
+  },
+  {
+    "id": "base-query-decode-plus-is-literal",
+    "input": { "baseUrl": "/api/items?term=a+b&space=a%20b", "sources": [] },
+    "expected": { "ok": true, "url": "/api/items?space=a%20b&term=a%2Bb" }
+  },
+  {
+    "id": "base-query-duplicate-last-wins",
+    "input": { "baseUrl": "/api/items?tag=first&tag=second&flag", "sources": [] },
+    "expected": { "ok": true, "url": "/api/items?flag=&tag=second" }
+  },
+  {
+    "id": "later-source-overrides-and-null-deletes",
+    "input": {
+      "baseUrl": "/api/items?page=9&status=old",
+      "sources": [
+        [["status", "static"], ["page", 3]],
+        [["status", "search"], ["page", null]]
+      ]
+    },
+    "expected": { "ok": true, "url": "/api/items?status=search" }
+  },
+  {
+    "id": "undefined-deletes-existing-key",
+    "input": {
+      "baseUrl": "/api/items?owner=42",
+      "sources": [[["owner", { "$undefined": true }]]]
+    },
+    "expected": { "ok": true, "url": "/api/items" }
+  },
+  {
+    "id": "same-source-duplicate-last-wins",
+    "input": {
+      "baseUrl": "/api/items",
+      "sources": [[["sort", "name:asc"], ["sort", "name:desc"]]]
+    },
+    "expected": { "ok": true, "url": "/api/items?sort=name%3Adesc" }
+  },
+  {
+    "id": "fragment-preserved",
+    "input": {
+      "baseUrl": "/api/items?b=2#section?raw=%zz",
+      "sources": [[["a", 1]]]
+    },
+    "expected": { "ok": true, "url": "/api/items?a=1&b=2#section?raw=%zz" }
+  },
+  {
+    "id": "unicode-code-point-order",
+    "input": {
+      "baseUrl": "/api/items",
+      "sources": [[["😀", "supplementary"], ["\uffff", "bmp"]]]
+    },
+    "expected": {
+      "ok": true,
+      "url": "/api/items?%EF%BF%BF=bmp&%F0%9F%98%80=supplementary"
+    }
+  },
+  {
+    "id": "jcs-number-exponent",
+    "input": {
+      "baseUrl": "/api/items",
+      "sources": [[["large", 1e+21], ["small", 1e-7], ["plain", 0.000001]]]
+    },
+    "expected": {
+      "ok": true,
+      "url": "/api/items?large=1e%2B21&plain=0.000001&small=1e-7"
+    }
+  },
+  {
+    "id": "invalid-percent-escape",
+    "input": { "baseUrl": "/api/items?bad=%zz", "sources": [] },
+    "expected": { "ok": false, "code": "INVALID_BASE_URL_QUERY" }
+  },
+  {
+    "id": "invalid-utf8",
+    "input": { "baseUrl": "/api/items?bad=%FF", "sources": [] },
+    "expected": { "ok": false, "code": "INVALID_BASE_URL_QUERY" }
+  },
+  {
+    "id": "empty-base-query-key",
+    "input": { "baseUrl": "/api/items?=value", "sources": [] },
+    "expected": { "ok": false, "code": "INVALID_QUERY_KEY" }
+  },
+  {
+    "id": "empty-source-key",
+    "input": { "baseUrl": "/api/items", "sources": [[["", "value"]]] },
+    "expected": { "ok": false, "code": "INVALID_QUERY_KEY" }
+  },
+  {
+    "id": "composite-value",
+    "input": { "baseUrl": "/api/items", "sources": [[["filter", { "status": "open" }]]] },
+    "expected": { "ok": false, "code": "INVALID_QUERY_VALUE" }
+  }
+]

@@ -41,3 +41,5 @@ mcp/tests/**/*.js
 # --- 临时目录 / 生成文件 ---
 .tmp/
 .tmp-audit-check/
+__pycache__/
+*.pyc

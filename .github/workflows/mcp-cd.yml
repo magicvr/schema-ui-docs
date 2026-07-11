@@ -32,6 +32,11 @@ jobs:
             package-lock.json
             mcp/package-lock.json
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Install protocol dependencies
         run: npm ci
 
@@ -43,6 +48,12 @@ jobs:
 
       - name: Test version negotiation conformance
         run: npm run test:conformance:version
+
+      - name: Test query serialization conformance
+        run: npm run test:conformance:query
+
+      - name: Test Python query serialization conformance
+        run: npm run test:conformance:query:python
 
       - name: Read and verify release version
         id: mcp-version
