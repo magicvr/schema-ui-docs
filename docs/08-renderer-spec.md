@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-11
-applies_to: schema-ui-protocol v0.2
+applies_to: schema-ui-protocol v0.3
 ---
 
 # Renderer（前端渲染器）实现规范
@@ -78,7 +78,7 @@ body:
 meta:
   pageId: order-stats
   title: 订单统计
-  protocolVersion: "0.2"
+  protocolVersion: "0.3"
 datasources:
   orderStats:
     source: api
@@ -259,7 +259,7 @@ Renderer 在初始化时宣告自身支持的协议版本范围：
 
 ```javascript
 const renderer = new Renderer({
-  supportedVersions: ["0.2"],   // 支持的协议版本列表
+  supportedVersions: ["0.3"],   // 支持的协议版本列表
   supportedCapabilities: ["actions.upload", "actions.row.request"], // 支持的 PATCH 级执行能力（可选）
   // 可选：最低兼容版本（低于此版本拒绝渲染）
   minCompatibleVersion: "0.1"
@@ -447,7 +447,7 @@ Renderer 在加载页面配置时，应覆盖 [02-reaction-expression.md §10](.
 ```javascript
 const renderer = new Renderer({
   baseURL: 'https://api.example.com',  // 不含尾部斜杠
-  supportedVersions: ["0.2"]
+  supportedVersions: ["0.3"]
 });
 ```
 

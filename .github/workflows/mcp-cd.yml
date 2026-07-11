@@ -2,8 +2,8 @@ name: MCP CD
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 permissions:
@@ -38,14 +38,50 @@ jobs:
       - name: Install MCP dependencies
         run: npm ci --prefix mcp
 
-      - name: Read MCP version
+      - name: Read and verify release version
         id: mcp-version
         shell: bash
         run: |
-          VERSION=$(node -p "require('./mcp/package.json').version")
-          MINOR=$(node -p "const v=require('./mcp/package.json').version.split('.'); v[0] + '.' + v[1]")
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "minor=${MINOR}" >> "$GITHUB_OUTPUT"
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const root = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const rootLock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          const mcp = JSON.parse(fs.readFileSync('mcp/package.json', 'utf8'));
+          const mcpLock = JSON.parse(fs.readFileSync('mcp/package-lock.json', 'utf8'));
+          const versions = [
+            root.version,
+            rootLock.version,
+            rootLock.packages[''].version,
+            mcp.version,
+            mcpLock.version,
+            mcpLock.packages[''].version,
+            mcpLock.packages['..'].version,
+          ];
+          if (versions.some(version => version !== root.version)) {
+            throw new Error(`Package version mismatch: ${versions.join(', ')}`);
+          }
+
+          const match = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(mcp.version);
+          if (!match) throw new Error(`Unsupported release version: ${mcp.version}`);
+
+          const gitRef = process.env.GITHUB_REF;
+          if (gitRef !== `refs/tags/v${mcp.version}`) {
+            throw new Error(`Release must run from Git tag v${mcp.version}; received ${gitRef}`);
+          }
+
+          const repository = process.env.DOCKERHUB_REPOSITORY;
+          const tags = [
+            `${repository}:${mcp.version}`,
+            `${repository}:${process.env.GITHUB_SHA}`,
+          ];
+          if (!match[4]) {
+            tags.push(`${repository}:${match[1]}.${match[2]}`, `${repository}:latest`);
+          }
+
+          const output = process.env.GITHUB_OUTPUT;
+          fs.appendFileSync(output, `version=${mcp.version}\n`);
+          fs.appendFileSync(output, `tags<<EOF\n${tags.join('\n')}\nEOF\n`);
+          NODE
 
       - name: Build MCP
         run: npm --prefix mcp run build
@@ -84,11 +120,7 @@ jobs:
           context: .
           file: mcp/Dockerfile
           push: true
-          tags: |
-            ${{ env.DOCKERHUB_REPOSITORY }}:${{ steps.mcp-version.outputs.version }}
-            ${{ env.DOCKERHUB_REPOSITORY }}:${{ steps.mcp-version.outputs.minor }}
-            ${{ env.DOCKERHUB_REPOSITORY }}:latest
-            ${{ env.DOCKERHUB_REPOSITORY }}:${{ github.sha }}
+          tags: ${{ steps.mcp-version.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

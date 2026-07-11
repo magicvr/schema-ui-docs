@@ -1,6 +1,6 @@
 # Schema-Driven UI 协议文档
 
-配置驱动 UI（Schema-Driven UI）系统的工程化文档，供同事与 AI 助手查阅。
+配置驱动 UI（Schema-Driven UI）系统的工程化文档，供前/后端开发者与 AI 助手查阅。
 
 **入口：从 [`docs/00-overview.md`](./docs/00-overview.md) 开始阅读。**
 
@@ -9,9 +9,11 @@
 - `docs/`：Schema-UI 协议、场景示例、标准 JSON Schema、组件注册 DSL、ADR 与校验说明。
 - `mcp/`：Schema-UI MCP stdio 服务实现，提供协议只读查询与内容校验工具。
 
+当前工作区候选版本为 `0.3.0-rc.1`，页面配置使用 `meta.protocolVersion: "0.3"`。该 RC 冻结前后端 MVP 实现范围；`v1.0.0` 前的发布目标与门禁见 [`docs/09-v1-release-goals.md`](./docs/09-v1-release-goals.md)。
+
 ## MCP 服务
 
-MCP 服务当前**已发布版本**为 `0.2.8`，运行时要求 Node.js `>=18`。当前工作区若存在尚未发布的补充修订，以 [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) 顶部最新条目（如 `Unreleased`）为准。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
+MCP 服务当前**已发布稳定镜像**为 `0.2.8`；工作区 MCP 包版本为 `0.3.0-rc.1`，尚未声明对应 Docker Hub 镜像已发布。运行时要求 Node.js `>=18`。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
 
 ### 使用 Docker Hub 镜像
 
@@ -23,6 +25,8 @@ CD 工作流会将 MCP 镜像推送到 Docker Hub：
 <dockerhub-namespace>/schema-ui-mcp:latest
 <dockerhub-namespace>/schema-ui-mcp:<commit-sha>
 ```
+
+CD 仅在推送与包版本一致的 Git tag（如 `v0.3.0-rc.1`）时发布，手工触发也必须选择该 tag。预发布版本只推送完整版本 tag 和 commit SHA，不更新 minor 或 `latest`；稳定版本才更新 minor 和 `latest` 别名。
 
 团队接入建议固定使用 PATCH tag，例如 `0.2.8`，避免无意跟随 `latest` 升级。
 
@@ -87,9 +91,9 @@ npm --prefix mcp start
 本地 Docker 构建与 smoke test：
 
 ```bash
-docker build -f mcp/Dockerfile -t schema-ui-mcp:0.2.8 .
-docker run --rm -i schema-ui-mcp:0.2.8
-npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.8
+docker build -f mcp/Dockerfile -t schema-ui-mcp:0.3.0-rc.1 .
+docker run --rm -i schema-ui-mcp:0.3.0-rc.1
+npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.3.0-rc.1
 ```
 
 更多 MCP 设计与边界说明见 [`docs/mcp/README.md`](./docs/mcp/README.md) 与 [`docs/decisions/0007-mcp-protocol-reader-validator.md`](./docs/decisions/0007-mcp-protocol-reader-validator.md)。
@@ -122,6 +126,7 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.2.8
     ├── 06-validation.md            # 校验规则与工具链
     ├── 07-actions-contract.md      # Action 行为契约（since 0.2）
     ├── 08-renderer-spec.md         # Renderer 实现规范（since 0.2.1）
+    ├── 09-v1-release-goals.md      # v1.0 发布目标、阻断门禁与版本纪律
     ├── mcp/                        # MCP 服务设计与实施计划
     │   ├── README.md
     │   ├── v1-design.md

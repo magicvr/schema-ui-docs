@@ -5,9 +5,15 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
-## Unreleased
+## v0.3.0-rc.1 — 2026-07-11（前后端 MVP 候选契约）
 
-> **说明：** 以下变更已在当前仓库工作区落地，但尚未单独切出新的 PATCH 版本号；正式发布时应合并为下一个 `0.2.x` 条目。
+> **版本说明：** 本候选版本吸收此前尚未发布的 `0.2.x` 契约收敛修订，将页面 `meta.protocolVersion` 提升为 `"0.3"`，并冻结前后端 MVP 的组件与业务能力范围。到 `v1.0.0` 前只处理互操作歧义、契约错误、机器校验和一致性测试缺口；发布门禁见 [`09-v1-release-goals.md`](./09-v1-release-goals.md)。
+
+**候选版：**
+- 根协议包与 MCP 工作区包版本统一为 `0.3.0-rc.1`；已发布稳定 MCP 镜像仍为 `0.2.8`，候选镜像需单独构建和发布。
+- 核心规范、Renderer 示例与六个官方场景切换到 `meta.protocolVersion: "0.3"`。
+- 新增 `09-v1-release-goals.md`，跟踪严格版本协商、query 线级序列化、保留参数冲突、跨实现一致性套件及发布工程门禁。
+- CI 校验根包、MCP 包与两个 lockfile 的版本一致性；CD 仅从匹配包版本的 `v<version>` Git tag 发布，预发布版本不更新 minor 或 `latest` 镜像别名。
 
 **修复：**
 - 审计 `0054 / V213`：修正 L3a `scanDataParams()` 由三类扫描入口传入固定 `paramsLabel` 并在递归中保持，`datasources.*.params` 违规不再误标为 `data.params`，业务键名也不会反向污染挂载面标签；文件头注释列出三类扫描面；MCP tests 锁定 datasources 与嵌套 `data.params` 标签。
