@@ -75,6 +75,7 @@ MCP 客户端配置示例：
 npm install
 npm install --prefix mcp
 npm run validate -- "<page-file-or-glob>"
+npm run validate:scenarios
 npm --prefix mcp run build
 npm --prefix mcp run test
 npm --prefix mcp run smoke:tools

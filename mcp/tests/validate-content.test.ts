@@ -1,5 +1,7 @@
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { PROTOCOL_ROOT } from '../src/core/paths.js';
 import {
   setLayerScriptExecutorForTest,
   setTempDirCreatorForTest,
@@ -7,12 +9,12 @@ import {
   validateContent,
 } from '../src/core/validation-runner.js';
 import { handleValidateContent } from '../src/tools/validate-content.js';
+import type { ValidateContentResult } from '../src/types.js';
 import {
   chartRefResponseMappingInheritedMissingListYaml,
   chartRefResponseMappingLocalOverrideOkYaml,
   danglingDataRefYaml,
   datasourceParamsResponseMappingYaml,
-  extractFirstYamlFence,
   invalidTargetTableYaml,
   missingRowRequestCapabilityYaml,
   missingRowScopeYaml,
@@ -35,6 +37,14 @@ import {
   validAllReferencesYaml,
 } from './test-utils.js';
 
+type OfficialScenariosModule = {
+  OFFICIAL_SCENARIO_PATHS: string[];
+  readOfficialScenario: (protocolRoot: string, relativePath: string) => string;
+};
+
+const require = createRequire(import.meta.url);
+const { OFFICIAL_SCENARIO_PATHS, readOfficialScenario } = require('../../scripts/official-scenarios.js') as OfficialScenariosModule;
+
 describe('validate_content', () => {
   afterEach(() => {
     setLayerScriptExecutorForTest(null);
@@ -43,16 +53,9 @@ describe('validate_content', () => {
     vi.restoreAllMocks();
   });
 
-  it.each([
-    'docs/05-scenarios/data-table.md',
-    'docs/05-scenarios/form-with-reactions.md',
-    'docs/05-scenarios/grid-dashboard.md',
-    'docs/05-scenarios/row-backend-actions.md',
-    'docs/05-scenarios/search-form-table.md',
-    'docs/05-scenarios/form-with-upload.md',
-  ])('passes official scenario %s', relativePath => {
+  it.each(OFFICIAL_SCENARIO_PATHS)('passes official scenario %s', relativePath => {
     const result = validateContent({
-      content: extractFirstYamlFence(relativePath),
+      content: readOfficialScenario(PROTOCOL_ROOT, relativePath),
       format: 'yaml',
       filename: relativePath,
     });
@@ -1770,7 +1773,7 @@ body:
     });
 
     const result = validateContent({
-      content: extractFirstYamlFence('docs/05-scenarios/data-table.md'),
+      content: readOfficialScenario(PROTOCOL_ROOT, 'docs/05-scenarios/data-table.md'),
       format: 'yaml',
       filename: 'data-table.yaml',
     });
@@ -1788,7 +1791,7 @@ body:
     });
 
     const result = validateContent({
-      content: extractFirstYamlFence('docs/05-scenarios/data-table.md'),
+      content: readOfficialScenario(PROTOCOL_ROOT, 'docs/05-scenarios/data-table.md'),
       format: 'yaml',
       filename: 'data-table.yaml',
     });
@@ -1805,7 +1808,7 @@ body:
     });
 
     const result = validateContent({
-      content: extractFirstYamlFence('docs/05-scenarios/data-table.md'),
+      content: readOfficialScenario(PROTOCOL_ROOT, 'docs/05-scenarios/data-table.md'),
       format: 'yaml',
       filename: 'data-table.yaml',
     });

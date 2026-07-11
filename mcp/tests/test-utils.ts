@@ -1,14 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { PROTOCOL_ROOT } from '../src/core/paths.js';
-
-export function extractFirstYamlFence(relativePath: string): string {
-  const markdown = fs.readFileSync(path.join(PROTOCOL_ROOT, relativePath), 'utf8');
-  const match = markdown.match(/```yaml\r?\n([\s\S]*?)\r?\n```/);
-  if (!match) throw new Error(`No yaml fence found in ${relativePath}`);
-  return match[1];
-}
-
 export const missingRowScopeYaml = `
 meta:
   pageId: bad_row_scope
