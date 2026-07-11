@@ -51,6 +51,12 @@ jobs:
       - name: Test Python query serialization conformance
         run: npm run test:conformance:query:python
 
+      - name: Test reaction scheduling conformance
+        run: npm run test:conformance:reactions
+
+      - name: Test Python reaction scheduling conformance
+        run: npm run test:conformance:reactions:python
+
       - name: Test table query state conformance
         run: npm run test:conformance:table-state
 
