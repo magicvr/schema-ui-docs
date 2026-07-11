@@ -13,6 +13,7 @@
 | DataRef 响应映射 | `fixtures/response-mapping/cases.json` | `reference-js/response-mapping.js`、`reference-python/response_mapping.py` | `npm run test:conformance:response`、`npm run test:conformance:response:python` |
 | 搜索/分页/排序状态 | `fixtures/search-table/cases.json` | `reference-js/table-query-state.js`、`reference-python/table_query_state.py` | `npm run test:conformance:search-table`、`npm run test:conformance:search-table:python` |
 | Reaction 快照与调度 | `fixtures/reactions/cases.json` | `reference-js/reaction-scheduler.js`、`reference-python/reaction_scheduler.py` | `npm run test:conformance:reactions`、`npm run test:conformance:reactions:python` |
+| Action / OutcomeBehavior / 错误时序 | `fixtures/actions/cases.json` | `reference-js/action-outcome.js`、`reference-python/action_outcome.py` | `npm run test:conformance:actions`、`npm run test:conformance:actions:python` |
 
 版本化 G4 suite 使用 `schemas/fixture-suite.schema.json`，统一以 `fixtureVersion: "1.0"`、suite `category` 和 `cases[]` 封装。运行 `npm run validate:conformance` 会自动发现这些 suite，并检查 Schema、case/suite 分类一致性和 suite 内 id 唯一性。G1-G3 早期 fixtures 暂保留数组格式，其期望语义不因 G4 基础设施迁移而改变。
 
@@ -27,6 +28,8 @@
 JavaScript 与 Python 当前都是本仓库 reference，用于证明算法可跨语言实现；它们不替代生产 Renderer 或生产后端消费者。G4 只有在两类生产消费者均直接消费同一版本化 fixtures 并回报全绿后才能关闭。
 
 Reaction reference 的条件求值器仅实现当前调度 fixtures 所需的 `$deps.<path> ==/!= scalar` 子集；它用于隔离验证 ADR-0006 的 Snapshot/Evaluate/Commit/Next-tick 调度，不替代 L3a 的完整表达式语法和作用域校验。
+
+Action suite 将 HTTP 错误、超时、网络异常、主动中断和认证 hook 作为 transport 事件输入，以有序事件输出验证协议级处理先于 `onError`；错误类别不另复制一套相同期望。
 
 ## 目录约定
 

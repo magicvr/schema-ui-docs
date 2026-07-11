@@ -81,6 +81,8 @@ npm run validate:conformance
 npm run test:conformance:version
 npm run test:conformance:query
 npm run test:conformance:query:python
+npm run test:conformance:actions
+npm run test:conformance:actions:python
 npm run test:conformance:reactions
 npm run test:conformance:reactions:python
 npm run test:conformance:table-state
