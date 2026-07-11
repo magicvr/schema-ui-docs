@@ -36,6 +36,9 @@ jobs:
       - name: Install protocol dependencies
         run: npm ci
 
+      - name: Check release metadata
+        run: npm run release:check
+
       - name: Validate official scenarios
         run: npm run validate:scenarios
 
@@ -123,27 +126,8 @@ jobs:
       - name: Install MCP dependencies
         run: npm ci --prefix mcp
 
-      - name: Verify package versions
-        run: |
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const root = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          const rootLock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
-          const mcp = JSON.parse(fs.readFileSync('mcp/package.json', 'utf8'));
-          const mcpLock = JSON.parse(fs.readFileSync('mcp/package-lock.json', 'utf8'));
-          const versions = [
-            root.version,
-            rootLock.version,
-            rootLock.packages[''].version,
-            mcp.version,
-            mcpLock.version,
-            mcpLock.packages[''].version,
-            mcpLock.packages['..'].version,
-          ];
-          if (versions.some(version => version !== root.version)) {
-            throw new Error(`Package version mismatch: ${versions.join(', ')}`);
-          }
-          NODE
+      - name: Check release metadata
+        run: npm run release:check
 
       - name: Build MCP
         run: npm --prefix mcp run build
