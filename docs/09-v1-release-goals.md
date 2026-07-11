@@ -2,7 +2,7 @@
 status: active
 owner: 前后端架构组
 last_updated: 2026-07-11
-applies_to: schema-ui-protocol v0.3
+applies_to: schema-ui-protocol v1.0
 ---
 
 # v1.0 发布目标与门禁
@@ -87,12 +87,12 @@ fixtures 应为与框架无关的 JSON/YAML 输入及期望输出，不绑定 Re
 
 ## 3. 发布工程门禁
 
-- [ ] 将本文件 G1-G4 全部关闭，并为协议决策补充 ADR；
-- [ ] 全量执行 L0-L4、MCP tests、build、tools smoke 和 Docker smoke；
-- [ ] 六个官方场景通过配置校验和跨实现一致性测试；
-- [ ] 将 `meta.protocolVersion`、Schema 描述、示例和 Renderer 支持版本统一为 `"1.0"`；
-- [ ] 根包、MCP 包、lockfile、Docker tag 与文档版本统一为 `1.0.0`；
-- [ ] 发布 `0.2` / `0.3` 到 `1.0` 的迁移说明；
+- [x] 将本文件 G1-G4 全部关闭，并为协议决策补充 ADR；
+- [x] 全量执行 L0-L4、MCP tests、build、tools smoke 和 Docker smoke；
+- [x] 六个官方场景通过配置校验和跨实现一致性测试；
+- [x] 将 `meta.protocolVersion`、Schema 描述、示例和 Renderer 支持版本统一为 `"1.0"`；
+- [x] 根包、MCP 包、lockfile、Docker tag 与文档版本统一为 `1.0.0`；
+- [x] 发布 `0.2` / `0.3` 到 `1.0` 的迁移说明；
 - [ ] 从 CHANGELOG 清空待发布内容，记录不可变 Git tag 与 commit SHA；
 - [ ] 发布固定 `1.0.0` MCP 镜像并完成从干净环境拉取后的 Docker smoke。
 

@@ -4,11 +4,11 @@
   "cases": [
     {
       "id": "official-data-table",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/data-table.md",
-        "scenarioMeta": { "pageId": "order_list", "protocolVersion": "0.3" },
+        "scenarioMeta": { "pageId": "order_list", "protocolVersion": "1.0" },
         "steps": [
           {
             "kind": "searchTable",
@@ -31,7 +31,7 @@
       },
       "expected": {
         "pageId": "order_list",
-        "protocolVersion": "0.3",
+        "protocolVersion": "1.0",
         "steps": [
           { "state": { "filters": {}, "page": 1, "pageSize": 20, "sort": null }, "url": "/api/orders?page=1&pageSize=20" },
           { "ok": true, "data": { "list": [{ "orderId": "1001", "canRefund": true }], "total": 128 } }
@@ -40,11 +40,11 @@
     },
     {
       "id": "official-grid-dashboard",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/grid-dashboard.md",
-        "scenarioMeta": { "pageId": "dashboard_sales", "protocolVersion": "0.3" },
+        "scenarioMeta": { "pageId": "dashboard_sales", "protocolVersion": "1.0" },
         "steps": [
           { "kind": "request", "input": { "kind": "dataRef", "dataRef": { "source": "api", "method": "GET", "url": "/api/stats/order-count" } } },
           { "kind": "request", "input": { "kind": "dataRef", "dataRef": { "source": "api", "url": "/api/stats/gmv" } } },
@@ -53,7 +53,7 @@
       },
       "expected": {
         "pageId": "dashboard_sales",
-        "protocolVersion": "0.3",
+        "protocolVersion": "1.0",
         "steps": [
           { "ok": true, "request": { "method": "GET", "url": "/api/stats/order-count", "body": null } },
           { "ok": true, "request": { "method": "GET", "url": "/api/stats/gmv", "body": null } },
@@ -63,11 +63,11 @@
     },
     {
       "id": "official-form-with-reactions",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/form-with-reactions.md",
-        "scenarioMeta": { "pageId": "order_create", "protocolVersion": "0.3" },
+        "scenarioMeta": { "pageId": "order_create", "protocolVersion": "1.0" },
         "steps": [
           {
             "kind": "request",
@@ -88,7 +88,7 @@
       },
       "expected": {
         "pageId": "order_create",
-        "protocolVersion": "0.3",
+        "protocolVersion": "1.0",
         "steps": [
           {
             "ok": true,
@@ -110,11 +110,11 @@
     },
     {
       "id": "official-row-backend-actions",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/row-backend-actions.md",
-        "scenarioMeta": { "pageId": "order_operations", "protocolVersion": "0.3" },
+        "scenarioMeta": { "pageId": "order_operations", "protocolVersion": "1.0" },
         "steps": [
           {
             "kind": "request",
@@ -140,7 +140,7 @@
       },
       "expected": {
         "pageId": "order_operations",
-        "protocolVersion": "0.3",
+        "protocolVersion": "1.0",
         "steps": [
           {
             "ok": true,
@@ -162,11 +162,11 @@
     },
     {
       "id": "official-search-form-table",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/search-form-table.md",
-        "scenarioMeta": { "pageId": "order_search", "protocolVersion": "0.3" },
+        "scenarioMeta": { "pageId": "order_search", "protocolVersion": "1.0" },
         "steps": [
           {
             "kind": "searchTable",
@@ -184,7 +184,7 @@
       },
       "expected": {
         "pageId": "order_search",
-        "protocolVersion": "0.3",
+        "protocolVersion": "1.0",
         "steps": [
           {
             "state": {
@@ -200,11 +200,11 @@
     },
     {
       "id": "official-form-with-upload",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/form-with-upload.md",
-        "scenarioMeta": { "pageId": "contract_upload", "protocolVersion": "0.3" },
+        "scenarioMeta": { "pageId": "contract_upload", "protocolVersion": "1.0" },
         "steps": [
           {
             "kind": "upload",
@@ -232,7 +232,7 @@
       },
       "expected": {
         "pageId": "contract_upload",
-        "protocolVersion": "0.3",
+        "protocolVersion": "1.0",
         "steps": [
           {
             "ok": true,

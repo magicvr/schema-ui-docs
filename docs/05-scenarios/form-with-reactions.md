@@ -17,7 +17,7 @@ last_updated: 2026-07-10
 meta:
   pageId: order_create
   title: 新建订单
-  protocolVersion: "0.3"
+  protocolVersion: "1.0"
 
 body:
   type: form

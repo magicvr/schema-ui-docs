@@ -16,7 +16,7 @@ last_updated: 2026-07-10
 meta:
   pageId: dashboard_sales
   title: 销售看板
-  protocolVersion: "0.3"
+  protocolVersion: "1.0"
 
 datasources:
   orderCountStats:
