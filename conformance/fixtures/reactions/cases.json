@@ -1,0 +1,174 @@
+{
+  "fixtureVersion": "1.0",
+  "category": "reactions",
+  "cases": [
+    {
+      "id": "stable-snapshot-defers-dependent-visibility",
+      "protocolVersion": "0.3",
+      "category": "reactions",
+      "input": {
+        "initialValues": { "status": "archived" },
+        "fields": [
+          {
+            "field": "status",
+            "reactions": [
+              { "when": "$deps.status == 'archived'", "fulfill": { "value": "closed" } }
+            ]
+          }
+        ],
+        "observers": [
+          { "id": "closeReason", "when": "$deps.status == 'closed'" }
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "values": { "status": "closed" },
+        "rounds": [
+          {
+            "round": 1,
+            "snapshot": { "status": "archived" },
+            "observations": { "closeReason": false },
+            "commits": [{ "field": "status", "value": "closed" }]
+          },
+          {
+            "round": 2,
+            "snapshot": { "status": "closed" },
+            "observations": { "closeReason": true },
+            "commits": []
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "id": "multiple-fields-commit-in-one-batch",
+      "protocolVersion": "0.3",
+      "category": "reactions",
+      "input": {
+        "initialValues": { "trigger": true, "first": "old-a", "second": "old-b" },
+        "fields": [
+          {
+            "field": "first",
+            "reactions": [
+              { "when": "$deps.trigger == true", "fulfill": { "value": "new-a" } }
+            ]
+          },
+          {
+            "field": "second",
+            "reactions": [
+              { "when": "$deps.trigger == true", "fulfill": { "value": "new-b" } }
+            ]
+          }
+        ],
+        "observers": []
+      },
+      "expected": {
+        "ok": true,
+        "values": { "trigger": true, "first": "new-a", "second": "new-b" },
+        "rounds": [
+          {
+            "round": 1,
+            "snapshot": { "trigger": true, "first": "old-a", "second": "old-b" },
+            "observations": {},
+            "commits": [
+              { "field": "first", "value": "new-a" },
+              { "field": "second", "value": "new-b" }
+            ]
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "id": "same-field-later-value-write-wins",
+      "protocolVersion": "0.3",
+      "category": "reactions",
+      "input": {
+        "initialValues": { "trigger": true, "tier": "bronze" },
+        "fields": [
+          {
+            "field": "tier",
+            "reactions": [
+              { "when": "$deps.trigger == true", "fulfill": { "value": "silver" } },
+              { "when": "$deps.trigger == true", "fulfill": { "value": "gold" } }
+            ]
+          }
+        ],
+        "observers": []
+      },
+      "expected": {
+        "ok": true,
+        "values": { "trigger": true, "tier": "gold" },
+        "rounds": [
+          {
+            "round": 1,
+            "snapshot": { "trigger": true, "tier": "bronze" },
+            "observations": {},
+            "commits": [{ "field": "tier", "value": "gold" }]
+          }
+        ],
+        "warnings": [{ "code": "MULTIPLE_VALUE_WRITES", "field": "tier", "count": 2 }]
+      }
+    },
+    {
+      "id": "deep-equal-write-does-not-schedule-next-round",
+      "protocolVersion": "0.3",
+      "category": "reactions",
+      "input": {
+        "initialValues": { "status": "closed" },
+        "fields": [
+          {
+            "field": "status",
+            "reactions": [
+              { "when": "$deps.status == 'closed'", "fulfill": { "value": "closed" } }
+            ]
+          }
+        ],
+        "observers": []
+      },
+      "expected": {
+        "ok": true,
+        "values": { "status": "closed" },
+        "rounds": [
+          {
+            "round": 1,
+            "snapshot": { "status": "closed" },
+            "observations": {},
+            "commits": []
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "id": "loop-protection-stops-after-ten-rounds",
+      "protocolVersion": "0.3",
+      "category": "reactions",
+      "input": {
+        "initialValues": { "toggle": "a" },
+        "maxRounds": 10,
+        "fields": [
+          {
+            "field": "toggle",
+            "reactions": [
+              {
+                "when": "$deps.toggle == 'a'",
+                "fulfill": { "value": "b" },
+                "otherwise": { "value": "a" }
+              }
+            ]
+          }
+        ],
+        "observers": []
+      },
+      "expected": {
+        "ok": false,
+        "code": "REACTION_LOOP_LIMIT",
+        "maxRounds": 10,
+        "values": { "toggle": "a" },
+        "roundCount": 10,
+        "dependencyFields": ["toggle"]
+      }
+    }
+  ]
+}
