@@ -6,6 +6,26 @@
 
 ---
 
+## 0054 — 2026-07-11 — L3a params 标签 + 三面 params 文档 + VisibleWhen dependencies + parentRow/MCP 卫生
+
+**主题：** 修正 L3a `datasources.*.params` 违规文案误标为 `data.params`（V213🟡）、闭合三面 params 文档与 §2 交叉引用（V214🟡）、对齐 VisibleWhen.dependencies 无前缀路径描述（V215🟡）、统一 `$parentRow` 静态拒绝措辞（V216🟢）、MCP 临时目录清理失败发本地警告（V217🟢）。
+**性质：** 表达式文案标签校正 + 权威文档三面 params 补齐 + Schema 入口注释同步 + 措辞卫生 + 可观测性。
+
+| 文件 | 说明 |
+|---|---|
+| [0054-2026-07-11-review.md](./0054-2026-07-11-review.md) | 审视报告 — V213–V217（3🟡 + 2🟢） |
+| [0054-2026-07-11-checklist.md](./0054-2026-07-11-checklist.md) | 跟踪清单（全部已完成 ✅） |
+
+**关键修复：**
+- V213: `scanDataParams()` 按 `paramsPath` 派生标签，`datasources.*.params` 不再误标为 `data.params`；文件头注释列出三类扫描面；MCP tests 新增 message 断言
+- V214: `02` §10.7 与 `04` §1/§3.1–§3.2 纳入 `datasources.*.params`；附录 A 增补对应行
+- V215: `node.schema.json` 与 `01` §3.8 写清无 `$deps.`/`$row.` 前缀完整点路径规则
+- V216: `07` §3.1、L2/L3a message、「暂不支持」→「静态拒绝」
+- V217: `validation-runner.ts` finally 中 `rmSync` 失败时 `console.warn`
+- MCP build + **115** 项测试全部通过
+
+---
+
 ## 0053 — 2026-07-11 — `$context` 位置 + `contains` 静态规则 + Schema 描述卫生
 
 **主题：** 闭合 `$context.*` 可用位置、`contains` 右操作数静态规则、`dependencies` 无前缀路径描述及文档卫生问题（V207-V212：3🟡 + 3🟢）。

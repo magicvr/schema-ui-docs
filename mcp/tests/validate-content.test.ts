@@ -1,5 +1,11 @@
-import { afterEach, describe, expect, it } from 'vitest';
-import { setLayerScriptExecutorForTest, setTempDirCreatorForTest, validateContent } from '../src/core/validation-runner.js';
+import fs from 'node:fs';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  setLayerScriptExecutorForTest,
+  setTempDirCreatorForTest,
+  setTempDirRemoverForTest,
+  validateContent,
+} from '../src/core/validation-runner.js';
 import { handleValidateContent } from '../src/tools/validate-content.js';
 import {
   chartRefResponseMappingInheritedMissingListYaml,
@@ -33,6 +39,8 @@ describe('validate_content', () => {
   afterEach(() => {
     setLayerScriptExecutorForTest(null);
     setTempDirCreatorForTest(null);
+    setTempDirRemoverForTest(null);
+    vi.restoreAllMocks();
   });
 
   it.each([
@@ -439,6 +447,10 @@ describe('validate_content', () => {
     const invalid = validateContent({ content: makePage(['$context.user.id']), format: 'json' });
     const templatePrefix = validateContent({ content: makePage(['prefix-$deps.ownerId']), format: 'json' });
     const templateSuffix = validateContent({ content: makePage(['$deps.ownerId-suffix']), format: 'json' });
+    const nestedDatasourceKey = validateContent({
+      content: makePage([{ 'datasources.fake': { nested: '$row.id' } }]),
+      format: 'json',
+    });
 
     expect(valid.passed).toBe(true);
     expect(invalid.layers.L3a).toEqual(expect.arrayContaining([
@@ -450,6 +462,14 @@ describe('validate_content', () => {
     expect(templateSuffix.layers.L3a).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: 'body.children[0].data.params.owners[0]', rule: 'DATA_PARAMS_VARIABLE' }),
     ]));
+    expect(nestedDatasourceKey.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'body.children[0].data.params.owners[0].datasources.fake.nested',
+        rule: 'DATA_PARAMS_VARIABLE',
+        message: expect.stringContaining('data.params'),
+      }),
+    ]));
+    expect(nestedDatasourceKey.layers.L3a[0]?.message).not.toContain('datasources.*.params');
 
     const optionsSource = validateContent({
       content: JSON.stringify({
@@ -526,12 +546,17 @@ describe('validate_content', () => {
       }),
     ]));
     expect(datasource.layers.L3a).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: 'datasources.owners.params.ids[0]', rule: 'NON_FORM_DATA_PARAMS' }),
+      expect.objectContaining({
+        path: 'datasources.owners.params.ids[0]',
+        rule: 'NON_FORM_DATA_PARAMS',
+        message: expect.stringContaining('datasources'),
+      }),
     ]));
     expect(datasourceTemplate.layers.L3a).toEqual(expect.arrayContaining([
       expect.objectContaining({
         path: 'datasources.owners.params.keyword',
         rule: 'DATA_PARAMS_VARIABLE',
+        message: expect.stringContaining('datasources'),
       }),
     ]));
   });
@@ -1753,6 +1778,24 @@ body:
     expect(result.passed).toBe(false);
     expect(result.internalError).toEqual({ message: '无法创建校验临时目录' });
     expect(result.summary).toContain('校验内部错误');
+  });
+
+  it('warns without changing the result when temporary directory cleanup fails', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    setTempDirRemoverForTest((tempDir) => {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+      throw new Error('cleanup failed');
+    });
+
+    const result = validateContent({
+      content: extractFirstYamlFence('docs/05-scenarios/data-table.md'),
+      format: 'yaml',
+      filename: 'data-table.yaml',
+    });
+
+    expect(result.passed).toBe(true);
+    expect(result.internalError).toBeNull();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('临时目录清理失败: cleanup failed'));
   });
 
   it('returns internalError when a layer script emits non-json output', () => {

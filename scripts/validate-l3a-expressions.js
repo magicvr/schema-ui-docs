@@ -13,12 +13,12 @@
  *   3. 作用域隔离规则（02-reaction-expression.md §9、§10）
  *      - scope:row 不能出现 $deps.*
  *      - scope:form 不能出现 $row.*
- *      - v0.2 暂不支持 $parentRow.*（组件 DSL 尚无嵌套表格挂载结构）
+ *      - v0.2 静态拒绝 $parentRow.*（组件 DSL 尚无嵌套表格挂载结构）
  *      - permissions.* 不能出现 $deps.*（仅 $context.user.* / $context.features.*）
  *      - 非表单 visibleWhen 按 Node 树位置判定，仅允许 $context.user.* / $context.features.*
  *      - 表格 actions 任意 scope 不能出现 $self
  *      - 表格列/操作 scope:form 使用 $deps.* 时要求表格位于 form 上下文
- *      - data.params / optionsSource.params 仅允许字面量或完整单个 $deps.* 值替换（禁止模板拼接），且 $deps.* 仅允许出现在表单上下文
+ *      - data.params / optionsSource.params / datasources.*.params 仅允许字面量或完整单个 $deps.* 值替换（禁止模板拼接），且 $deps.* 仅允许出现在表单上下文
  *   4. $deps.* 中使用的字段必须在 dependencies 中声明
  *
  * 用法：
@@ -461,12 +461,12 @@ function validateExpression(expr, exprPath, context) {
     });
   }
 
-  // 5a. v0.2 的组件 DSL 没有嵌套表格挂载结构，保守拒绝 $parentRow.*
+  // 5a. v0.2 静态拒绝 $parentRow.*（组件 DSL 尚无嵌套表格挂载结构）
   if (hasParentRowRef) {
     violations.push({
       path: exprPath,
       rule: 'PARENT_ROW_UNSUPPORTED',
-      message: 'v0.2 暂不支持 $parentRow.*；待嵌套表格挂载结构通过后续 ADR 定义后再开放',
+      message: 'v0.2 静态拒绝 $parentRow.*（组件 DSL 尚无嵌套表格挂载结构）',
     });
   }
 
@@ -484,7 +484,7 @@ function validateExpression(expr, exprPath, context) {
     violations.push({
       path: exprPath,
       rule: 'NON_FORM_VISIBLEWHEN',
-      message: '非表单节点的 visibleWhen 中只允许使用 $context.*，不得使用 $deps.*、$self、$row.* 或 $parentRow.*',
+      message: '非表单节点的 visibleWhen 中只允许使用 $context.*，不得使用 $deps.*、$self、$row.* 或 $parentRow.*（v0.2 静态拒绝 $parentRow.*）',
     });
   }
 
@@ -494,7 +494,7 @@ function validateExpression(expr, exprPath, context) {
     violations.push({
       path: exprPath,
       rule: 'FORM_VISIBLEWHEN_VARS',
-      message: '表单上下文的 visibleWhen 中只允许使用 $deps.* 与 $context.*，不得使用 $self、$row.* 或 $parentRow.*',
+      message: '表单上下文的 visibleWhen 中只允许使用 $deps.* 与 $context.*，不得使用 $self、$row.* 或 $parentRow.*（v0.2 静态拒绝 $parentRow.*）',
     });
   }
 
@@ -556,7 +556,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
 
   // --- data.params 中的变量值替换 ---
   if (node.data && node.data.params && typeof node.data.params === 'object') {
-    scanDataParams(node.data.params, `${nodePath}.data.params`, violations, inFormCtx);
+    scanDataParams(node.data.params, `${nodePath}.data.params`, violations, inFormCtx, 'data.params');
   }
 
   // --- select.optionsSource.params 中的变量值替换 ---
@@ -571,6 +571,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
       `${nodePath}.props.optionsSource.params`,
       violations,
       inFormCtx,
+      'optionsSource.params',
     );
   }
 
@@ -697,16 +698,14 @@ function scanNode(node, nodePath, violations, parentIsForm) {
   }
 }
 
-function scanDataParams(params, paramsPath, violations, hasFormContext) {
-  const isOptionsSource = paramsPath.includes('optionsSource.params');
-  const paramsLabel = isOptionsSource ? 'optionsSource.params' : 'data.params';
+function scanDataParams(params, paramsPath, violations, hasFormContext, paramsLabel) {
   // 与 requestMapping 一致：字符串只要包含 $，就必须完整匹配单个 $deps.* 值替换
   const depsRefPattern = /^\$deps\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
 
   for (const [key, value] of Object.entries(params)) {
     const valuePath = Array.isArray(params) ? `${paramsPath}[${key}]` : `${paramsPath}.${key}`;
     if (value && typeof value === 'object') {
-      scanDataParams(value, valuePath, violations, hasFormContext);
+      scanDataParams(value, valuePath, violations, hasFormContext, paramsLabel);
       continue;
     }
 
@@ -743,7 +742,7 @@ function validatePage(doc, fileLabel) {
   if (doc.datasources && typeof doc.datasources === 'object' && !Array.isArray(doc.datasources)) {
     for (const [sourceId, dataRef] of Object.entries(doc.datasources)) {
       if (dataRef && dataRef.params && typeof dataRef.params === 'object') {
-        scanDataParams(dataRef.params, `datasources.${sourceId}.params`, violations, false);
+        scanDataParams(dataRef.params, `datasources.${sourceId}.params`, violations, false, 'datasources.*.params');
       }
     }
   }

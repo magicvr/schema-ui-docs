@@ -38,9 +38,11 @@ type LayerScriptResult = {
 
 type LayerScriptExecutor = (scriptName: string, filePath: string, layer: ValidationLayer) => string;
 type TempDirCreator = (prefix: string) => string;
+type TempDirRemover = (tempDir: string) => void;
 
 let layerScriptExecutor: LayerScriptExecutor = defaultLayerScriptExecutor;
 let tempDirCreator: TempDirCreator = fs.mkdtempSync;
+let tempDirRemover: TempDirRemover = defaultTempDirRemover;
 
 export function setLayerScriptExecutorForTest(executor: LayerScriptExecutor | null): void {
   layerScriptExecutor = executor ?? defaultLayerScriptExecutor;
@@ -48,6 +50,10 @@ export function setLayerScriptExecutorForTest(executor: LayerScriptExecutor | nu
 
 export function setTempDirCreatorForTest(creator: TempDirCreator | null): void {
   tempDirCreator = creator ?? fs.mkdtempSync;
+}
+
+export function setTempDirRemoverForTest(remover: TempDirRemover | null): void {
+  tempDirRemover = remover ?? defaultTempDirRemover;
 }
 
 export function validateContent(input: RunnerInput): ValidateContentResult {
@@ -136,12 +142,17 @@ export function validateContent(input: RunnerInput): ValidateContentResult {
   } finally {
     if (tempDir) {
       try {
-        fs.rmSync(tempDir, { recursive: true, force: true });
-      } catch {
-        // Best-effort cleanup only.
+        tempDirRemover(tempDir);
+      } catch (cleanupError) {
+        // ADR-0007 D5：清理失败应发本地警告，不改变返回结构
+        console.warn(`[validation-runner] 临时目录清理失败: ${cleanupError instanceof Error ? cleanupError.message : String(cleanupError)}`);
       }
     }
   }
+}
+
+function defaultTempDirRemover(tempDir: string): void {
+  fs.rmSync(tempDir, { recursive: true, force: true });
 }
 
 function parseInput(content: string, format: 'yaml' | 'json', filename?: string): {

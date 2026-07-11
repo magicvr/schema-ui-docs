@@ -12,6 +12,8 @@ applies_to: schema-ui-protocol v0.2
 
 ## 1. `datasources` 声明（页面级预声明）
 
+> **页面级 params：** `datasources.*.params` 与节点级 `data.params` 使用同一套整值替换语法（见 §3.1），但页面级声明**永远非表单上下文**，因此 `$deps.*` 在其内为静态拒绝。页面级 params 仅允许字面量；含 `$` 的值必须以 `DATA_PARAMS_VARIABLE` 或 `NON_FORM_DATA_PARAMS` 拒绝。该规则由 L3a 统一执行（见 [02-reaction-expression.md §10.7](./02-reaction-expression.md#107-deps-出现在非表单-dataparams--optionssourceparams--datasourcesparams-中)）。
+
 ```yaml
 datasources:
   orderStats:
@@ -55,9 +57,9 @@ data:
 | `pageSize` | 每页条数 |
 | `sort` | 排序字段，格式 `field:asc` / `field:desc` |
 
-### 3.1 `data.params` / `optionsSource.params` 中 `$deps.*` 的空值省略规则
+### 3.1 `data.params` / `optionsSource.params` / `datasources.*.params` 中 `$deps.*` 的空值省略规则
 
-`data.params` 和 `select.optionsSource.params` 中的参数值仅允许：
+`data.params`、`select.optionsSource.params` 和页面级 `datasources.*.params` 中的参数值仅允许：
 
 1. **不含 `$` 的普通字面量**（string / number / boolean / null，或递归对象/数组中的同类字面量）；
 2. **完整单个 `$deps.<path>` 值替换**——整段字符串必须精确匹配合法 `$deps.*` 引用（如 `$deps.ownerId`、`$deps.customer.id`）。
@@ -79,14 +81,15 @@ data:
 
 > 此规则对 `data.params`（`data.source: api` 通用场景）和 `select.optionsSource.params`（见 §9）统一适用。
 
-### 3.2 `data.params` / `optionsSource.params` 中 `$deps.*` 的作用域边界
+### 3.2 `data.params` / `optionsSource.params` / `datasources.*.params` 中 `$deps.*` 的作用域边界
 
-`data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 引用**仅在表单上下文有效**，语义为「取当前表单中同名 `field` 的当前值」，且必须是参数值的**整值替换**（见 §3.1）。非表单上下文（独立 `table`/`chart` 等节点的 `data.params`，或表单外误用的 `optionsSource.params`）中出现 `$deps.*` 时，Renderer 的静态校验应直接拒绝——与 `visibleWhen` 的非表单约束（[02-reaction-expression.md §10.1](./02-reaction-expression.md#101-非表单--表单-visiblewhen-的变量白名单)）保持一致。
+`data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 中的 `$deps.*` 引用**仅在表单上下文有效**，语义为「取当前表单中同名 `field` 的当前值」，且必须是参数值的**整值替换**（见 §3.1）。非表单上下文（独立 `table`/`chart` 等节点的 `data.params`，或表单外误用的 `optionsSource.params`）中出现 `$deps.*` 时，Renderer 的静态校验应直接拒绝——与 `visibleWhen` 的非表单约束（[02-reaction-expression.md §10.1](./02-reaction-expression.md#101-非表单--表单-visiblewhen-的变量白名单)）保持一致。页面级 `datasources.*.params` 永远非表单上下文，其内出现 `$deps.*` 时以 `NON_FORM_DATA_PARAMS` 静态拒绝。
 
-| 上下文 | `$deps.*` 在 `data.params` / `optionsSource.params` 中 | 说明 |
+| 上下文 | `$deps.*` 在 `data.params` / `optionsSource.params` / `datasources.*.params` 中 | 说明 |
 |---|---|---|
 | 表单内（`form` 子节点） | ✅ 允许 | 搜索表单字段值驱动 API 参数 / 远程选项是核心使用场景 |
 | 表单外（独立 `table`/`chart` 等） | ❌ 静态校验拒绝 | 无表单字段可依赖，`$deps.*` 永远是 `undefined`，属于配置错误 |
+| 页面级 `datasources.*.params` | ❌ 静态校验拒绝（`NON_FORM_DATA_PARAMS`） | 永远非表单上下文；仅允许字面量 |
 
 > **设计理由：** 不存在跨组件数据依赖的场景——如果未来需要「一个 `chart` 依赖另一个 `chart` 的筛选结果」，应通过独立的 ADR 设计专门的参数传递机制，而非复用表单字段的 `$deps` 语义。此处保持与 `visibleWhen`、`permissions.*` 一致的策略：在不该出现 `$deps` 的位置使用它就是错误，在解析阶段暴露优于静默忽略。
 

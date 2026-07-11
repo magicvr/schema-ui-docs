@@ -10,6 +10,11 @@
 > **说明：** 以下变更已在当前仓库工作区落地，但尚未单独切出新的 PATCH 版本号；正式发布时应合并为下一个 `0.2.x` 条目。
 
 **修复：**
+- 审计 `0054 / V213`：修正 L3a `scanDataParams()` 由三类扫描入口传入固定 `paramsLabel` 并在递归中保持，`datasources.*.params` 违规不再误标为 `data.params`，业务键名也不会反向污染挂载面标签；文件头注释列出三类扫描面；MCP tests 锁定 datasources 与嵌套 `data.params` 标签。
+- 审计 `0054 / V214`：`02` §10.7 标题/正文与 `04` §1/§3.1–§3.2 纳入页面级 `datasources.*.params` 三面 params；附录 A 增补 `datasources.*.params` 行；§2 交叉引用达闭合。
+- 审计 `0054 / V215`：同步 `node.schema.json` `VisibleWhen.dependencies.description` 与 `01` §3.8 YAML 注释——无 `$deps.`/`$row.` 前缀完整点路径规则（V209 VisibleWhen 侧残留）。
+- 审计 `0054 / V216`：`07` §3.1、L2 requestMapping message、L3a 文件头与 `PARENT_ROW_UNSUPPORTED` message 统一「暂不支持」→「静态拒绝」（V211 残留）。
+- 审计 `0054 / V217`：MCP `validation-runner.ts` finally 中临时目录清理失败时发 `console.warn` 本地警告，与 ADR-0007 一致；补自动化测试确认告警不改变校验结果结构。
 - 审计 `0053 / V207`：修正 `02` §2 将 `$context.*` 标为「所有位置」的入口误导，改为条件表达式挂载点并明确不含 params 值替换。
 - 审计 `0053 / V208`：将 `contains` 右操作数字面量约束写入 `02` §3 / 新增 §10.8 与 `08` §5.5，与 `06` / L3a（V205）对齐。
 - 审计 `0053 / V209`：同步 `reaction.schema.json` `dependencies.description` 为无 `$deps.` / `$row.` 前缀的完整点路径声明规则，并明确未引用二者时可使用空数组（V164 残留）。
@@ -71,6 +76,7 @@
 - 审计：`docs/audit/archived/0044-2026-07-11-*`、`docs/audit/archived/0045-2026-07-11-*`、`docs/audit/archived/0046-2026-07-11-*`、`docs/audit/archived/0047-2026-07-11-*`、`docs/audit/archived/0048-2026-07-11-*`、`docs/audit/archived/0049-2026-07-11-*`、`docs/audit/archived/0050-2026-07-11-*`、`docs/audit/archived/0051-2026-07-11-*`
 - 审计：`docs/audit/archived/0052-2026-07-11-review.md`、`docs/audit/archived/0052-2026-07-11-checklist.md`
 - 审计：`docs/audit/archived/0053-2026-07-11-review.md`、`docs/audit/archived/0053-2026-07-11-checklist.md`
+- 审计：`docs/audit/0054-2026-07-11-review.md`、`docs/audit/0054-2026-07-11-checklist.md`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 

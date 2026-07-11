@@ -185,7 +185,7 @@
         "dependencies": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "显式声明的依赖字段名。表单上下文中必填，非表单上下文可省略"
+          "description": "显式声明的依赖字段名（无 $deps./$row. 前缀，取完整点路径）。表单上下文：form 为字段名，row 为 $row. 后缀完整路径（如 canRefund / user.id / __index）；可声明空数组。非表单上下文可省略。禁止出现 $deps. 或 $row. 前缀字符串"
         },
         "when": {
           "type": "string",

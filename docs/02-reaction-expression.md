@@ -36,7 +36,7 @@ applies_to: schema-ui-protocol v0.2
 | `$row.__index` | 当前行在数据集中的序号（从 0 开始） | 同上 | `$row.__index` |
 | `$row.__key` | 当前行的唯一标识（取表格 `rowKey` 字段值） | 同上 | `$row.__key` |
 
-> **v0.2 边界（审计 0039 / V120）：** 当前组件 DSL 没有嵌套表格 Node 挂载结构，因此 `$parentRow.*` 不属于 v0.2 可用变量，L2/L3a 保守拒绝。未来若通过 ADR 定义可校验的嵌套表格结构，可再同步恢复该变量。
+> **v0.2 边界（审计 0039 / V120）：** 当前组件 DSL 没有嵌套表格 Node 挂载结构，因此 `$parentRow.*` 不属于 v0.2 可用变量，L2/L3a 静态拒绝。未来若通过 ADR 定义可校验的嵌套表格结构，可再同步恢复该变量。
 
 **禁止事项：**
 - ❌ 不允许访问 `dependencies` 之外未声明的字段。
@@ -47,7 +47,7 @@ applies_to: schema-ui-protocol v0.2
 - ❌ 不允许在 `permissions.*` 表达式中访问 `$deps.*`（静态校验拒绝，见 §10.2）。
 - ❌ 不允许在非表单节点的 `visibleWhen` 中访问 `$deps.*`（静态校验拒绝，见 §10.1）。
 - ❌ 不允许在表格 `actions` 的表达式（**任意** `scope`）中使用 `$self`（不适用，见 §10.3）。
-- ❌ 不允许使用 `$parentRow.*`；v0.2 尚未定义嵌套表格挂载结构。
+- ❌ 不允许使用 `$parentRow.*`；v0.2 静态拒绝（无嵌套表格挂载结构）。
 
 ## 3. 运算符白名单
 
@@ -199,9 +199,9 @@ L3a 对 `$row.*` 做精确包含匹配：`dependencies.includes(fieldPathAfterDo
 
 `scope: row` **仅**允许出现在表格 `columns[]` / `actions[]` 的 `visibleWhen` 或 `reactions` 上。普通 Node（含表单字段）声明 `scope: row` 时，L3a 以 `ROW_SCOPE_MOUNT` 静态拒绝。需要行数据时，应把表达式挂在对应列或行操作上。
 
-### 10.7 `$deps` 出现在非表单 `data.params` / `optionsSource.params` 中
+### 10.7 `$deps` 出现在非表单 `data.params` / `optionsSource.params` / `datasources.*.params` 中
 
-`data.params` 与 `select.props.optionsSource.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做**完整单个参数值替换**，规则完全一致：参数值要么是不含 `$` 的普通字面量，要么整段精确匹配单个 `$deps.<path>`；禁止 `prefix-$deps.ownerId` 一类模板拼接。若节点不处于表单上下文，上述 params 中出现 `$deps.*` 时，静态校验直接拒绝。二者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。规则递归作用于对象和数组中的所有值，不能通过数组元素绕过变量限制。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 时，以 `DATA_PARAMS_VARIABLE` 拒绝。
+`data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做**完整单个参数值替换**，规则完全一致：参数值要么是不含 `$` 的普通字面量，要么整段精确匹配单个 `$deps.<path>`；禁止 `prefix-$deps.ownerId` 一类模板拼接。若节点不处于表单上下文（或 `datasources.*.params`——页面级声明永远非表单上下文），出现 `$deps.*` 时，静态校验直接拒绝。三者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。规则递归作用于对象和数组中的所有值，不能通过数组元素绕过变量限制。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 时，以 `DATA_PARAMS_VARIABLE` 拒绝。
 
 ### 10.8 `contains` 右操作数字面量约束
 
@@ -310,6 +310,7 @@ visibleWhen:
 | 非表单上下文 `data.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ |
 | 表单上下文内 `optionsSource.params` | ✅（仅值替换，同 `data.params`） | ❌ | ❌ | ❌ |
 | 非表单上下文 `optionsSource.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ |
+| 页面级 `datasources.*.params` | ❌（静态校验拒绝，永远非表单上下文） | ❌ | ❌ | ❌ |
 | 非表单节点 `visibleWhen` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ |
 | 节点 `permissions.*` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ |
 | 表格列 `scope: form` 表达式（仅表格位于 `form.children` 内） | ✅ | ❌（无绑定对象） | ✅ | ❌ |
