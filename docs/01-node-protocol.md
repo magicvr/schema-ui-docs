@@ -175,7 +175,7 @@ states:
 ```yaml
 visibleWhen:
   scope: form | row          # 【可选，since 0.2】表达式求值作用域，form（默认）或 row
-  dependencies: [string]   # 显式声明的依赖字段名（表单上下文中必填，非表单上下文可省略）
+  dependencies: [string]   # 显式声明的依赖字段名（无 $deps./$row. 前缀：form 为字段名，row 为 $row. 后缀完整点路径如 canRefund / user.id；可空数组；禁止带前缀字符串）。表单上下文中必填，非表单上下文可省略
   when: string               # 白名单表达式（与 reactions[].when 同语法）
 ```
 

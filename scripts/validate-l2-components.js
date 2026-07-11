@@ -708,7 +708,7 @@ function validateRequestMappingValues(mappingSection, sectionPath, violations) {
       if (mappingValue.includes('$') && !rowRefPattern.test(mappingValue)) {
         violations.push({
           path: valuePath,
-          message: '行级 requestMapping 仅允许单个 $row.* 点路径引用；v0.2 暂不支持嵌套表格及 $parentRow.*，也不得使用 $deps.*、$context.*、模板拼接或表达式',
+          message: '行级 requestMapping 仅允许单个 $row.* 点路径引用；v0.2 静态拒绝嵌套表格及 $parentRow.*，也不得使用 $deps.*、$context.*、模板拼接或表达式',
         });
       }
     }
