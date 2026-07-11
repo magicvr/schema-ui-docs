@@ -6,6 +6,25 @@
 
 ---
 
+## 0055 — 2026-07-11 — v1.0 执行一致性与可复现发布
+
+**主题：** 关闭严格版本协商、query 线级序列化、保留参数冲突、React/Go 跨实现一致性、独立场景门禁、可复现发布与 MCP 源码树卫生（V218–V224）。
+**性质：** Schema-UI `v1.0.0` 正式发布闭环。
+
+| 文件 | 说明 |
+|---|---|
+| [0055-2026-07-11-review.md](./0055-2026-07-11-review.md) | 审视报告 — V218–V224（全部关闭） |
+| [0055-2026-07-11-checklist.md](./0055-2026-07-11-checklist.md) | 跟踪清单（全部已完成 ✅） |
+| [0055-2026-07-11-plan.md](./0055-2026-07-11-plan.md) | 分阶段实施与发布计划 |
+
+**关键证据：**
+- `v1.0.0` → `d2f0fc0877dc6550c9fe7e3635b25c7ec72b4ddd`
+- 8 类 65 fixtures，digest `sha256:7bf6db4ced24ed59f68a32f3072540b4be179c6aadf5c23042350e6668c66f6b`
+- React `6527bbff9aad1faf70e985988d4573afc7ae2e03` 与 Go `d31d358f1e3c3a733ab3a7ad4282078f310d8a8f` 生产消费者远端 CI 通过
+- MCP CD run `29154389128` 发布 `1.0.0` / `1.0` / `latest` / Git SHA 镜像；远端 digest `sha256:190453685beded5872f24336c9b1ca1051960602f7d66d67bad6d42de40f997e`，版本与 SHA 镜像 smoke 通过
+
+---
+
 ## 0054 — 2026-07-11 — L3a params 标签 + 三面 params 文档 + VisibleWhen dependencies + parentRow/MCP 卫生
 
 **主题：** 修正 L3a `datasources.*.params` 违规文案误标为 `data.params`（V213🟡）、闭合三面 params 文档与 §2 交叉引用（V214🟡）、对齐 VisibleWhen.dependencies 无前缀路径描述（V215🟡）、统一 `$parentRow` 静态拒绝措辞（V216🟢）、MCP 临时目录清理失败发本地警告（V217🟢）。

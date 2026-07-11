@@ -1,5 +1,5 @@
 ---
-status: active
+status: stable
 owner: 前后端架构组
 last_updated: 2026-07-11
 applies_to: schema-ui-protocol v1.0
@@ -9,7 +9,7 @@ applies_to: schema-ui-protocol v1.0
 
 本文档跟踪 `v0.3.0-rc.1` 到 `v1.0.0` 的收敛工作。RC 已冻结前后端 MVP 的组件与业务能力范围；完成本文件全部门禁前，不发布 `v1.0.0`。
 
-当前缺口审视、依赖顺序和分阶段实施计划见 [`audit/0055-2026-07-11-review.md`](./audit/0055-2026-07-11-review.md)、[`audit/0055-2026-07-11-plan.md`](./audit/0055-2026-07-11-plan.md) 与 [`audit/0055-2026-07-11-checklist.md`](./audit/0055-2026-07-11-checklist.md)。
+缺口审视、依赖顺序、分阶段实施计划与发布证据见 [`audit/archived/0055-2026-07-11-review.md`](./audit/archived/0055-2026-07-11-review.md)、[`audit/archived/0055-2026-07-11-plan.md`](./audit/archived/0055-2026-07-11-plan.md) 与 [`audit/archived/0055-2026-07-11-checklist.md`](./audit/archived/0055-2026-07-11-checklist.md)。
 
 ## 1. RC 范围冻结
 
@@ -93,8 +93,8 @@ fixtures 应为与框架无关的 JSON/YAML 输入及期望输出，不绑定 Re
 - [x] 将 `meta.protocolVersion`、Schema 描述、示例和 Renderer 支持版本统一为 `"1.0"`；
 - [x] 根包、MCP 包、lockfile、Docker tag 与文档版本统一为 `1.0.0`；
 - [x] 发布 `0.2` / `0.3` 到 `1.0` 的迁移说明；
-- [ ] 从 CHANGELOG 清空待发布内容，记录不可变 Git tag 与 commit SHA；
-- [ ] 发布固定 `1.0.0` MCP 镜像并完成从干净环境拉取后的 Docker smoke。
+- [x] 从 CHANGELOG 清空待发布内容，记录不可变 Git tag `v1.0.0` 与 commit `d2f0fc0877dc6550c9fe7e3635b25c7ec72b4ddd`；
+- [x] 发布固定 `1.0.0` MCP 镜像并完成从干净环境拉取后的 Docker smoke；CD run `29154389128` 成功，版本与 SHA tag 均解析到 `sha256:190453685beded5872f24336c9b1ca1051960602f7d66d67bad6d42de40f997e`。
 
 ## 4. `1.x` 版本纪律
 

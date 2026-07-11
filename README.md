@@ -10,32 +10,32 @@
 - `conformance/`：框架无关的一致性 fixtures、JavaScript 参考算法与 runner。
 - `mcp/`：Schema-UI MCP stdio 服务实现，提供协议只读查询与内容校验工具。
 
-当前版本为 `1.0.0`，页面配置使用 `meta.protocolVersion: "1.0"`。正式发布前的目标与门禁见 [`docs/09-v1-release-goals.md`](./docs/09-v1-release-goals.md)。
+当前稳定版本为 `1.0.0`，页面配置使用 `meta.protocolVersion: "1.0"`。发布目标与门禁完成记录见 [`docs/09-v1-release-goals.md`](./docs/09-v1-release-goals.md)。
 
 ## MCP 服务
 
-MCP 服务当前**已发布稳定镜像**仍为 `0.2.8`；工作区 MCP 包已切换到 `1.0.0`，只有匹配的 `v1.0.0` tag 完成 CD 后才声明新镜像已发布。运行时要求 Node.js `>=18`。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
+MCP 服务当前**已发布稳定镜像**为 `1.0.0`。运行时要求 Node.js `>=18`。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
 
 ### 使用 Docker Hub 镜像
 
 CD 工作流会将 MCP 镜像推送到 Docker Hub：
 
 ```text
-<dockerhub-namespace>/schema-ui-mcp:0.2.8
-<dockerhub-namespace>/schema-ui-mcp:0.2
+<dockerhub-namespace>/schema-ui-mcp:1.0.0
+<dockerhub-namespace>/schema-ui-mcp:1.0
 <dockerhub-namespace>/schema-ui-mcp:latest
 <dockerhub-namespace>/schema-ui-mcp:<commit-sha>
 ```
 
 CD 仅在推送与包版本一致的 Git tag（当前为 `v1.0.0`）时发布，手工触发也必须选择该 tag。预发布版本只推送完整版本 tag 和 commit SHA，不更新 minor 或 `latest`；稳定版本才更新 minor 和 `latest` 别名。
 
-团队接入建议固定使用 PATCH tag，例如 `0.2.8`，避免无意跟随 `latest` 升级。
+团队接入建议固定使用 PATCH tag，例如 `1.0.0`，避免无意跟随 `latest` 升级。
 
 拉取并启动 stdio MCP server：
 
 ```bash
-docker pull <dockerhub-namespace>/schema-ui-mcp:0.2.8
-docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:0.2.8
+docker pull <dockerhub-namespace>/schema-ui-mcp:1.0.0
+docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:1.0.0
 ```
 
 MCP 客户端配置示例：
@@ -49,7 +49,7 @@ MCP 客户端配置示例：
                 "run",
                 "--rm",
                 "-i",
-                "<dockerhub-namespace>/schema-ui-mcp:0.2.8"
+                "<dockerhub-namespace>/schema-ui-mcp:1.0.0"
             ]
     }
     }

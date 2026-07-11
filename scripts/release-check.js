@@ -68,7 +68,7 @@ for (const relativePath of OFFICIAL_SCENARIO_PATHS) {
 const readme = readText('README.md');
 const overview = readText('docs/00-overview.md');
 const changelog = readText('docs/CHANGELOG.md');
-assert.ok(readme.includes(`当前版本为 \`${rootPackage.version}\``), 'README current version is out of sync');
+assert.ok(readme.includes(`当前稳定版本为 \`${rootPackage.version}\``), 'README current version is out of sync');
 assert.ok(readme.includes(`meta.protocolVersion: "${protocolVersion}"`), 'README protocol version is out of sync');
 assert.ok(overview.includes(`协议版本：\`v${rootPackage.version}\``), 'Overview current version is out of sync');
 assert.ok(overview.includes(`meta.protocolVersion: "${protocolVersion}"`), 'Overview protocol version is out of sync');
