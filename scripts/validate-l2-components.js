@@ -122,6 +122,44 @@ function isValidIsoDate(value) {
     && date.getUTCDate() === day;
 }
 
+function validateQueryScalarMap(params, paramsPath, violations, allowedVariablePattern) {
+  if (params === undefined) return;
+  if (!isPlainObject(params)) {
+    violations.push({ path: paramsPath, message: 'query params 必须是对象' });
+    return;
+  }
+
+  for (const [key, value] of Object.entries(params)) {
+    const valuePath = `${paramsPath}.${key}`;
+    if (key.length === 0) {
+      violations.push({ path: valuePath, message: 'query 参数 key 必须是非空字符串' });
+    }
+
+    const isScalar = value === null
+      || typeof value === 'string'
+      || typeof value === 'boolean'
+      || (typeof value === 'number' && Number.isFinite(value));
+    if (!isScalar) {
+      const valueType = Array.isArray(value)
+        ? 'array'
+        : typeof value === 'number' ? (Number.isNaN(value) ? 'NaN' : value > 0 ? 'Infinity' : '-Infinity')
+          : typeof value;
+      violations.push({
+        path: valuePath,
+        message: `query 参数值只能是 string/finite number/boolean/null 标量，实际为 ${valueType}`,
+      });
+      continue;
+    }
+
+    if (typeof value === 'string' && value.includes('$') && !allowedVariablePattern.test(value)) {
+      violations.push({
+        path: valuePath,
+        message: 'query 参数变量必须是当前挂载点允许的完整单个点路径引用，禁止模板拼接或其他变量命名空间',
+      });
+    }
+  }
+}
+
 function validateStringArray(value, fieldPath, violations) {
   if (!Array.isArray(value)) {
     violations.push({ path: fieldPath, message: '期望 array，实际 ' + (value === null ? 'null' : typeof value) });
@@ -436,6 +474,15 @@ function validateNode(node, nodePath, violations, doc, parentIsForm = false) {
       }
     }
 
+    if (type === 'select' && props.optionsSource?.params !== undefined) {
+      validateQueryScalarMap(
+        props.optionsSource.params,
+        `${nodePath}.props.optionsSource.params`,
+        violations,
+        /^\$deps\.[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$/,
+      );
+    }
+
     // --- responseMapping 语义规则（传入 doc 以支持 source:ref 继承解析） ---
     validateResponseMapping(node, type, compDef, nodePath, violations, doc);
   }
@@ -695,11 +742,14 @@ function validateRequestMappingValues(mappingSection, sectionPath, violations) {
   const rowRefPattern = /^\$row\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
   for (const [mappingKey, mappingValue] of Object.entries(mappingSection)) {
     const valuePath = `${sectionPath}.${mappingKey}`;
+    if (mappingKey.length === 0) {
+      violations.push({ path: valuePath, message: 'requestMapping key 必须是非空字符串' });
+    }
     const valueType = mappingValue === null ? 'null' : Array.isArray(mappingValue) ? 'array' : typeof mappingValue;
-    if (!['string', 'number', 'boolean', 'null'].includes(valueType)) {
+    if (!['string', 'number', 'boolean', 'null'].includes(valueType) || (typeof mappingValue === 'number' && !Number.isFinite(mappingValue))) {
       violations.push({
         path: valuePath,
-        message: `requestMapping 必须是扁平 key-value map；值只能是 string/number/boolean/null 或单个行上下文引用，实际为 ${valueType}`,
+        message: `requestMapping 必须是扁平 key-value map；值只能是 string/finite number/boolean/null 或单个行上下文引用，实际为 ${valueType}`,
       });
       continue;
     }

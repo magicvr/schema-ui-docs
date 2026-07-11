@@ -432,8 +432,8 @@ describe('validate_content', () => {
     ]));
   });
 
-  it('recursively checks variables in params arrays', () => {
-    const makePage = (owners: unknown[]) => JSON.stringify({
+  it('rejects composite query params before variable evaluation', () => {
+    const makePage = (owners: unknown) => JSON.stringify({
       meta: { pageId: 'params-array', title: 'Params array', protocolVersion: '0.2' },
       body: {
         type: 'form',
@@ -446,33 +446,14 @@ describe('validate_content', () => {
       },
       actions: { save: { type: 'request', method: 'POST', url: '/save' } },
     });
-    const valid = validateContent({ content: makePage(['$deps.ownerId', 'fixed']), format: 'json' });
-    const invalid = validateContent({ content: makePage(['$context.user.id']), format: 'json' });
-    const templatePrefix = validateContent({ content: makePage(['prefix-$deps.ownerId']), format: 'json' });
-    const templateSuffix = validateContent({ content: makePage(['$deps.ownerId-suffix']), format: 'json' });
+    const arrayValue = validateContent({ content: makePage(['$deps.ownerId', 'fixed']), format: 'json' });
     const nestedDatasourceKey = validateContent({
-      content: makePage([{ 'datasources.fake': { nested: '$row.id' } }]),
+      content: makePage({ 'datasources.fake': { nested: '$row.id' } }),
       format: 'json',
     });
 
-    expect(valid.passed).toBe(true);
-    expect(invalid.layers.L3a).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: 'body.children[0].data.params.owners[0]', rule: 'DATA_PARAMS_VARIABLE' }),
-    ]));
-    expect(templatePrefix.layers.L3a).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: 'body.children[0].data.params.owners[0]', rule: 'DATA_PARAMS_VARIABLE' }),
-    ]));
-    expect(templateSuffix.layers.L3a).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: 'body.children[0].data.params.owners[0]', rule: 'DATA_PARAMS_VARIABLE' }),
-    ]));
-    expect(nestedDatasourceKey.layers.L3a).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        path: 'body.children[0].data.params.owners[0].datasources.fake.nested',
-        rule: 'DATA_PARAMS_VARIABLE',
-        message: expect.stringContaining('data.params'),
-      }),
-    ]));
-    expect(nestedDatasourceKey.layers.L3a[0]?.message).not.toContain('datasources.*.params');
+    expect(arrayValue.layers['L0/L1'].length).toBeGreaterThan(0);
+    expect(nestedDatasourceKey.layers['L0/L1'].length).toBeGreaterThan(0);
 
     const optionsSource = validateContent({
       content: JSON.stringify({
@@ -539,8 +520,8 @@ describe('validate_content', () => {
       format: 'json',
     });
 
-    expect(optionsSource.layers.L3a).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: 'body.children[0].props.optionsSource.params.ids[0]' }),
+    expect(optionsSource.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].props.optionsSource.params.ids' }),
     ]));
     expect(optionsSourceTemplate.layers.L3a).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -548,19 +529,86 @@ describe('validate_content', () => {
         rule: 'DATA_PARAMS_VARIABLE',
       }),
     ]));
-    expect(datasource.layers.L3a).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        path: 'datasources.owners.params.ids[0]',
-        rule: 'NON_FORM_DATA_PARAMS',
-        message: expect.stringContaining('datasources'),
-      }),
-    ]));
+    expect(datasource.layers['L0/L1'].length).toBeGreaterThan(0);
     expect(datasourceTemplate.layers.L3a).toEqual(expect.arrayContaining([
       expect.objectContaining({
         path: 'datasources.owners.params.keyword',
         rule: 'DATA_PARAMS_VARIABLE',
         message: expect.stringContaining('datasources'),
       }),
+    ]));
+  });
+
+  it('enforces scalar query maps for options and row actions', () => {
+    const optionsPage = (params: Record<string, unknown>) => JSON.stringify({
+      meta: { pageId: 'options-query-scalars', title: 'Options query scalars', protocolVersion: '0.3' },
+      body: {
+        type: 'form',
+        props: { submitAction: 'save' },
+        children: [{
+          type: 'select',
+          props: {
+            field: 'owner',
+            label: 'Owner',
+            optionsSource: { url: '/owners', params, labelField: 'name', valueField: 'id' },
+          },
+        }],
+      },
+      actions: { save: { type: 'request', method: 'POST', url: '/save' } },
+    });
+    const validOptions = validateContent({
+      content: optionsPage({ text: '', count: 1.5, enabled: false, empty: null, owner: '$deps.owner' }),
+      format: 'json',
+    });
+    const objectOptions = validateContent({ content: optionsPage({ filter: { status: 'open' } }), format: 'json' });
+    const emptyKeyOptions = validateContent({ content: optionsPage({ '': 'value' }), format: 'json' });
+
+    const rowPage = (queryYaml: string) => `
+meta:
+  pageId: row-query-scalars
+  title: Row query scalars
+  protocolVersion: "0.3"
+  requiredCapabilities: [actions.row.request]
+actions:
+  load:
+    type: request
+    method: GET
+    url: /items
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination: { mode: none }
+    columns: [{ field: id, label: ID }]
+    actions:
+      - key: load
+        label: Load
+        actionRef: load
+        requestMapping:
+          query:
+${queryYaml}
+  data: { source: static, value: [] }
+`;
+    const validRow = validateContent({
+      content: rowPage('            text: ""\n            count: 1.5\n            enabled: true\n            empty: null\n            id: $row.id'),
+      format: 'yaml',
+    });
+    const arrayRow = validateContent({ content: rowPage('            ids: [1, 2]'), format: 'yaml' });
+    const infiniteRow = validateContent({ content: rowPage('            count: .inf'), format: 'yaml' });
+
+    expect(validOptions.passed).toBe(true);
+    expect(objectOptions.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].props.optionsSource.params.filter' }),
+    ]));
+    expect(emptyKeyOptions.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].props.optionsSource.params.' }),
+    ]));
+    expect(validRow.passed).toBe(true);
+    expect(arrayRow.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.actions[0].requestMapping.query.ids' }),
+    ]));
+    expect(infiniteRow.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.actions[0].requestMapping.query.count' }),
     ]));
   });
 

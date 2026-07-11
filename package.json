@@ -6,6 +6,8 @@
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:scenarios": "node scripts/validate-scenarios.js",
+    "test:conformance:query": "node conformance/runner/run-query-serialization.js",
+    "test:conformance:query:python": "python conformance/runner/run-query-serialization-python.py",
     "test:conformance:version": "node conformance/runner/run-version-negotiation.js",
     "validate:l2": "node scripts/validate-l2-components.js",
     "validate:l3a": "node scripts/validate-l3a-expressions.js",

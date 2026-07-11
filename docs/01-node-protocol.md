@@ -88,7 +88,7 @@ data:
   ref: string        # source=ref 时，指向 datasources 中的 key
   url: string        # source=api 时，独立请求的地址
   method: GET | POST | PUT | DELETE | PATCH  # source=api 时可选，缺省为 GET
-  params: map        # 【可选】query 参数映射（不因 method 改变）；值仅允许字面量或完整单个 $deps.*（禁止模板拼接），空值规则见 04-datasource-contract.md §3.1
+  params: map        # 【可选】query 参数映射（不因 method 改变）；非空 key，值仅允许标量或完整单个 $deps.*（禁止对象/数组/模板拼接），见 ADR-0010 与 04 §3.1
   responseMapping: map # 【可选，since 0.2.4】响应字段名映射，见 04-datasource-contract.md §4.1.1
 ```
 

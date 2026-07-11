@@ -191,7 +191,7 @@
               "actionRef": { "type": "string", "description": "【可选，since 0.2.7】引用顶层 actions 中的 request action，用于声明式行级后端请求；使用时必须声明 meta.requiredCapabilities: [actions.row.request]" },
               "requestMapping": {
                 "type": "object",
-                "description": "【可选，since 0.2.7】RowAction.actionRef 的请求参数绑定；path/query/body 均为扁平 key-value map；path 替换 url 中的 {param}，query 生成查询参数，body 生成 JSON 请求体；值仅允许字面量或单个 $row.* 点路径引用；v0.2 静态拒绝 $parentRow.*（无嵌套表格挂载结构）",
+                "description": "【可选，since 0.2.7】RowAction.actionRef 的请求参数绑定；path/query/body 均为非空 key 的扁平 map；path 替换 url 中的 {param}，query 生成查询参数，body 生成 JSON 请求体；值仅允许 string/finite number/boolean/null 或单个 $row.* 点路径引用；v0.2 静态拒绝 $parentRow.*（无嵌套表格挂载结构）",
                 "properties": {
                   "path": { "type": "object" },
                   "query": { "type": "object" },
@@ -425,7 +425,7 @@
         "optionsSource": {
           "type": "object",
           "since": "0.2",
-          "description": "与 options 二选一，远程动态选项。params 值仅允许字面量或完整单个 $deps.<path> 整值替换（禁止模板拼接）；值为 null/undefined 时该参数整体省略，见 docs/04-datasource-contract.md §3.1",
+          "description": "与 options 二选一，远程动态选项。params key 必须非空，值仅允许 string/finite number/boolean/null 或完整单个 $deps.<path> 整值替换（禁止对象、数组和模板拼接）；值为 null/undefined 时删除该参数，见 ADR-0010 与 docs/04-datasource-contract.md §3.1",
           "properties": {
             "url": { "type": "string" },
             "params": { "type": "object" },

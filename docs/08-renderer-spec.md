@@ -168,7 +168,7 @@ body:
 - Renderer 在 `$deps.*` 值变化时自动重新请求该 Node 的数据。
 - 多参数依赖的情形下，Renderer 对同一 Node 的多次参数变化应做**去抖处理**（建议 300ms），避免高频触发 API 请求。
 - `$deps.*` 的引用声明在 `data.params` 中的结构与 `reactions` 的依赖机制复用同一套解析器，但**仅做完整单个参数值替换，不做条件判断**；禁止字符串模板拼接。
-- **传输位置与空值省略规则：** `data.params` 对所有 method 均编码为 URL query，不隐式生成请求体。当某个值引用的 `$deps.*` 在运行时为 `null` 或 `undefined` 时，该参数从最终 query 中整体省略（与 `select.optionsSource.params` 的空值规则保持一致，详见 [04-datasource-contract.md §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams-中-deps-的空值省略规则)）。
+- **传输位置与序列化规则：** `data.params` 对所有 method 均编码为 URL query，不隐式生成请求体。key 必须非空，最终值只允许 string / finite number / boolean / null；对象和数组静态拒绝。`null` / `undefined` 删除最终 query 中的同名 key。已有 query、排序、UTF-8 与 RFC 3986 编码统一遵循 [04-datasource-contract.md §3.1.1](./04-datasource-contract.md#311-query-字节级序列化) / [ADR-0010](./decisions/0010-query-serialization.md)。
 - **作用域边界：** `$deps.*` 在 `data.params` 中的引用仅在表单上下文有效，且必须是完整单个 `$deps.*` 值。非表单上下文（独立 `table`/`chart`）的 `data.params` 中出现 `$deps.*` 时，静态校验直接拒绝，与 `visibleWhen` 的非表单约束一致（详见 [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界)）。
 
 ### 2.4 加载状态管理
@@ -453,7 +453,7 @@ Renderer 在加载页面配置时，应覆盖 [02-reaction-expression.md §10](.
 - `scope: row` **仅**允许挂载在表格 `columns[]` / `actions[]` 的表达式上；普通表单字段 Node 声明 `scope: row` 时静态拒绝（`ROW_SCOPE_MOUNT`）。
 - 独立表格（非 `form.children` 上下文）的列/操作在 `scope: form` 下不能使用 `$deps.*`。
 - 表格 `columns[]` / `actions[]` 上的 `reactions`（无论 `scope: form` 或 `scope: row`）其 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`，禁止 `required` / `value`。
-- `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许字面量或完整单个 `$deps.*` 值替换（禁止模板拼接）；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.*`。
+- `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许非空 key 和 string / finite number / boolean / null 标量，或完整单个 `$deps.*` 值替换（禁止对象、数组和模板拼接）；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.*`。
 - `contains` 的右操作数仅允许字符串、数字、布尔或 `null` 字面量，拒绝变量与分组表达式（见 [02-reaction-expression.md §10.8](./02-reaction-expression.md#108-contains-右操作数字面量约束)）。
 
 其中，`table.props.columns[]` / `actions[]` 内嵌的 `visibleWhen` / `reactions` / `permissions` 对象属于组件 DSL 内的协议结构，CI 的 L2 校验应先保证其结构合法；Renderer 的 L3a 校验再检查表达式语法、变量声明与作用域隔离。无法通过的配置直接拒绝渲染，并在开发环境给出明确的校验错误信息。
@@ -503,14 +503,14 @@ Action 失败时先执行协议级 HTTP 状态处理，再执行不冲突的 `on
 2. 确认 `actionRef` 指向顶层 `actions` 中的 `type: request` action；
 3. 按当前行上下文对 `requestMapping.path` / `query` / `body` 做简单取值替换；
 4. 用 `requestMapping.path` 替换 `action.url` 中的 `{name}` 占位符，并对 path segment 做 URL 编码；
-5. 将 `requestMapping.query` 编码为 query string；
+5. 将 `requestMapping.query` 交给 ADR-0010 公共 query 序列化器；
 6. 对非 `GET` / `DELETE` 请求，将 `requestMapping.body` 序列化为 JSON 请求体；
 7. 通过统一请求通道发送请求，继续应用 `baseURL`、`requestInterceptor`、`requestTimeout` 和 `onAuthFailure`；
 8. 根据 `onSuccess` / `onError` 执行结果行为。
 
 点击行内按钮时，Renderer 的交互时序必须是：`visibleWhen` 判定 → `permissions` 判定 → `disabled` 状态判定 → 展示 `confirm`（若声明）→ 构造请求 → 发送请求。不可见、无权限或禁用状态下不得展示确认框，也不得构造请求。
 
-`requestMapping.path` / `query` / `body` 都是扁平 key-value map。映射值只允许字面量或单个 `$row.*` 点路径引用，不调用表达式引擎，也不读取 `$deps.*`、`$context.*` 或 `$parentRow.*`，不支持嵌套对象或数组值。路径占位符取值为 `null` / `undefined` 时，Renderer 应拒绝执行该动作并进入动作级错误处理；query/body 字段取值失败时，开发环境应输出包含 action id、RowAction key 和字段路径的错误信息。
+`requestMapping.path` / `query` / `body` 都是非空 key 的扁平 key-value map。映射值只允许 string / finite number / boolean / null 或单个 `$row.*` 点路径引用，不调用表达式引擎，也不读取 `$deps.*`、`$context.*` 或 `$parentRow.*`，不支持嵌套对象或数组值。路径占位符取值为 `null` / `undefined` 时，Renderer 应拒绝执行该动作并进入动作级错误处理；query 中的 `null` / `undefined` 按 ADR-0010 删除同名 key；body 字段取值失败时，开发环境应输出包含 action id、RowAction key 和字段路径的错误信息。
 
 `onSuccess.behavior: reload` 在行级动作中表示重新加载触发该动作的表格数据；若该表格使用 `data.source: api`，Renderer 按当前分页、排序、筛选参数重新请求。单个行级动作失败不应影响页面其他节点。
 

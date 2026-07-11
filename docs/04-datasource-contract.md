@@ -61,12 +61,12 @@ data:
 
 `data.params`、`select.optionsSource.params` 和页面级 `datasources.*.params` 中的参数值仅允许：
 
-1. **不含 `$` 的普通字面量**（string / number / boolean / null，或递归对象/数组中的同类字面量）；
+1. **不含 `$` 的标量字面量**（string / finite number / boolean / null；对象、数组、`NaN`、`Infinity` 静态拒绝）；
 2. **完整单个 `$deps.<path>` 值替换**——整段字符串必须精确匹配合法 `$deps.*` 引用（如 `$deps.ownerId`、`$deps.customer.id`）。
 
 **不支持**字符串模板拼接（如 `prefix-$deps.ownerId`、`$deps.ownerId-suffix`）、转义、表达式求值或其他变量命名空间。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 时，静态校验以 `DATA_PARAMS_VARIABLE` 拒绝。
 
-引用的 `$deps.*` 值在运行时为 `null` 或 `undefined` 时，该参数**从最终请求的 query 中整体省略**（不传空字符串、不传字面量 `"null"`）。目的是让后端能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
+引用的 `$deps.*` 值在运行时为 `null` 或 `undefined` 时，该参数作为 tombstone **从最终请求的 query 中删除**（包括删除已有 URL 或更早参数来源中的同名 key；不传空字符串、不传字面量 `"null"`）。目的是让后端能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
 
 ```yaml
 data:
@@ -80,6 +80,12 @@ data:
 ```
 
 > 此规则对 `data.params`（`data.source: api` 通用场景）和 `select.optionsSource.params`（见 §9）统一适用。
+
+### 3.1.1 Query 字节级序列化
+
+DataRef、`select.optionsSource.params` 和行级 `requestMapping.query` 必须复用 [ADR-0010](./decisions/0010-query-serialization.md) 的公共算法：已有 URL query 先解析，后来源覆盖前来源，最终 key 按 Unicode code point 升序；key/value 以 UTF-8 和 RFC 3986 编码，空格固定为 `%20`，不使用 `+`，最终不产生重复 key。`null` / `undefined` 删除同名 key，空字符串保留为 `key=`，fragment 原样附回。
+
+框架无关字节级向量见 [`../conformance/fixtures/query-serialization/cases.json`](../conformance/fixtures/query-serialization/cases.json)。具体搜索、分页、排序来源优先级由 G3/ADR-0011 定义，不在本节提前推断。
 
 ### 3.2 `data.params` / `optionsSource.params` / `datasources.*.params` 中 `$deps.*` 的作用域边界
 
@@ -288,9 +294,9 @@ data:
 
 配合 `select` 组件的 `props.optionsSource`（见 [03-component-registry.md](./03-component-registry.md)）使用。
 
-**请求：** `GET <optionsSource.url>?<params>`。`params` 中的值仅允许不含 `$` 的字面量，或**完整单个** `$deps.<path>` 整值替换（禁止模板拼接；规则与 §3.1 相同，仅在表单上下文有效）。
+**请求：** `GET <optionsSource.url>?<params>`。`params` key 必须非空，值仅允许 string / finite number / boolean / null 标量，或**完整单个** `$deps.<path>` 整值替换（禁止对象、数组和模板拼接；规则与 §3.1 相同，仅在表单上下文有效）。最终 URL 使用 §3.1.1 的公共序列化算法。
 
-**空值省略规则（关键约定）：** 当 `params` 中某个值引用的 `$deps.*` 在运行时为 `null` 或 `undefined` 时，该参数**从最终请求的 query 中整体省略**，不传空字符串、不传字面量 `"null"`。这与 `table`/`chart` 等其他场景下 `$deps` 参数的处理方式保持统一，目的是让后端能明确区分"参数未提供"与"参数值为空字符串"两种不同语义。
+**空值删除规则（关键约定）：** 当 `params` 中某个值引用的 `$deps.*` 在运行时为 `null` 或 `undefined` 时，该参数从最终 query 中删除，包括删除 URL 里已有的同名 key；不传空字符串、不传字面量 `"null"`。这与 `table`/`chart` 等其他场景下 `$deps` 参数的处理方式保持统一。
 
 ```yaml
 # 前端字段 provinceId 尚未选择（值为 null）时：

@@ -16,6 +16,7 @@
 - CI 校验根包、MCP 包与两个 lockfile 的版本一致性；CD 仅从匹配包版本的 `v<version>` Git tag 发布，预发布版本不更新 minor 或 `latest` 镜像别名。
 
 **修复：**
+- 审计 `0055 / V219`：新增 ADR-0010，四类 query 来源收紧为非空 key 的标量-only；统一已有 query、重复 key、空值 tombstone、Unicode key 排序、UTF-8/RFC 3986 编码与 fragment 规则；JavaScript 和 Python reference 直接消费同一 16 个字节级 fixtures，并接入 CI/CD。
 - 审计 `0055 / V224`：移除 `mcp/src` / `mcp/tests` 中会遮蔽 TypeScript 源码并导致 Vitest 加载 CommonJS 的旧同目录 `.js` 编译产物，`.gitignore` 阻止其再次生成到源码树；标准构建产物仍只写入 `mcp/dist/`。
 - 审计 `0055 / V218`：新增 ADR-0009，Renderer 版本协商改为精确 MAJOR.MINOR fail-closed，删除 `minCompatibleVersion` 与最近版本 fallback；缺失版本仅允许显式 legacy adapter；新增 14 个框架无关版本/capability fixtures、JavaScript reference 和 CI/CD runner。
 - 审计 `0055 / V222`：新增六个官方场景公共 YAML fence 提取器与 `npm run validate:scenarios`，使根 L0-L4 可独立校验 Markdown 场景；MCP tests 复用同一提取入口；CI 使用独立协议 job，CD 在镜像发布前执行同一门禁。
