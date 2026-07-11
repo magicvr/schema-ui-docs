@@ -43,6 +43,10 @@ jobs:
       - name: Install MCP dependencies
         run: npm ci --prefix mcp
 
+      - name: Check release metadata and Git tag
+        id: release-check
+        run: npm run release:check:tag
+
       - name: Validate official scenarios
         run: npm run validate:scenarios
 
@@ -106,40 +110,21 @@ jobs:
       - name: Test Python upload conformance
         run: npm run test:conformance:uploads:python
 
-      - name: Read and verify release version
+      - name: Compute Docker image tags
         id: mcp-version
+        env:
+          RELEASE_VERSION: ${{ steps.release-check.outputs.version }}
         shell: bash
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
-          const root = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          const rootLock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
-          const mcp = JSON.parse(fs.readFileSync('mcp/package.json', 'utf8'));
-          const mcpLock = JSON.parse(fs.readFileSync('mcp/package-lock.json', 'utf8'));
-          const versions = [
-            root.version,
-            rootLock.version,
-            rootLock.packages[''].version,
-            mcp.version,
-            mcpLock.version,
-            mcpLock.packages[''].version,
-            mcpLock.packages['..'].version,
-          ];
-          if (versions.some(version => version !== root.version)) {
-            throw new Error(`Package version mismatch: ${versions.join(', ')}`);
-          }
-
-          const match = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(mcp.version);
-          if (!match) throw new Error(`Unsupported release version: ${mcp.version}`);
-
-          const gitRef = process.env.GITHUB_REF;
-          if (gitRef !== `refs/tags/v${mcp.version}`) {
-            throw new Error(`Release must run from Git tag v${mcp.version}; received ${gitRef}`);
-          }
+          const version = process.env.RELEASE_VERSION;
+          const match = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(version);
+          if (!match) throw new Error(`Unsupported release version: ${version}`);
 
           const repository = process.env.DOCKERHUB_REPOSITORY;
           const tags = [
-            `${repository}:${mcp.version}`,
+            `${repository}:${version}`,
             `${repository}:${process.env.GITHUB_SHA}`,
           ];
           if (!match[4]) {
@@ -147,7 +132,7 @@ jobs:
           }
 
           const output = process.env.GITHUB_OUTPUT;
-          fs.appendFileSync(output, `version=${mcp.version}\n`);
+          fs.appendFileSync(output, `version=${version}\n`);
           fs.appendFileSync(output, `tags<<EOF\n${tags.join('\n')}\nEOF\n`);
           NODE
 
@@ -183,6 +168,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Build and push Docker image
+        id: push-image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -191,6 +177,41 @@ jobs:
           tags: ${{ steps.mcp-version.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Pull and smoke remote immutable tags
+        env:
+          RELEASE_VERSION: ${{ steps.release-check.outputs.version }}
+          FIXTURE_DIGEST: ${{ steps.release-check.outputs.fixture-digest }}
+          IMAGE_DIGEST: ${{ steps.push-image.outputs.digest }}
+        shell: bash
+        run: |
+          VERSION_IMAGE="${DOCKERHUB_REPOSITORY}:${RELEASE_VERSION}"
+          SHA_IMAGE="${DOCKERHUB_REPOSITORY}:${GITHUB_SHA}"
+          docker pull "${VERSION_IMAGE}"
+          npm --prefix mcp run smoke:docker -- "${VERSION_IMAGE}"
+          docker pull "${SHA_IMAGE}"
+          npm --prefix mcp run smoke:docker -- "${SHA_IMAGE}"
+
+          VERSION_DIGEST=$(docker image inspect "${VERSION_IMAGE}" --format '{{index .RepoDigests 0}}')
+          SHA_DIGEST=$(docker image inspect "${SHA_IMAGE}" --format '{{index .RepoDigests 0}}')
+          if [ "${VERSION_DIGEST}" != "${SHA_DIGEST}" ]; then
+            echo "Remote version and SHA tags resolve to different digests."
+            exit 1
+          fi
+          REMOTE_DIGEST="${VERSION_DIGEST#*@}"
+          if [ "${REMOTE_DIGEST}" != "${IMAGE_DIGEST}" ]; then
+            echo "Remote tags do not resolve to the pushed build digest."
+            exit 1
+          fi
+
+          {
+            echo "## Release evidence"
+            echo "- Version: \`${RELEASE_VERSION}\`"
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Fixture digest: \`${FIXTURE_DIGEST}\`"
+            echo "- Build digest: \`${IMAGE_DIGEST}\`"
+            echo "- Remote image digest: \`${VERSION_DIGEST}\`"
+          } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Prune old SHA tags (keep latest 10)
         env:

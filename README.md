@@ -78,6 +78,7 @@ npm install --prefix mcp
 npm run validate -- "<page-file-or-glob>"
 npm run validate:scenarios
 npm run validate:conformance
+npm run release:check
 npm run test:conformance:version
 npm run test:conformance:version:python
 npm run test:conformance:query
@@ -119,6 +120,8 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.3.0-rc.1
 ```
 
 更多 MCP 设计与边界说明见 [`docs/mcp/README.md`](./docs/mcp/README.md) 与 [`docs/decisions/0007-mcp-protocol-reader-validator.md`](./docs/decisions/0007-mcp-protocol-reader-validator.md)。
+
+升级到 `1.0` 前请按 [`docs/migrations/0.2-0.3-to-1.0.md`](./docs/migrations/0.2-0.3-to-1.0.md) 迁移页面、Renderer 与后端接口；正式 tag 流程使用 `npm run release:check:tag`。
 
 ## 目录结构
 
