@@ -5,6 +5,18 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
+## v1.0.0 — 2026-07-11（首个稳定协议）
+
+> **发布说明：** 页面协议、Renderer 支持版本、根协议包与 MCP 包统一切换到 `1.0` / `1.0.0`。正式 Git tag 和远端镜像证据在本提交通过 PR 门禁并合并到 `main` 后生成。
+
+**稳定版：**
+- G1-G4 发布目标全部关闭：严格版本协商、确定性 query 序列化、保留参数优先级及跨实现执行一致性均具备机器可执行门禁。
+- 8 类共 65 个 `fixtureVersion: "1.0"` fixtures 由 JavaScript 与 Python reference 直接消费并逐字段一致；React 与 Go 生产消费者直接消费固定协议提交的同一 fixtures，远端 CI 全绿。
+- 六个官方场景、核心规范示例和 Renderer `supportedVersions` 统一使用 `meta.protocolVersion: "1.0"`。
+- 根协议包、MCP 包、两个 lockfile、本地 Docker 构建与 smoke 默认 tag 统一为 `1.0.0`。
+- 发布 `0.2` / `0.3` 到 `1.0` 的迁移说明；标准 Renderer 对旧版本 fail-closed，旧页面只能通过调用方显式启用的 legacy adapter 进入。
+- CD 仅接受匹配的 `v1.0.0` tag，并发布 `1.0.0`、`1.0`、`latest` 与 Git SHA 镜像 tag；发布后从 Docker Hub 重新拉取版本及 SHA 镜像执行 smoke 并核对 digest。
+
 ## v0.3.0-rc.1 — 2026-07-11（前后端 MVP 候选契约）
 
 > **版本说明：** 本候选版本吸收此前尚未发布的 `0.2.x` 契约收敛修订，将页面 `meta.protocolVersion` 提升为 `"0.3"`，并冻结前后端 MVP 的组件与业务能力范围。到 `v1.0.0` 前只处理互操作歧义、契约错误、机器校验和一致性测试缺口；发布门禁见 [`09-v1-release-goals.md`](./09-v1-release-goals.md)。

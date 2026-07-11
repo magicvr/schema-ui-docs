@@ -248,7 +248,7 @@ permissions:
 meta:
   pageId: hello_page
   title: 示例页面
-  protocolVersion: "0.3"
+  protocolVersion: "1.0"
 
 body:
   type: section

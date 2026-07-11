@@ -1,7 +1,7 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-const image = process.argv[2] ?? 'schema-ui-mcp:0.3.0-rc.1';
+const image = process.argv[2] ?? 'schema-ui-mcp:1.0.0';
 const dockerCommand = process.env.DOCKER_COMMAND ?? 'docker';
 
 const client = new Client({ name: 'schema-ui-mcp-docker-smoke', version: '0.0.0' });

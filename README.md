@@ -10,11 +10,11 @@
 - `conformance/`：框架无关的一致性 fixtures、JavaScript 参考算法与 runner。
 - `mcp/`：Schema-UI MCP stdio 服务实现，提供协议只读查询与内容校验工具。
 
-当前工作区候选版本为 `0.3.0-rc.1`，页面配置使用 `meta.protocolVersion: "0.3"`。该 RC 冻结前后端 MVP 实现范围；`v1.0.0` 前的发布目标与门禁见 [`docs/09-v1-release-goals.md`](./docs/09-v1-release-goals.md)。
+当前版本为 `1.0.0`，页面配置使用 `meta.protocolVersion: "1.0"`。正式发布前的目标与门禁见 [`docs/09-v1-release-goals.md`](./docs/09-v1-release-goals.md)。
 
 ## MCP 服务
 
-MCP 服务当前**已发布稳定镜像**为 `0.2.8`；工作区 MCP 包版本为 `0.3.0-rc.1`，尚未声明对应 Docker Hub 镜像已发布。运行时要求 Node.js `>=18`。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
+MCP 服务当前**已发布稳定镜像**仍为 `0.2.8`；工作区 MCP 包已切换到 `1.0.0`，只有匹配的 `v1.0.0` tag 完成 CD 后才声明新镜像已发布。运行时要求 Node.js `>=18`。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
 
 ### 使用 Docker Hub 镜像
 
@@ -27,7 +27,7 @@ CD 工作流会将 MCP 镜像推送到 Docker Hub：
 <dockerhub-namespace>/schema-ui-mcp:<commit-sha>
 ```
 
-CD 仅在推送与包版本一致的 Git tag（如 `v0.3.0-rc.1`）时发布，手工触发也必须选择该 tag。预发布版本只推送完整版本 tag 和 commit SHA，不更新 minor 或 `latest`；稳定版本才更新 minor 和 `latest` 别名。
+CD 仅在推送与包版本一致的 Git tag（当前为 `v1.0.0`）时发布，手工触发也必须选择该 tag。预发布版本只推送完整版本 tag 和 commit SHA，不更新 minor 或 `latest`；稳定版本才更新 minor 和 `latest` 别名。
 
 团队接入建议固定使用 PATCH tag，例如 `0.2.8`，避免无意跟随 `latest` 升级。
 
@@ -114,14 +114,14 @@ npm --prefix mcp start
 本地 Docker 构建与 smoke test：
 
 ```bash
-docker build -f mcp/Dockerfile -t schema-ui-mcp:0.3.0-rc.1 .
-docker run --rm -i schema-ui-mcp:0.3.0-rc.1
-npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.3.0-rc.1
+docker build -f mcp/Dockerfile -t schema-ui-mcp:1.0.0 .
+docker run --rm -i schema-ui-mcp:1.0.0
+npm --prefix mcp run smoke:docker -- schema-ui-mcp:1.0.0
 ```
 
 更多 MCP 设计与边界说明见 [`docs/mcp/README.md`](./docs/mcp/README.md) 与 [`docs/decisions/0007-mcp-protocol-reader-validator.md`](./docs/decisions/0007-mcp-protocol-reader-validator.md)。
 
-升级到 `1.0` 前请按 [`docs/migrations/0.2-0.3-to-1.0.md`](./docs/migrations/0.2-0.3-to-1.0.md) 迁移页面、Renderer 与后端接口；正式 tag 流程使用 `npm run release:check:tag`。
+从 `0.2` / `0.3` 升级时请按 [`docs/migrations/0.2-0.3-to-1.0.md`](./docs/migrations/0.2-0.3-to-1.0.md) 迁移页面、Renderer 与后端接口；正式 tag 流程使用 `npm run release:check:tag`。
 
 ## 目录结构
 

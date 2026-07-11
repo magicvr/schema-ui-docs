@@ -72,7 +72,7 @@ onError: OutcomeBehavior     # 【可选】
 meta:
   pageId: order_approval
   title: 订单审批
-  protocolVersion: "0.3"
+  protocolVersion: "1.0"
   requiredCapabilities:
     - actions.row.request
 
