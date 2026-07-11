@@ -11,6 +11,7 @@
     "category": {
       "type": "string",
       "enum": [
+        "version-negotiation",
         "request-construction",
         "response-mapping",
         "search-table",

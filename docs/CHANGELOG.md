@@ -16,7 +16,7 @@
 - CI 校验根包、MCP 包与两个 lockfile 的版本一致性；CD 仅从匹配包版本的 `v<version>` Git tag 发布，预发布版本不更新 minor 或 `latest` 镜像别名。
 
 **修复：**
-- 审计 `0055 / V221` 批次 1-4：建立 `fixtureVersion: "1.0"` 的统一 suite Schema 与自动校验 runner；新增请求构造 7 个、responseMapping 8 个、搜索状态 5 个、reaction 调度 5 个、Action/错误时序 11 个版本化 fixtures。Action suite 覆盖成功 OutcomeBehavior、`400 errors`、`401/403` hook、`404`、`5xx`、超时、网络异常和主动中断。JavaScript 与 Python reference 直接消费相同输入并逐字段通过，CI/CD 运行 Schema 和十个双端 runner。生产 Renderer/后端消费者及其余 G4 类别仍待接入，V221 未关闭。
+- 审计 `0055 / V221` 批次 1-6：建立 `fixtureVersion: "1.0"` 的统一 suite Schema 与自动校验 runner；完成版本协商 14 个、请求构造 7 个、responseMapping 8 个、搜索状态 5 个、reaction 调度 5 个、Action/错误时序 11 个、上传执行 9 个、六场景执行 6 个版本化 fixtures。JavaScript 与 Python reference 直接消费相同输入并逐字段通过，CI/CD 运行全部双端 runner。仓库内 G4 fixture 类别已覆盖；生产 Renderer/后端消费者接入仍待负责人确认，V221 未关闭。
 - 审计 `0055 / V220`：新增 ADR-0011，将 `page` / `pageSize` / `sort` 定为 Renderer 保留参数；L2 拒绝静态 params 与搜索字段冲突；固定已有 query、静态 params、搜索字段、Renderer 状态的覆盖顺序，以及提交、清空、翻页、排序的页码转换；新增 5 个可执行状态 fixtures 并接入 CI/CD。
 - 审计 `0055 / V219`：新增 ADR-0010，四类 query 来源收紧为非空 key 的标量-only；统一已有 query、重复 key、空值 tombstone、Unicode key 排序、UTF-8/RFC 3986 编码与 fragment 规则；JavaScript 和 Python reference 直接消费同一 16 个字节级 fixtures，并接入 CI/CD。
 - 审计 `0055 / V224`：移除 `mcp/src` / `mcp/tests` 中会遮蔽 TypeScript 源码并导致 Vitest 加载 CommonJS 的旧同目录 `.js` 编译产物，`.gitignore` 阻止其再次生成到源码树；标准构建产物仍只写入 `mcp/dist/`。

@@ -45,6 +45,9 @@ jobs:
       - name: Test version negotiation conformance
         run: npm run test:conformance:version
 
+      - name: Test Python version negotiation conformance
+        run: npm run test:conformance:version:python
+
       - name: Test query serialization conformance
         run: npm run test:conformance:query
 
@@ -83,6 +86,18 @@ jobs:
 
       - name: Test Python search table conformance
         run: npm run test:conformance:search-table:python
+
+      - name: Test official scenario execution conformance
+        run: npm run test:conformance:scenarios
+
+      - name: Test Python official scenario execution conformance
+        run: npm run test:conformance:scenarios:python
+
+      - name: Test upload conformance
+        run: npm run test:conformance:uploads
+
+      - name: Test Python upload conformance
+        run: npm run test:conformance:uploads:python
 
   mcp:
     name: Build, test, and smoke MCP

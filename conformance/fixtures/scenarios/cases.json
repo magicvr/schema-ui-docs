@@ -1,0 +1,257 @@
+{
+  "fixtureVersion": "1.0",
+  "category": "scenarios",
+  "cases": [
+    {
+      "id": "official-data-table",
+      "protocolVersion": "0.3",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/data-table.md",
+        "scenarioMeta": { "pageId": "order_list", "protocolVersion": "0.3" },
+        "steps": [
+          {
+            "kind": "searchTable",
+            "input": {
+              "baseUrl": "/api/orders",
+              "staticParams": {},
+              "state": { "filters": {}, "page": 1, "pageSize": 20, "sort": null },
+              "event": null
+            }
+          },
+          {
+            "kind": "responseMapping",
+            "input": {
+              "component": "table",
+              "paginationMode": "server",
+              "response": { "list": [{ "orderId": "1001", "canRefund": true }], "total": 128 }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "order_list",
+        "protocolVersion": "0.3",
+        "steps": [
+          { "state": { "filters": {}, "page": 1, "pageSize": 20, "sort": null }, "url": "/api/orders?page=1&pageSize=20" },
+          { "ok": true, "data": { "list": [{ "orderId": "1001", "canRefund": true }], "total": 128 } }
+        ]
+      }
+    },
+    {
+      "id": "official-grid-dashboard",
+      "protocolVersion": "0.3",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/grid-dashboard.md",
+        "scenarioMeta": { "pageId": "dashboard_sales", "protocolVersion": "0.3" },
+        "steps": [
+          { "kind": "request", "input": { "kind": "dataRef", "dataRef": { "source": "api", "method": "GET", "url": "/api/stats/order-count" } } },
+          { "kind": "request", "input": { "kind": "dataRef", "dataRef": { "source": "api", "url": "/api/stats/gmv" } } },
+          { "kind": "request", "input": { "kind": "dataRef", "dataRef": { "source": "api", "url": "/api/stats/trend", "params": { "range": "7d" } } } }
+        ]
+      },
+      "expected": {
+        "pageId": "dashboard_sales",
+        "protocolVersion": "0.3",
+        "steps": [
+          { "ok": true, "request": { "method": "GET", "url": "/api/stats/order-count", "body": null } },
+          { "ok": true, "request": { "method": "GET", "url": "/api/stats/gmv", "body": null } },
+          { "ok": true, "request": { "method": "GET", "url": "/api/stats/trend?range=7d", "body": null } }
+        ]
+      }
+    },
+    {
+      "id": "official-form-with-reactions",
+      "protocolVersion": "0.3",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/form-with-reactions.md",
+        "scenarioMeta": { "pageId": "order_create", "protocolVersion": "0.3" },
+        "steps": [
+          {
+            "kind": "request",
+            "input": {
+              "kind": "formAction",
+              "action": { "method": "POST", "url": "/api/orders" },
+              "formValues": { "customerName": "张三", "orderType": "wholesale", "wholesaleDiscount": 0.85 }
+            }
+          },
+          {
+            "kind": "action",
+            "input": {
+              "transport": { "type": "success", "status": 200 },
+              "onSuccess": { "behavior": "toast", "message": "订单创建成功" }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "order_create",
+        "protocolVersion": "0.3",
+        "steps": [
+          {
+            "ok": true,
+            "request": {
+              "method": "POST",
+              "url": "/api/orders",
+              "body": { "customerName": "张三", "orderType": "wholesale", "wholesaleDiscount": 0.85 }
+            }
+          },
+          {
+            "ok": true,
+            "events": [
+              { "type": "requestSucceeded", "status": 200 },
+              { "type": "toast", "message": "订单创建成功" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "official-row-backend-actions",
+      "protocolVersion": "0.3",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/row-backend-actions.md",
+        "scenarioMeta": { "pageId": "order_operations", "protocolVersion": "0.3" },
+        "steps": [
+          {
+            "kind": "request",
+            "input": {
+              "kind": "rowAction",
+              "action": { "method": "POST", "url": "/api/orders/{orderId}/refund" },
+              "requestMapping": {
+                "path": { "orderId": "$row.orderId" },
+                "body": { "amount": "$row.refundableAmount", "source": "order_list" }
+              },
+              "row": { "orderId": "1001", "refundableAmount": 199.5 }
+            }
+          },
+          {
+            "kind": "action",
+            "input": {
+              "transport": { "type": "success", "status": 200 },
+              "onSuccess": { "behavior": "reload" },
+              "context": { "tableId": "order_table" }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "order_operations",
+        "protocolVersion": "0.3",
+        "steps": [
+          {
+            "ok": true,
+            "request": {
+              "method": "POST",
+              "url": "/api/orders/1001/refund",
+              "body": { "amount": 199.5, "source": "order_list" }
+            }
+          },
+          {
+            "ok": true,
+            "events": [
+              { "type": "requestSucceeded", "status": 200 },
+              { "type": "reloadTable", "tableId": "order_table" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "official-search-form-table",
+      "protocolVersion": "0.3",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/search-form-table.md",
+        "scenarioMeta": { "pageId": "order_search", "protocolVersion": "0.3" },
+        "steps": [
+          {
+            "kind": "searchTable",
+            "input": {
+              "baseUrl": "/api/orders",
+              "staticParams": {},
+              "state": { "filters": {}, "page": 4, "pageSize": 20, "sort": null },
+              "event": {
+                "type": "submitSearch",
+                "filters": { "keyword": "1001", "status": "PAID", "dateFrom": "2026-07-01", "dateTo": "2026-07-11" }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "order_search",
+        "protocolVersion": "0.3",
+        "steps": [
+          {
+            "state": {
+              "filters": { "keyword": "1001", "status": "PAID", "dateFrom": "2026-07-01", "dateTo": "2026-07-11" },
+              "page": 1,
+              "pageSize": 20,
+              "sort": null
+            },
+            "url": "/api/orders?dateFrom=2026-07-01&dateTo=2026-07-11&keyword=1001&page=1&pageSize=20&status=PAID"
+          }
+        ]
+      }
+    },
+    {
+      "id": "official-form-with-upload",
+      "protocolVersion": "0.3",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/form-with-upload.md",
+        "scenarioMeta": { "pageId": "contract_upload", "protocolVersion": "0.3" },
+        "steps": [
+          {
+            "kind": "upload",
+            "input": {
+              "action": { "url": "/api/files/upload", "method": "POST", "fieldName": "file", "multiple": true },
+              "files": [
+                { "name": "contract.pdf", "type": "application/pdf", "size": 100, "contentId": "contract" },
+                { "name": "appendix.docx", "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "size": 120, "contentId": "appendix" }
+              ],
+              "results": [
+                { "type": "success", "response": { "url": "https://cdn/contract.pdf" } },
+                { "type": "success", "response": { "id": "appendix-id" } }
+              ]
+            }
+          },
+          {
+            "kind": "request",
+            "input": {
+              "kind": "formAction",
+              "action": { "method": "POST", "url": "/api/contracts" },
+              "formValues": { "title": "采购合同", "attachments": ["https://cdn/contract.pdf", "appendix-id"] }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "contract_upload",
+        "protocolVersion": "0.3",
+        "steps": [
+          {
+            "ok": true,
+            "requests": [
+              { "method": "POST", "url": "/api/files/upload", "part": { "name": "file", "fileName": "contract.pdf", "contentId": "contract" } },
+              { "method": "POST", "url": "/api/files/upload", "part": { "name": "file", "fileName": "appendix.docx", "contentId": "appendix" } }
+            ],
+            "fieldValue": ["https://cdn/contract.pdf", "appendix-id"]
+          },
+          {
+            "ok": true,
+            "request": {
+              "method": "POST",
+              "url": "/api/contracts",
+              "body": { "title": "采购合同", "attachments": ["https://cdn/contract.pdf", "appendix-id"] }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

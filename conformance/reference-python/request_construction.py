@@ -99,9 +99,33 @@ def build_row_action_request(input_value):
     }
 
 
+def build_form_action_request(input_value):
+    action = input_value["action"]
+    if action.get("bodyMapping") is not None:
+        body = {
+            target: input_value["formValues"].get(source)
+            for source, target in action["bodyMapping"].items()
+        }
+    else:
+        body = dict(input_value["formValues"])
+    serialized = serialize_query(action["url"], [])
+    if not serialized["ok"]:
+        return serialized
+    return {
+        "ok": True,
+        "request": {
+            "method": action["method"],
+            "url": serialized["url"],
+            "body": body,
+        },
+    }
+
+
 def build_request(input_value):
     if input_value.get("kind") == "dataRef":
         return build_data_ref_request(input_value["dataRef"])
     if input_value.get("kind") == "rowAction":
         return build_row_action_request(input_value)
+    if input_value.get("kind") == "formAction":
+        return build_form_action_request(input_value)
     return failure("INVALID_REQUEST_KIND", "kind")

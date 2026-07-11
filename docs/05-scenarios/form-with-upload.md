@@ -70,8 +70,8 @@ body:
 
 ## 流程说明
 
-1. 用户选择文件后，Renderer 按 `uploadContract` 向 `/api/files/upload` 发起 `multipart/form-data` 请求。
-2. 上传成功后，`attachments` 字段值设为后端返回的文件 URL 或 ID（多文件为数组）。
+1. 用户选择文件后，Renderer 按 `uploadContract` 和选择顺序为每个文件向 `/api/files/upload` 发起一个 `multipart/form-data` 请求。
+2. 全部上传成功后，`attachments` 字段值一次性设为响应 `url`（优先）或 `id` 组成的数组；任一失败时不提交部分数组。
 3. 用户提交表单时，`submitContract` 将 `title` 与 `attachments` 作为 JSON 请求体发送，不再重新上传文件。
 
 ## 对照：`props.action` 直接 URL 模式
