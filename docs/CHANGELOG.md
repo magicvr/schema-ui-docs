@@ -76,7 +76,7 @@
 - 审计：`docs/audit/archived/0044-2026-07-11-*`、`docs/audit/archived/0045-2026-07-11-*`、`docs/audit/archived/0046-2026-07-11-*`、`docs/audit/archived/0047-2026-07-11-*`、`docs/audit/archived/0048-2026-07-11-*`、`docs/audit/archived/0049-2026-07-11-*`、`docs/audit/archived/0050-2026-07-11-*`、`docs/audit/archived/0051-2026-07-11-*`
 - 审计：`docs/audit/archived/0052-2026-07-11-review.md`、`docs/audit/archived/0052-2026-07-11-checklist.md`
 - 审计：`docs/audit/archived/0053-2026-07-11-review.md`、`docs/audit/archived/0053-2026-07-11-checklist.md`
-- 审计：`docs/audit/0054-2026-07-11-review.md`、`docs/audit/0054-2026-07-11-checklist.md`
+- 审计：`docs/audit/archived/0054-2026-07-11-review.md`、`docs/audit/archived/0054-2026-07-11-checklist.md`
 
 ## v0.2.8 — 2026-07-10（引用完整性 & 继承 responseMapping 补丁）
 
