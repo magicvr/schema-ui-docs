@@ -12,6 +12,28 @@ permissions:
   contents: read
 
 jobs:
+  protocol:
+    name: Validate official scenarios
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install protocol dependencies
+        run: npm ci
+
+      - name: Validate official scenarios
+        run: npm run validate:scenarios
+
   mcp:
     name: Build, test, and smoke MCP
     runs-on: ubuntu-latest

@@ -38,6 +38,9 @@ jobs:
       - name: Install MCP dependencies
         run: npm ci --prefix mcp
 
+      - name: Validate official scenarios
+        run: npm run validate:scenarios
+
       - name: Read and verify release version
         id: mcp-version
         shell: bash
