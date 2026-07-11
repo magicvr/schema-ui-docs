@@ -77,10 +77,17 @@ npm install
 npm install --prefix mcp
 npm run validate -- "<page-file-or-glob>"
 npm run validate:scenarios
+npm run validate:conformance
 npm run test:conformance:version
 npm run test:conformance:query
 npm run test:conformance:query:python
 npm run test:conformance:table-state
+npm run test:conformance:request
+npm run test:conformance:request:python
+npm run test:conformance:response
+npm run test:conformance:response:python
+npm run test:conformance:search-table
+npm run test:conformance:search-table:python
 npm --prefix mcp run build
 npm --prefix mcp run test
 npm --prefix mcp run smoke:tools

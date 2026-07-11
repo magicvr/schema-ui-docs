@@ -46,6 +46,9 @@ jobs:
       - name: Validate official scenarios
         run: npm run validate:scenarios
 
+      - name: Validate versioned fixture suites
+        run: npm run validate:conformance
+
       - name: Test version negotiation conformance
         run: npm run test:conformance:version
 
@@ -57,6 +60,24 @@ jobs:
 
       - name: Test table query state conformance
         run: npm run test:conformance:table-state
+
+      - name: Test request construction conformance
+        run: npm run test:conformance:request
+
+      - name: Test Python request construction conformance
+        run: npm run test:conformance:request:python
+
+      - name: Test response mapping conformance
+        run: npm run test:conformance:response
+
+      - name: Test Python response mapping conformance
+        run: npm run test:conformance:response:python
+
+      - name: Test search table conformance
+        run: npm run test:conformance:search-table
+
+      - name: Test Python search table conformance
+        run: npm run test:conformance:search-table:python
 
       - name: Read and verify release version
         id: mcp-version
