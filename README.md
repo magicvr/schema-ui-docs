@@ -80,6 +80,7 @@ npm run validate:scenarios
 npm run test:conformance:version
 npm run test:conformance:query
 npm run test:conformance:query:python
+npm run test:conformance:table-state
 npm --prefix mcp run build
 npm --prefix mcp run test
 npm --prefix mcp run smoke:tools
@@ -153,7 +154,8 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:0.3.0-rc.1
     │   ├── 0007-mcp-protocol-reader-validator.md
     │   ├── 0008-row-action-backend-request.md
     │   ├── 0009-strict-version-negotiation.md
-    │   └── 0010-query-serialization.md
+    │   ├── 0010-query-serialization.md
+    │   └── 0011-reserved-query-params.md
     ├── audit/                      # 过程性审计与迭代记录（详见 audit/README.md）
     │   ├── README.md               # 活跃清单 + 编号规则
     │   └── archived/               # 已归档历史审计（详见 archived/README.md）

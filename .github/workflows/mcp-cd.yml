@@ -55,6 +55,9 @@ jobs:
       - name: Test Python query serialization conformance
         run: npm run test:conformance:query:python
 
+      - name: Test table query state conformance
+        run: npm run test:conformance:table-state
+
       - name: Read and verify release version
         id: mcp-version
         shell: bash

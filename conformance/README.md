@@ -8,6 +8,7 @@
 |---|---|---|---|
 | 严格版本与 capability 协商 | `fixtures/version-negotiation/cases.json` | `reference-js/version-negotiation.js` | `npm run test:conformance:version` |
 | Query 字节级序列化 | `fixtures/query-serialization/cases.json` | `reference-js/query-serialization.js`、`reference-python/query_serialization.py` | `npm run test:conformance:query`、`npm run test:conformance:query:python` |
+| 表格搜索/分页/排序状态 | `fixtures/table-query-state/cases.json` | `reference-js/table-query-state.js` | `npm run test:conformance:table-state` |
 
 ## 消费规则
 
@@ -26,4 +27,4 @@ conformance/
   runner/         # 本仓库可执行验证入口
 ```
 
-版本协商规则见 `docs/decisions/0009-strict-version-negotiation.md` 与 `docs/08-renderer-spec.md` §3；query 规则见 `docs/decisions/0010-query-serialization.md` 与 `docs/04-datasource-contract.md` §3.1.1。
+版本协商规则见 `docs/decisions/0009-strict-version-negotiation.md` 与 `docs/08-renderer-spec.md` §3；query 字节规则见 `docs/decisions/0010-query-serialization.md`，表格状态优先级见 `docs/decisions/0011-reserved-query-params.md`。

@@ -80,8 +80,10 @@ body:
 
 1. 用户填写筛选条件并提交搜索表单。
 2. Renderer 收集表单字段值为 query 参数（如 `keyword`、`status`、`dateFrom`、`dateTo`）。
-3. 参数合并到 `orderTable` 的 API 请求，触发重新加载当前页数据。
+3. 参数按已有 URL query < 静态 params < 搜索字段 < Renderer 状态合并到 `orderTable` 的 API 请求；提交或清空筛选将 `page` 重置为 `1`。
 4. `mode: search` 不经过顶层 `actions`，无需声明 `submitAction`。
+
+`page`、`pageSize`、`sort` 是 Renderer 保留参数，搜索字段不得使用这些名称。翻页保留当前筛选和排序；排序变化保留筛选并将页码重置为 `1`。完整规则见 [ADR-0011](../decisions/0011-reserved-query-params.md)。
 
 ## 对应后端接口
 

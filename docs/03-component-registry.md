@@ -281,7 +281,7 @@ body:
             format: tag
 ```
 
-> **搜索模式下数据流：** 搜索表单字段值 → Renderer 收集为 query 参数 → 附加到 `targetTable` 的有效 API 数据源 → 触发该表格重新请求。有效数据源必须是目标 table 的内联 `data.source: api`，或 `data.source: ref` 最终指向的 API datasource；无 `data`、静态数据或静态引用由 L2 拒绝。表格原有的 `data.params` 与搜索表单参数自动合并，搜索参数优先级更高。`mode: search` 下的 `dateRangePicker` 以 `startField`/`endField` 作为两个独立参数传递，参数名分别使用 `startField` 和 `endField` 的值。其他字段类组件（`input`/`select`/`datePicker` 等）以各自的 `field` 值作为参数名传递。
+> **搜索模式下数据流：** 搜索表单字段值 → Renderer 收集为 query 参数 → 附加到 `targetTable` 的有效 API 数据源 → 将 `page` 重置为 `1` 并重新请求。有效数据源必须是目标 table 的内联 `data.source: api`，或 `data.source: ref` 最终指向的 API datasource；无 `data`、静态数据或静态引用由 L2 拒绝。表格原有静态 params 与搜索表单参数自动合并，搜索参数优先级更高，Renderer 分页/排序状态最后覆盖。`page`、`pageSize`、`sort` 是保留名，搜索表单的 `field` / `startField` / `endField` 不得使用。`mode: search` 下的 `dateRangePicker` 以 `startField`/`endField` 作为两个独立参数传递；其他字段类组件以各自的 `field` 值作为参数名。清空筛选、翻页与排序状态转换见 [ADR-0011](./decisions/0011-reserved-query-params.md)。
 >
 > **搜索模式与 actions 的关系：** `mode: search` 时 `submitAction` 被忽略。搜索表单不需要独立的动作定义——提交行为被协议层定义为"刷新目标表格"，不经过 `actions` 路由。
 
