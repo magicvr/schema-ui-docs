@@ -9,6 +9,8 @@
     "validate:conformance": "node conformance/runner/validate-fixture-suites.js",
     "test:conformance:query": "node conformance/runner/run-query-serialization.js",
     "test:conformance:query:python": "python conformance/runner/run-query-serialization-python.py",
+    "test:conformance:actions": "node conformance/runner/run-actions.js",
+    "test:conformance:actions:python": "python conformance/runner/run-actions-python.py",
     "test:conformance:reactions": "node conformance/runner/run-reactions.js",
     "test:conformance:reactions:python": "python conformance/runner/run-reactions-python.py",
     "test:conformance:request": "node conformance/runner/run-request-construction.js",
