@@ -1,0 +1,125 @@
+{
+  "fixtureVersion": "1.0",
+  "category": "request-construction",
+  "cases": [
+    {
+      "id": "data-ref-default-get",
+      "protocolVersion": "0.3",
+      "category": "request-construction",
+      "input": {
+        "kind": "dataRef",
+        "dataRef": { "source": "api", "url": "/orders", "params": { "status": "paid" } }
+      },
+      "expected": {
+        "ok": true,
+        "request": { "method": "GET", "url": "/orders?status=paid", "body": null }
+      }
+    },
+    {
+      "id": "data-ref-post-keeps-query",
+      "protocolVersion": "0.3",
+      "category": "request-construction",
+      "input": {
+        "kind": "dataRef",
+        "dataRef": {
+          "source": "api",
+          "method": "POST",
+          "url": "/reports?locale=zh-CN",
+          "params": { "keyword": "new value", "empty": null }
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/reports?keyword=new%20value&locale=zh-CN",
+          "body": null
+        }
+      }
+    },
+    {
+      "id": "row-action-path-query-body",
+      "protocolVersion": "0.3",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": { "method": "PATCH", "url": "/orders/{orderId}?locale=zh-CN" },
+        "requestMapping": {
+          "path": { "orderId": "$row.order.id" },
+          "query": { "source": "table", "version": "$row.version" },
+          "body": { "approved": true, "decision": "$row.decision" }
+        },
+        "row": {
+          "order": { "id": "A/B 1" },
+          "version": 3,
+          "decision": "APPROVED"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "PATCH",
+          "url": "/orders/A%2FB%201?locale=zh-CN&source=table&version=3",
+          "body": { "approved": true, "decision": "APPROVED" }
+        }
+      }
+    },
+    {
+      "id": "row-action-delete-with-query",
+      "protocolVersion": "0.3",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": { "method": "DELETE", "url": "/orders/{id}" },
+        "requestMapping": {
+          "path": { "id": "$row.id" },
+          "query": { "hard": false }
+        },
+        "row": { "id": 42 }
+      },
+      "expected": {
+        "ok": true,
+        "request": { "method": "DELETE", "url": "/orders/42?hard=false", "body": null }
+      }
+    },
+    {
+      "id": "row-action-path-rfc3986-encoding",
+      "protocolVersion": "0.3",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": { "method": "GET", "url": "/items/{id}" },
+        "requestMapping": { "path": { "id": "$row.id" } },
+        "row": { "id": "!*'()~" }
+      },
+      "expected": {
+        "ok": true,
+        "request": { "method": "GET", "url": "/items/%21%2A%27%28%29~", "body": null }
+      }
+    },
+    {
+      "id": "row-action-missing-row-path",
+      "protocolVersion": "0.3",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": { "method": "POST", "url": "/orders/{id}/approve" },
+        "requestMapping": { "path": { "id": "$row.missing" } },
+        "row": { "id": 42 }
+      },
+      "expected": { "ok": false, "code": "UNRESOLVED_ROW_VALUE", "path": "requestMapping.path.id" }
+    },
+    {
+      "id": "row-action-null-path",
+      "protocolVersion": "0.3",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": { "method": "POST", "url": "/orders/{id}/approve" },
+        "requestMapping": { "path": { "id": "$row.id" } },
+        "row": { "id": null }
+      },
+      "expected": { "ok": false, "code": "NULL_PATH_VALUE", "path": "requestMapping.path.id" }
+    }
+  ]
+}

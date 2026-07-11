@@ -6,8 +6,15 @@
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:scenarios": "node scripts/validate-scenarios.js",
+    "validate:conformance": "node conformance/runner/validate-fixture-suites.js",
     "test:conformance:query": "node conformance/runner/run-query-serialization.js",
     "test:conformance:query:python": "python conformance/runner/run-query-serialization-python.py",
+    "test:conformance:request": "node conformance/runner/run-request-construction.js",
+    "test:conformance:request:python": "python conformance/runner/run-request-construction-python.py",
+    "test:conformance:response": "node conformance/runner/run-response-mapping.js",
+    "test:conformance:response:python": "python conformance/runner/run-response-mapping-python.py",
+    "test:conformance:search-table": "node conformance/runner/run-search-table.js",
+    "test:conformance:search-table:python": "python conformance/runner/run-search-table-python.py",
     "test:conformance:table-state": "node conformance/runner/run-table-query-state.js",
     "test:conformance:version": "node conformance/runner/run-version-negotiation.js",
     "validate:l2": "node scripts/validate-l2-components.js",
@@ -19,6 +26,7 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
+    "ajv": "^8.20.0",
     "ajv-cli": "^5.0.0",
     "ajv-formats": "^2.1.1"
   },
