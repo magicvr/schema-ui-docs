@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-11
-applies_to: schema-ui-protocol v0.2
+applies_to: schema-ui-protocol v0.3
 ---
 
 # Action 完整契约（since 0.2）
@@ -72,7 +72,7 @@ onError: OutcomeBehavior     # 【可选】
 meta:
   pageId: order_approval
   title: 订单审批
-  protocolVersion: "0.2"
+  protocolVersion: "0.3"
   requiredCapabilities:
     - actions.row.request
 

@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-11
-applies_to: schema-ui-protocol v0.2
+applies_to: schema-ui-protocol v0.3
 ---
 
 # Schema-Driven UI 协议总纲
@@ -34,6 +34,7 @@ applies_to: schema-ui-protocol v0.2
 | [06-validation.md](./06-validation.md) | 前后端开发者 / AI | 校验规则与工具链 |
 | [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
 | [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
+| [09-v1-release-goals.md](./09-v1-release-goals.md) | 前后端开发者 / 维护者 | `v0.3.0-rc.1` 到 `v1.0.0` 的收敛目标与发布门禁 |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
 | [audit/](./audit/) | 维护者 / AI | 过程性审计与迭代记录，编号规则：`NNNN-YYYY-MM-DD-{review,checklist,plan}`（完整规则见 [audit/README.md](./audit/README.md)） |
@@ -46,6 +47,7 @@ applies_to: schema-ui-protocol v0.2
 - 想扩展协议、新增字段 → 先读 `decisions/`，确认没有历史上被否决过的类似方案。
 - 查阅审计/迭代记录 → 直接看 `audit/`。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`。
+- 实现当前 RC 或准备 `v1.0.0` → 对照 `09-v1-release-goals.md` 的门禁与完成定义。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
 
@@ -75,9 +77,9 @@ applies_to: schema-ui-protocol v0.2
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v0.2`（**已发布**最新补丁版本 `v0.2.8`，见 [CHANGELOG.md](./CHANGELOG.md)）。若工作区 `CHANGELOG` 顶部存在 `Unreleased` 条目，表示当前仓库已落地但尚未切出新 PATCH 的补充修订；接入已发布 MCP 镜像/标签时以已发布版本为准，本地校验脚本与文档以工作区内容为准。`meta.protocolVersion` 仅声明 MAJOR.MINOR（即 `"0.2"`），不含 PATCH 号——因此 `v0.2.0` 至 `v0.2.8` 与后续同为 `"0.2"` 的补丁共享同一 `protocolVersion` 值。
+当前候选协议版本：`v0.3.0-rc.1`，页面通过 `meta.protocolVersion: "0.3"` 声明 MAJOR.MINOR。该版本冻结前后端 MVP 实现基线，不再新增组件或业务能力；到 `v1.0.0` 前只处理互操作歧义、契约错误、机器校验和一致性测试缺口。上一稳定版本为 `v0.2.8`，迁移中的实现可继续读取 `protocolVersion: "0.2"` 页面，但新建或修改的 RC 页面应声明 `"0.3"`。发布门禁见 [09-v1-release-goals.md](./09-v1-release-goals.md)。
 
-PATCH 版本若新增需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同为 `"0.2"` 的新旧 Renderer 对执行能力产生误判。
+PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。
 
 本协议场景示例覆盖：网格布局、数据表格、表单联动、表格行级后端动作、搜索表单筛选表格、文件上传。后续新增场景类型时，
 应遵循同一套 Node 结构（`type`/`props`/`data`/`children`/`reactions`），

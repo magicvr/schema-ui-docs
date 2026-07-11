@@ -15,7 +15,7 @@
         "protocolVersion": {
           "type": "string",
           "pattern": "^[0-9]+\\.[0-9]+$",
-          "description": "必填（since 0.2），如 \"0.2\"，Renderer 版本兼容锚点"
+          "description": "必填（since 0.2），当前 RC 使用 \"0.3\"，Renderer 版本兼容锚点"
         },
         "requiredCapabilities": {
           "type": "array",
