@@ -19,7 +19,7 @@
 
 **关键证据：**
 - `v1.0.0` → `d2f0fc0877dc6550c9fe7e3635b25c7ec72b4ddd`
-- 8 类 65 fixtures，digest `sha256:7bf6db4ced24ed59f68a32f3072540b4be179c6aadf5c23042350e6668c66f6b`
+- 8 类 65 fixtures，digest `sha256:fa480baf15bab7c3f05b9c505298e574754e5d86a199519c9866d2982631175c`
 - React `6527bbff9aad1faf70e985988d4573afc7ae2e03` 与 Go `d31d358f1e3c3a733ab3a7ad4282078f310d8a8f` 生产消费者远端 CI 通过
 - MCP CD run `29154389128` 发布 `1.0.0` / `1.0` / `latest` / Git SHA 镜像；远端 digest `sha256:190453685beded5872f24336c9b1ca1051960602f7d66d67bad6d42de40f997e`，版本与 SHA 镜像 smoke 通过
 

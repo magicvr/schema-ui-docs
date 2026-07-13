@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 后端架构组
-last_updated: 2026-07-11
-applies_to: schema-ui-protocol v0.3
+last_updated: 2026-07-13
+applies_to: schema-ui-protocol v1.0
 ---
 
 # 数据源 / API 契约规范

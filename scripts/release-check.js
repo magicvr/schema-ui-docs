@@ -11,6 +11,17 @@ const { OFFICIAL_SCENARIO_PATHS, readOfficialScenario } = require('./official-sc
 const root = path.resolve(__dirname, '..');
 const releaseMode = process.argv.includes('--release');
 
+/**
+ * Hard gate for fixture tree integrity (V225 / V223).
+ * Algorithm: sorted relative paths under conformance/fixtures/**, for each file
+ * hash.update(relativePath + '\\0' + fileBytes + '\\0'), then sha256 hex.
+ * When any fixture bytes change, recompute with `npm run release:check` (after
+ * temporarily updating this constant if needed) and bump EXPECTED_FIXTURE_DIGEST
+ * in the same commit. CI fails if printed digest ≠ this value.
+ */
+const EXPECTED_FIXTURE_DIGEST =
+  'sha256:24168c71c839f18c9d6e40d98693badbfd9fe0905f5fd2c432e920996a98f6fc';
+
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
 }
@@ -106,9 +117,43 @@ for (const category of expectedCategories) {
   assert.equal(suite.fixtureVersion, '1.0', `${category}: fixtureVersion must be 1.0`);
   assert.equal(suite.category, category, `${category}: suite category mismatch`);
   assert.ok(Array.isArray(suite.cases) && suite.cases.length > 0, `${category}: fixture suite is empty`);
+  for (const fixtureCase of suite.cases) {
+    // Algorithm suites target the stable protocol MINOR. version-negotiation keeps
+    // historical page versions (0.3, etc.) as negotiation inputs (V227).
+    if (category !== 'version-negotiation') {
+      assert.equal(
+        fixtureCase.protocolVersion,
+        protocolVersion,
+        `${category}/${fixtureCase.id}: protocolVersion must be ${protocolVersion}`,
+      );
+    }
+  }
   versionedCaseCount += suite.cases.length;
 }
 assert.equal(versionedCaseCount, 65, `Expected 65 versioned fixtures, received ${versionedCaseCount}`);
+
+// Core specs must declare applies_to for the current major.minor (V231).
+const coreSpecPaths = [
+  'docs/01-node-protocol.md',
+  'docs/02-reaction-expression.md',
+  'docs/03-component-registry.md',
+  'docs/04-datasource-contract.md',
+  'docs/06-validation.md',
+  'docs/07-actions-contract.md',
+  'docs/08-renderer-spec.md',
+];
+const appliesToNeedle = `applies_to: schema-ui-protocol v${protocolVersion}`;
+for (const relativePath of coreSpecPaths) {
+  const text = readText(relativePath);
+  assert.ok(
+    text.includes(appliesToNeedle),
+    `${relativePath}: frontmatter must include ${appliesToNeedle}`,
+  );
+  assert.ok(
+    !/applies_to:\s*schema-ui-protocol\s+v0\.3\b/.test(text),
+    `${relativePath}: stale applies_to v0.3`,
+  );
+}
 
 if (Number(semverMatch[1]) >= 1) {
   const releaseGoals = readText('docs/09-v1-release-goals.md');
@@ -122,13 +167,22 @@ if (releaseMode) {
 }
 
 const fixture = fixtureDigest();
+const actualDigest = `sha256:${fixture.digest}`;
+assert.equal(
+  actualDigest,
+  EXPECTED_FIXTURE_DIGEST,
+  `fixtureDigest mismatch: got ${actualDigest}, expected ${EXPECTED_FIXTURE_DIGEST}. `
+  + 'If the change is intentional, update EXPECTED_FIXTURE_DIGEST in scripts/release-check.js in the same commit.',
+);
+
 const result = {
   version: rootPackage.version,
   protocolVersion,
   fixtureVersion: '1.0',
   versionedCaseCount,
   fixtureFileCount: fixture.fileCount,
-  fixtureDigest: `sha256:${fixture.digest}`,
+  fixtureDigest: actualDigest,
+  expectedFixtureDigest: EXPECTED_FIXTURE_DIGEST,
   gitSha: process.env.GITHUB_SHA || null,
   releaseMode,
 };

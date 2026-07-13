@@ -96,7 +96,15 @@ fixtures 应为与框架无关的 JSON/YAML 输入及期望输出，不绑定 Re
 - [x] 从 CHANGELOG 清空待发布内容，记录不可变 Git tag `v1.0.0` 与 commit `d2f0fc0877dc6550c9fe7e3635b25c7ec72b4ddd`；
 - [x] 发布固定 `1.0.0` MCP 镜像并完成从干净环境拉取后的 Docker smoke；CD run `29154389128` 成功，版本与 SHA tag 均解析到 `sha256:190453685beded5872f24336c9b1ca1051960602f7d66d67bad6d42de40f997e`。
 
-## 4. `1.x` 版本纪律
+## 4. 发布制品完整性（fixture digest）
+
+`npm run release:check` 对 `conformance/fixtures/**` 计算确定性 `fixtureDigest`（路径 + 字节，`sha256:` 前缀），并与脚本内嵌常量 `EXPECTED_FIXTURE_DIGEST` **硬断言**。digest 不匹配时命令失败（非仅打印），避免错误发布证据随 CI 绿灯残留。
+
+- 有意变更 fixtures 时：在同一 commit 中更新 fixtures 与 `scripts/release-check.js` 中的 `EXPECTED_FIXTURE_DIGEST`。
+- 失败用例：改任一 fixture 字节但不更新期望 digest → `release:check` 以 assertion 退出非 0。
+- v1.0.0 tag 树（修正后的历史证据）对应 `sha256:fa480baf15bab7c3f05b9c505298e574754e5d86a199519c9866d2982631175c`；后续审计 0056 起因 fixture 内容修订会滚动到新 digest。
+
+## 5. `1.x` 版本纪律
 
 `v1.0.0` 发布后采用以下约束：
 
@@ -108,7 +116,7 @@ fixtures 应为与框架无关的 JSON/YAML 输入及期望输出，不绑定 Re
 
 文档、Schema、组件 DSL、校验器、测试 fixtures 和 MCP 必须作为同一版本原子发布。PATCH 不得让此前合法配置变为非法，也不得改变同一输入的请求或渲染结果。
 
-## 5. 完成定义
+## 6. 完成定义
 
 只有同时满足以下条件，才可将 RC 提升为 `v1.0.0`：
 
