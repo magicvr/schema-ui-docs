@@ -3,7 +3,7 @@
  * CI 统一校验入口
  *
  * 按 06-validation.md §2 的建议流程依次执行：
- *   L0/L1 — ajv-cli（page.schema.json + node.schema.json，外部调用）
+ *   L0/L1 — 进程内 Ajv（page.schema.json + node/action/reaction，$ref；allErrors 与 MCP 对齐）
  *   L2    — validate-l2-components.js（组件契约）
  *   L3a   — validate-l3a-expressions.js（表达式静态校验）
  *   L4    — lint-l4-banned-props.js（禁用 CSS 属性）
@@ -11,7 +11,7 @@
  * 用法：
  *   node scripts/validate-all.js <file-or-glob> [--skip-l0l1] [--json]
  *
- *   --skip-l0l1   跳过 ajv-cli 校验（适用于未安装 ajv-cli 的环境，L1/L0 由独立 CI 步骤保障）
+ *   --skip-l0l1   跳过 L0/L1 校验（适用于仅跑 L2–L4 的场景）
  *   --json        将各层输出聚合为 JSON
  *
  * 退出码：
@@ -25,9 +25,13 @@
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { normalizeGlobPattern } = require('./file-patterns');
+const yaml = require('js-yaml');
+const { Ajv } = require('ajv');
+const { expandFilePatterns, normalizeGlobPattern } = require('./file-patterns');
 
 const SCRIPTS_DIR = __dirname;
+const ROOT = path.resolve(SCRIPTS_DIR, '..');
+const SCHEMA_DIR = path.join(ROOT, 'docs', 'schemas');
 
 function runScript(scriptName, args, jsonMode) {
   const scriptPath = path.join(SCRIPTS_DIR, scriptName);
@@ -50,37 +54,95 @@ function runScript(scriptName, args, jsonMode) {
   }
 }
 
-function runAjv(patterns, pageSchemaPath) {
-  // 检查本地 ajv-cli 是否已安装（devDependencies）
-  const ajvCliIndex = path.resolve(SCRIPTS_DIR, '../node_modules/ajv-cli/dist/index.js');
-  if (!fs.existsSync(ajvCliIndex)) {
-    return {
-      passed: false,
-      stdout: '',
-      stderr: '[L0/L1] ajv-cli 未安装，请运行: npm install\n         或使用 --skip-l0l1 跳过。',
-      code: 2,
-    };
+function readJsonSchema(fileName) {
+  return JSON.parse(fs.readFileSync(path.join(SCHEMA_DIR, fileName), 'utf8'));
+}
+
+function parseDocument(filePath) {
+  const raw = fs.readFileSync(filePath, 'utf8');
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === '.json') return JSON.parse(raw);
+  if (ext === '.yaml' || ext === '.yml') return yaml.load(raw);
+  throw new Error(`不支持的文件格式: ${ext}`);
+}
+
+/** 与 MCP validation-runner 相同的 L0/L1 Ajv 配置（allErrors + strict:false + allowUnionTypes） */
+function createPageValidator() {
+  const pageSchema = readJsonSchema('page.schema.json');
+  const nodeSchema = readJsonSchema('node.schema.json');
+  const actionSchema = readJsonSchema('action.schema.json');
+  const reactionSchema = readJsonSchema('reaction.schema.json');
+
+  const ajv = new Ajv({ allErrors: true, strict: false, allowUnionTypes: true });
+  ajv.addSchema(nodeSchema, 'node.schema.json');
+  ajv.addSchema(actionSchema, 'action.schema.json');
+  ajv.addSchema(reactionSchema, 'reaction.schema.json');
+  return ajv.compile(pageSchema);
+}
+
+function formatAjvError(error) {
+  const instancePath = error.instancePath || '';
+  const msg = error.message || 'schema 校验失败';
+  if (error.keyword === 'additionalProperties' && error.params?.additionalProperty) {
+    return `${instancePath} ${msg} ('${error.params.additionalProperty}')`.trim();
   }
+  if (error.keyword === 'required' && error.params?.missingProperty) {
+    return `${instancePath} ${msg}`.trim();
+  }
+  return `${instancePath} ${msg}`.trim();
+}
+
+function runL0L1(patterns) {
+  let validate;
   try {
-    const output = execFileSync(
-      process.execPath,
-      [ajvCliIndex, 'validate', '-s', pageSchemaPath,
-       '--allow-union-types', '--strict=false',
-       '-r', path.resolve(SCRIPTS_DIR, '../docs/schemas/node.schema.json'),
-       '-r', path.resolve(SCRIPTS_DIR, '../docs/schemas/action.schema.json'),
-       '-r', path.resolve(SCRIPTS_DIR, '../docs/schemas/reaction.schema.json'),
-       '-d', ...patterns],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
-    );
-    return { passed: true, stdout: output, stderr: '' };
+    validate = createPageValidator();
   } catch (err) {
     return {
       passed: false,
-      stdout: err.stdout || '',
-      stderr: err.stderr || '',
-      code: err.status,
+      stdout: '',
+      stderr: `[L0/L1] 无法加载 Schema / Ajv: ${err.message}\n`,
+      code: 2,
     };
   }
+
+  const files = expandFilePatterns(patterns);
+  if (files.length === 0) {
+    return {
+      passed: false,
+      stdout: '',
+      stderr: '[L0/L1] glob 无匹配文件\n',
+      code: 2,
+    };
+  }
+
+  const lines = [];
+  let failed = false;
+  for (const filePath of files) {
+    let document;
+    try {
+      document = parseDocument(filePath);
+    } catch (err) {
+      failed = true;
+      lines.push(`${filePath} invalid`);
+      lines.push(`  parse error: ${err.message}`);
+      continue;
+    }
+    const ok = validate(document);
+    if (ok) {
+      lines.push(`${filePath} valid`);
+      continue;
+    }
+    failed = true;
+    lines.push(`${filePath} invalid`);
+    for (const error of validate.errors || []) {
+      lines.push(`  ${formatAjvError(error)}`);
+    }
+  }
+
+  const text = `${lines.join('\n')}\n`;
+  return failed
+    ? { passed: false, stdout: text, stderr: '', code: 1 }
+    : { passed: true, stdout: text, stderr: '' };
 }
 
 function main() {
@@ -94,16 +156,14 @@ function main() {
     process.exit(2);
   }
 
-  const PAGE_SCHEMA = path.resolve(SCRIPTS_DIR, '../docs/schemas/page.schema.json');
-
   const results = {};
   let overallPass = true;
 
   // -------------------------------------------------------------------------
-  // L0 / L1 — ajv-cli
+  // L0 / L1 — 进程内 Ajv（与 MCP allErrors 对齐）
   // -------------------------------------------------------------------------
   if (!skipL0L1) {
-    const r = runAjv(patterns, PAGE_SCHEMA);
+    const r = runL0L1(patterns);
     results['L0/L1'] = r;
     if (!r.passed) overallPass = false;
   }
@@ -133,9 +193,16 @@ function main() {
   // 输出
   // -------------------------------------------------------------------------
   if (jsonMode) {
-    // 聚合各层的 JSON 输出
     const aggregated = {};
     for (const [layer, res] of Object.entries(results)) {
+      if (layer === 'L0/L1') {
+        // L0/L1 文本报告；JSON 模式下保留 raw 行，便于对照 MCP layers["L0/L1"]
+        aggregated[layer] = {
+          passed: res.passed,
+          raw: (res.stdout || '') + (res.stderr || ''),
+        };
+        continue;
+      }
       try {
         aggregated[layer] = res.stdout ? JSON.parse(res.stdout) : { raw: res.stderr };
       } catch {
