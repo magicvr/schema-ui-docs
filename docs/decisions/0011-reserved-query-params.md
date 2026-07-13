@@ -57,7 +57,7 @@ date: 2026-07-11
 
 ### D5. 可执行一致性向量
 
-框架无关向量位于 `conformance/fixtures/table-query-state/cases.json`。每个消费者必须比较事件后的完整状态和最终 URL。最终 URL 使用 ADR-0010 的公共序列化器，不得另写编码、排序或空值逻辑。
+框架无关向量位于 `conformance/fixtures/search-table/cases.json`。每个消费者必须比较事件后的完整状态和最终 URL。最终 URL 使用 ADR-0010 的公共序列化器，不得另写编码、排序或空值逻辑。
 
 ## 后果
 

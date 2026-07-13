@@ -87,7 +87,7 @@ data:
 
 DataRef、`select.optionsSource.params` 和行级 `requestMapping.query` 必须复用 [ADR-0010](./decisions/0010-query-serialization.md) 的公共算法：已有 URL query 先解析，后来源覆盖前来源，最终 key 按 Unicode code point 升序；key/value 以 UTF-8 和 RFC 3986 编码，空格固定为 `%20`，不使用 `+`，最终不产生重复 key。`null` / `undefined` 删除同名 key，空字符串保留为 `key=`，fragment 原样附回。
 
-框架无关字节级向量见 [`../conformance/fixtures/query-serialization/cases.json`](../conformance/fixtures/query-serialization/cases.json)。搜索、分页和排序来源优先级及状态转换由 [ADR-0011](./decisions/0011-reserved-query-params.md) 与 [`../conformance/fixtures/table-query-state/cases.json`](../conformance/fixtures/table-query-state/cases.json) 定义。
+框架无关字节级向量见 [`../conformance/fixtures/query-serialization/cases.json`](../conformance/fixtures/query-serialization/cases.json)。搜索、分页和排序来源优先级及状态转换由 [ADR-0011](./decisions/0011-reserved-query-params.md) 与 [`../conformance/fixtures/search-table/cases.json`](../conformance/fixtures/search-table/cases.json) 定义。
 
 ### 3.2 `data.params` / `optionsSource.params` / `datasources.*.params` 中 `$deps.*` 的作用域边界
 
