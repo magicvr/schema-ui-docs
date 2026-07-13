@@ -14,7 +14,7 @@
 
 ## MCP 服务
 
-MCP 服务当前**已发布稳定镜像**为 `1.0.0`。运行时要求 Node.js `>=18`。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
+MCP 服务当前**已发布稳定镜像**为 `1.0.0`。源码安装、校验工具链与 MCP 运行时要求 Node.js `>=20.19.0`；这是当前 `vitest` 测试链使用的 Vite 7 所支持的最低 Node 版本，避免继续声明未经标准构建与测试路径验证的 Node 18。CI 同时验证最低版本 `20.19.0` 和 Node 24，官方 Docker 镜像固定使用 Node 24。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
 
 ### 使用 Docker Hub 镜像
 
@@ -78,6 +78,7 @@ npm install --prefix mcp
 npm run validate -- "<page-file-or-glob>"
 npm run validate:scenarios
 npm run validate:conformance
+npm run check:links
 npm run release:check
 npm run test:conformance:version
 npm run test:conformance:version:python
@@ -104,6 +105,8 @@ npm --prefix mcp run smoke:tools
 ```
 
 其中 `npm run validate` 用于校验调用方提供的页面 YAML/JSON 文件，例如 `npm run validate -- "pages/**/*.yaml"`。
+
+`npm run check:links` 检查 `README.md`、`docs/**/*.md` 与 `conformance/**/*.md` 中 Markdown/HTML 的仓库内相对链接是否存在；外部 URL、纯锚点、代码块、行内代码与普通说明文字不作为链接目标扫描。
 
 本地启动 stdio server：
 
