@@ -36,6 +36,9 @@ jobs:
       - name: Install protocol dependencies
         run: npm ci
 
+      - name: Audit protocol dependencies (high+)
+        run: npm audit --audit-level=high
+
       - name: Check release metadata
         run: npm run release:check
 
@@ -125,6 +128,9 @@ jobs:
 
       - name: Install MCP dependencies
         run: npm ci --prefix mcp
+
+      - name: Audit MCP dependencies (high+)
+        run: npm audit --prefix mcp --audit-level=high
 
       - name: Check release metadata
         run: npm run release:check

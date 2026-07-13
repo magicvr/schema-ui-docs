@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-11
-applies_to: schema-ui-protocol v0.3
+last_updated: 2026-07-13
+applies_to: schema-ui-protocol v1.0
 ---
 
 # 联动表达式引擎语法规范

@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-11
-applies_to: schema-ui-protocol v0.3
+last_updated: 2026-07-13
+applies_to: schema-ui-protocol v1.0
 ---
 
 # 校验规则与工具链
@@ -60,7 +60,9 @@ applies_to: schema-ui-protocol v0.3
   → L3b 表达式运行时求值（仅在通过 L3a 的表达式上执行）
 ```
 
-统一入口：`npm run validate`（或直接 `node scripts/validate-all.js`），按 `--skip-l0l1` 控制是否跳过 AJV 步骤。
+统一入口：`npm run validate`（或直接 `node scripts/validate-all.js`），按 `--skip-l0l1` 控制是否跳过 L0/L1 步骤。
+
+**L0/L1 双入口对齐（根 CLI 与 MCP）：** 根 [`scripts/validate-all.js`](../scripts/validate-all.js) 与 MCP `validation-runner` 均使用进程内 **Ajv**，配置 `allErrors: true`、`strict: false`、`allowUnionTypes: true`，并注册 `node` / `action` / `reaction` 子 schema。同一非法页面在两侧应报告同一套关键字集合（缺 `body`、额外顶层字段、缺 `meta.pageId`/`title` 等一次暴露），不得只返回首条错误。
 
 统一入口和各分层脚本使用相同退出码：`0` 表示全部通过，`1` 表示输入内容存在协议违规，`2` 表示调用错误（如缺少文件 pattern、glob 无匹配或校验工具未安装）。聚合器只要收到任一分层的调用错误，就必须保留退出码 `2`，不得降级为普通内容违规。
 
@@ -87,43 +89,19 @@ lineHeight, letterSpacing, textAlign
 
 ## 5. 后端开发者本地校验指南
 
-### 5.1 使用 `ajv-cli`（Node.js）
+### 5.1 使用根 CLI / 进程内 Ajv（Node.js）
 
-如果你的机器安装了 Node.js，可在仓库根目录使用统一校验入口：
+如果你的机器安装了 Node.js，可在仓库根目录使用统一校验入口（依赖 `ajv`，**不**依赖有漏洞的 `ajv-cli` 链）：
 
 ```bash
 # 全链路校验（L0+L1+L2+L3a+L4，需要先 npm install）
 npm run validate -- "pages/**/*.yaml"
 
-# 跳过 L0/L1（当 AJV 不可用时）
+# 跳过 L0/L1（仅跑 L2–L4）
 npm run validate -- "pages/**/*.yaml" --skip-l0l1
 ```
 
-如需仅校验 L0/L1（JSON Schema 层），也可以用 `ajv-cli`：
-
-```bash
-# 全局安装 ajv-cli
-npm install -g ajv-cli ajv-formats
-
-# 校验单个页面文件（需显式注册被 $ref 引用的子 schema）
-npx ajv validate -s docs/schemas/page.schema.json \
-  --allow-union-types --strict=false \
-  -r docs/schemas/node.schema.json \
-  -r docs/schemas/action.schema.json \
-  -r docs/schemas/reaction.schema.json \
-  -d my-page.yaml
-
-# 校验目录下所有 yaml 文件
-npx ajv validate -s docs/schemas/page.schema.json \
-  --allow-union-types --strict=false \
-  -r docs/schemas/node.schema.json \
-  -r docs/schemas/action.schema.json \
-  -r docs/schemas/reaction.schema.json \
-  -d "pages/**/*.yaml"
-```
-
-`page.schema.json` 通过 `$ref` 依赖 `node.schema.json`、`action.schema.json`、`reaction.schema.json`；
-直接调用 `ajv-cli` 时，需要用 `-r` 显式注册这些子 schema。上面的参数与仓库内 [`scripts/validate-all.js`](../scripts/validate-all.js) 保持一致。
+L0/L1 由 [`scripts/validate-all.js`](../scripts/validate-all.js) 在进程内加载 `docs/schemas/page.schema.json` 及 `$ref` 子 schema，并以 `allErrors: true` 收集全部违规，与 MCP `validateContent` 对齐。
 
 ### 5.2 使用 VS Code YAML Schema 关联（推荐）
 
@@ -145,12 +123,10 @@ npx ajv validate -s docs/schemas/page.schema.json \
 
 ### 5.3 Windows PowerShell 用户
 
-若使用 Windows PowerShell，可配合 `Get-ChildItem` 批量校验：
+若使用 Windows PowerShell，可直接调用统一入口：
 
 ```powershell
-Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
-  npx ajv validate -s docs/schemas/page.schema.json --allow-union-types --strict=false -r docs/schemas/node.schema.json -r docs/schemas/action.schema.json -r docs/schemas/reaction.schema.json -d $_.FullName
-}
+npm run validate -- "pages/**/*.yaml"
 ```
 
 ### 5.4 CI 集成
@@ -159,12 +135,10 @@ Get-ChildItem -Path pages -Filter *.yaml -Recurse | ForEach-Object {
 
 ```yaml
 - name: Validate Schema-UI YAML
-  run: |
-    npm install -g ajv-cli ajv-formats
-    npx ajv validate -s docs/schemas/page.schema.json --allow-union-types --strict=false -r docs/schemas/node.schema.json -r docs/schemas/action.schema.json -r docs/schemas/reaction.schema.json -d "pages/**/*.yaml"
+  run: npm run validate -- "pages/**/*.yaml"
 ```
 
-> 也可以直接复用仓库自带的 `npm run validate -- "pages/**/*.yaml"`，其内部已按同样方式注册 `$ref` 子 schema。
+> 统一入口在进程内注册 `$ref` 子 schema 并以 `allErrors` 收集 L0/L1 违规，与 MCP 工具链一致。
 
 ## 6. 自检清单（人工 Review 用）
 

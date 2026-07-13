@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-11
-applies_to: schema-ui-protocol v0.3
+last_updated: 2026-07-13
+applies_to: schema-ui-protocol v1.0
 ---
 
 # 核心协议规范：Node 结构定义
@@ -25,7 +25,7 @@ meta:            # 页面元信息
   pageId: string
   title: string
   description: string
-  protocolVersion: string   # 必填（since 0.2）。当前 RC 使用 "0.3"，Renderer 版本兼容锚点
+  protocolVersion: string   # 必填（since 0.2）。当前稳定版本使用 "1.0"，Renderer 版本兼容锚点
   requiredCapabilities: [string] # 可选（since 0.2.6）。PATCH 级执行能力协商，如 actions.upload / actions.row.request
 
 datasources:     # 【可选】页面级预声明数据源，供 body 内节点通过 ref 引用；仅允许 source: api 或 source: static，禁止 source: ref（引用链会导致递归风险）
@@ -44,7 +44,7 @@ actions:          # 【可选】页面级可复用动作定义（完整契约见
 | `body` | 是 | 页面主体的根 Node |
 | `actions` | 否 | 供 Node 内按钮/表单提交等引用的动作定义，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
 
-> **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（当前 RC 使用 `"0.3"`），**不含 PATCH 或预发布标识**。Renderer 据此判断按哪套解析规则处理页面文档，是协议后续演进做版本兼容判断的锚点。同一 MAJOR.MINOR 的补丁或 RC 包共享该值；Renderer 的兼容性判断基于支持的 MAJOR.MINOR，不依赖包 PATCH。旧 `v0.1` 文档缺少该字段时仅可由显式 legacy adapter 处理；新建或修改的文档必须显式声明。
+> **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（当前稳定版本使用 `"1.0"`），**不含 PATCH 或预发布标识**。Renderer 据此判断按哪套解析规则处理页面文档，是协议后续演进做版本兼容判断的锚点。同一 MAJOR.MINOR 的补丁或 RC 包共享该值；Renderer 的兼容性判断基于支持的 MAJOR.MINOR，不依赖包 PATCH。旧 `v0.1` 文档缺少该字段时仅可由显式 legacy adapter 处理；新建或修改的文档必须显式声明。
 
 > **`meta.requiredCapabilities`（可选，since 0.2.6）：** 字符串数组，声明页面依赖的 Renderer 执行能力，用于补足 PATCH 级能力协商。`protocolVersion` 仍只表达结构版本；当 PATCH 版本新增需要 Renderer 执行支持的能力时，页面必须通过 `requiredCapabilities` 显式声明。Renderer 若不支持其中任一能力，应在静态校验阶段拒绝渲染，而不是进入运行时后部分失效。当前协议预定义能力键：`actions.upload`（使用 `actions[].type: upload` 或 `upload.props.actionRef` 时必填）、`actions.row.request`（使用 `table.props.actions[].actionRef` 时必填）。
 

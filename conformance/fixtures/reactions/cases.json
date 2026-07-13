@@ -4,36 +4,61 @@
   "cases": [
     {
       "id": "stable-snapshot-defers-dependent-visibility",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "reactions",
       "input": {
-        "initialValues": { "status": "archived" },
+        "initialValues": {
+          "status": "archived"
+        },
         "fields": [
           {
             "field": "status",
             "reactions": [
-              { "when": "$deps.status == 'archived'", "fulfill": { "value": "closed" } }
+              {
+                "when": "$deps.status == 'archived'",
+                "fulfill": {
+                  "value": "closed"
+                }
+              }
             ]
           }
         ],
         "observers": [
-          { "id": "closeReason", "when": "$deps.status == 'closed'" }
+          {
+            "id": "closeReason",
+            "when": "$deps.status == 'closed'"
+          }
         ]
       },
       "expected": {
         "ok": true,
-        "values": { "status": "closed" },
+        "values": {
+          "status": "closed"
+        },
         "rounds": [
           {
             "round": 1,
-            "snapshot": { "status": "archived" },
-            "observations": { "closeReason": false },
-            "commits": [{ "field": "status", "value": "closed" }]
+            "snapshot": {
+              "status": "archived"
+            },
+            "observations": {
+              "closeReason": false
+            },
+            "commits": [
+              {
+                "field": "status",
+                "value": "closed"
+              }
+            ]
           },
           {
             "round": 2,
-            "snapshot": { "status": "closed" },
-            "observations": { "closeReason": true },
+            "snapshot": {
+              "status": "closed"
+            },
+            "observations": {
+              "closeReason": true
+            },
             "commits": []
           }
         ],
@@ -42,21 +67,35 @@
     },
     {
       "id": "multiple-fields-commit-in-one-batch",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "reactions",
       "input": {
-        "initialValues": { "trigger": true, "first": "old-a", "second": "old-b" },
+        "initialValues": {
+          "trigger": true,
+          "first": "old-a",
+          "second": "old-b"
+        },
         "fields": [
           {
             "field": "first",
             "reactions": [
-              { "when": "$deps.trigger == true", "fulfill": { "value": "new-a" } }
+              {
+                "when": "$deps.trigger == true",
+                "fulfill": {
+                  "value": "new-a"
+                }
+              }
             ]
           },
           {
             "field": "second",
             "reactions": [
-              { "when": "$deps.trigger == true", "fulfill": { "value": "new-b" } }
+              {
+                "when": "$deps.trigger == true",
+                "fulfill": {
+                  "value": "new-b"
+                }
+              }
             ]
           }
         ],
@@ -64,15 +103,29 @@
       },
       "expected": {
         "ok": true,
-        "values": { "trigger": true, "first": "new-a", "second": "new-b" },
+        "values": {
+          "trigger": true,
+          "first": "new-a",
+          "second": "new-b"
+        },
         "rounds": [
           {
             "round": 1,
-            "snapshot": { "trigger": true, "first": "old-a", "second": "old-b" },
+            "snapshot": {
+              "trigger": true,
+              "first": "old-a",
+              "second": "old-b"
+            },
             "observations": {},
             "commits": [
-              { "field": "first", "value": "new-a" },
-              { "field": "second", "value": "new-b" }
+              {
+                "field": "first",
+                "value": "new-a"
+              },
+              {
+                "field": "second",
+                "value": "new-b"
+              }
             ]
           }
         ],
@@ -81,16 +134,29 @@
     },
     {
       "id": "same-field-later-value-write-wins",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "reactions",
       "input": {
-        "initialValues": { "trigger": true, "tier": "bronze" },
+        "initialValues": {
+          "trigger": true,
+          "tier": "bronze"
+        },
         "fields": [
           {
             "field": "tier",
             "reactions": [
-              { "when": "$deps.trigger == true", "fulfill": { "value": "silver" } },
-              { "when": "$deps.trigger == true", "fulfill": { "value": "gold" } }
+              {
+                "when": "$deps.trigger == true",
+                "fulfill": {
+                  "value": "silver"
+                }
+              },
+              {
+                "when": "$deps.trigger == true",
+                "fulfill": {
+                  "value": "gold"
+                }
+              }
             ]
           }
         ],
@@ -98,29 +164,53 @@
       },
       "expected": {
         "ok": true,
-        "values": { "trigger": true, "tier": "gold" },
+        "values": {
+          "trigger": true,
+          "tier": "gold"
+        },
         "rounds": [
           {
             "round": 1,
-            "snapshot": { "trigger": true, "tier": "bronze" },
+            "snapshot": {
+              "trigger": true,
+              "tier": "bronze"
+            },
             "observations": {},
-            "commits": [{ "field": "tier", "value": "gold" }]
+            "commits": [
+              {
+                "field": "tier",
+                "value": "gold"
+              }
+            ]
           }
         ],
-        "warnings": [{ "code": "MULTIPLE_VALUE_WRITES", "field": "tier", "count": 2 }]
+        "warnings": [
+          {
+            "code": "MULTIPLE_VALUE_WRITES",
+            "field": "tier",
+            "count": 2
+          }
+        ]
       }
     },
     {
       "id": "deep-equal-write-does-not-schedule-next-round",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "reactions",
       "input": {
-        "initialValues": { "status": "closed" },
+        "initialValues": {
+          "status": "closed"
+        },
         "fields": [
           {
             "field": "status",
             "reactions": [
-              { "when": "$deps.status == 'closed'", "fulfill": { "value": "closed" } }
+              {
+                "when": "$deps.status == 'closed'",
+                "fulfill": {
+                  "value": "closed"
+                }
+              }
             ]
           }
         ],
@@ -128,11 +218,15 @@
       },
       "expected": {
         "ok": true,
-        "values": { "status": "closed" },
+        "values": {
+          "status": "closed"
+        },
         "rounds": [
           {
             "round": 1,
-            "snapshot": { "status": "closed" },
+            "snapshot": {
+              "status": "closed"
+            },
             "observations": {},
             "commits": []
           }
@@ -142,10 +236,12 @@
     },
     {
       "id": "loop-protection-stops-after-ten-rounds",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "reactions",
       "input": {
-        "initialValues": { "toggle": "a" },
+        "initialValues": {
+          "toggle": "a"
+        },
         "maxRounds": 10,
         "fields": [
           {
@@ -153,8 +249,12 @@
             "reactions": [
               {
                 "when": "$deps.toggle == 'a'",
-                "fulfill": { "value": "b" },
-                "otherwise": { "value": "a" }
+                "fulfill": {
+                  "value": "b"
+                },
+                "otherwise": {
+                  "value": "a"
+                }
               }
             ]
           }
@@ -165,9 +265,13 @@
         "ok": false,
         "code": "REACTION_LOOP_LIMIT",
         "maxRounds": 10,
-        "values": { "toggle": "a" },
+        "values": {
+          "toggle": "a"
+        },
         "roundCount": 10,
-        "dependencyFields": ["toggle"]
+        "dependencyFields": [
+          "toggle"
+        ]
       }
     }
   ]

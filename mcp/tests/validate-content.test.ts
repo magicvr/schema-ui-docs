@@ -1836,6 +1836,7 @@ body:
     expect(result.layers.L2.length).toBeGreaterThan(0);
   });
 
+  // Vitest 3 default testTimeout is 5s; this case spawns L2 over 6000 nodes (~15s).
   it('preserves real L2 violations beyond the default child-process buffer size', () => {
     const content = JSON.stringify({
       meta: { pageId: 'large-l2-output', title: 'Large L2 output', protocolVersion: '0.2' },
@@ -1854,7 +1855,7 @@ body:
     expect(text).not.toContain('无法解析校验脚本 JSON 输出');
     expect(Buffer.byteLength(text, 'utf8')).toBeLessThanOrEqual(20 * 1024);
     expect(transportResult.layerStats?.L2.total).toBe(6000);
-  });
+  }, 60_000);
 
   it('budgets multi-layer violations with UTF-8 messages', () => {
     setLayerScriptExecutorForTest((_scriptName, _filePath, layer) => JSON.stringify({

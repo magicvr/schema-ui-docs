@@ -4,76 +4,167 @@
   "cases": [
     {
       "id": "initial-four-layer-merge",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders?locale=zh-CN&status=legacy",
-        "staticParams": { "tenant": "acme", "status": "open" },
-        "state": { "filters": { "status": "paid" }, "page": 1, "pageSize": 20, "sort": null },
+        "staticParams": {
+          "tenant": "acme",
+          "status": "open"
+        },
+        "state": {
+          "filters": {
+            "status": "paid"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
         "event": null
       },
       "expected": {
-        "state": { "filters": { "status": "paid" }, "page": 1, "pageSize": 20, "sort": null },
+        "state": {
+          "filters": {
+            "status": "paid"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
         "url": "/orders?locale=zh-CN&page=1&pageSize=20&status=paid&tenant=acme"
       }
     },
     {
       "id": "search-submit-replaces-filters-and-resets-page",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
-        "staticParams": { "tenant": "acme" },
-        "state": { "filters": { "keyword": "old", "status": "paid" }, "page": 4, "pageSize": 20, "sort": "createdAt:desc" },
-        "event": { "type": "submitSearch", "filters": { "keyword": "new value", "status": null } }
+        "staticParams": {
+          "tenant": "acme"
+        },
+        "state": {
+          "filters": {
+            "keyword": "old",
+            "status": "paid"
+          },
+          "page": 4,
+          "pageSize": 20,
+          "sort": "createdAt:desc"
+        },
+        "event": {
+          "type": "submitSearch",
+          "filters": {
+            "keyword": "new value",
+            "status": null
+          }
+        }
       },
       "expected": {
-        "state": { "filters": { "keyword": "new value", "status": null }, "page": 1, "pageSize": 20, "sort": "createdAt:desc" },
+        "state": {
+          "filters": {
+            "keyword": "new value",
+            "status": null
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": "createdAt:desc"
+        },
         "url": "/orders?keyword=new%20value&page=1&pageSize=20&sort=createdAt%3Adesc&tenant=acme"
       }
     },
     {
       "id": "clear-search-resets-page-and-keeps-sort",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders?status=base",
-        "staticParams": { "tenant": "acme" },
-        "state": { "filters": { "status": "paid" }, "page": 3, "pageSize": 50, "sort": "id:asc" },
-        "event": { "type": "clearSearch" }
+        "staticParams": {
+          "tenant": "acme"
+        },
+        "state": {
+          "filters": {
+            "status": "paid"
+          },
+          "page": 3,
+          "pageSize": 50,
+          "sort": "id:asc"
+        },
+        "event": {
+          "type": "clearSearch"
+        }
       },
       "expected": {
-        "state": { "filters": {}, "page": 1, "pageSize": 50, "sort": "id:asc" },
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 50,
+          "sort": "id:asc"
+        },
         "url": "/orders?page=1&pageSize=50&sort=id%3Aasc&status=base&tenant=acme"
       }
     },
     {
       "id": "page-change-keeps-filters-and-sort",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
         "staticParams": {},
-        "state": { "filters": { "keyword": "invoice" }, "page": 1, "pageSize": 20, "sort": "amount:desc" },
-        "event": { "type": "changePage", "page": 5 }
+        "state": {
+          "filters": {
+            "keyword": "invoice"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": "amount:desc"
+        },
+        "event": {
+          "type": "changePage",
+          "page": 5
+        }
       },
       "expected": {
-        "state": { "filters": { "keyword": "invoice" }, "page": 5, "pageSize": 20, "sort": "amount:desc" },
+        "state": {
+          "filters": {
+            "keyword": "invoice"
+          },
+          "page": 5,
+          "pageSize": 20,
+          "sort": "amount:desc"
+        },
         "url": "/orders?keyword=invoice&page=5&pageSize=20&sort=amount%3Adesc"
       }
     },
     {
       "id": "sort-change-resets-page-and-keeps-filters",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
         "staticParams": {},
-        "state": { "filters": { "keyword": "invoice" }, "page": 5, "pageSize": 20, "sort": "amount:desc" },
-        "event": { "type": "changeSort", "sort": "createdAt:asc" }
+        "state": {
+          "filters": {
+            "keyword": "invoice"
+          },
+          "page": 5,
+          "pageSize": 20,
+          "sort": "amount:desc"
+        },
+        "event": {
+          "type": "changeSort",
+          "sort": "createdAt:asc"
+        }
       },
       "expected": {
-        "state": { "filters": { "keyword": "invoice" }, "page": 1, "pageSize": 20, "sort": "createdAt:asc" },
+        "state": {
+          "filters": {
+            "keyword": "invoice"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": "createdAt:asc"
+        },
         "url": "/orders?keyword=invoice&page=1&pageSize=20&sort=createdAt%3Aasc"
       }
     }

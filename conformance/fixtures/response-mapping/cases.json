@@ -4,105 +4,247 @@
   "cases": [
     {
       "id": "table-default-list-and-total",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
         "paginationMode": "server",
-        "response": { "list": [{ "id": 1 }], "total": 1 }
+        "response": {
+          "list": [
+            {
+              "id": 1
+            }
+          ],
+          "total": 1
+        }
       },
-      "expected": { "ok": true, "data": { "list": [{ "id": 1 }], "total": 1 } }
+      "expected": {
+        "ok": true,
+        "data": {
+          "list": [
+            {
+              "id": 1
+            }
+          ],
+          "total": 1
+        }
+      }
     },
     {
       "id": "table-inherits-datasource-mapping",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
         "paginationMode": "server",
-        "datasourceMapping": { "list": "result.records", "total": "result.count" },
-        "response": { "result": { "records": [{ "id": 2 }], "count": 8 } }
+        "datasourceMapping": {
+          "list": "result.records",
+          "total": "result.count"
+        },
+        "response": {
+          "result": {
+            "records": [
+              {
+                "id": 2
+              }
+            ],
+            "count": 8
+          }
+        }
       },
-      "expected": { "ok": true, "data": { "list": [{ "id": 2 }], "total": 8 } }
+      "expected": {
+        "ok": true,
+        "data": {
+          "list": [
+            {
+              "id": 2
+            }
+          ],
+          "total": 8
+        }
+      }
     },
     {
       "id": "local-mapping-completely-overrides-datasource",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
         "paginationMode": "server",
-        "datasourceMapping": { "list": "legacy.items", "total": "legacy.total" },
-        "localMapping": { "list": "payload.rows", "total": "payload.count" },
+        "datasourceMapping": {
+          "list": "legacy.items",
+          "total": "legacy.total"
+        },
+        "localMapping": {
+          "list": "payload.rows",
+          "total": "payload.count"
+        },
         "response": {
-          "legacy": { "items": [], "total": 99 },
-          "payload": { "rows": [{ "id": 3 }], "count": 1 }
+          "legacy": {
+            "items": [],
+            "total": 99
+          },
+          "payload": {
+            "rows": [
+              {
+                "id": 3
+              }
+            ],
+            "count": 1
+          }
         }
       },
-      "expected": { "ok": true, "data": { "list": [{ "id": 3 }], "total": 1 } }
+      "expected": {
+        "ok": true,
+        "data": {
+          "list": [
+            {
+              "id": 3
+            }
+          ],
+          "total": 1
+        }
+      }
     },
     {
       "id": "empty-local-mapping-does-not-inherit-datasource",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
         "paginationMode": "server",
-        "datasourceMapping": { "list": "legacy.items", "total": "legacy.total" },
+        "datasourceMapping": {
+          "list": "legacy.items",
+          "total": "legacy.total"
+        },
         "localMapping": {},
         "response": {
-          "list": [{ "id": 5 }],
+          "list": [
+            {
+              "id": 5
+            }
+          ],
           "total": 1,
-          "legacy": { "items": [], "total": 99 }
+          "legacy": {
+            "items": [],
+            "total": 99
+          }
         }
       },
-      "expected": { "ok": true, "data": { "list": [{ "id": 5 }], "total": 1 } }
+      "expected": {
+        "ok": true,
+        "data": {
+          "list": [
+            {
+              "id": 5
+            }
+          ],
+          "total": 1
+        }
+      }
     },
     {
       "id": "client-table-does-not-require-total",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
         "paginationMode": "client",
-        "localMapping": { "list": "payload.rows" },
-        "response": { "payload": { "rows": [{ "id": 4 }] } }
+        "localMapping": {
+          "list": "payload.rows"
+        },
+        "response": {
+          "payload": {
+            "rows": [
+              {
+                "id": 4
+              }
+            ]
+          }
+        }
       },
-      "expected": { "ok": true, "data": { "list": [{ "id": 4 }] } }
+      "expected": {
+        "ok": true,
+        "data": {
+          "list": [
+            {
+              "id": 4
+            }
+          ]
+        }
+      }
     },
     {
       "id": "chart-default-bare-array",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "response-mapping",
       "input": {
         "component": "chart",
-        "response": [{ "month": "Jan", "value": 10 }]
+        "response": [
+          {
+            "month": "Jan",
+            "value": 10
+          }
+        ]
       },
-      "expected": { "ok": true, "data": { "list": [{ "month": "Jan", "value": 10 }] } }
+      "expected": {
+        "ok": true,
+        "data": {
+          "list": [
+            {
+              "month": "Jan",
+              "value": 10
+            }
+          ]
+        }
+      }
     },
     {
       "id": "mapped-list-path-missing",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
         "paginationMode": "server",
-        "localMapping": { "list": "payload.rows", "total": "payload.count" },
-        "response": { "payload": { "count": 0 } }
+        "localMapping": {
+          "list": "payload.rows",
+          "total": "payload.count"
+        },
+        "response": {
+          "payload": {
+            "count": 0
+          }
+        }
       },
-      "expected": { "ok": false, "code": "RESPONSE_MAPPING_PATH_MISSING", "path": "payload.rows" }
+      "expected": {
+        "ok": false,
+        "code": "RESPONSE_MAPPING_PATH_MISSING",
+        "path": "payload.rows"
+      }
     },
     {
       "id": "mapped-total-type-invalid",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
         "paginationMode": "server",
-        "localMapping": { "list": "payload.rows", "total": "payload.count" },
-        "response": { "payload": { "rows": [], "count": "8" } }
+        "localMapping": {
+          "list": "payload.rows",
+          "total": "payload.count"
+        },
+        "response": {
+          "payload": {
+            "rows": [],
+            "count": "8"
+          }
+        }
       },
-      "expected": { "ok": false, "code": "RESPONSE_MAPPING_TYPE_MISMATCH", "path": "payload.count" }
+      "expected": {
+        "ok": false,
+        "code": "RESPONSE_MAPPING_TYPE_MISMATCH",
+        "path": "payload.count"
+      }
     }
   ]
 }

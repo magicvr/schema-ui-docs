@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-11
-applies_to: schema-ui-protocol v0.3
+last_updated: 2026-07-13
+applies_to: schema-ui-protocol v1.0
 ---
 
 # Renderer（前端渲染器）实现规范
@@ -175,7 +175,7 @@ body:
 
 服务端分页表格的请求状态由筛选快照、从 1 开始的 `page`、`pageSize` 和可空 `sort` 组成。`page`、`pageSize`、`sort` 是 Renderer 保留 query 名；标准入口必须拒绝静态 params 或搜索字段的同名冲突。
 
-Renderer 按已有 URL query < 静态 params < 搜索字段 < 分页/排序状态调用 ADR-0010 公共序列化器。搜索提交整体替换筛选快照并将 `page` 重置为 `1`；清空筛选清除快照并重置页码；翻页保留筛选和排序；排序变化保留筛选并重置页码。完整规则与可执行向量见 [ADR-0011](./decisions/0011-reserved-query-params.md) 和 [`../conformance/fixtures/table-query-state/cases.json`](../conformance/fixtures/table-query-state/cases.json)。
+Renderer 按已有 URL query < 静态 params < 搜索字段 < 分页/排序状态调用 ADR-0010 公共序列化器。搜索提交整体替换筛选快照并将 `page` 重置为 `1`；清空筛选清除快照并重置页码；翻页保留筛选和排序；排序变化保留筛选并重置页码。完整规则与可执行向量见 [ADR-0011](./decisions/0011-reserved-query-params.md) 和 [`../conformance/fixtures/search-table/cases.json`](../conformance/fixtures/search-table/cases.json)。
 
 ### 2.4.1 加载状态管理
 
