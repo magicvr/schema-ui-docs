@@ -4,152 +4,380 @@
   "cases": [
     {
       "id": "single-file-defaults-and-url-priority",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "uploads",
       "input": {
-        "action": { "url": "/files" },
-        "files": [{ "name": "contract.pdf", "type": "application/pdf", "size": 100, "contentId": "file-a" }],
-        "results": [{ "type": "success", "response": { "url": "https://cdn/a.pdf", "id": "id-a" } }]
+        "action": {
+          "url": "/files"
+        },
+        "files": [
+          {
+            "name": "contract.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "file-a"
+          }
+        ],
+        "results": [
+          {
+            "type": "success",
+            "response": {
+              "url": "https://cdn/a.pdf",
+              "id": "id-a"
+            }
+          }
+        ]
       },
       "expected": {
         "ok": true,
         "requests": [
-          { "method": "POST", "url": "/files", "part": { "name": "file", "fileName": "contract.pdf", "contentId": "file-a" } }
+          {
+            "method": "POST",
+            "url": "/files",
+            "part": {
+              "name": "file",
+              "fileName": "contract.pdf",
+              "contentId": "file-a"
+            }
+          }
         ],
         "fieldValue": "https://cdn/a.pdf"
       }
     },
     {
       "id": "single-file-id-fallback-and-custom-request",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "uploads",
       "input": {
-        "action": { "url": "/assets", "method": "PUT", "fieldName": "asset" },
-        "files": [{ "name": "logo.png", "type": "image/png", "size": 200, "contentId": "file-b" }],
-        "results": [{ "type": "success", "response": { "id": "asset-1" } }]
+        "action": {
+          "url": "/assets",
+          "method": "PUT",
+          "fieldName": "asset"
+        },
+        "files": [
+          {
+            "name": "logo.png",
+            "type": "image/png",
+            "size": 200,
+            "contentId": "file-b"
+          }
+        ],
+        "results": [
+          {
+            "type": "success",
+            "response": {
+              "id": "asset-1"
+            }
+          }
+        ]
       },
       "expected": {
         "ok": true,
         "requests": [
-          { "method": "PUT", "url": "/assets", "part": { "name": "asset", "fileName": "logo.png", "contentId": "file-b" } }
+          {
+            "method": "PUT",
+            "url": "/assets",
+            "part": {
+              "name": "asset",
+              "fileName": "logo.png",
+              "contentId": "file-b"
+            }
+          }
         ],
         "fieldValue": "asset-1"
       }
     },
     {
       "id": "multiple-files-preserve-selection-order",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "uploads",
       "input": {
-        "action": { "url": "/files", "multiple": true },
+        "action": {
+          "url": "/files",
+          "multiple": true
+        },
         "files": [
-          { "name": "first.pdf", "type": "application/pdf", "size": 100, "contentId": "first" },
-          { "name": "second.pdf", "type": "application/pdf", "size": 120, "contentId": "second" }
+          {
+            "name": "first.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "first"
+          },
+          {
+            "name": "second.pdf",
+            "type": "application/pdf",
+            "size": 120,
+            "contentId": "second"
+          }
         ],
         "results": [
-          { "type": "success", "response": { "id": "first-id" } },
-          { "type": "success", "response": { "url": "https://cdn/second.pdf" } }
+          {
+            "type": "success",
+            "response": {
+              "id": "first-id"
+            }
+          },
+          {
+            "type": "success",
+            "response": {
+              "url": "https://cdn/second.pdf"
+            }
+          }
         ]
       },
       "expected": {
         "ok": true,
         "requests": [
-          { "method": "POST", "url": "/files", "part": { "name": "file", "fileName": "first.pdf", "contentId": "first" } },
-          { "method": "POST", "url": "/files", "part": { "name": "file", "fileName": "second.pdf", "contentId": "second" } }
+          {
+            "method": "POST",
+            "url": "/files",
+            "part": {
+              "name": "file",
+              "fileName": "first.pdf",
+              "contentId": "first"
+            }
+          },
+          {
+            "method": "POST",
+            "url": "/files",
+            "part": {
+              "name": "file",
+              "fileName": "second.pdf",
+              "contentId": "second"
+            }
+          }
         ],
-        "fieldValue": ["first-id", "https://cdn/second.pdf"]
+        "fieldValue": [
+          "first-id",
+          "https://cdn/second.pdf"
+        ]
       }
     },
     {
       "id": "multiple-disabled-rejects-before-request",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "uploads",
       "input": {
-        "action": { "url": "/files" },
+        "action": {
+          "url": "/files"
+        },
         "files": [
-          { "name": "a.pdf", "type": "application/pdf", "size": 100, "contentId": "a" },
-          { "name": "b.pdf", "type": "application/pdf", "size": 100, "contentId": "b" }
+          {
+            "name": "a.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "a"
+          },
+          {
+            "name": "b.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "b"
+          }
         ],
         "results": []
       },
-      "expected": { "ok": false, "code": "MULTIPLE_FILES_NOT_ALLOWED", "fileIndex": 1, "requests": [], "fieldValue": null }
+      "expected": {
+        "ok": false,
+        "code": "MULTIPLE_FILES_NOT_ALLOWED",
+        "fileIndex": 1,
+        "requests": [],
+        "fieldValue": null
+      }
     },
     {
       "id": "max-size-rejects-whole-batch-before-request",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "uploads",
       "input": {
-        "action": { "url": "/files", "multiple": true, "maxSize": 100 },
+        "action": {
+          "url": "/files",
+          "multiple": true,
+          "maxSize": 100
+        },
         "files": [
-          { "name": "small.pdf", "type": "application/pdf", "size": 90, "contentId": "small" },
-          { "name": "large.pdf", "type": "application/pdf", "size": 101, "contentId": "large" }
+          {
+            "name": "small.pdf",
+            "type": "application/pdf",
+            "size": 90,
+            "contentId": "small"
+          },
+          {
+            "name": "large.pdf",
+            "type": "application/pdf",
+            "size": 101,
+            "contentId": "large"
+          }
         ],
         "results": []
       },
-      "expected": { "ok": false, "code": "FILE_TOO_LARGE", "fileIndex": 1, "requests": [], "fieldValue": null }
+      "expected": {
+        "ok": false,
+        "code": "FILE_TOO_LARGE",
+        "fileIndex": 1,
+        "requests": [],
+        "fieldValue": null
+      }
     },
     {
       "id": "accept-extension-is-case-insensitive",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "uploads",
       "input": {
-        "action": { "url": "/files", "accept": " .pdf, image/* " },
-        "files": [{ "name": "REPORT.PDF", "type": "application/octet-stream", "size": 100, "contentId": "report" }],
-        "results": [{ "type": "success", "response": { "id": "report-id" } }]
+        "action": {
+          "url": "/files",
+          "accept": " .pdf, image/* "
+        },
+        "files": [
+          {
+            "name": "REPORT.PDF",
+            "type": "application/octet-stream",
+            "size": 100,
+            "contentId": "report"
+          }
+        ],
+        "results": [
+          {
+            "type": "success",
+            "response": {
+              "id": "report-id"
+            }
+          }
+        ]
       },
       "expected": {
         "ok": true,
         "requests": [
-          { "method": "POST", "url": "/files", "part": { "name": "file", "fileName": "REPORT.PDF", "contentId": "report" } }
+          {
+            "method": "POST",
+            "url": "/files",
+            "part": {
+              "name": "file",
+              "fileName": "REPORT.PDF",
+              "contentId": "report"
+            }
+          }
         ],
         "fieldValue": "report-id"
       }
     },
     {
       "id": "accept-mime-wildcard-rejects-nonmatching-file",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "uploads",
       "input": {
-        "action": { "url": "/files", "accept": "image/*" },
-        "files": [{ "name": "report.pdf", "type": "application/pdf", "size": 100, "contentId": "report" }],
+        "action": {
+          "url": "/files",
+          "accept": "image/*"
+        },
+        "files": [
+          {
+            "name": "report.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "report"
+          }
+        ],
         "results": []
       },
-      "expected": { "ok": false, "code": "UNSUPPORTED_FILE_TYPE", "fileIndex": 0, "requests": [], "fieldValue": null }
+      "expected": {
+        "ok": false,
+        "code": "UNSUPPORTED_FILE_TYPE",
+        "fileIndex": 0,
+        "requests": [],
+        "fieldValue": null
+      }
     },
     {
       "id": "invalid-success-response-rejects-field-commit",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "uploads",
       "input": {
-        "action": { "url": "/files" },
-        "files": [{ "name": "a.pdf", "type": "application/pdf", "size": 100, "contentId": "a" }],
-        "results": [{ "type": "success", "response": { "url": "", "id": "" } }]
+        "action": {
+          "url": "/files"
+        },
+        "files": [
+          {
+            "name": "a.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "a"
+          }
+        ],
+        "results": [
+          {
+            "type": "success",
+            "response": {
+              "url": "",
+              "id": ""
+            }
+          }
+        ]
       },
       "expected": {
         "ok": false,
         "code": "INVALID_UPLOAD_RESPONSE",
         "fileIndex": 0,
         "requests": [
-          { "method": "POST", "url": "/files", "part": { "name": "file", "fileName": "a.pdf", "contentId": "a" } }
+          {
+            "method": "POST",
+            "url": "/files",
+            "part": {
+              "name": "file",
+              "fileName": "a.pdf",
+              "contentId": "a"
+            }
+          }
         ],
         "fieldValue": null
       }
     },
     {
       "id": "multiple-request-failure-stops-and-is-atomic",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "uploads",
       "input": {
-        "action": { "url": "/files", "multiple": true },
+        "action": {
+          "url": "/files",
+          "multiple": true
+        },
         "files": [
-          { "name": "a.pdf", "type": "application/pdf", "size": 100, "contentId": "a" },
-          { "name": "b.pdf", "type": "application/pdf", "size": 100, "contentId": "b" },
-          { "name": "c.pdf", "type": "application/pdf", "size": 100, "contentId": "c" }
+          {
+            "name": "a.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "a"
+          },
+          {
+            "name": "b.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "b"
+          },
+          {
+            "name": "c.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "c"
+          }
         ],
         "results": [
-          { "type": "success", "response": { "id": "a-id" } },
-          { "type": "failure", "status": 503 },
-          { "type": "success", "response": { "id": "c-id" } }
+          {
+            "type": "success",
+            "response": {
+              "id": "a-id"
+            }
+          },
+          {
+            "type": "failure",
+            "status": 503
+          },
+          {
+            "type": "success",
+            "response": {
+              "id": "c-id"
+            }
+          }
         ]
       },
       "expected": {
@@ -157,8 +385,24 @@
         "code": "UPLOAD_REQUEST_FAILED",
         "fileIndex": 1,
         "requests": [
-          { "method": "POST", "url": "/files", "part": { "name": "file", "fileName": "a.pdf", "contentId": "a" } },
-          { "method": "POST", "url": "/files", "part": { "name": "file", "fileName": "b.pdf", "contentId": "b" } }
+          {
+            "method": "POST",
+            "url": "/files",
+            "part": {
+              "name": "file",
+              "fileName": "a.pdf",
+              "contentId": "a"
+            }
+          },
+          {
+            "method": "POST",
+            "url": "/files",
+            "part": {
+              "name": "file",
+              "fileName": "b.pdf",
+              "contentId": "b"
+            }
+          }
         ],
         "fieldValue": null
       }

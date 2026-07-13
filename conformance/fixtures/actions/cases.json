@@ -4,40 +4,65 @@
   "cases": [
     {
       "id": "success-toast",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
-        "transport": { "type": "success", "status": 200 },
-        "onSuccess": { "behavior": "toast", "message": "保存成功" }
+        "transport": {
+          "type": "success",
+          "status": 200
+        },
+        "onSuccess": {
+          "behavior": "toast",
+          "message": "保存成功"
+        }
       },
       "expected": {
         "ok": true,
         "events": [
-          { "type": "requestSucceeded", "status": 200 },
-          { "type": "toast", "message": "保存成功" }
+          {
+            "type": "requestSucceeded",
+            "status": 200
+          },
+          {
+            "type": "toast",
+            "message": "保存成功"
+          }
         ]
       }
     },
     {
       "id": "success-row-reload",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
-        "transport": { "type": "success", "status": 204 },
-        "onSuccess": { "behavior": "reload" },
-        "context": { "tableId": "orders" }
+        "transport": {
+          "type": "success",
+          "status": 204
+        },
+        "onSuccess": {
+          "behavior": "reload"
+        },
+        "context": {
+          "tableId": "orders"
+        }
       },
       "expected": {
         "ok": true,
         "events": [
-          { "type": "requestSucceeded", "status": 204 },
-          { "type": "reloadTable", "tableId": "orders" }
+          {
+            "type": "requestSucceeded",
+            "status": 204
+          },
+          {
+            "type": "reloadTable",
+            "tableId": "orders"
+          }
         ]
       }
     },
     {
       "id": "validation-errors-suppress-navigation",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
         "transport": {
@@ -45,25 +70,41 @@
           "status": 400,
           "body": {
             "message": "请求参数校验失败",
-            "errors": [{ "field": "email", "message": "邮箱格式不正确" }]
+            "errors": [
+              {
+                "field": "email",
+                "message": "邮箱格式不正确"
+              }
+            ]
           }
         },
-        "onError": { "behavior": "navigate", "url": "/failed" }
+        "onError": {
+          "behavior": "navigate",
+          "url": "/failed"
+        }
       },
       "expected": {
         "ok": false,
         "events": [
           {
             "type": "fieldErrors",
-            "errors": [{ "field": "email", "message": "邮箱格式不正确" }]
+            "errors": [
+              {
+                "field": "email",
+                "message": "邮箱格式不正确"
+              }
+            ]
           },
-          { "type": "toast", "message": "请求参数校验失败" }
+          {
+            "type": "toast",
+            "message": "请求参数校验失败"
+          }
         ]
       }
     },
     {
       "id": "validation-errors-configured-toast-replaces-response-message",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
         "transport": {
@@ -71,126 +112,227 @@
           "status": 400,
           "body": {
             "message": "请求参数校验失败",
-            "errors": [{ "field": "phone", "message": "手机号不能为空" }]
+            "errors": [
+              {
+                "field": "phone",
+                "message": "手机号不能为空"
+              }
+            ]
           }
         },
-        "onError": { "behavior": "toast", "message": "请检查输入" }
+        "onError": {
+          "behavior": "toast",
+          "message": "请检查输入"
+        }
       },
       "expected": {
         "ok": false,
         "events": [
           {
             "type": "fieldErrors",
-            "errors": [{ "field": "phone", "message": "手机号不能为空" }]
+            "errors": [
+              {
+                "field": "phone",
+                "message": "手机号不能为空"
+              }
+            ]
           },
-          { "type": "toast", "message": "请检查输入" }
+          {
+            "type": "toast",
+            "message": "请检查输入"
+          }
         ]
       }
     },
     {
       "id": "unauthorized-auth-hook-suppresses-on-error",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
-        "transport": { "type": "httpError", "status": 401, "body": { "message": "token expired" } },
-        "onError": { "behavior": "navigate", "url": "/login-from-schema" }
+        "transport": {
+          "type": "httpError",
+          "status": 401,
+          "body": {
+            "message": "token expired"
+          }
+        },
+        "onError": {
+          "behavior": "navigate",
+          "url": "/login-from-schema"
+        }
       },
       "expected": {
         "ok": false,
         "events": [
-          { "type": "authFailure", "status": 401 },
-          { "type": "errorState", "display": null }
+          {
+            "type": "authFailure",
+            "status": 401
+          },
+          {
+            "type": "errorState",
+            "display": null
+          }
         ]
       }
     },
     {
       "id": "forbidden-auth-hook-and-safe-placeholder",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
-        "transport": { "type": "httpError", "status": 403, "body": { "message": "internal policy" } },
-        "onError": { "behavior": "toast", "message": "ignored" }
+        "transport": {
+          "type": "httpError",
+          "status": 403,
+          "body": {
+            "message": "internal policy"
+          }
+        },
+        "onError": {
+          "behavior": "toast",
+          "message": "ignored"
+        }
       },
       "expected": {
         "ok": false,
         "events": [
-          { "type": "authFailure", "status": 403 },
-          { "type": "errorState", "display": "无权限访问" }
+          {
+            "type": "authFailure",
+            "status": 403
+          },
+          {
+            "type": "errorState",
+            "display": "无权限访问"
+          }
         ]
       }
     },
     {
       "id": "not-found-records-safe-error-before-reload",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
-        "transport": { "type": "httpError", "status": 404, "body": { "message": "sensitive detail" } },
-        "onError": { "behavior": "reload" },
-        "context": { "tableId": "orders" }
+        "transport": {
+          "type": "httpError",
+          "status": 404,
+          "body": {
+            "message": "sensitive detail"
+          }
+        },
+        "onError": {
+          "behavior": "reload"
+        },
+        "context": {
+          "tableId": "orders"
+        }
       },
       "expected": {
         "ok": false,
         "events": [
-          { "type": "errorState", "display": "资源不存在" },
-          { "type": "reloadTable", "tableId": "orders" }
+          {
+            "type": "errorState",
+            "display": "资源不存在"
+          },
+          {
+            "type": "reloadTable",
+            "tableId": "orders"
+          }
         ]
       }
     },
     {
       "id": "server-error-toast-overrides-safe-default",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
-        "transport": { "type": "httpError", "status": 503, "body": { "message": "database unavailable" } },
-        "onError": { "behavior": "toast", "message": "稍后再试" }
+        "transport": {
+          "type": "httpError",
+          "status": 503,
+          "body": {
+            "message": "database unavailable"
+          }
+        },
+        "onError": {
+          "behavior": "toast",
+          "message": "稍后再试"
+        }
       },
       "expected": {
         "ok": false,
         "events": [
-          { "type": "errorState", "display": "系统异常，请稍后重试" },
-          { "type": "toast", "message": "稍后再试" }
+          {
+            "type": "errorState",
+            "display": "系统异常，请稍后重试"
+          },
+          {
+            "type": "toast",
+            "message": "稍后再试"
+          }
         ]
       }
     },
     {
       "id": "timeout-records-error-before-close-modal",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
-        "transport": { "type": "timeout" },
-        "onError": { "behavior": "closeModal" }
+        "transport": {
+          "type": "timeout"
+        },
+        "onError": {
+          "behavior": "closeModal"
+        }
       },
       "expected": {
         "ok": false,
         "events": [
-          { "type": "errorState", "display": "请求超时，请稍后重试", "retryable": true },
-          { "type": "closeModal" }
+          {
+            "type": "errorState",
+            "display": "请求超时，请稍后重试",
+            "retryable": true
+          },
+          {
+            "type": "closeModal"
+          }
         ]
       }
     },
     {
       "id": "network-error-uses-safe-message",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
-        "transport": { "type": "networkError" }
+        "transport": {
+          "type": "networkError"
+        }
       },
       "expected": {
         "ok": false,
         "events": [
-          { "type": "errorState", "display": "网络异常，请检查网络连接", "retryable": true }
+          {
+            "type": "errorState",
+            "display": "网络异常，请检查网络连接",
+            "retryable": true
+          }
         ]
       }
     },
     {
       "id": "abort-is-silent-and-suppresses-on-error",
-      "protocolVersion": "0.3",
+      "protocolVersion": "1.0",
       "category": "actions",
       "input": {
-        "transport": { "type": "abort" },
-        "onError": { "behavior": "toast", "message": "不应显示" }
+        "transport": {
+          "type": "abort"
+        },
+        "onError": {
+          "behavior": "toast",
+          "message": "不应显示"
+        }
       },
-      "expected": { "ok": false, "events": [] }
+      "expected": {
+        "ok": false,
+        "events": []
+      }
     }
   ]
 }
