@@ -27,7 +27,11 @@
 
 ## 当前活跃审计
 
-- 当前无活跃审计。
+| 编号 | 日期 | 文件 | 范围摘要 |
+|---|---|---|---|
+| **0056** | 2026-07-13 | [review](./0056-2026-07-13-review.md) · [checklist](./0056-2026-07-13-checklist.md) | v1.0.0 后健康审计：发布 fixture digest 证据、L0/L1 双路径、fixtures `protocolVersion`、依赖 audit、suite Schema/重复 fixtures、文档元数据 |
+
+问题编号自 **V225** 起（上一归档 0055 最大为 V224）。
 
 ---
 
