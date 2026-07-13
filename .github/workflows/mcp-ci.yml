@@ -39,6 +39,9 @@ jobs:
       - name: Audit protocol dependencies (high+)
         run: npm audit --audit-level=high
 
+      - name: Check relative documentation links
+        run: npm run check:links
+
       - name: Check release metadata
         run: npm run release:check
 
@@ -106,9 +109,15 @@ jobs:
         run: npm run test:conformance:uploads:python
 
   mcp:
-    name: Build, test, and smoke MCP
+    name: Build, test, and smoke MCP (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - '20.19.0'
+          - '24'
 
     steps:
       - name: Checkout
@@ -117,7 +126,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: ${{ matrix.node-version }}
           cache: npm
           cache-dependency-path: |
             package-lock.json
@@ -145,6 +154,7 @@ jobs:
         run: npm --prefix mcp run smoke:tools
 
       - name: Read MCP version
+        if: matrix.node-version == '24'
         id: mcp-version
         shell: bash
         run: |
@@ -152,7 +162,9 @@ jobs:
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Build MCP Docker image
+        if: matrix.node-version == '24'
         run: docker build -f mcp/Dockerfile -t schema-ui-mcp:${{ steps.mcp-version.outputs.version }} .
 
       - name: Smoke test MCP Docker image
+        if: matrix.node-version == '24'
         run: npm --prefix mcp run smoke:docker -- schema-ui-mcp:${{ steps.mcp-version.outputs.version }}

@@ -20,6 +20,8 @@
 
 ## 本地开发
 
+源码安装、构建、测试和本地运行要求 Node.js `>=20.19.0`。该下限与当前 `vitest` → Vite 7 测试依赖链一致；CI 在 Node `20.19.0` 与 Node 24 上执行完整 MCP 构建、测试和 tools smoke，Docker 分发仍固定使用 Node 24。
+
 ```bash
 npm install
 npm install --prefix mcp
