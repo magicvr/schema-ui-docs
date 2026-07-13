@@ -43,6 +43,12 @@ jobs:
       - name: Install MCP dependencies
         run: npm ci --prefix mcp
 
+      - name: Audit protocol dependencies (high+)
+        run: npm audit --audit-level=high
+
+      - name: Audit MCP dependencies (high+)
+        run: npm audit --prefix mcp --audit-level=high
+
       - name: Check release metadata and Git tag
         id: release-check
         run: npm run release:check:tag
