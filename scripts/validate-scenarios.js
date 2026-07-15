@@ -6,16 +6,17 @@ const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { writeOfficialScenarios } = require('./official-scenarios');
+const { WORKSPACE_ROOT, protocolRoot } = require('./protocol-paths');
 
-const protocolRoot = path.resolve(__dirname, '..');
+const protocolSourceRoot = protocolRoot();
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'schema-ui-scenarios-'));
 
 try {
-  writeOfficialScenarios(protocolRoot, tempDir);
+  writeOfficialScenarios(protocolSourceRoot, tempDir);
   const result = spawnSync(
     process.execPath,
     [path.join(__dirname, 'validate-all.js'), path.join(tempDir, '*.yaml')],
-    { cwd: protocolRoot, stdio: 'inherit' },
+    { cwd: WORKSPACE_ROOT, stdio: 'inherit', env: process.env },
   );
 
   if (result.error) throw result.error;

@@ -1,15 +1,21 @@
 {
-  "name": "schema-ui-docs",
+  "name": "schema-ui-protocol-workspace",
   "version": "2.0.0",
   "private": true,
-  "description": "Schema-UI v2.0.0 协议文档及校验工具链",
+  "description": "Schema-UI v2.0.0 协议源码、制品构建与辅助验证工作区",
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:scenarios": "node scripts/validate-scenarios.js",
     "validate:conformance": "node conformance/runner/validate-fixture-suites.js",
     "check:links": "node scripts/check-links.js",
+    "check:protocol-artifact-links": "npm run build:protocol && node scripts/check-links.js --root=dist/protocol",
     "release:check": "node scripts/release-check.js",
     "release:check:tag": "node scripts/release-check.js --release",
+    "release:check:mcp": "node scripts/mcp-release-check.js",
+    "release:check:mcp:tag": "node scripts/mcp-release-check.js --release",
+    "release:check:validator": "node scripts/validator-release-check.js",
+    "build:protocol": "node scripts/build-protocol-artifact.js",
+    "verify:protocol-artifact": "node scripts/verify-protocol-artifact.js",
     "test:conformance:query": "node conformance/runner/run-query-serialization.js",
     "test:conformance:query:python": "python conformance/runner/run-query-serialization-python.py",
     "test:conformance:actions": "node conformance/runner/run-actions.js",
@@ -29,18 +35,17 @@
     "test:conformance:uploads:python": "python conformance/runner/run-uploads-python.py",
     "test:conformance:version": "node conformance/runner/run-version-negotiation.js",
     "test:conformance:version:python": "python conformance/runner/run-version-negotiation-python.py",
+    "test:conformance:all": "node scripts/run-all-conformance.js",
     "validate:l2": "node scripts/validate-l2-components.js",
     "validate:l3a": "node scripts/validate-l3a-expressions.js",
     "lint:l4": "node scripts/lint-l4-banned-props.js"
   },
   "dependencies": {
+    "ajv": "^8.20.0",
     "glob": "^10.4.5",
     "js-yaml": "^4.1.0"
   },
-  "devDependencies": {
-    "ajv": "^8.20.0",
-    "ajv-formats": "^2.1.1"
-  },
+  "devDependencies": {},
   "engines": {
     "node": ">=20.19.0"
   }

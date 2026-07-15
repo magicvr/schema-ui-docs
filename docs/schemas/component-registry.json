@@ -2,9 +2,10 @@
   "$schema": "https://internal/schema-ui/component-registry-dsl#",
   "$id": "https://internal/schema-ui/component-registry.json",
   "title": "Schema-UI Component Registry",
-  "description": "组件类型注册表机器可读版本（自定义 DSL 格式，非标准 JSON Schema），需与 docs/03-component-registry.md 保持同步。建议由 CI 从前端组件 Props 类型定义自动生成本文件。",
+  "description": "组件类型注册表机器可读结构契约（自定义 DSL，非标准 JSON Schema）。验证器和工具必须从本文件读取组件字段、能力与分类；Markdown 仅补充语义说明。",
   "components": {
     "grid": {
+      "category": "布局",
       "supportsChildren": true,
       "supportsData": false,
       "supportsReactions": false,
@@ -16,6 +17,7 @@
       }
     },
     "section": {
+      "category": "布局",
       "supportsChildren": true,
       "supportsData": false,
       "supportsReactions": false,
@@ -28,6 +30,7 @@
       }
     },
     "tabs": {
+      "category": "布局",
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": false,
@@ -58,6 +61,7 @@
       }
     },
     "statCard": {
+      "category": "数据",
       "supportsChildren": false,
       "supportsData": true,
       "supportsReactions": false,
@@ -82,6 +86,7 @@
       ]
     },
     "chart": {
+      "category": "数据",
       "supportsChildren": false,
       "supportsData": true,
       "supportsReactions": false,
@@ -95,6 +100,7 @@
       }
     },
     "text": {
+      "category": "数据",
       "supportsChildren": false,
       "supportsData": true,
       "supportsReactions": false,
@@ -117,6 +123,7 @@
       ]
     },
     "table": {
+      "category": "数据",
       "supportsChildren": false,
       "supportsData": true,
       "supportsReactions": false,
@@ -224,6 +231,7 @@
       }
     },
     "form": {
+      "category": "表单",
       "supportsChildren": true,
       "supportsData": false,
       "supportsReactions": false,
@@ -266,6 +274,7 @@
       }
     },
     "input": {
+      "category": "表单",
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": true,
@@ -288,6 +297,7 @@
       ]
     },
     "inputNumber": {
+      "category": "表单",
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": true,
@@ -314,6 +324,7 @@
       ]
     },
     "datePicker": {
+      "category": "表单",
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": true,
@@ -339,6 +350,7 @@
       ]
     },
     "dateRangePicker": {
+      "category": "表单",
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": true,
@@ -364,6 +376,7 @@
       ]
     },
     "upload": {
+      "category": "表单",
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": true,
@@ -395,6 +408,7 @@
       ]
     },
     "select": {
+      "category": "表单",
       "supportsChildren": false,
       "supportsData": false,
       "supportsReactions": true,

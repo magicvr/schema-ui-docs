@@ -37,6 +37,7 @@ ehthumbs.db
 mcp/dist/
 mcp/src/**/*.js
 mcp/tests/**/*.js
+dist/
 
 # --- 临时目录 / 生成文件 ---
 .tmp/

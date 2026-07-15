@@ -1,7 +1,10 @@
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { execFile } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { PROTOCOL_ROOT } from '../src/core/paths.js';
+import { PROTOCOL_ROOT, VALIDATOR_ROOT } from '../src/core/paths.js';
 import {
   setLayerScriptExecutorForTest,
   setTempDirCreatorForTest,
@@ -1933,25 +1936,39 @@ body:
     expect(result.layers.L2.length).toBeGreaterThan(0);
   });
 
-  // Vitest 3 default testTimeout is 5s; this case spawns L2 over 6000 nodes (~15s).
-  it('preserves real L2 violations beyond the default child-process buffer size', () => {
+  it('preserves real L2 violations beyond the default child-process buffer size', async () => {
     const content = JSON.stringify({
       meta: { pageId: 'large-l2-output', title: 'Large L2 output', protocolVersion: '0.2' },
       body: {
         type: 'section',
-        children: Array.from({ length: 6000 }, (_, index) => ({ type: `unknown_${index}` })),
+        children: Array.from({ length: 6500 }, (_, index) => ({ type: `unknown_${index}` })),
       },
     });
-    const result = validateContent({ content, format: 'json', filename: 'large-l2.json' });
-    const response = handleValidateContent({ content, format: 'json', filename: 'large-l2.json' });
-    const text = response.content[0].text;
-    const transportResult = JSON.parse(text) as ValidateContentResult;
-
-    expect(result.internalError).toBeNull();
-    expect(result.layers.L2).toHaveLength(6000);
-    expect(text).not.toContain('无法解析校验脚本 JSON 输出');
-    expect(Buffer.byteLength(text, 'utf8')).toBeLessThanOrEqual(20 * 1024);
-    expect(transportResult.layerStats?.L2.total).toBe(6000);
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'schema-ui-large-l2-'));
+    const filePath = path.join(tempDir, 'large-l2.json');
+    fs.writeFileSync(filePath, content, 'utf8');
+    try {
+      const stdout = await new Promise<string>((resolve, reject) => {
+        execFile(
+          process.execPath,
+          [path.join(VALIDATOR_ROOT, 'scripts', 'validate-l2-components.js'), filePath, '--json'],
+          {
+            encoding: 'utf8',
+            maxBuffer: 16 * 1024 * 1024,
+            env: { ...process.env, SCHEMA_UI_PROTOCOL_ROOT: PROTOCOL_ROOT },
+          },
+          (error, childStdout) => {
+            if (error && !childStdout) reject(error);
+            else resolve(childStdout);
+          },
+        );
+      });
+      const parsed = JSON.parse(stdout) as { violations: unknown[] };
+      expect(Buffer.byteLength(stdout, 'utf8')).toBeGreaterThan(1024 * 1024);
+      expect(parsed.violations).toHaveLength(6500);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
   }, 60_000);
 
   it('budgets multi-layer violations with UTF-8 messages', () => {

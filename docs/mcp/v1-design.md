@@ -13,7 +13,7 @@ MCP v1 面向 AI 工具提供两个能力：
 1. 只读查询 Schema-UI 协议知识；
 2. 校验调用方传入的页面配置内容。
 
-MCP v1 不生成页面、不修改文件、不读取宿主项目目录、不访问网络。协议知识与校验规则的权威源仍是本仓库的 `docs/`、`docs/schemas/` 与 `scripts/`。
+MCP v1 不生成页面、不修改文件、不读取宿主项目目录、不访问网络。协议权威矩阵由根 `PROJECT_CHARTER.md` 与 `protocol-manifest.json` 定义；`scripts/` 和 MCP 均为非规范性辅助实现。
 
 ## 2. 运行形态
 

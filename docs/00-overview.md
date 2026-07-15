@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-11
+last_updated: 2026-07-16
 applies_to: schema-ui-protocol v2.0
 ---
 
@@ -23,6 +23,9 @@ applies_to: schema-ui-protocol v2.0
 
 ## 2. 文档地图
 
+项目使命、权威层级、依赖方向和版本边界先以根 [`PROJECT_CHARTER.md`](../PROJECT_CHARTER.md) 为准；
+协议发布文件清单由根 [`protocol-manifest.json`](../protocol-manifest.json) 定义。
+
 | 文档 | 面向读者 | 用途 |
 |---|---|---|
 | [00-overview.md](./00-overview.md) | 所有人 / AI | 总纲、术语表（本文档） |
@@ -38,15 +41,15 @@ applies_to: schema-ui-protocol v2.0
 | [10-v2-release-goals.md](./10-v2-release-goals.md) | 前后端开发者 / 维护者 | `v2.0.0` 当前收敛目标与发布门禁 |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
-| [audit/](./audit/) | 维护者 / AI | 过程性审计与迭代记录，编号规则：`NNNN-YYYY-MM-DD-{review,checklist,plan}`（完整规则见 [audit/README.md](./audit/README.md)） |
+| `audit/` | 维护者 | 非协议制品的过程记录；完成结论应沉淀到规范、ADR、迁移或 CHANGELOG |
 | [CHANGELOG.md](./CHANGELOG.md) | 所有人 | 协议版本变更记录 |
 
 **阅读建议：**
 - 第一次接触本协议 → 先读本文档，再读 `01-node-protocol.md`。
 - 只想抄一个现成配置 → 直接看 `05-scenarios/`。
-- 要给协议写校验工具 / 训练 AI 生成配置 → 直接读 `schemas/*.json`。
+- 要给协议写校验工具 → 先读项目章程，再直接消费 `schemas/*.json` 与 `conformance/fixtures/`，不得从现有验证器反推新语义。
 - 想扩展协议、新增字段 → 先读 `decisions/`，确认没有历史上被否决过的类似方案。
-- 查阅审计/迭代记录 → 直接看 `audit/`。
+- 查阅历史审计证据 → 查看 `audit/`；它不是协议权威来源，也不进入协议制品。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`。
 - 维护或发布 `v2.0.0` → 对照 `10-v2-release-goals.md` 的门禁与完成定义；`09-v1-release-goals.md` 仅保留 v1.0.0 历史证据。
 

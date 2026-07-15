@@ -1,187 +1,119 @@
-# Schema-Driven UI 协议文档
+# Schema-UI 前后端协议
 
-配置驱动 UI（Schema-Driven UI）系统的工程化文档，供前/后端开发者与 AI 助手查阅。
+Schema-UI 是前端 Renderer 与后端页面生产方共同遵守的、框架和语言无关的配置驱动 UI 协议。
+协议本身是本仓库的核心交付物；验证器、reference、MCP 和 Docker 镜像都是非规范性辅助工具。
 
-**入口：从 [`docs/00-overview.md`](./docs/00-overview.md) 开始阅读。**
+当前协议版本为 `2.0.0`，页面声明使用 `meta.protocolVersion: "2.0"`。
 
-本仓库当前包含两部分交付物：
+开始阅读：[`PROJECT_CHARTER.md`](./PROJECT_CHARTER.md) → [`docs/00-overview.md`](./docs/00-overview.md)。
 
-- `docs/`：Schema-UI 协议、场景示例、标准 JSON Schema、组件注册 DSL、ADR 与校验说明。
-- `conformance/`：框架无关的一致性 fixtures、JavaScript 参考算法与 runner。
-- `mcp/`：Schema-UI MCP stdio 服务实现，提供协议只读查询与内容校验工具。
+## 核心交付物
 
-当前协议升级候选版本为 `2.0.0`，页面配置使用 `meta.protocolVersion: "2.0"`。当前发布目标与门禁见 [`docs/10-v2-release-goals.md`](./docs/10-v2-release-goals.md)；v1.0.0 历史门禁保留在 [`docs/09-v1-release-goals.md`](./docs/09-v1-release-goals.md)。
+| 层级 | 内容 | 作用 |
+|---|---|---|
+| 核心规范 | `docs/00`–`08`、协议 ADR | 定义字段语义、默认值和能力边界 |
+| 机器契约 | `docs/schemas/` | 定义 JSON/YAML 结构与组件字段 |
+| 行为契约 | `conformance/fixtures/` | 定义跨前后端实现的可观测结果 |
+| 协议制品 | `schema-ui-protocol-<version>.tar.gz` | 前后端共同固定和消费的不可变发布单元 |
 
-## MCP 服务
+协议制品文件清单由 [`protocol-manifest.json`](./protocol-manifest.json) 定义。`scripts/`、`mcp/`、
+`validator/`、`docs/mcp/`、`docs/audit/` 和 reference 实现不进入协议制品，也不影响协议内容摘要。
 
-MCP 服务当前发布候选版本为 `2.0.0`。源码安装、校验工具链与 MCP 运行时要求 Node.js `>=20.19.0`；这是当前 `vitest` 测试链使用的 Vite 7 所支持的最低 Node 版本，避免继续声明未经标准构建与测试路径验证的 Node 18。CI 同时验证最低版本 `20.19.0` 和 Node 24，官方 Docker 镜像固定使用 Node 24。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
+## 权威规则
 
-### 使用 Docker Hub 镜像
+不同问题使用不同的权威投影：
 
-CD 工作流会将 MCP 镜像推送到 Docker Hub：
+- 字段语义和能力边界：核心规范与已接受的协议 ADR；
+- JSON/YAML 结构和组件字段：JSON Schema 与组件注册 DSL；
+- 可观测算法结果：versioned conformance fixtures；
+- 验证器、reference 和 MCP：只能执行或呈现以上规则，不能新增协议语义。
+
+任意两层冲突都属于发布阻断问题，不能以某个工具当前接受或拒绝作为裁决。完整规则见
+[`PROJECT_CHARTER.md`](./PROJECT_CHARTER.md)。
+
+## 前后端消费
+
+构建语言无关协议制品：
+
+```bash
+npm ci
+npm run build:protocol
+npm run verify:protocol-artifact
+```
+
+输出：
 
 ```text
-<dockerhub-namespace>/schema-ui-mcp:2.0.0
-<dockerhub-namespace>/schema-ui-mcp:2.0
-<dockerhub-namespace>/schema-ui-mcp:latest
-<dockerhub-namespace>/schema-ui-mcp:<commit-sha>
+dist/schema-ui-protocol-2.0.0.tar.gz
+dist/schema-ui-protocol-2.0.0.tar.gz.sha256
+dist/protocol/manifest.json
 ```
 
-CD 仅在推送与包版本一致的 Git tag（当前候选为 `v2.0.0`）时发布，手工触发也必须选择该 tag。预发布版本只推送完整版本 tag 和 commit SHA，不更新 minor 或 `latest`；稳定版本才更新 minor 和 `latest` 别名。
+独立前端和后端仓库应固定协议 tag 或制品 SHA-256，直接消费同一份 Schema 和 fixtures；不得复制后维护
+私有期望结果。JavaScript、Python、Java、.NET 等消费者使用同一个制品，不要求安装或运行 MCP。
 
-团队接入建议固定使用 PATCH tag，例如 `2.0.0`，避免无意跟随 `latest` 升级。
+当前跨实现消费规则与 fixture 分类见 [`conformance/README.md`](./conformance/README.md)。从 `1.0` 升级到
+`2.0` 请按 [`docs/migrations/1.0-to-2.0.md`](./docs/migrations/1.0-to-2.0.md) 执行。
 
-拉取并启动 stdio MCP server：
+## 协议验证
+
+协议仓库自身的完整门禁：
 
 ```bash
-docker pull <dockerhub-namespace>/schema-ui-mcp:2.0.0
-docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:2.0.0
-```
-
-MCP 客户端配置示例：
-
-```json
-{
-    "mcpServers": {
-        "schema-ui": {
-            "command": "docker",
-            "args": [
-                "run",
-                "--rm",
-                "-i",
-                "<dockerhub-namespace>/schema-ui-mcp:2.0.0"
-            ]
-    }
-    }
-}
-```
-
-这个镜像不需要挂载业务项目目录。调用 `protocol.validate_content` 时，由 MCP 客户端读取页面 YAML/JSON 内容后传入工具；MCP 服务只校验传入内容，不读取本地路径。
-
-接入后可以让 AI 客户端查询协议、读取组件契约或校验当前页面配置内容。典型用法包括：搜索 `table pagination` 的协议说明、读取 `table` 组件契约、校验一段页面 YAML 是否符合 L0-L4 规则。
-
-已暴露工具：
-
-| 工具 | 用途 |
-|---|---|
-| `protocol.search` | 搜索协议文档、场景示例、ADR 与 Schema 描述 |
-| `protocol.get_doc` | 按 `docId` 读取白名单协议文档，可选章节 |
-| `protocol.list_components` | 列出当前组件注册表中的组件类型与能力标记 |
-| `protocol.get_component` | 返回指定组件的结构化契约 |
-| `protocol.validate_content` | 校验调用方传入的 YAML/JSON 页面配置内容 |
-
-### 本地开发与验证
-
-```bash
-npm install
-npm install --prefix mcp
-npm run validate -- "<page-file-or-glob>"
-npm run validate:scenarios
-npm run validate:conformance
 npm run check:links
 npm run release:check
-npm run test:conformance:version
-npm run test:conformance:version:python
-npm run test:conformance:query
-npm run test:conformance:query:python
-npm run test:conformance:actions
-npm run test:conformance:actions:python
-npm run test:conformance:reactions
-npm run test:conformance:reactions:python
-npm run test:conformance:table-state
-npm run test:conformance:request
-npm run test:conformance:request:python
-npm run test:conformance:response
-npm run test:conformance:response:python
-npm run test:conformance:search-table
-npm run test:conformance:search-table:python
-npm run test:conformance:scenarios
-npm run test:conformance:scenarios:python
-npm run test:conformance:uploads
-npm run test:conformance:uploads:python
-npm --prefix mcp run build
-npm --prefix mcp run test
-npm --prefix mcp run smoke:tools
+npm run verify:protocol-artifact
+npm run validate:scenarios
+npm run validate:conformance
 ```
 
-其中 `npm run validate` 用于校验调用方提供的页面 YAML/JSON 文件，例如 `npm run validate -- "pages/**/*.yaml"`。
-
-`npm run check:links` 检查 `README.md`、`docs/**/*.md` 与 `conformance/**/*.md` 中 Markdown/HTML 的仓库内相对链接是否存在；外部 URL、纯锚点、代码块、行内代码与普通说明文字不作为链接目标扫描。
-
-本地启动 stdio server：
+生产消费者至少应运行与自身职责相关的 Schema 校验和 conformance fixtures。根 CLI 是辅助验证器入口：
 
 ```bash
-npm --prefix mcp start
+npm run validate -- "pages/**/*.yaml"
 ```
 
-本地 Docker 构建与 smoke test：
+验证器的通过不替代协议评审；每条拒绝规则必须能追溯到核心规范、机器契约或行为契约。
 
-```bash
-docker build -f mcp/Dockerfile -t schema-ui-mcp:2.0.0 .
-docker run --rm -i schema-ui-mcp:2.0.0
-npm --prefix mcp run smoke:docker -- schema-ui-mcp:2.0.0
-```
+## 版本与发布
 
-更多 MCP 设计与边界说明见 [`docs/mcp/README.md`](./docs/mcp/README.md) 与 [`docs/decisions/0007-mcp-protocol-reader-validator.md`](./docs/decisions/0007-mcp-protocol-reader-validator.md)。
+- 协议 tag：`v<protocol-artifact-version>`，例如 `v2.0.0`；
+- 页面协议版本：MAJOR.MINOR，例如 `2.0`；
+- MCP tag：`mcp-v<mcp-version>`，例如 `mcp-v2.0.0`；
+- MCP 与验证器独立使用 SemVer，并显式声明支持或捆绑的协议制品版本。
 
-从 `1.0` 升级到当前协议请按 [`docs/migrations/1.0-to-2.0.md`](./docs/migrations/1.0-to-2.0.md) 迁移页面、Renderer 与后端接口；更早的 `0.2` / `0.3` 页面先按 [`docs/migrations/0.2-0.3-to-1.0.md`](./docs/migrations/0.2-0.3-to-1.0.md) 迁移。正式 tag 流程使用 `npm run release:check:tag`。
+`npm run release:check:tag` 只验证协议 tag。协议发布工作流生成 tar.gz 和 SHA-256；MCP 发布不会定义或
+改变协议版本。
+
+## 辅助工具
+
+### 验证器
+
+`scripts/` 提供 L0/L1、L2、L3a、L4 校验实现。当前 validator 版本为 `1.0.0`，支持协议制品 `2.0.0`，
+兼容声明见 `validator/package.json`。根 CLI 和 MCP 共用同一个 Ajv 装配模块；L4 的禁止字段
+直接从 `node.schema.json` 派生，避免维护第二份规则。使用说明见 [`docs/06-validation.md`](./docs/06-validation.md)。
+
+### MCP
+
+`mcp/` 提供协议只读查询与 `validate_content` 内容校验。它不读取宿主项目文件系统，不生成或修改页面，
+也不进入协议权威层。MCP 当前版本为 `2.0.0`，捆绑协议制品 `2.0.0`；两个版本从本次改造后独立演进。
+
+安装、Docker、工具接口和发布方式见 [`docs/mcp/README.md`](./docs/mcp/README.md) 与
+[`ADR-0007`](./docs/decisions/0007-mcp-protocol-reader-validator.md)。
 
 ## 目录结构
 
-```
+```text
 .
-├── package.json                  # 根协议文档与校验脚本依赖
-├── mcp/                          # MCP stdio 服务实现
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── src/
-│   └── tests/
-├── scripts/                      # 协议校验脚本
-├── conformance/                  # 跨实现 fixtures、JavaScript reference 与 runner
-└── docs/
-    ├── 00-overview.md              # 总纲、术语表（第一个要读的文件）
-    ├── 01-node-protocol.md         # 核心协议规范
-    ├── 02-reaction-expression.md   # 联动表达式语法规范
-    ├── 03-component-registry.md    # 组件类型注册表
-    ├── 04-datasource-contract.md   # 数据源/API 契约规范
-    ├── 05-scenarios/               # 可复制的完整场景示例
-    │   ├── README.md
-    │   ├── grid-dashboard.md
-    │   ├── data-table.md
-    │   ├── form-with-reactions.md
-    │   ├── row-backend-actions.md
-    │   ├── search-form-table.md
-    │   └── form-with-upload.md
-    ├── 06-validation.md            # 校验规则与工具链
-    ├── 07-actions-contract.md      # Action 行为契约（since 0.2）
-    ├── 08-renderer-spec.md         # Renderer 实现规范（since 0.2.1）
-    ├── 09-v1-release-goals.md      # v1.0 历史发布目标与门禁
-    ├── 10-v2-release-goals.md      # v2.0 当前发布目标与门禁
-    ├── mcp/                        # MCP 服务设计与实施计划
-    │   ├── README.md
-    │   ├── v1-design.md
-    │   └── v1-implementation-plan.md
-    ├── schemas/                    # 标准 JSON Schema（page/node/action/reaction）+ 组件注册 DSL（component-registry）
-    │   ├── page.schema.json
-    │   ├── node.schema.json
-    │   ├── reaction.schema.json
-    │   ├── action.schema.json
-    │   └── component-registry.json
-    ├── decisions/                  # 架构决策记录（ADR）
-    │   ├── 0001-why-single-node-tree.md
-    │   ├── 0002-why-not-two-schema-uischema.md
-    │   ├── 0003-context-namespace-and-visible-when.md
-    │   ├── 0004-row-level-scope.md
-    │   ├── 0005-response-mapping.md
-    │   ├── 0006-expression-evaluation-order.md
-    │   ├── 0007-mcp-protocol-reader-validator.md
-    │   ├── 0008-row-action-backend-request.md
-    │   ├── 0009-strict-version-negotiation.md
-    │   ├── 0010-query-serialization.md
-    │   ├── 0011-reserved-query-params.md
-    │   └── 0012-upload-execution.md
-    ├── audit/                      # 过程性审计与迭代记录（详见 audit/README.md）
-    │   ├── README.md               # 活跃清单 + 编号规则
-    │   └── archived/               # 已归档历史审计（详见 archived/README.md）
-    └── CHANGELOG.md
+├── PROJECT_CHARTER.md             # 项目使命、权威矩阵与防漂移门禁
+├── protocol-manifest.json         # 协议制品来源清单与版本
+├── docs/                          # 规范、Schema、场景、ADR、迁移和过程记录
+├── conformance/                   # 语言无关 fixtures 与非规范性 reference
+├── scripts/                       # 辅助验证器与协议制品构建脚本
+├── validator/                     # 辅助验证器的独立版本与兼容声明
+├── mcp/                           # 非规范性 MCP 消费工具
+└── .github/workflows/             # Protocol 与 MCP 分离的 CI/CD
 ```
+
+协议范围、发布目标和当前稳定性门禁见 [`docs/10-v2-release-goals.md`](./docs/10-v2-release-goals.md)；
+历史版本记录见 [`docs/CHANGELOG.md`](./docs/CHANGELOG.md)。

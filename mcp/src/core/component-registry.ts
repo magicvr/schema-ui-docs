@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { protocolPath } from './paths.js';
 
 export type ComponentDefinition = {
+  category?: string;
   supportsChildren?: boolean;
   supportsData?: boolean;
   supportsReactions?: boolean;
@@ -23,11 +24,10 @@ export function loadComponentRegistry(): ComponentRegistry {
 
 export function listComponents() {
   const registry = loadComponentRegistry();
-  const categories = deriveComponentCategories();
   return {
     components: Object.entries(registry.components).map(([type, definition]) => ({
       type,
-      category: categories[type] ?? 'uncategorized',
+      category: definition.category ?? 'uncategorized',
       supportsChildren: Boolean(definition.supportsChildren),
       supportsData: Boolean(definition.supportsData),
       supportsReactions: Boolean(definition.supportsReactions),
@@ -76,29 +76,4 @@ function deriveI18nProps(definition: ComponentDefinition): string[] {
 function isPropField(key: string, value: unknown): boolean {
   if (['additionalProperties', 'allOf', 'anyOf', 'oneOf'].includes(key)) return false;
   return value !== null && typeof value === 'object';
-}
-
-function deriveComponentCategories(): Record<string, string> {
-  const content = fs.readFileSync(protocolPath('docs/03-component-registry.md'), 'utf8');
-  const categories: Record<string, string> = {};
-  let currentCategory = 'uncategorized';
-
-  for (const line of content.split(/\r?\n/)) {
-    const h2 = line.match(/^##\s+(.+)$/);
-    if (h2) {
-      currentCategory = normalizeCategory(h2[1]);
-      continue;
-    }
-
-    const h3 = line.match(/^###\s+`([^`]+)`/);
-    if (h3) {
-      categories[h3[1]] = currentCategory;
-    }
-  }
-
-  return categories;
-}
-
-function normalizeCategory(title: string): string {
-  return title.trim().replace(/类$/, '').toLowerCase();
 }

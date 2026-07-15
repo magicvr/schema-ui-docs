@@ -6,6 +6,21 @@
 
 ---
 
+## 0056–0060 — 2026-07-13 至 2026-07-16 — v1 健康复审与 v2 边界闭环
+
+**主题：** fixture 完整性、根 CLI/MCP 校验一致性、链接与 Node 矩阵修复，以及 DataRef、Action 重试、RowAction 标量和 URL grammar 的 v2.0 边界复审（V225–V241）。
+**性质：** 五轮连续复审均已关闭；规范结论已沉淀到 v2 核心文档、ADR-0013/0014、Schema、fixtures、迁移和 CHANGELOG。
+
+| 编号 | 文件 |
+|---|---|
+| 0060 | [review](./0060-2026-07-16-review.md) · [checklist](./0060-2026-07-16-checklist.md) |
+| 0059 | [review](./0059-2026-07-16-review.md) · [checklist](./0059-2026-07-16-checklist.md) |
+| 0058 | [review](./0058-2026-07-13-review.md) · [checklist](./0058-2026-07-13-checklist.md) |
+| 0057 | [review](./0057-2026-07-13-review.md) · [checklist](./0057-2026-07-13-checklist.md) |
+| 0056 | [review](./0056-2026-07-13-review.md) · [checklist](./0056-2026-07-13-checklist.md) |
+
+---
+
 ## 0055 — 2026-07-11 — v1.0 执行一致性与可复现发布
 
 **主题：** 关闭严格版本协商、query 线级序列化、保留参数冲突、React/Go 跨实现一致性、独立场景门禁、可复现发布与 MCP 源码树卫生（V218–V224）。

@@ -1,0 +1,62 @@
+{
+  "manifestVersion": "1.0",
+  "name": "schema-ui-protocol",
+  "artifactVersion": "2.0.0",
+  "protocolVersion": "2.0",
+  "authority": {
+    "semanticSpecs": [
+      "PROJECT_CHARTER.md",
+      "docs/00-overview.md",
+      "docs/01-node-protocol.md",
+      "docs/02-reaction-expression.md",
+      "docs/03-component-registry.md",
+      "docs/04-datasource-contract.md",
+      "docs/06-validation.md",
+      "docs/07-actions-contract.md",
+      "docs/08-renderer-spec.md",
+      "docs/decisions/0001-why-single-node-tree.md",
+      "docs/decisions/0002-why-not-two-schema-uischema.md",
+      "docs/decisions/0003-context-namespace-and-visible-when.md",
+      "docs/decisions/0004-row-level-scope.md",
+      "docs/decisions/0005-response-mapping.md",
+      "docs/decisions/0006-expression-evaluation-order.md",
+      "docs/decisions/0008-row-action-backend-request.md",
+      "docs/decisions/0009-strict-version-negotiation.md",
+      "docs/decisions/0010-query-serialization.md",
+      "docs/decisions/0011-reserved-query-params.md",
+      "docs/decisions/0012-upload-execution.md",
+      "docs/decisions/0013-dataref-read-only.md",
+      "docs/decisions/0014-action-replay-semantics.md"
+    ],
+    "structuralContracts": [
+      "docs/schemas/*.json"
+    ],
+    "behavioralContracts": [
+      "conformance/schemas/*.json",
+      "conformance/fixtures/**/*.json"
+    ]
+  },
+  "informative": {
+    "scenarios": [
+      "docs/05-scenarios/**/*.md"
+    ],
+    "releaseMetadata": [
+      "protocol-manifest.json",
+      "docs/09-v1-release-goals.md",
+      "docs/10-v2-release-goals.md",
+      "docs/migrations/*.md",
+      "docs/CHANGELOG.md",
+      "conformance/README.md"
+    ]
+  },
+  "excluded": [
+    "scripts/**",
+    "validator/**",
+    "mcp/**",
+    "docs/mcp/**",
+    "docs/audit/**",
+    "conformance/reference-js/**",
+    "conformance/reference-python/**",
+    "conformance/runner/**"
+  ]
+}

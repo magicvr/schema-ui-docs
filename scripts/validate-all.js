@@ -26,12 +26,12 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const { Ajv } = require('ajv');
 const { expandFilePatterns, normalizeGlobPattern } = require('./file-patterns');
+const { protocolRoot } = require('./protocol-paths');
+const { createPageValidator } = require('./lib/schema-validator');
 
 const SCRIPTS_DIR = __dirname;
-const ROOT = path.resolve(SCRIPTS_DIR, '..');
-const SCHEMA_DIR = path.join(ROOT, 'docs', 'schemas');
+const PROTOCOL_ROOT = protocolRoot();
 
 function runScript(scriptName, args, jsonMode) {
   const scriptPath = path.join(SCRIPTS_DIR, scriptName);
@@ -54,30 +54,12 @@ function runScript(scriptName, args, jsonMode) {
   }
 }
 
-function readJsonSchema(fileName) {
-  return JSON.parse(fs.readFileSync(path.join(SCHEMA_DIR, fileName), 'utf8'));
-}
-
 function parseDocument(filePath) {
   const raw = fs.readFileSync(filePath, 'utf8');
   const ext = path.extname(filePath).toLowerCase();
   if (ext === '.json') return JSON.parse(raw);
   if (ext === '.yaml' || ext === '.yml') return yaml.load(raw);
   throw new Error(`不支持的文件格式: ${ext}`);
-}
-
-/** 与 MCP validation-runner 相同的 L0/L1 Ajv 配置（allErrors + strict:false + allowUnionTypes） */
-function createPageValidator() {
-  const pageSchema = readJsonSchema('page.schema.json');
-  const nodeSchema = readJsonSchema('node.schema.json');
-  const actionSchema = readJsonSchema('action.schema.json');
-  const reactionSchema = readJsonSchema('reaction.schema.json');
-
-  const ajv = new Ajv({ allErrors: true, strict: false, allowUnionTypes: true });
-  ajv.addSchema(nodeSchema, 'node.schema.json');
-  ajv.addSchema(actionSchema, 'action.schema.json');
-  ajv.addSchema(reactionSchema, 'reaction.schema.json');
-  return ajv.compile(pageSchema);
 }
 
 function formatAjvError(error) {
@@ -95,7 +77,7 @@ function formatAjvError(error) {
 function runL0L1(patterns) {
   let validate;
   try {
-    validate = createPageValidator();
+    validate = createPageValidator(PROTOCOL_ROOT);
   } catch (err) {
     return {
       passed: false,

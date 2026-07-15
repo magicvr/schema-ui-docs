@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const yaml = require('js-yaml');
 const { OFFICIAL_SCENARIO_PATHS, readOfficialScenario } = require('./official-scenarios');
+const { buildProtocolArtifact } = require('./build-protocol-artifact');
 
 const root = path.resolve(__dirname, '..');
 const releaseMode = process.argv.includes('--release');
@@ -61,16 +62,12 @@ function fixtureDigest() {
 
 const rootPackage = readJson('package.json');
 const rootLock = readJson('package-lock.json');
-const mcpPackage = readJson('mcp/package.json');
-const mcpLock = readJson('mcp/package-lock.json');
+const protocolManifest = readJson('protocol-manifest.json');
 const versions = [
   rootPackage.version,
   rootLock.version,
   rootLock.packages[''].version,
-  mcpPackage.version,
-  mcpLock.version,
-  mcpLock.packages[''].version,
-  mcpLock.packages['..'].version,
+  protocolManifest.artifactVersion,
 ];
 assert.ok(versions.every(version => version === rootPackage.version), `Package version mismatch: ${versions.join(', ')}`);
 
@@ -90,6 +87,11 @@ const releaseTargets = {
 const releaseTarget = releaseTargets[majorVersion];
 assert.ok(releaseTarget, `Missing release target definition for MAJOR ${majorVersion}`);
 const protocolVersion = `${semverMatch[1]}.${semverMatch[2]}`;
+assert.equal(protocolManifest.protocolVersion, protocolVersion, 'Protocol manifest protocolVersion mismatch');
+const componentRegistry = readJson('docs/schemas/component-registry.json');
+for (const [type, definition] of Object.entries(componentRegistry.components)) {
+  assert.ok(typeof definition.category === 'string' && definition.category.trim(), `${type}: missing component category`);
+}
 
 for (const relativePath of OFFICIAL_SCENARIO_PATHS) {
   const page = yaml.load(readOfficialScenario(root, relativePath));
@@ -202,6 +204,7 @@ assert.equal(
   `fixtureDigest mismatch: got ${actualDigest}, expected ${EXPECTED_FIXTURE_DIGEST}. `
   + 'If the change is intentional, update EXPECTED_FIXTURE_DIGEST in scripts/release-check.js in the same commit.',
 );
+const protocolArtifact = buildProtocolArtifact();
 
 const result = {
   version: rootPackage.version,
@@ -211,6 +214,9 @@ const result = {
   fixtureFileCount: fixture.fileCount,
   fixtureDigest: actualDigest,
   expectedFixtureDigest: EXPECTED_FIXTURE_DIGEST,
+  protocolContentDigest: protocolArtifact.contentDigest,
+  protocolArtifactDigest: protocolArtifact.artifactDigest,
+  protocolArtifactFileCount: protocolArtifact.fileCount,
   gitSha: process.env.GITHUB_SHA || null,
   releaseMode,
 };
@@ -220,4 +226,6 @@ if (process.env.GITHUB_OUTPUT) {
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${result.version}\n`);
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `protocol-version=${result.protocolVersion}\n`);
   fs.appendFileSync(process.env.GITHUB_OUTPUT, `fixture-digest=${result.fixtureDigest}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `protocol-content-digest=${result.protocolContentDigest}\n`);
+  fs.appendFileSync(process.env.GITHUB_OUTPUT, `protocol-artifact-digest=${result.protocolArtifactDigest}\n`);
 }
