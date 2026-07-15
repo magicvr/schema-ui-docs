@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "table-default-list-and-total",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -32,7 +32,7 @@
     },
     {
       "id": "table-inherits-datasource-mapping",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -66,7 +66,7 @@
     },
     {
       "id": "local-mapping-completely-overrides-datasource",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -108,7 +108,7 @@
     },
     {
       "id": "empty-local-mapping-does-not-inherit-datasource",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -145,7 +145,7 @@
     },
     {
       "id": "client-table-does-not-require-total",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -176,7 +176,7 @@
     },
     {
       "id": "chart-default-bare-array",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "response-mapping",
       "input": {
         "component": "chart",
@@ -201,7 +201,7 @@
     },
     {
       "id": "mapped-list-path-missing",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -224,7 +224,7 @@
     },
     {
       "id": "mapped-total-type-invalid",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "response-mapping",
       "input": {
         "component": "table",

@@ -10,32 +10,32 @@
 - `conformance/`：框架无关的一致性 fixtures、JavaScript 参考算法与 runner。
 - `mcp/`：Schema-UI MCP stdio 服务实现，提供协议只读查询与内容校验工具。
 
-当前稳定版本为 `1.0.0`，页面配置使用 `meta.protocolVersion: "1.0"`。发布目标与门禁完成记录见 [`docs/09-v1-release-goals.md`](./docs/09-v1-release-goals.md)。
+当前协议升级候选版本为 `2.0.0`，页面配置使用 `meta.protocolVersion: "2.0"`。当前发布目标与门禁见 [`docs/10-v2-release-goals.md`](./docs/10-v2-release-goals.md)；v1.0.0 历史门禁保留在 [`docs/09-v1-release-goals.md`](./docs/09-v1-release-goals.md)。
 
 ## MCP 服务
 
-MCP 服务当前**已发布稳定镜像**为 `1.0.0`。源码安装、校验工具链与 MCP 运行时要求 Node.js `>=20.19.0`；这是当前 `vitest` 测试链使用的 Vite 7 所支持的最低 Node 版本，避免继续声明未经标准构建与测试路径验证的 Node 18。CI 同时验证最低版本 `20.19.0` 和 Node 24，官方 Docker 镜像固定使用 Node 24。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
+MCP 服务当前发布候选版本为 `2.0.0`。源码安装、校验工具链与 MCP 运行时要求 Node.js `>=20.19.0`；这是当前 `vitest` 测试链使用的 Vite 7 所支持的最低 Node 版本，避免继续声明未经标准构建与测试路径验证的 Node 18。CI 同时验证最低版本 `20.19.0` 和 Node 24，官方 Docker 镜像固定使用 Node 24。服务只读取本仓库内置的协议文档、Schema 与校验脚本；不会读取调用方项目文件系统，也不会生成或修改页面配置。
 
 ### 使用 Docker Hub 镜像
 
 CD 工作流会将 MCP 镜像推送到 Docker Hub：
 
 ```text
-<dockerhub-namespace>/schema-ui-mcp:1.0.0
-<dockerhub-namespace>/schema-ui-mcp:1.0
+<dockerhub-namespace>/schema-ui-mcp:2.0.0
+<dockerhub-namespace>/schema-ui-mcp:2.0
 <dockerhub-namespace>/schema-ui-mcp:latest
 <dockerhub-namespace>/schema-ui-mcp:<commit-sha>
 ```
 
-CD 仅在推送与包版本一致的 Git tag（当前为 `v1.0.0`）时发布，手工触发也必须选择该 tag。预发布版本只推送完整版本 tag 和 commit SHA，不更新 minor 或 `latest`；稳定版本才更新 minor 和 `latest` 别名。
+CD 仅在推送与包版本一致的 Git tag（当前候选为 `v2.0.0`）时发布，手工触发也必须选择该 tag。预发布版本只推送完整版本 tag 和 commit SHA，不更新 minor 或 `latest`；稳定版本才更新 minor 和 `latest` 别名。
 
-团队接入建议固定使用 PATCH tag，例如 `1.0.0`，避免无意跟随 `latest` 升级。
+团队接入建议固定使用 PATCH tag，例如 `2.0.0`，避免无意跟随 `latest` 升级。
 
 拉取并启动 stdio MCP server：
 
 ```bash
-docker pull <dockerhub-namespace>/schema-ui-mcp:1.0.0
-docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:1.0.0
+docker pull <dockerhub-namespace>/schema-ui-mcp:2.0.0
+docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:2.0.0
 ```
 
 MCP 客户端配置示例：
@@ -49,7 +49,7 @@ MCP 客户端配置示例：
                 "run",
                 "--rm",
                 "-i",
-                "<dockerhub-namespace>/schema-ui-mcp:1.0.0"
+                "<dockerhub-namespace>/schema-ui-mcp:2.0.0"
             ]
     }
     }
@@ -117,14 +117,14 @@ npm --prefix mcp start
 本地 Docker 构建与 smoke test：
 
 ```bash
-docker build -f mcp/Dockerfile -t schema-ui-mcp:1.0.0 .
-docker run --rm -i schema-ui-mcp:1.0.0
-npm --prefix mcp run smoke:docker -- schema-ui-mcp:1.0.0
+docker build -f mcp/Dockerfile -t schema-ui-mcp:2.0.0 .
+docker run --rm -i schema-ui-mcp:2.0.0
+npm --prefix mcp run smoke:docker -- schema-ui-mcp:2.0.0
 ```
 
 更多 MCP 设计与边界说明见 [`docs/mcp/README.md`](./docs/mcp/README.md) 与 [`docs/decisions/0007-mcp-protocol-reader-validator.md`](./docs/decisions/0007-mcp-protocol-reader-validator.md)。
 
-从 `0.2` / `0.3` 升级时请按 [`docs/migrations/0.2-0.3-to-1.0.md`](./docs/migrations/0.2-0.3-to-1.0.md) 迁移页面、Renderer 与后端接口；正式 tag 流程使用 `npm run release:check:tag`。
+从 `1.0` 升级到当前协议请按 [`docs/migrations/1.0-to-2.0.md`](./docs/migrations/1.0-to-2.0.md) 迁移页面、Renderer 与后端接口；更早的 `0.2` / `0.3` 页面先按 [`docs/migrations/0.2-0.3-to-1.0.md`](./docs/migrations/0.2-0.3-to-1.0.md) 迁移。正式 tag 流程使用 `npm run release:check:tag`。
 
 ## 目录结构
 
@@ -155,7 +155,8 @@ npm --prefix mcp run smoke:docker -- schema-ui-mcp:1.0.0
     ├── 06-validation.md            # 校验规则与工具链
     ├── 07-actions-contract.md      # Action 行为契约（since 0.2）
     ├── 08-renderer-spec.md         # Renderer 实现规范（since 0.2.1）
-    ├── 09-v1-release-goals.md      # v1.0 发布目标、阻断门禁与版本纪律
+    ├── 09-v1-release-goals.md      # v1.0 历史发布目标与门禁
+    ├── 10-v2-release-goals.md      # v2.0 当前发布目标与门禁
     ├── mcp/                        # MCP 服务设计与实施计划
     │   ├── README.md
     │   ├── v1-design.md

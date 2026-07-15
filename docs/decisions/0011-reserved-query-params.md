@@ -36,7 +36,7 @@ date: 2026-07-11
 
 后来源覆盖前来源，`null` / `undefined` 按 ADR-0010 删除同名 key。即使非法页面绕过静态校验，Renderer 状态也必须最终覆盖同名参数；标准入口仍必须先通过 L2，不得把覆盖行为当作接受冲突配置的理由。
 
-内联 `data.source: api` 使用 `data.params`。`data.source: ref` 使用被引用 API datasource 的 params，再应用节点本地 `data.params`；节点本地值覆盖 datasource 值。二者都属于第 2 层静态 params，不得声明保留 key。
+内联 `data.source: api` 使用 `data.params`。`data.source: ref` 只使用被引用 API datasource 的 params；`source: ref` 节点不得携带本地 `data.params`。二者都属于第 2 层静态 params，不得声明保留 key。
 
 ### D3. 初始状态
 

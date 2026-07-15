@@ -57,6 +57,22 @@
     }
   },
   {
+    "id": "supported-v2-version",
+    "protocolVersion": "2.0",
+    "category": "version-negotiation",
+    "input": {
+      "pageMeta": { "protocolVersion": "2.0" },
+      "rendererSupport": { "supportedVersions": ["2.0"] }
+    },
+    "expected": {
+      "accepted": true,
+      "code": "OK",
+      "pageVersion": "2.0",
+      "supportedVersions": ["2.0"],
+      "missingCapabilities": []
+    }
+  },
+  {
     "id": "unknown-minor",
     "protocolVersion": "0.3",
     "category": "version-negotiation",
@@ -85,6 +101,22 @@
       "code": "UNSUPPORTED_PROTOCOL_VERSION",
       "pageVersion": "1.0",
       "supportedVersions": ["0.3"],
+      "missingCapabilities": []
+    }
+  },
+  {
+    "id": "legacy-v1-page-rejected-by-v2-renderer",
+    "protocolVersion": "1.0",
+    "category": "version-negotiation",
+    "input": {
+      "pageMeta": { "protocolVersion": "1.0" },
+      "rendererSupport": { "supportedVersions": ["2.0"] }
+    },
+    "expected": {
+      "accepted": false,
+      "code": "UNSUPPORTED_PROTOCOL_VERSION",
+      "pageVersion": "1.0",
+      "supportedVersions": ["2.0"],
       "missingCapabilities": []
     }
   },

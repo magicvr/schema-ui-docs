@@ -1,8 +1,8 @@
 {
   "name": "schema-ui-docs",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Schema-UI v1.0.0 协议文档及校验工具链",
+  "description": "Schema-UI v2.0.0 协议文档及校验工具链",
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:scenarios": "node scripts/validate-scenarios.js",

@@ -75,6 +75,18 @@ function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+const PROTOCOL_RELATIVE_URL = /^\/(?!\/)[^\s\\]*$/;
+const RESERVED_ROW_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+
+function validateProtocolUrl(value, fieldPath, violations) {
+  if (typeof value !== 'string' || !PROTOCOL_RELATIVE_URL.test(value)) {
+    violations.push({
+      path: fieldPath,
+      message: 'URL 必须是 baseURL 下的单斜杠相对路径；不允许绝对 URL、协议相对 URL、空白或反斜杠',
+    });
+  }
+}
+
 /** 判断字段是否在 DSL props 中显式声明 */
 function getDeclaredFields(propsSpec) {
   const reserved = new Set(['additionalProperties', 'allOf', 'anyOf', 'oneOf']);
@@ -463,6 +475,25 @@ function validateNode(node, nodePath, violations, doc, parentIsForm = false) {
     // --- props 校验 ---
     validateProps(props, compDef, type, nodePath, violations);
 
+    if (data?.source === 'api') {
+      if (data.method !== undefined && data.method !== 'GET') {
+        violations.push({
+          path: `${nodePath}.data.method`,
+          message: 'DataRef 只允许 GET；写操作必须使用 Action（DATA_REF_METHOD_NOT_READ_ONLY）',
+        });
+      }
+      if (data.url !== undefined) {
+        validateProtocolUrl(data.url, `${nodePath}.data.url`, violations);
+      }
+    }
+
+    if (type === 'select' && props.optionsSource?.url !== undefined) {
+      validateProtocolUrl(props.optionsSource.url, `${nodePath}.props.optionsSource.url`, violations);
+    }
+    if (type === 'upload' && props.action !== undefined) {
+      validateProtocolUrl(props.action, `${nodePath}.props.action`, violations);
+    }
+
     if (type === 'datePicker' || type === 'dateRangePicker') {
       for (const dateBoundary of ['min', 'max']) {
         if (props[dateBoundary] !== undefined && !isValidIsoDate(props[dateBoundary])) {
@@ -739,7 +770,7 @@ function validateRequestMappingValues(mappingSection, sectionPath, violations) {
     return;
   }
 
-  const rowRefPattern = /^\$row\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
+  const rowRefPattern = /^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)$/;
   for (const [mappingKey, mappingValue] of Object.entries(mappingSection)) {
     const valuePath = `${sectionPath}.${mappingKey}`;
     if (mappingKey.length === 0) {
@@ -760,6 +791,29 @@ function validateRequestMappingValues(mappingSection, sectionPath, violations) {
           path: valuePath,
           message: '行级 requestMapping 仅允许单个 $row.* 点路径引用；v0.2 静态拒绝嵌套表格及 $parentRow.*，也不得使用 $deps.*、$context.*、模板拼接或表达式',
         });
+      }
+      const rowRefMatch = rowRefPattern.exec(mappingValue);
+      if (rowRefMatch && rowRefMatch[1].split('.').some(segment => RESERVED_ROW_PATH_SEGMENTS.has(segment))) {
+        violations.push({
+          path: valuePath,
+          message: '行级 requestMapping 不允许通过 $row.* 读取原型链保留路径 __proto__、prototype 或 constructor',
+        });
+      }
+    }
+  }
+}
+
+function validateActionUrls(doc, violations) {
+  if (!isPlainObject(doc.actions)) return;
+  for (const [actionId, action] of Object.entries(doc.actions)) {
+    if (!isPlainObject(action)) continue;
+    if (action.url !== undefined) {
+      validateProtocolUrl(action.url, `actions.${actionId}.url`, violations);
+    }
+    for (const behaviorName of ['onSuccess', 'onError']) {
+      const behavior = action[behaviorName];
+      if (behavior?.behavior === 'navigate' && behavior.url !== undefined) {
+        validateProtocolUrl(behavior.url, `actions.${actionId}.${behaviorName}.url`, violations);
       }
     }
   }
@@ -993,6 +1047,19 @@ function validatePageActionRefs(doc, violations) {
  */
 function validateDataRefsAndTargetTable(doc, violations) {
   const datasources = isPlainObject(doc.datasources) ? doc.datasources : {};
+
+  for (const [datasourceKey, datasource] of Object.entries(datasources)) {
+    if (!isPlainObject(datasource) || datasource.source !== 'api') continue;
+    if (datasource.method !== undefined && datasource.method !== 'GET') {
+      violations.push({
+        path: `datasources.${datasourceKey}.method`,
+        message: '页面级 DataRef 只允许 GET；写操作必须使用 Action（DATA_REF_METHOD_NOT_READ_ONLY）',
+      });
+    }
+    if (datasource.url !== undefined) {
+      validateProtocolUrl(datasource.url, `datasources.${datasourceKey}.url`, violations);
+    }
+  }
 
   // First pass：收集 Node 树中所有 id → { type, path }，并检测重复
   const nodeIds = {};
@@ -1322,6 +1389,7 @@ function validatePage(doc, fileLabel) {
   validateRowActionRefs(doc, violations);
   validatePageActionRefs(doc, violations);
   validateDataRefsAndTargetTable(doc, violations);
+  validateActionUrls(doc, violations);
   validateRequiredCapabilities(doc, violations);
   validateParamsResponseMappingBan(doc, violations);
   validateReservedTableQueryParams(doc, violations);

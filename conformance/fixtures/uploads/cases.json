@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "single-file-defaults-and-url-priority",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "uploads",
       "input": {
         "action": {
@@ -46,7 +46,7 @@
     },
     {
       "id": "single-file-id-fallback-and-custom-request",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "uploads",
       "input": {
         "action": {
@@ -89,7 +89,7 @@
     },
     {
       "id": "multiple-files-preserve-selection-order",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "uploads",
       "input": {
         "action": {
@@ -155,7 +155,7 @@
     },
     {
       "id": "multiple-disabled-rejects-before-request",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "uploads",
       "input": {
         "action": {
@@ -187,7 +187,7 @@
     },
     {
       "id": "max-size-rejects-whole-batch-before-request",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "uploads",
       "input": {
         "action": {
@@ -221,7 +221,7 @@
     },
     {
       "id": "accept-extension-is-case-insensitive",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "uploads",
       "input": {
         "action": {
@@ -263,7 +263,7 @@
     },
     {
       "id": "accept-mime-wildcard-rejects-nonmatching-file",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "uploads",
       "input": {
         "action": {
@@ -290,7 +290,7 @@
     },
     {
       "id": "invalid-success-response-rejects-field-commit",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "uploads",
       "input": {
         "action": {
@@ -334,7 +334,7 @@
     },
     {
       "id": "multiple-request-failure-stops-and-is-atomic",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "uploads",
       "input": {
         "action": {
@@ -404,6 +404,125 @@
             }
           }
         ],
+        "fieldValue": null
+      }
+    },
+    {
+      "id": "idempotent-upload-uses-file-key",
+      "protocolVersion": "2.0",
+      "category": "uploads",
+      "input": {
+        "action": {
+          "url": "/files",
+          "retryPolicy": "idempotent"
+        },
+        "invocationId": "upload-001",
+        "files": [
+          {
+            "name": "a.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "a"
+          }
+        ],
+        "results": [
+          {
+            "type": "success",
+            "response": {
+              "id": "a-id"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "requests": [
+          {
+            "method": "POST",
+            "url": "/files",
+            "part": {
+              "name": "file",
+              "fileName": "a.pdf",
+              "contentId": "a"
+            },
+            "headers": {
+              "Idempotency-Key": "upload-001:0"
+            }
+          }
+        ],
+        "fieldValue": "a-id"
+      }
+    },
+    {
+      "id": "idempotent-upload-requires-invocation-id",
+      "protocolVersion": "2.0",
+      "category": "uploads",
+      "input": {
+        "action": {
+          "url": "/files",
+          "retryPolicy": "idempotent"
+        },
+        "files": [
+          {
+            "name": "a.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "a"
+          }
+        ],
+        "results": []
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_INVOCATION_ID",
+        "fileIndex": 0,
+        "requests": [],
+        "fieldValue": null
+      }
+    },
+    {
+      "id": "absolute-upload-url-rejected",
+      "protocolVersion": "2.0",
+      "category": "uploads",
+      "input": {
+        "action": {
+          "url": "https://api.example.com/files"
+        },
+        "files": [],
+        "results": []
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_PROTOCOL_URL",
+        "fileIndex": 0,
+        "requests": [],
+        "fieldValue": null
+      }
+    },
+    {
+      "id": "invalid-upload-retry-policy-rejected",
+      "protocolVersion": "2.0",
+      "category": "uploads",
+      "input": {
+        "action": {
+          "url": "/files",
+          "retryPolicy": "always"
+        },
+        "files": [
+          {
+            "name": "a.pdf",
+            "type": "application/pdf",
+            "size": 100,
+            "contentId": "a"
+          }
+        ],
+        "results": []
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_RETRY_POLICY",
+        "fileIndex": 0,
+        "requests": [],
         "fieldValue": null
       }
     }

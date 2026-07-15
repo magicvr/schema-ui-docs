@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-11
-applies_to: schema-ui-protocol v1.0
+applies_to: schema-ui-protocol v2.0
 ---
 
 # Schema-Driven UI 协议总纲
@@ -34,7 +34,8 @@ applies_to: schema-ui-protocol v1.0
 | [06-validation.md](./06-validation.md) | 前后端开发者 / AI | 校验规则与工具链 |
 | [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
 | [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
-| [09-v1-release-goals.md](./09-v1-release-goals.md) | 前后端开发者 / 维护者 | `v1.0.0` 的收敛目标与发布门禁 |
+| [09-v1-release-goals.md](./09-v1-release-goals.md) | 前后端开发者 / 维护者 | `v1.0.0` 历史发布目标与门禁记录 |
+| [10-v2-release-goals.md](./10-v2-release-goals.md) | 前后端开发者 / 维护者 | `v2.0.0` 当前收敛目标与发布门禁 |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
 | [audit/](./audit/) | 维护者 / AI | 过程性审计与迭代记录，编号规则：`NNNN-YYYY-MM-DD-{review,checklist,plan}`（完整规则见 [audit/README.md](./audit/README.md)） |
@@ -47,7 +48,7 @@ applies_to: schema-ui-protocol v1.0
 - 想扩展协议、新增字段 → 先读 `decisions/`，确认没有历史上被否决过的类似方案。
 - 查阅审计/迭代记录 → 直接看 `audit/`。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`。
-- 实现或发布 `v1.0.0` → 对照 `09-v1-release-goals.md` 的门禁与完成定义。
+- 维护或发布 `v2.0.0` → 对照 `10-v2-release-goals.md` 的门禁与完成定义；`09-v1-release-goals.md` 仅保留 v1.0.0 历史证据。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
 
@@ -77,7 +78,7 @@ applies_to: schema-ui-protocol v1.0
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v1.0.0`，页面通过 `meta.protocolVersion: "1.0"` 声明 MAJOR.MINOR。`0.2` / `0.3` 页面必须按迁移指南升级，或由调用方显式启用 legacy adapter；标准 Renderer 入口不做版本猜测。发布门禁见 [09-v1-release-goals.md](./09-v1-release-goals.md)。
+当前协议版本：`v2.0.0`，页面通过 `meta.protocolVersion: "2.0"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。发布门禁见 [10-v2-release-goals.md](./10-v2-release-goals.md)。
 
 PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。
 

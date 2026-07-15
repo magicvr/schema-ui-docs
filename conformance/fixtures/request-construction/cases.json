@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "data-ref-default-get",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -26,8 +26,8 @@
       }
     },
     {
-      "id": "data-ref-post-keeps-query",
-      "protocolVersion": "1.0",
+      "id": "data-ref-post-rejected",
+      "protocolVersion": "2.0",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -42,17 +42,14 @@
         }
       },
       "expected": {
-        "ok": true,
-        "request": {
-          "method": "POST",
-          "url": "/reports?keyword=new%20value&locale=zh-CN",
-          "body": null
-        }
+        "ok": false,
+        "code": "DATA_REF_METHOD_NOT_READ_ONLY",
+        "path": "dataRef.method"
       }
     },
     {
       "id": "row-action-path-query-body",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -95,7 +92,7 @@
     },
     {
       "id": "row-action-delete-with-query",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -126,7 +123,7 @@
     },
     {
       "id": "row-action-path-rfc3986-encoding",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -154,7 +151,7 @@
     },
     {
       "id": "row-action-missing-row-path",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -179,7 +176,7 @@
     },
     {
       "id": "row-action-null-path",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -200,6 +197,161 @@
         "ok": false,
         "code": "NULL_PATH_VALUE",
         "path": "requestMapping.path.id"
+      }
+    },
+    {
+      "id": "row-action-nested-body-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": {
+          "method": "POST",
+          "url": "/orders"
+        },
+        "requestMapping": {
+          "body": {
+            "payload": "$row.profile"
+          }
+        },
+        "row": {
+          "profile": {
+            "id": 1
+          }
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_ROW_VALUE",
+        "path": "requestMapping.body.payload"
+      }
+    },
+    {
+      "id": "row-action-prototype-path-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": {
+          "method": "POST",
+          "url": "/orders"
+        },
+        "requestMapping": {
+          "body": {
+            "payload": "$row.__proto__"
+          }
+        },
+        "row": {}
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNSAFE_ROW_PATH",
+        "path": "requestMapping.body.payload"
+      }
+    },
+    {
+      "id": "form-action-idempotency-header",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "action": {
+          "method": "POST",
+          "url": "/orders",
+          "retryPolicy": "idempotent"
+        },
+        "invocationId": "inv-001",
+        "formValues": {
+          "name": "A"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/orders",
+          "body": {
+            "name": "A"
+          },
+          "headers": {
+            "Idempotency-Key": "inv-001"
+          }
+        }
+      }
+    },
+    {
+      "id": "form-action-idempotency-requires-invocation-id",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "action": {
+          "method": "POST",
+          "url": "/orders",
+          "retryPolicy": "idempotent"
+        },
+        "formValues": {
+          "name": "A"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_INVOCATION_ID",
+        "path": "invocationId"
+      }
+    },
+    {
+      "id": "data-ref-absolute-url-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "dataRef",
+        "dataRef": {
+          "source": "api",
+          "url": "https://api.example.com/orders"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_PROTOCOL_URL",
+        "path": "dataRef.url"
+      }
+    },
+    {
+      "id": "form-action-absolute-url-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "action": {
+          "method": "POST",
+          "url": "https://api.example.com/orders"
+        },
+        "formValues": {}
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_PROTOCOL_URL",
+        "path": "action.url"
+      }
+    },
+    {
+      "id": "form-action-invalid-retry-policy-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "action": {
+          "method": "POST",
+          "url": "/orders",
+          "retryPolicy": "always"
+        },
+        "formValues": {}
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_RETRY_POLICY",
+        "path": "action.retryPolicy"
       }
     }
   ]

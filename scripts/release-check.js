@@ -14,13 +14,14 @@ const releaseMode = process.argv.includes('--release');
 /**
  * Hard gate for fixture tree integrity (V225 / V223).
  * Algorithm: sorted relative paths under conformance/fixtures/**, for each file
- * hash.update(relativePath + '\\0' + fileBytes + '\\0'), then sha256 hex.
+ * hash.update(relativePath + '\\0' + canonicalUtf8FileBytes + '\\0'), then sha256 hex.
+ * Text fixture line endings are canonicalized to LF before hashing.
  * When any fixture bytes change, recompute with `npm run release:check` (after
  * temporarily updating this constant if needed) and bump EXPECTED_FIXTURE_DIGEST
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:24168c71c839f18c9d6e40d98693badbfd9fe0905f5fd2c432e920996a98f6fc';
+  'sha256:d78527a570c481819cf4855369598bc526247aa9c31c08d175e78987da3d9528';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -38,6 +39,12 @@ function collectFiles(directory) {
     });
 }
 
+function readCanonicalFixtureBytes(filePath) {
+  // GitHub Actions checks out LF while Windows may materialize CRLF. The
+  // release digest must represent the committed text, not the local checkout.
+  return Buffer.from(fs.readFileSync(filePath, 'utf8').replace(/\r\n?/g, '\n'), 'utf8');
+}
+
 function fixtureDigest() {
   const fixturesRoot = path.join(root, 'conformance', 'fixtures');
   const files = collectFiles(fixturesRoot).sort((left, right) => left.localeCompare(right, 'en'));
@@ -46,7 +53,7 @@ function fixtureDigest() {
     const relativePath = path.relative(root, filePath).replaceAll('\\', '/');
     hash.update(relativePath, 'utf8');
     hash.update('\0');
-    hash.update(fs.readFileSync(filePath));
+    hash.update(readCanonicalFixtureBytes(filePath));
     hash.update('\0');
   }
   return { digest: hash.digest('hex'), fileCount: files.length };
@@ -69,6 +76,19 @@ assert.ok(versions.every(version => version === rootPackage.version), `Package v
 
 const semverMatch = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(rootPackage.version);
 assert.ok(semverMatch, `Unsupported release version: ${rootPackage.version}`);
+const majorVersion = Number(semverMatch[1]);
+const releaseTargets = {
+  1: {
+    releaseGoalsPath: 'docs/09-v1-release-goals.md',
+    migrationPath: 'docs/migrations/0.2-0.3-to-1.0.md',
+  },
+  2: {
+    releaseGoalsPath: 'docs/10-v2-release-goals.md',
+    migrationPath: 'docs/migrations/1.0-to-2.0.md',
+  },
+};
+const releaseTarget = releaseTargets[majorVersion];
+assert.ok(releaseTarget, `Missing release target definition for MAJOR ${majorVersion}`);
 const protocolVersion = `${semverMatch[1]}.${semverMatch[2]}`;
 
 for (const relativePath of OFFICIAL_SCENARIO_PATHS) {
@@ -79,7 +99,15 @@ for (const relativePath of OFFICIAL_SCENARIO_PATHS) {
 const readme = readText('README.md');
 const overview = readText('docs/00-overview.md');
 const changelog = readText('docs/CHANGELOG.md');
-assert.ok(readme.includes(`当前稳定版本为 \`${rootPackage.version}\``), 'README current version is out of sync');
+assert.ok(
+  [
+    `当前稳定版本为 \`${rootPackage.version}\``,
+    `当前协议版本为 \`${rootPackage.version}\``,
+    `当前协议升级候选版本为 \`${rootPackage.version}\``,
+    `当前发布候选版本为 \`${rootPackage.version}\``,
+  ].some(needle => readme.includes(needle)),
+  'README current version is out of sync',
+);
 assert.ok(readme.includes(`meta.protocolVersion: "${protocolVersion}"`), 'README protocol version is out of sync');
 assert.ok(overview.includes(`协议版本：\`v${rootPackage.version}\``), 'Overview current version is out of sync');
 assert.ok(overview.includes(`meta.protocolVersion: "${protocolVersion}"`), 'Overview protocol version is out of sync');
@@ -87,7 +115,7 @@ assert.ok(changelog.includes(`## v${rootPackage.version} `), `CHANGELOG is missi
 const firstChangelogVersion = changelog.match(/^## v([^ ]+) /m)?.[1];
 assert.equal(firstChangelogVersion, rootPackage.version, 'CHANGELOG first release section must match package version');
 
-const migrationPath = 'docs/migrations/0.2-0.3-to-1.0.md';
+const migrationPath = releaseTarget.migrationPath;
 assert.ok(fs.existsSync(path.join(root, migrationPath)), `Missing migration guide: ${migrationPath}`);
 const migration = readText(migrationPath);
 for (const requiredText of [
@@ -130,7 +158,7 @@ for (const category of expectedCategories) {
   }
   versionedCaseCount += suite.cases.length;
 }
-assert.equal(versionedCaseCount, 65, `Expected 65 versioned fixtures, received ${versionedCaseCount}`);
+assert.equal(versionedCaseCount, 78, `Expected 78 versioned fixtures, received ${versionedCaseCount}`);
 
 // Core specs must declare applies_to for the current major.minor (V231).
 const coreSpecPaths = [
@@ -155,10 +183,10 @@ for (const relativePath of coreSpecPaths) {
   );
 }
 
-if (Number(semverMatch[1]) >= 1) {
-  const releaseGoals = readText('docs/09-v1-release-goals.md');
+if (majorVersion >= 1) {
+  const releaseGoals = readText(releaseTarget.releaseGoalsPath);
   const g1ToG4 = releaseGoals.slice(releaseGoals.indexOf('### G1.'), releaseGoals.indexOf('## 3. 发布工程门禁'));
-  assert.ok(!g1ToG4.includes('- [ ]'), 'G1-G4 must be fully closed for a 1.x release');
+  assert.ok(!g1ToG4.includes('- [ ]'), `G1-G4 must be fully closed for a MAJOR ${majorVersion} release`);
 }
 
 if (releaseMode) {

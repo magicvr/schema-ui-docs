@@ -4,6 +4,9 @@ function failure(code, fileIndex, requests = []) {
   return { ok: false, code, fileIndex, requests, fieldValue: null };
 }
 
+const PROTOCOL_RELATIVE_URL = /^\/(?!\/)[^\s\\]*$/;
+const INVOCATION_ID = /^[\x21-\x7e]{1,200}$/;
+
 function matchesAccept(file, accept) {
   if (accept === undefined) return true;
   const fileName = file.name.toLowerCase();
@@ -17,16 +20,25 @@ function matchesAccept(file, accept) {
   });
 }
 
-function requestFor(action, file) {
-  return {
-    method: action.method || 'POST',
+function requestFor(action, file, fileIndex, invocationId) {
+  const request = {
+    method: action.method === undefined ? 'POST' : action.method,
     url: action.url,
     part: {
-      name: action.fieldName || 'file',
+      name: action.fieldName === undefined ? 'file' : action.fieldName,
       fileName: file.name,
       contentId: file.contentId,
     },
   };
+  const retryPolicy = action.retryPolicy === undefined ? 'never' : action.retryPolicy;
+  if (!['never', 'idempotent'].includes(retryPolicy)) return failure('INVALID_RETRY_POLICY', fileIndex);
+  if (retryPolicy === 'idempotent') {
+    if (typeof invocationId !== 'string' || !INVOCATION_ID.test(invocationId)) {
+      return failure('MISSING_INVOCATION_ID', fileIndex);
+    }
+    request.headers = { 'Idempotency-Key': `${invocationId}:${fileIndex}` };
+  }
+  return request;
 }
 
 function responseValue(response) {
@@ -38,6 +50,9 @@ function responseValue(response) {
 
 function executeUpload(input) {
   const { action, files } = input;
+  if (typeof action.url !== 'string' || !PROTOCOL_RELATIVE_URL.test(action.url)) {
+    return failure('INVALID_PROTOCOL_URL', 0);
+  }
   if (!action.multiple && files.length > 1) return failure('MULTIPLE_FILES_NOT_ALLOWED', 1);
   for (let index = 0; index < files.length; index += 1) {
     const file = files[index];
@@ -50,7 +65,9 @@ function executeUpload(input) {
   const requests = [];
   const values = [];
   for (let index = 0; index < files.length; index += 1) {
-    requests.push(requestFor(action, files[index]));
+    const request = requestFor(action, files[index], index, input.invocationId);
+    if (request.ok === false) return failure(request.code, index, requests);
+    requests.push(request);
     const result = input.results[index];
     if (!result || result.type !== 'success') return failure('UPLOAD_REQUEST_FAILED', index, requests);
     const value = responseValue(result.response);

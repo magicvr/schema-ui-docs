@@ -18,9 +18,9 @@
 
 ### `cases[].protocolVersion` 语义（V227）
 
-- **算法类 suite**（request / response / search-table / reactions / actions / uploads / scenarios）：`protocolVersion` 表示**该 case 适用的协议算法版本**（当前稳定为 `"1.0"`），不是历史包版本号。消费者可按 `"1.0"` 过滤跑全量互操作向量。
-- **version-negotiation suite**：`protocolVersion` 与 `input.pageMeta.protocolVersion` 对齐，表示**被测页面声明的协议版本**；其中大量 `0.3` / 非法版本 case 为协商拒绝与能力检查的历史对照，**故意保留**，不得批量升为 `1.0`。
-- `release:check` 与 `validate:conformance` 对非 version-negotiation suite 强制 case.`protocolVersion === "1.0"`。
+- **算法类 suite**（request / response / search-table / reactions / actions / uploads / scenarios）：`protocolVersion` 表示**该 case 适用的协议算法版本**（当前版本为 `"2.0"`），不是历史包版本号。消费者可按 `"2.0"` 过滤跑全量互操作向量。
+- **version-negotiation suite**：`protocolVersion` 与 `input.pageMeta.protocolVersion` 对齐，表示**被测页面声明的协议版本**；其中大量 `0.3` / 非法版本 case 为协商拒绝与能力检查的历史对照，**故意保留**，不得批量升为 `2.0`。
+- `release:check` 与 `validate:conformance` 对非 version-negotiation suite 强制 case.`protocolVersion === "2.0"`。
 
 版本化 G4 suite 使用 `schemas/fixture-suite.schema.json`，统一以 `fixtureVersion: "1.0"`、suite `category` 和 `cases[]` 封装。运行 `npm run validate:conformance` 会校验全部 versioned suite，并对**白名单**数组 fixtures（当前仅 `query-serialization`）检查 id 唯一与非空。已删除与 `search-table` 重复的 `table-query-state` 目录；`test:conformance:table-state` 仅转发到 search-table runner。
 

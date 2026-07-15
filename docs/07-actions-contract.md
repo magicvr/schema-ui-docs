@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v1.0
+applies_to: schema-ui-protocol v2.0
 ---
 
 # Action 完整契约（since 0.2）
@@ -43,9 +43,10 @@ actions:
 ```yaml
 type: request
 method: GET | POST | PUT | DELETE | PATCH
-url: string
+url: string                  # baseURL 下的单斜杠相对路径
 bodyMapping:            # 【可选】表单字段名 → 请求体字段名的映射
   customerName: name
+retryPolicy: never | idempotent # 【可选，默认 never】逻辑调用的重试策略
 onSuccess: OutcomeBehavior   # 【可选】
 onError: OutcomeBehavior     # 【可选】
 ```
@@ -62,6 +63,8 @@ onError: OutcomeBehavior     # 【可选】
 | `{}` | `{}` |
 
 - 普通表单通过 `form.props.submitAction` 提交字段时不得引用 `method: GET` 的 request；浏览器请求不能为 GET 携带该 JSON 请求体。v0.2 不为普通表单定义隐式 query 映射，请使用 `POST` / `PUT` / `PATCH` / `DELETE`。该限制不影响行级 Action 使用 `requestMapping.query` 构造 GET 请求。
+- `retryPolicy` 缺省为 `never`。`never` 表示 Renderer 不自动重发同一逻辑调用；超时或网络中断的结果为 `unknown`，用户重新提交会创建新的逻辑调用。`idempotent` 表示 Renderer 为一次逻辑调用生成一个不透明的 invocation id，并在所有重试中发送相同的 `Idempotency-Key` 请求头；后端必须按 Action、方法、目标 URL 和该 key 去重并复用最终结果。
+- `retryPolicy: idempotent` 不允许配置静态 key。invocation id 由 Renderer 在一次用户触发时生成，不能跨逻辑调用复用；conformance harness 使用 `input.invocationId` 表示该运行时值。
 - `onSuccess` / `onError` 缺省时，Renderer 使用默认行为（如 `toast` 展示通用成功/失败提示）。
 
 ### 3.1 行级后端请求绑定（since 0.2.7）
@@ -72,7 +75,7 @@ onError: OutcomeBehavior     # 【可选】
 meta:
   pageId: order_approval
   title: 订单审批
-  protocolVersion: "1.0"
+  protocolVersion: "2.0"
   requiredCapabilities:
     - actions.row.request
 
@@ -198,8 +201,9 @@ handler: string   # 仅允许引用前端白名单预注册的处理函数名
 
 ```yaml
 type: upload
-url: string                    # 上传接口地址（相对路径，Renderer 自动拼接 baseURL）
+url: string                    # 上传接口地址（单斜杠相对路径，Renderer 自动拼接 baseURL）
 method: POST | PUT             # 默认 POST
+retryPolicy: never | idempotent # 【可选，默认 never】每个文件逻辑调用的重试策略
 fieldName: string              # 【可选】multipart 中的文件字段名，默认 "file"
 accept: string                 # 【可选】允许的 MIME 类型或扩展名，如 "image/*" 或 ".pdf,.docx"
 maxSize: number                # 【可选】单文件大小上限，单位字节，默认不限制
@@ -260,13 +264,13 @@ Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fiel
 onSuccess:
   behavior: toast | navigate | reload | closeModal
   message: string     # behavior: toast 时的提示文案
-  url: string          # behavior: navigate 时的目标地址
+  url: string          # behavior: navigate 时的 baseURL 下单斜杠相对目标地址
 ```
 
 | behavior | 含义 | 必填附加字段 |
 |---|---|---|
 | `toast` | 展示轻提示 | `message` |
-| `navigate` | 跳转到指定地址 | `url` |
+| `navigate` | 跳转到 baseURL 下的单斜杠相对地址 | `url` |
 | `reload` | 重新加载当前数据（如刷新表格） | — |
 | `closeModal` | 关闭当前弹窗 | — |
 
@@ -278,7 +282,7 @@ Action 请求失败时，Renderer 先执行 [04-datasource-contract.md §5-§6](
 
 - `401` / `403`：触发 `onAuthFailure` 并进入规定错误态，忽略 Action `onError`，防止配置绕过认证/授权流程。
 - `400` 且存在 `errors`：始终回填字段错误；忽略 `navigate` / `reload` / `closeModal`，保留用户修正入口。若 `onError.behavior: toast`，只展示配置的 toast message；否则展示响应 `message`，避免双重 toast。
-- `400` 无字段错误、`404`、其他 `4xx`、`5xx` 及网络错误：先确定协议规定的安全错误信息，再执行 `onError`。若 `onError.behavior: toast`，配置 message 替代默认/响应 message；其他行为在错误状态记录完成后执行。
+- `400` 无字段错误、`404`、其他 `4xx`、`5xx` 及网络错误：先确定协议规定的安全错误信息，再执行 `onError`。若 `onError.behavior: toast`，配置 message 替代默认/响应 message；其他行为在错误状态记录完成后执行。超时和网络错误的 Action 结果为 `unknown`，不得当作“服务端未提交”处理。
 - `onError` 缺省时，仅执行标准 HTTP 错误处理。
 
 ## 9. 完整示例

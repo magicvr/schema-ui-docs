@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v1.0
+applies_to: schema-ui-protocol v2.0
 ---
 
 # 核心协议规范：Node 结构定义
@@ -25,7 +25,7 @@ meta:            # 页面元信息
   pageId: string
   title: string
   description: string
-  protocolVersion: string   # 必填（since 0.2）。当前稳定版本使用 "1.0"，Renderer 版本兼容锚点
+  protocolVersion: string   # 必填（since 0.2）。当前协议版本使用 "2.0"，Renderer 版本兼容锚点
   requiredCapabilities: [string] # 可选（since 0.2.6）。PATCH 级执行能力协商，如 actions.upload / actions.row.request
 
 datasources:     # 【可选】页面级预声明数据源，供 body 内节点通过 ref 引用；仅允许 source: api 或 source: static，禁止 source: ref（引用链会导致递归风险）
@@ -44,7 +44,7 @@ actions:          # 【可选】页面级可复用动作定义（完整契约见
 | `body` | 是 | 页面主体的根 Node |
 | `actions` | 否 | 供 Node 内按钮/表单提交等引用的动作定义，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
 
-> **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（当前稳定版本使用 `"1.0"`），**不含 PATCH 或预发布标识**。Renderer 据此判断按哪套解析规则处理页面文档，是协议后续演进做版本兼容判断的锚点。同一 MAJOR.MINOR 的补丁或 RC 包共享该值；Renderer 的兼容性判断基于支持的 MAJOR.MINOR，不依赖包 PATCH。旧 `v0.1` 文档缺少该字段时仅可由显式 legacy adapter 处理；新建或修改的文档必须显式声明。
+> **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（当前协议版本使用 `"2.0"`），**不含 PATCH 或预发布标识**。Renderer 据此判断按哪套解析规则处理页面文档，是协议后续演进做版本兼容判断的锚点。同一 MAJOR.MINOR 的补丁或 RC 包共享该值；Renderer 的兼容性判断基于支持的 MAJOR.MINOR，不依赖包 PATCH。旧 `v0.1` 文档缺少该字段时仅可由显式 legacy adapter 处理；v1.0 文档必须先经过显式迁移 adapter；新建或修改的文档必须显式声明。
 
 > **`meta.requiredCapabilities`（可选，since 0.2.6）：** 字符串数组，声明页面依赖的 Renderer 执行能力，用于补足 PATCH 级能力协商。`protocolVersion` 仍只表达结构版本；当 PATCH 版本新增需要 Renderer 执行支持的能力时，页面必须通过 `requiredCapabilities` 显式声明。Renderer 若不支持其中任一能力，应在静态校验阶段拒绝渲染，而不是进入运行时后部分失效。当前协议预定义能力键：`actions.upload`（使用 `actions[].type: upload` 或 `upload.props.actionRef` 时必填）、`actions.row.request`（使用 `table.props.actions[].actionRef` 时必填）。
 
@@ -86,8 +86,8 @@ data:
   source: static | ref | api
   value: any        # source=static 时的字面量
   ref: string        # source=ref 时，指向 datasources 中的 key
-  url: string        # source=api 时，独立请求的地址
-  method: GET | POST | PUT | DELETE | PATCH  # source=api 时可选，缺省为 GET
+  url: string        # source=api 时，baseURL 下的单斜杠相对请求地址
+  method: GET        # source=api 时可选，缺省为 GET；写操作必须使用 Action
   params: map        # 【可选】query 参数映射（不因 method 改变）；非空 key，值仅允许标量或完整单个 $deps.*（禁止对象/数组/模板拼接），见 ADR-0010 与 04 §3.1
   responseMapping: map # 【可选，since 0.2.4】响应字段名映射，见 04-datasource-contract.md §4.1.1
 ```
@@ -100,9 +100,9 @@ data:
 
 各来源形态的字段集合互斥：`source: static` 仅携带 `value`；`source: api` 可携带 `url`、`method`、`params` 与 `responseMapping`；`source: ref` 仅携带 `ref`，并可在引用目标为 API 数据源时携带本地 `responseMapping` 覆盖响应解析。`source: ref` 不得混入 `url`、`method`、`params` 或 `value`，避免同一 `DataRef` 同时表现为引用和内联请求。
 
-`source: api` 时 `method` **可选**，缺省为 `GET`。示例与生成配置可省略 `method`；Renderer 与静态校验均按 `GET` 解释缺省值。
+`source: api` 时 `method` **可选**，缺省为 `GET`。DataRef 是只读数据加载契约，Renderer 与静态校验均拒绝显式的非 `GET` 方法；写操作必须使用用户触发的 Action。
 
-`source: api` 的 `params` 对所有 method 均编码为 URL query 参数。`POST` / `PUT` / `PATCH` / `DELETE` 不会把 `params` 隐式改写为请求体；v0.2 的 DataRef 不定义请求体字段。需要携带 JSON body 的命令式请求应使用 Action，未来若数据加载确需请求体，应通过 ADR 增加独立字段。
+`source: api` 的 `params` 只为只读 `GET` 请求编码为 URL query 参数。DataRef 不定义请求体字段，也不允许通过其他 HTTP method 绕过只读边界；需要携带 JSON body 的命令式请求必须使用 Action。若未来确需 body-based read API，必须通过独立 ADR 增加字段和序列化规则。
 
 `responseMapping` 仅用于 `source: api` 或引用到 API 数据源的响应解析，声明位置与 `params` 同级，不属于请求参数。协议禁止将 `responseMapping` 放入 `params`，也禁止在引用静态 datasource 的 `source: ref` 节点上声明本地 `responseMapping`；后者由能解析引用目标的 L2 校验执行。
 
@@ -248,7 +248,7 @@ permissions:
 meta:
   pageId: hello_page
   title: 示例页面
-  protocolVersion: "1.0"
+  protocolVersion: "2.0"
 
 body:
   type: section

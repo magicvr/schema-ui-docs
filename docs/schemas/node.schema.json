@@ -75,12 +75,16 @@
         },
         "value": {},
         "ref": { "type": "string" },
-        "url": { "type": "string" },
+        "url": {
+          "type": "string",
+          "pattern": "^/(?!/)[^\\s\\\\]*$",
+          "description": "source: api 的请求地址必须是 baseURL 下的单斜杠相对路径"
+        },
         "method": {
           "type": "string",
-          "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+          "enum": ["GET"],
           "default": "GET",
-          "description": "HTTP 方法。source: api 时可选，缺省为 GET。与 action.schema.json 的 method 枚举保持一致。GET/POST 覆盖常见场景，PUT/DELETE/PATCH 预留用于扩展（如编辑表单场景）"
+          "description": "只读数据加载方法。source: api 时可选，缺省为 GET；写操作必须使用 Action"
         },
         "params": {
           "type": "object",

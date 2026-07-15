@@ -5,6 +5,17 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
+## v2.0.0 — 2026-07-16（协议升级候选）
+
+> **版本说明：** 本候选版本把 0059/V236–V240 的协议边界收紧作为 MAJOR 发布：页面使用 `meta.protocolVersion: "2.0"`，v1.0 页面不能直接进入 v2.0 标准 Renderer。正式发布前仍需在匹配的 `v2.0.0` tag 上完成 release check、MCP 与制品发布门禁。
+
+**协议变更：**
+- DataRef 和页面级 API datasource 只允许 `GET`，`params` 只进入 query；写操作或 body-based command 使用 Action。
+- Action/Upload 增加 `retryPolicy: never | idempotent`、稳定 `Idempotency-Key` 和 `unknown` 结果语义。
+- RowAction 的 `$row.*` 只允许标量 own-property 值，并拒绝 `__proto__`、`prototype`、`constructor` 路径。
+- 请求、上传、远程选项和导航 URL 统一为 baseURL 下的单斜杠相对路径。
+- 新增 [`1.0-to-2.0.md`](./migrations/1.0-to-2.0.md) 迁移指南，并新增 v2.0 版本协商正反 fixtures。
+
 ## v1.0.0 — 2026-07-11（首个稳定协议）
 
 > **发布说明：** 页面协议、Renderer 支持版本、根协议包与 MCP 包统一切换到 `1.0` / `1.0.0`。不可变 tag `v1.0.0` 指向提交 `d2f0fc0877dc6550c9fe7e3635b25c7ec72b4ddd`；MCP CD run `29154389128` 完成远端镜像发布与 smoke，镜像 digest 为 `sha256:190453685beded5872f24336c9b1ca1051960602f7d66d67bad6d42de40f997e`。

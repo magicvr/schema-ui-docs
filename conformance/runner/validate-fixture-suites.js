@@ -7,6 +7,10 @@ const path = require('node:path');
 const Ajv = require('ajv');
 
 const root = path.resolve(__dirname, '..');
+const packageJson = JSON.parse(fs.readFileSync(path.join(root, '..', 'package.json'), 'utf8'));
+const versionMatch = /^(\d+)\.(\d+)\.(\d+)(?:-[0-9A-Za-z.-]+)?$/.exec(packageJson.version);
+assert.ok(versionMatch, `Unsupported package version: ${packageJson.version}`);
+const protocolVersion = `${versionMatch[1]}.${versionMatch[2]}`;
 const schema = JSON.parse(fs.readFileSync(path.join(root, 'schemas/fixture-suite.schema.json'), 'utf8'));
 const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
 const fixturesRoot = path.join(root, 'fixtures');
@@ -42,13 +46,13 @@ for (const suitePath of suitePaths) {
     assert.ok(!ids.has(fixture.id), `${fixture.id}: duplicate fixture id`);
     ids.add(fixture.id);
 
-    // Non-historical suites must declare the stable protocol MINOR on each case.
+    // Non-historical suites must declare the current protocol MINOR on each case.
     // version-negotiation retains 0.3 (and other) historical page versions as inputs.
     if (suite.category !== 'version-negotiation') {
       assert.equal(
         fixture.protocolVersion,
-        '1.0',
-        `${fixture.id}: protocolVersion must be "1.0" for suite ${suite.category}`,
+        protocolVersion,
+        `${fixture.id}: protocolVersion must be "${protocolVersion}" for suite ${suite.category}`,
       );
     }
   }
