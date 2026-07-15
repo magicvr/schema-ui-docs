@@ -9,7 +9,7 @@ applies_to: schema-ui-protocol v1.0
 
 本文档跟踪 `v0.3.0-rc.1` 到 `v1.0.0` 的收敛工作。RC 已冻结前后端 MVP 的组件与业务能力范围；完成本文件全部门禁前，不发布 `v1.0.0`。
 
-缺口审视、依赖顺序、分阶段实施计划与发布证据见 [`audit/archived/0055-2026-07-11-review.md`](./audit/archived/0055-2026-07-11-review.md)、[`audit/archived/0055-2026-07-11-plan.md`](./audit/archived/0055-2026-07-11-plan.md) 与 [`audit/archived/0055-2026-07-11-checklist.md`](./audit/archived/0055-2026-07-11-checklist.md)。
+缺口审视、分阶段计划与原始发布证据保留在仓库历史审计 0055 中；它们不进入协议制品，本文件保留稳定的发布结论。
 
 ## 1. RC 范围冻结
 
@@ -114,7 +114,7 @@ fixtures 应为与框架无关的 JSON/YAML 输入及期望输出，不绑定 Re
 | 新增可选组件、字段、能力或行为 | MINOR |
 | 新增必填字段、收紧既有合法输入、改变默认值或执行结果 | MAJOR |
 
-文档、Schema、组件 DSL、校验器、测试 fixtures 和 MCP 必须作为同一版本原子发布。PATCH 不得让此前合法配置变为非法，也不得改变同一输入的请求或渲染结果。
+这是 v1.0 发布时采用的同版本策略。自 v2.0 的协议核心化改造起，核心规范、Schema、组件 DSL 和测试 fixtures 作为协议制品原子发布；校验器与 MCP 使用独立版本并声明兼容协议。PATCH 仍不得让此前合法配置变为非法，也不得改变同一输入的请求或渲染结果。
 
 ## 6. 完成定义
 

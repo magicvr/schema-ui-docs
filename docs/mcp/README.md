@@ -2,7 +2,7 @@
 
 本目录记录 Schema-UI MCP 服务的设计、实施计划与后续交付说明。MCP 服务的职责边界以 [ADR-0007](../decisions/0007-mcp-protocol-reader-validator.md) 为准：v1 仅提供协议只读查询与 `validate_content` 内容校验，不读取宿主项目文件系统，不生成或修改页面配置。
 
-> 当前 MCP 包与协议升级候选版本均为 `2.0.0`。版本状态以 [`docs/CHANGELOG.md`](../CHANGELOG.md) 为准。
+> 当前 MCP 版本为 `2.0.0`，捆绑协议制品 `2.0.0` 与 validator `1.0.0`。三者使用独立 SemVer；兼容声明以 `mcp/package.json` 为准。
 
 ## 文档列表
 
@@ -13,8 +13,8 @@
 
 ## 入口原则
 
-- 协议权威源仍是 `docs/`、`docs/schemas/`、`scripts/`。
-- MCP 不复制协议规则，只读取或打包同版本协议文件。
+- 协议权威矩阵见 [`PROJECT_CHARTER.md`](../../PROJECT_CHARTER.md) 和根 [`protocol-manifest.json`](../../protocol-manifest.json)。
+- 验证脚本和 MCP 都是非规范性辅助工具；MCP 只读取构建后的协议制品并调用辅助验证器。
 - v1 校验入口只有 `protocol.validate_content`，调用方传入 YAML/JSON 内容。
 - Docker 镜像内置协议知识和校验运行时，不要求挂载业务项目目录。
 
@@ -79,7 +79,7 @@ MCP 客户端配置示例：
 | `latest` | 最新发布版本，不建议写入稳定接入示例 |
 | `<commit-sha>` | 精确追踪一次 CD 构建产物 |
 
-CD 仅接受与 `mcp/package.json` 版本完全一致的 `v<version>` Git tag。预发布版本只生成完整版本 tag 与 commit SHA，不更新 minor 或 `latest`；无预发布标识的稳定版本才更新这两个别名。`workflow_dispatch` 也必须从匹配的 Git tag 触发，不能从普通分支覆盖已发布版本。
+CD 仅接受与 `mcp/package.json` 版本完全一致的 `mcp-v<version>` Git tag。预发布版本只生成完整版本 tag 与 commit SHA，不更新 minor 或 `latest`；无预发布标识的稳定版本才更新这两个别名。协议 `v<version>` tag 只发布协议制品，不触发 MCP 镜像发布。
 
 MCP 使用 stdio transport，Docker 启动参数需要保留 `-i`，不需要 `-t`。镜像不要求挂载业务项目目录；`protocol.validate_content` 校验的是调用方传入的 YAML/JSON 字符串，不读取 `filename` 对应的本地文件。
 

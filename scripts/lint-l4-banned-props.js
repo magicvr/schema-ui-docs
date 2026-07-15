@@ -19,16 +19,26 @@
 const fs = require('fs');
 const path = require('path');
 const { expandFilePatterns } = require('./file-patterns');
+const { protocolPath } = require('./protocol-paths');
 
 // ---------------------------------------------------------------------------
-// L4 禁用词清单（必须与 node.schema.json props.not.anyOf 保持一致）
+// L4 从协议 Schema 派生禁用词，避免维护第二份接受/拒绝规则。
 // ---------------------------------------------------------------------------
-const BANNED_PROPS = new Set([
-  'margin', 'padding', 'color', 'background', 'fontSize', 'fontWeight',
-  'border', 'borderRadius', 'width', 'height', 'minWidth', 'maxWidth',
-  'minHeight', 'maxHeight', 'zIndex', 'boxShadow',
-  'lineHeight', 'letterSpacing', 'textAlign',
-]);
+function loadBannedProps() {
+  const nodeSchema = JSON.parse(fs.readFileSync(protocolPath('docs', 'schemas', 'node.schema.json'), 'utf8'));
+  const branches = nodeSchema?.properties?.props?.not?.anyOf;
+  if (!Array.isArray(branches)) throw new Error('node.schema.json 缺少 props.not.anyOf 禁用字段定义');
+  const names = branches
+    .map(branch => branch?.required)
+    .filter(required => Array.isArray(required) && required.length === 1)
+    .map(required => required[0]);
+  if (names.length !== branches.length || names.some(name => typeof name !== 'string')) {
+    throw new Error('node.schema.json props.not.anyOf 必须由单字段 required 分支组成');
+  }
+  return new Set(names);
+}
+
+const BANNED_PROPS = loadBannedProps();
 
 const OPEN_BUSINESS_MAP_PATH = /(?:\.data\.params|\.optionsSource\.params|\.requestMapping\.(?:path|query|body))$/;
 const OPAQUE_BUSINESS_VALUE_PATH = /\.options\[\d+\]\.value$/;

@@ -37,11 +37,12 @@
 const fs = require('fs');
 const path = require('path');
 const { expandFilePatterns } = require('./file-patterns');
+const { protocolPath } = require('./protocol-paths');
 
 // ---------------------------------------------------------------------------
 // 加载 component-registry.json
 // ---------------------------------------------------------------------------
-const REGISTRY_PATH = path.resolve(__dirname, '../docs/schemas/component-registry.json');
+const REGISTRY_PATH = protocolPath('docs', 'schemas', 'component-registry.json');
 const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
 const components = registry.components; // { [type]: ComponentDef }
 

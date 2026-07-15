@@ -146,7 +146,6 @@ export function listSearchDocs(): DocEntry[] {
     'docs/05-scenarios/**/*.md',
     'docs/decisions/**/*.md',
     'docs/schemas/*.json',
-    'docs/mcp/*.md',
   ];
 
   const existing = new Set(coreDocs.map(entry => entry.relativePath));

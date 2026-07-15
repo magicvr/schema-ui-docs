@@ -1,0 +1,105 @@
+name: Protocol CI
+
+on:
+  pull_request:
+    paths:
+      - 'PROJECT_CHARTER.md'
+      - 'CONTRIBUTING.md'
+      - 'README.md'
+      - 'protocol-manifest.json'
+      - 'docs/**'
+      - '!docs/audit/**'
+      - '!docs/mcp/**'
+      - 'conformance/**'
+      - 'scripts/build-protocol-artifact.js'
+      - 'scripts/verify-protocol-artifact.js'
+      - 'scripts/release-check.js'
+      - 'scripts/check-links.js'
+      - 'scripts/run-all-conformance.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/protocol-ci.yml'
+  push:
+    branches: [main, master]
+    paths:
+      - 'PROJECT_CHARTER.md'
+      - 'CONTRIBUTING.md'
+      - 'README.md'
+      - 'protocol-manifest.json'
+      - 'docs/**'
+      - '!docs/audit/**'
+      - '!docs/mcp/**'
+      - 'conformance/**'
+      - 'scripts/build-protocol-artifact.js'
+      - 'scripts/verify-protocol-artifact.js'
+      - 'scripts/release-check.js'
+      - 'scripts/check-links.js'
+      - 'scripts/run-all-conformance.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/protocol-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protocol:
+    name: Validate and build protocol artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit protocol build dependencies
+        run: npm audit --audit-level=high
+
+      - name: Check documentation links
+        run: npm run check:links
+
+      - name: Check release metadata and build artifact
+        run: npm run release:check
+
+      - name: Verify artifact reproducibility
+        run: npm run verify:protocol-artifact
+
+      - name: Check protocol artifact links
+        run: npm run check:protocol-artifact-links
+
+      - name: Validate official scenarios
+        run: npm run validate:scenarios
+
+      - name: Validate fixture suites
+        run: npm run validate:conformance
+
+      - name: Run JavaScript and Python conformance
+        run: npm run test:conformance:all
+
+      - name: Build protocol artifact for download
+        run: npm run build:protocol
+
+      - name: Upload protocol artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema-ui-protocol-${{ github.sha }}
+          path: |
+            dist/schema-ui-protocol-*.tar.gz
+            dist/schema-ui-protocol-*.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 14

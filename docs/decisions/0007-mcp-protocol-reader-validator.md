@@ -24,13 +24,11 @@ MCP v1 是 Schema-UI 协议的 AI 消费入口，职责仅限于：
 1. 提供协议内容的只读查询；
 2. 对调用方传入的页面配置内容执行格式与语义校验。
 
-协议权威源仍然是本仓库中的：
+协议权威层级由根 [`PROJECT_CHARTER.md`](../../PROJECT_CHARTER.md) 和 [`protocol-manifest.json`](../../protocol-manifest.json) 定义：
+核心规范/ADR 定义语义，Schema/组件 DSL 定义结构，versioned conformance fixtures 定义可观测算法结果。
+`scripts/`、reference 和 MCP 都是非规范性辅助实现。
 
-- `docs/`：人类可读协议文档与场景示例；
-- `docs/schemas/`：JSON Schema 与组件注册 DSL；
-- `scripts/`：L0-L4 校验脚本。
-
-MCP 不在服务内部硬编码第二份协议规则，不复制组件契约，不改写协议文档。协议更新后，MCP 应读取或打包同一版本的上述文件，而不是维护独立知识库。
+MCP 不在服务内部硬编码第二份协议规则，不复制组件契约，不改写协议文档。协议更新后，MCP 应读取构建后的固定版本协议制品，并显式声明捆绑版本，而不是维护独立知识库或依赖仓库源码布局。
 
 ### D2. v1 工具清单
 
@@ -164,7 +162,7 @@ MCP v1 使用 stdio transport。
 
 ### D8. Docker 镜像版本策略
 
-镜像 tag 与协议版本对齐：
+镜像 tag 使用 MCP 自身版本；`mcp/package.json.schemaUiProtocol` 另行声明捆绑的协议制品版本：
 
 ```text
 schema-ui-mcp:0.2.8
@@ -177,8 +175,9 @@ schema-ui-mcp:latest
 - 文档示例必须使用 PATCH tag（如 `0.2.8`），避免工程师无意跟随 `latest` 升级；
 - `0.2` 可指向当前最新 `0.2.x`；
 - `latest` 可发布，但不作为接入示例；
-- 每次协议 PATCH 发布时，同步发布对应 MCP 镜像；
-- 镜像内置内容必须与 tag 对应的协议文档、Schema 和脚本一致。
+- 只有 MCP 需要捆绑新协议制品或自身实现发生变化时才发布新镜像；
+- 镜像内置协议内容必须与 `schemaUiProtocol.artifactVersion` 对应的协议制品 digest 一致；
+- 协议使用 `v<version>` tag，MCP 使用 `mcp-v<version>` tag，两个发布流程互不替代。
 
 ### D9. 安全与隐私边界
 

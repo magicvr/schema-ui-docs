@@ -1,0 +1,58 @@
+name: Validator CI
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'validator/**'
+      - 'protocol-manifest.json'
+      - 'docs/schemas/**'
+      - 'docs/05-scenarios/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/validator-ci.yml'
+  push:
+    branches: [main, master]
+    paths:
+      - 'scripts/**'
+      - 'validator/**'
+      - 'protocol-manifest.json'
+      - 'docs/schemas/**'
+      - 'docs/05-scenarios/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/validator-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validator:
+    name: Validate helper compatibility and scenarios
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check validator compatibility declaration
+        run: npm run release:check:validator
+
+      - name: Build protocol artifact consumed by validators
+        run: npm run build:protocol
+
+      - name: Validate official scenarios from the artifact
+        env:
+          SCHEMA_UI_PROTOCOL_ROOT: ${{ github.workspace }}/dist/protocol
+        run: npm run validate:scenarios

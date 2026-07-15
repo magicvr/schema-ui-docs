@@ -7,9 +7,9 @@ applies_to: schema-ui-protocol v2.0
 
 # 组件类型（type）注册表
 
-> 本文档是**活文档**，应随前端组件库的迭代持续更新。
-> 建议由 CI 从组件的 TypeScript Props 类型定义自动生成骨架，防止文档与实现漂移。
-> 每次新增/修改一个 `type`，必须同步更新本文档 + [`schemas/component-registry.json`](./schemas/component-registry.json)。
+> [`schemas/component-registry.json`](./schemas/component-registry.json) 是组件字段、能力和分类的机器可读结构契约；
+> 本文档补充组件语义、示例和设计说明，不得另行定义与机器契约冲突的字段。
+> 验证器和工具只读取机器契约。新增语义仍需先更新协议正文或 ADR，再更新机器契约和 conformance。
 >
 > **关于 `schemas/component-registry.json` 的格式说明：** 该文件使用**自定义 DSL 格式**（非标准 JSON Schema），`$schema` 标识为 `component-registry-dsl#`。其结构以自造键 `components` 组织组件目录、使用内联布尔值 `"required": true` 表达必填性——这些均非标准 JSON Schema 语法，不应使用 `ajv` 等标准校验器直接验证。与之对比，协议中实际的 JSON Schema 文件（`node.schema.json`/`page.schema.json`/`action.schema.json`/`reaction.schema.json`）均为合法标准格式。
 >
@@ -19,7 +19,7 @@ applies_to: schema-ui-protocol v2.0
 >
 > **两种 `required` 语义：** 字段定义中的布尔值 `required: true/false` 表示该字段在普通情况下是否必填；组合约束中的数组形式 `required: ["field"]` 表示当前 `anyOf` / `oneOf` / `if` / `then` / `else` 分支要求这些字段存在。若二者同时出现，以更具体的组合约束分支决定条件必填关系，例如 `form.mode=search` 时要求 `targetTable`，默认模式要求 `submitAction`。
 >
-> **v0.2 变更说明：** 本次更新涉及多处破坏性/新增字段，详见 [audit/0001-2026-07-07-plan.md](./audit/archived/0001-2026-07-07-plan.md)。表格中新增字段标注 `(since 0.2)`。
+> **v0.2 变更说明：** 本次更新涉及多处破坏性/新增字段；历史细节保留在仓库审计记录中，不属于协议制品。表格中新增字段标注 `(since 0.2)`。
 
 ## 如何阅读本表
 
@@ -100,7 +100,7 @@ props:
 | `valueField` | string | 是（since 0.2） | 指定从 API 响应中取哪个字段作为展示值 |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
-> **v0.2 变更（A3，破坏性）：** `valueField` 从 `data.valueField` 迁移至 `props.valueField`，与 `table.columns[].field`、`chart.xField/yField` 的取值方式保持一致。迁移方式见 [audit/0001-2026-07-07-plan.md §A3](./audit/archived/0001-2026-07-07-plan.md#a3-将-valuefield-从-dataref-移至组件-props)。
+> **v0.2 变更（A3，破坏性）：** `valueField` 从 `data.valueField` 迁移至 `props.valueField`，与 `table.columns[].field`、`chart.xField/yField` 的取值方式保持一致。
 
 ```yaml
 # v0.2 写法
@@ -512,7 +512,7 @@ props:
 
 ## 新增组件类型的流程
 
-1. 前端组件库中实现对应组件，并导出明确的 Props 类型定义。
-2. 在本文档追加一节，字段表格与代码中的 Props 类型保持一致。
-3. 同步更新 [`schemas/component-registry.json`](./schemas/component-registry.json)。
-4. 在 [CHANGELOG.md](./CHANGELOG.md) 中记录新增的 `type`。
+1. 用协议正文或 ADR 定义组件语义、跨端影响和版本策略。
+2. 更新 [`schemas/component-registry.json`](./schemas/component-registry.json) 的字段、能力与分类。
+3. 在本文档补充不与机器契约重复的使用语义和示例。
+4. 增加正反场景或 conformance，并在 [CHANGELOG.md](./CHANGELOG.md) 中记录新增的 `type`。

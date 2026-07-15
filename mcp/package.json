@@ -4,22 +4,31 @@
   "private": true,
   "type": "module",
   "description": "Schema-UI protocol reader and validator MCP server",
+  "schemaUiProtocol": {
+    "artifactVersion": "2.0.0",
+    "protocolVersion": "2.0"
+  },
+  "schemaUiValidator": {
+    "version": "1.0.0"
+  },
   "bin": {
     "schema-ui-mcp": "dist/server.js"
   },
   "scripts": {
+    "prepare:protocol": "npm --prefix .. run build:protocol",
+    "prebuild": "npm run prepare:protocol",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
+    "pretest": "npm run prepare:protocol",
     "test": "vitest run",
+    "presmoke:tools": "npm run prepare:protocol",
     "smoke:tools": "node tests/smoke-tools.mjs",
     "smoke:docker": "node tests/smoke-docker.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
-    "ajv": "^8.17.1",
     "glob": "^10.4.5",
     "js-yaml": "^4.1.0",
-    "schema-ui-docs": "file:..",
     "zod": "^4.4.3"
   },
   "devDependencies": {

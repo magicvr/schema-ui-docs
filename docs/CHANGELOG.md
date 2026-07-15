@@ -7,7 +7,7 @@
 
 ## v2.0.0 — 2026-07-16（协议升级候选）
 
-> **版本说明：** 本候选版本把 0059/V236–V240 的协议边界收紧作为 MAJOR 发布：页面使用 `meta.protocolVersion: "2.0"`，v1.0 页面不能直接进入 v2.0 标准 Renderer。正式发布前仍需在匹配的 `v2.0.0` tag 上完成 release check、MCP 与制品发布门禁。
+> **版本说明：** 本候选版本把 0059/V236–V240 的协议边界收紧作为 MAJOR 发布：页面使用 `meta.protocolVersion: "2.0"`，v1.0 页面不能直接进入 v2.0 标准 Renderer。正式发布前需在匹配的 `v2.0.0` tag 上完成独立协议制品发布门禁；MCP 使用独立 `mcp-v<version>` tag。
 
 **协议变更：**
 - DataRef 和页面级 API datasource 只允许 `GET`，`params` 只进入 query；写操作或 body-based command 使用 Action。
@@ -15,6 +15,12 @@
 - RowAction 的 `$row.*` 只允许标量 own-property 值，并拒绝 `__proto__`、`prototype`、`constructor` 路径。
 - 请求、上传、远程选项和导航 URL 统一为 baseURL 下的单斜杠相对路径。
 - 新增 [`1.0-to-2.0.md`](./migrations/1.0-to-2.0.md) 迁移指南，并新增 v2.0 版本协商正反 fixtures。
+
+**协议核心化：**
+- 新增根 `PROJECT_CHARTER.md` 和 `protocol-manifest.json`，明确规范/ADR、机器结构契约、行为 fixtures、验证器/reference、MCP 的权威层级与单向依赖。
+- 新增确定性 `schema-ui-protocol-2.0.0.tar.gz` 构建、内容 digest、制品 SHA-256 和双构建复现门禁；审计、MCP、验证器与 reference 不进入协议制品。
+- 协议与 MCP 版本、tag 和 CI/CD 生命周期解耦；MCP 通过 `schemaUiProtocol` 显式声明捆绑协议版本。
+- 根 CLI 与 MCP 共用 Ajv 装配；L4 从 `node.schema.json` 派生禁用字段；MCP 从组件 DSL 读取分类，不再从 Markdown 反向推导机器契约。
 
 ## v1.0.0 — 2026-07-11（首个稳定协议）
 
@@ -158,7 +164,7 @@
 
 ## v0.2.1 — 2026-07-07（与 v0.2.0 同一天）
 
-> **版本说明：** v0.2.1 是基于 [0003 审计](./audit/archived/0003-2026-07-07-review.md) 发现的 MVP 阻断项紧急补发的就绪度补丁，与 v0.2.0 在同一天完成。内容为 Renderer 实现规范、缺失组件、校验工具链等操作性约定，不改变 v0.2.0 已定义的 Node 结构和表达式语法。
+> **版本说明：** v0.2.1 是基于历史 0003 审计发现的 MVP 阻断项紧急补发的就绪度补丁，与 v0.2.0 在同一天完成。内容为 Renderer 实现规范、缺失组件、校验工具链等操作性约定，不改变 v0.2.0 已定义的 Node 结构和表达式语法。
 
 **MVP 就绪度补丁（基于 0003 审计）。**
 

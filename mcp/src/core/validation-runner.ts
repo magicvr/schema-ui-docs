@@ -3,14 +3,27 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { createRequire } from 'node:module';
 import yaml from 'js-yaml';
-import { Ajv, type ErrorObject } from 'ajv';
-import { protocolPath } from './paths.js';
+import { PROTOCOL_ROOT, validatorPath } from './paths.js';
 import { buildSuggestedDocs } from './suggested-docs.js';
 import type { LayerViolation, ParseError, ToolError, ValidateContentResult, ValidationLayer } from '../types.js';
 
 const MAX_CONTENT_BYTES = 1024 * 1024;
 const MAX_LAYER_SCRIPT_OUTPUT_BYTES = 16 * 1024 * 1024;
+type AjvError = {
+  instancePath: string;
+  keyword: string;
+  message?: string;
+  params?: Record<string, unknown>;
+};
+const require = createRequire(import.meta.url);
+const schemaValidator = require(validatorPath('scripts', 'lib', 'schema-validator.js')) as {
+  createPageValidator: (protocolRoot: string) => {
+    (document: unknown): boolean;
+    errors?: AjvError[] | null;
+  };
+};
 
 const emptyLayers = (): Record<ValidationLayer, LayerViolation[]> => ({
   'L0/L1': [],
@@ -186,17 +199,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function runAjv(filePath: string): LayerViolation[] {
   const document = parseFileForAjv(filePath);
-  const pageSchema = readJsonSchema('docs/schemas/page.schema.json');
-  const nodeSchema = readJsonSchema('docs/schemas/node.schema.json');
-  const actionSchema = readJsonSchema('docs/schemas/action.schema.json');
-  const reactionSchema = readJsonSchema('docs/schemas/reaction.schema.json');
-
-  const ajv = new Ajv({ allErrors: true, strict: false, allowUnionTypes: true });
-  ajv.addSchema(nodeSchema, 'node.schema.json');
-  ajv.addSchema(actionSchema, 'action.schema.json');
-  ajv.addSchema(reactionSchema, 'reaction.schema.json');
-
-  const validate = ajv.compile(pageSchema);
+  const validate = schemaValidator.createPageValidator(PROTOCOL_ROOT);
   if (validate(document)) return [];
   return (validate.errors ?? []).map(mapAjvError);
 }
@@ -207,11 +210,7 @@ function parseFileForAjv(filePath: string): unknown {
   return ext === '.json' ? JSON.parse(raw) : yaml.load(raw);
 }
 
-function readJsonSchema(relativePath: string): Record<string, unknown> {
-  return JSON.parse(fs.readFileSync(protocolPath(relativePath), 'utf8')) as Record<string, unknown>;
-}
-
-function mapAjvError(error: ErrorObject): LayerViolation {
+function mapAjvError(error: AjvError): LayerViolation {
   return {
     path: jsonPointerToPath(error.instancePath),
     keyword: error.keyword,
@@ -269,11 +268,15 @@ function runLayerScript(scriptName: string, filePath: string, layer: ValidationL
 }
 
 function defaultLayerScriptExecutor(scriptName: string, filePath: string): string {
-  const scriptPath = protocolPath('scripts', scriptName);
+  const scriptPath = validatorPath('scripts', scriptName);
   const result = spawnSync(process.execPath, [scriptPath, filePath, '--json'], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     maxBuffer: MAX_LAYER_SCRIPT_OUTPUT_BYTES,
+    env: {
+      ...process.env,
+      SCHEMA_UI_PROTOCOL_ROOT: PROTOCOL_ROOT,
+    },
   });
   if (result.error) throw result.error;
   if (result.status !== 0 && !result.stdout.trim()) {

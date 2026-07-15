@@ -8,11 +8,15 @@ import { handleSearch, searchInputSchema } from './tools/search.js';
 import { handleValidateContent, validateContentInputSchema } from './tools/validate-content.js';
 
 const require = createRequire(import.meta.url);
-const packageJson = require('../package.json') as { version: string };
+const packageJson = require('../package.json') as {
+  version: string;
+  schemaUiProtocol: { artifactVersion: string; protocolVersion: string };
+};
 
 export function createServer(): McpServer {
   const server = new McpServer({ name: 'schema-ui-mcp', version: packageJson.version }, {
-    instructions: 'Schema-UI protocol read-only query and content validation tools. This server does not read caller project files.',
+    instructions: `Schema-UI protocol ${packageJson.schemaUiProtocol.artifactVersion} read-only query and content validation tools. `
+      + 'This server is non-normative and does not read caller project files.',
   });
 
   server.registerTool('protocol.search', {

@@ -2,112 +2,38 @@ name: MCP CI
 
 on:
   pull_request:
+    paths:
+      - 'mcp/**'
+      - 'validator/**'
+      - 'scripts/**'
+      - 'protocol-manifest.json'
+      - 'docs/**'
+      - '!docs/audit/**'
+      - 'conformance/fixtures/**'
+      - 'conformance/schemas/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/mcp-ci.yml'
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
+    paths:
+      - 'mcp/**'
+      - 'validator/**'
+      - 'scripts/**'
+      - 'protocol-manifest.json'
+      - 'docs/**'
+      - '!docs/audit/**'
+      - 'conformance/fixtures/**'
+      - 'conformance/schemas/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/mcp-ci.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  protocol:
-    name: Validate official scenarios
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install protocol dependencies
-        run: npm ci
-
-      - name: Audit protocol dependencies (high+)
-        run: npm audit --audit-level=high
-
-      - name: Check relative documentation links
-        run: npm run check:links
-
-      - name: Check release metadata
-        run: npm run release:check
-
-      - name: Validate official scenarios
-        run: npm run validate:scenarios
-
-      - name: Validate versioned fixture suites
-        run: npm run validate:conformance
-
-      - name: Test version negotiation conformance
-        run: npm run test:conformance:version
-
-      - name: Test Python version negotiation conformance
-        run: npm run test:conformance:version:python
-
-      - name: Test query serialization conformance
-        run: npm run test:conformance:query
-
-      - name: Test Python query serialization conformance
-        run: npm run test:conformance:query:python
-
-      - name: Test Action outcome conformance
-        run: npm run test:conformance:actions
-
-      - name: Test Python Action outcome conformance
-        run: npm run test:conformance:actions:python
-
-      - name: Test reaction scheduling conformance
-        run: npm run test:conformance:reactions
-
-      - name: Test Python reaction scheduling conformance
-        run: npm run test:conformance:reactions:python
-
-      - name: Test table query state conformance
-        run: npm run test:conformance:table-state
-
-      - name: Test request construction conformance
-        run: npm run test:conformance:request
-
-      - name: Test Python request construction conformance
-        run: npm run test:conformance:request:python
-
-      - name: Test response mapping conformance
-        run: npm run test:conformance:response
-
-      - name: Test Python response mapping conformance
-        run: npm run test:conformance:response:python
-
-      - name: Test search table conformance
-        run: npm run test:conformance:search-table
-
-      - name: Test Python search table conformance
-        run: npm run test:conformance:search-table:python
-
-      - name: Test official scenario execution conformance
-        run: npm run test:conformance:scenarios
-
-      - name: Test Python official scenario execution conformance
-        run: npm run test:conformance:scenarios:python
-
-      - name: Test upload conformance
-        run: npm run test:conformance:uploads
-
-      - name: Test Python upload conformance
-        run: npm run test:conformance:uploads:python
-
   mcp:
     name: Build, test, and smoke MCP (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
@@ -115,9 +41,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version:
-          - '20.19.0'
-          - '24'
+        node-version: ['20.19.0', '24']
 
     steps:
       - name: Checkout
@@ -132,17 +56,17 @@ jobs:
             package-lock.json
             mcp/package-lock.json
 
-      - name: Install protocol dependencies
+      - name: Install protocol build dependencies
         run: npm ci
 
       - name: Install MCP dependencies
         run: npm ci --prefix mcp
 
-      - name: Audit MCP dependencies (high+)
+      - name: Audit MCP dependencies
         run: npm audit --prefix mcp --audit-level=high
 
-      - name: Check release metadata
-        run: npm run release:check
+      - name: Verify MCP/protocol compatibility declaration
+        run: npm run release:check:mcp
 
       - name: Build MCP
         run: npm --prefix mcp run build
@@ -153,18 +77,16 @@ jobs:
       - name: Smoke test MCP tools
         run: npm --prefix mcp run smoke:tools
 
-      - name: Read MCP version
+      - name: Build and smoke Docker image
         if: matrix.node-version == '24'
-        id: mcp-version
         shell: bash
         run: |
           VERSION=$(node -p "require('./mcp/package.json').version")
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-
-      - name: Build MCP Docker image
-        if: matrix.node-version == '24'
-        run: docker build -f mcp/Dockerfile -t schema-ui-mcp:${{ steps.mcp-version.outputs.version }} .
-
-      - name: Smoke test MCP Docker image
-        if: matrix.node-version == '24'
-        run: npm --prefix mcp run smoke:docker -- schema-ui-mcp:${{ steps.mcp-version.outputs.version }}
+          PROTOCOL_VERSION=$(node -p "require('./mcp/package.json').schemaUiProtocol.artifactVersion")
+          VALIDATOR_VERSION=$(node -p "require('./mcp/package.json').schemaUiValidator.version")
+          docker build -f mcp/Dockerfile \
+            --build-arg MCP_VERSION=${VERSION} \
+            --build-arg PROTOCOL_ARTIFACT_VERSION=${PROTOCOL_VERSION} \
+            --build-arg VALIDATOR_VERSION=${VALIDATOR_VERSION} \
+            -t schema-ui-mcp:${VERSION} .
+          npm --prefix mcp run smoke:docker -- schema-ui-mcp:${VERSION}

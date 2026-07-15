@@ -4,7 +4,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const root = path.resolve(__dirname, '..');
+const workspaceRoot = path.resolve(__dirname, '..');
+const rootArgument = process.argv.find(argument => argument.startsWith('--root='));
+const root = rootArgument ? path.resolve(rootArgument.slice('--root='.length)) : workspaceRoot;
 
 function collectMarkdownFiles(directory) {
   if (!fs.existsSync(directory)) {
@@ -27,7 +29,7 @@ function maskText(text) {
 
 function maskCodeAndComments(markdown) {
   const withoutComments = markdown.replace(/<!--[\s\S]*?-->/g, maskText);
-  const lines = withoutComments.match(/.*(?:\n|$)/g) ?? [];
+  const lines = withoutComments.match(/[^\n]*(?:\n|$)/g) ?? [];
   let fence = null;
 
   const withoutFences = lines.map(line => {
@@ -78,11 +80,15 @@ function lineNumberAt(text, index) {
   return text.slice(0, index).split('\n').length;
 }
 
-const markdownFiles = [
-  path.join(root, 'README.md'),
-  ...collectMarkdownFiles(path.join(root, 'docs')),
-  ...collectMarkdownFiles(path.join(root, 'conformance')),
-].filter(fs.existsSync).sort((left, right) => left.localeCompare(right, 'en'));
+const markdownFiles = rootArgument
+  ? collectMarkdownFiles(root).sort((left, right) => left.localeCompare(right, 'en'))
+  : [
+    path.join(root, 'README.md'),
+    path.join(root, 'PROJECT_CHARTER.md'),
+    path.join(root, 'CONTRIBUTING.md'),
+    ...collectMarkdownFiles(path.join(root, 'docs')),
+    ...collectMarkdownFiles(path.join(root, 'conformance')),
+  ].filter(fs.existsSync).sort((left, right) => left.localeCompare(right, 'en'));
 
 const missingLinks = [];
 let checkedLinkCount = 0;

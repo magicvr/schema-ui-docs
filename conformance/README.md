@@ -27,7 +27,7 @@
 ## 消费规则
 
 - 前端 Renderer、JavaScript reference 和后端实现必须直接消费同一版本的 fixture 文件；
-- 独立仓库通过 commit SHA 固定并下载本目录制品，不复制后维护私有期望结果；
+- 独立仓库固定协议 tag 或 `schema-ui-protocol-<version>.tar.gz` 的 SHA-256，直接消费制品内 fixtures，不复制后维护私有期望结果；
 - 每个消费者必须逐字段比较实际输出和 `expected`；
 - 不允许按实现添加 skip、allowlist 或改写期望；
 - fixture 语义变更必须同步协议版本、ADR、CHANGELOG 和所有消费者。

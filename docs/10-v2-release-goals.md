@@ -41,21 +41,21 @@ applies_to: schema-ui-protocol v2.0
 
 ### G4. 跨实现发布制品
 
-- [x] 8 个 versioned suites、官方场景、JS/Python reference 和 MCP 校验器统一消费 v2.0 协议 fixtures。
-- [x] 根包、MCP 包、lockfile、核心规范、场景、版本协商和迁移文档作为同一版本原子更新。
-- [x] `release:check` 对版本、迁移、fixture 数量和 digest 执行硬校验。
+- [x] 8 个 versioned suites、官方场景、JS/Python reference 和辅助验证器统一消费 v2.0 协议 fixtures。
+- [x] 核心规范、Schema、fixtures、场景、版本协商和迁移文档进入独立协议制品；MCP 仅声明捆绑版本。
+- [x] `release:check` 对版本、迁移、fixture digest、协议内容 digest 和可复现 tar.gz 执行硬校验。
 
 ## 3. 发布工程门禁
 
-- [x] `package.json`、MCP package、lockfile 和核心文档统一为 `2.0.0` / `2.0`。
+- [x] `package.json`、`protocol-manifest.json`、lockfile 和核心文档统一为协议制品 `2.0.0` / 页面协议 `2.0`。
 - [x] `1.0` 到 `2.0` 迁移指南覆盖 DataRef、query、pageSize、requestMapping、actions.upload、URL 和 Action 重试语义。
 - [x] 官方场景和 algorithm fixtures 的 `protocolVersion` 全部更新为 `2.0`；历史版本协商反例保留并单独标识。
 - [x] 版本协商正反例至少覆盖 v2.0 接受和 v1.0 页面被 v2.0 Renderer 拒绝。
-- [x] 全部协议 conformance、场景校验、MCP build、链接检查和 release check 通过。
+- [x] 全部协议 conformance、场景校验、协议制品复现、链接检查和 release check 通过；MCP 由独立 CI 验证。
 
 ## 4. 版本纪律
 
-v2.0 之后，继续遵守语义化版本：不改变 v2.0 合法输入和执行结果的文档勘误属于 PATCH；新增兼容字段或 capability 属于 MINOR；收紧合法输入、改变默认值或改变执行结果属于下一 MAJOR。Schema、正文、fixtures、reference、MCP 和迁移文档必须作为同一版本原子发布。
+v2.0 之后，继续遵守语义化版本：不改变 v2.0 合法输入和执行结果的文档勘误属于 PATCH；新增兼容字段或 capability 属于 MINOR；收紧合法输入、改变默认值或改变执行结果属于下一 MAJOR。核心规范、Schema、fixtures 和迁移文档必须作为同一协议版本原子发布。reference、验证器和 MCP 使用独立版本，只需显式更新支持或捆绑的协议制品版本。
 
 ## 5. 完成定义
 

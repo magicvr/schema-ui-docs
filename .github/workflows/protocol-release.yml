@@ -1,0 +1,75 @@
+name: Protocol Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Validate and publish protocol artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify protocol tag and release metadata
+        id: protocol
+        run: npm run release:check:tag
+
+      - name: Verify artifact reproducibility
+        run: npm run verify:protocol-artifact
+
+      - name: Check protocol artifact links
+        run: npm run check:protocol-artifact-links
+
+      - name: Validate scenarios and fixture suites
+        run: |
+          npm run validate:scenarios
+          npm run validate:conformance
+
+      - name: Run JavaScript and Python conformance
+        run: npm run test:conformance:all
+
+      - name: Build release artifact
+        run: npm run build:protocol
+
+      - name: Publish GitHub release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./protocol-manifest.json').artifactVersion")
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            gh release upload "v${VERSION}" \
+              "dist/schema-ui-protocol-${VERSION}.tar.gz" \
+              "dist/schema-ui-protocol-${VERSION}.tar.gz.sha256" \
+              --clobber
+          else
+            gh release create "v${VERSION}" \
+              "dist/schema-ui-protocol-${VERSION}.tar.gz" \
+              "dist/schema-ui-protocol-${VERSION}.tar.gz.sha256" \
+              --verify-tag \
+              --title "Schema-UI Protocol ${VERSION}" \
+              --generate-notes
+          fi
