@@ -1941,7 +1941,7 @@ body:
       meta: { pageId: 'large-l2-output', title: 'Large L2 output', protocolVersion: '0.2' },
       body: {
         type: 'section',
-        children: Array.from({ length: 6000 }, (_, index) => ({ type: `unknown_${index}` })),
+        children: Array.from({ length: 6500 }, (_, index) => ({ type: `unknown_${index}` })),
       },
     });
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'schema-ui-large-l2-'));
@@ -1965,7 +1965,7 @@ body:
       });
       const parsed = JSON.parse(stdout) as { violations: unknown[] };
       expect(Buffer.byteLength(stdout, 'utf8')).toBeGreaterThan(1024 * 1024);
-      expect(parsed.violations).toHaveLength(6000);
+      expect(parsed.violations).toHaveLength(6500);
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
