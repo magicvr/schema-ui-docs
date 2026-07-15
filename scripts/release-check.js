@@ -14,13 +14,14 @@ const releaseMode = process.argv.includes('--release');
 /**
  * Hard gate for fixture tree integrity (V225 / V223).
  * Algorithm: sorted relative paths under conformance/fixtures/**, for each file
- * hash.update(relativePath + '\\0' + fileBytes + '\\0'), then sha256 hex.
+ * hash.update(relativePath + '\\0' + canonicalUtf8FileBytes + '\\0'), then sha256 hex.
+ * Text fixture line endings are canonicalized to LF before hashing.
  * When any fixture bytes change, recompute with `npm run release:check` (after
  * temporarily updating this constant if needed) and bump EXPECTED_FIXTURE_DIGEST
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:dae9ad9db364aac7e2b70f155deaa5e9f2a5d5cbc2d98fe87259a4a9924feeec';
+  'sha256:d78527a570c481819cf4855369598bc526247aa9c31c08d175e78987da3d9528';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -38,6 +39,12 @@ function collectFiles(directory) {
     });
 }
 
+function readCanonicalFixtureBytes(filePath) {
+  // GitHub Actions checks out LF while Windows may materialize CRLF. The
+  // release digest must represent the committed text, not the local checkout.
+  return Buffer.from(fs.readFileSync(filePath, 'utf8').replace(/\r\n?/g, '\n'), 'utf8');
+}
+
 function fixtureDigest() {
   const fixturesRoot = path.join(root, 'conformance', 'fixtures');
   const files = collectFiles(fixturesRoot).sort((left, right) => left.localeCompare(right, 'en'));
@@ -46,7 +53,7 @@ function fixtureDigest() {
     const relativePath = path.relative(root, filePath).replaceAll('\\', '/');
     hash.update(relativePath, 'utf8');
     hash.update('\0');
-    hash.update(fs.readFileSync(filePath));
+    hash.update(readCanonicalFixtureBytes(filePath));
     hash.update('\0');
   }
   return { digest: hash.digest('hex'), fileCount: files.length };
