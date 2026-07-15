@@ -1354,6 +1354,103 @@ ${queryYaml}
     expect(rowGet.passed).toBe(true);
   });
 
+  it('rejects mutating DataRef methods and non-relative protocol URLs', () => {
+    const mutatingDataRef = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'mutating-data-ref', title: 'Mutating DataRef', protocolVersion: '0.2' },
+        body: {
+          type: 'table',
+          props: { rowKey: 'id', pagination: { mode: 'none' }, columns: [{ field: 'id', label: 'ID' }] },
+          data: { source: 'api', method: 'POST', url: '/orders' },
+        },
+      }),
+      format: 'json',
+      filename: 'mutating-data-ref.json',
+    });
+    const absoluteDataUrl = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'absolute-data-url', title: 'Absolute Data URL', protocolVersion: '0.2' },
+        body: {
+          type: 'table',
+          props: { rowKey: 'id', pagination: { mode: 'none' }, columns: [{ field: 'id', label: 'ID' }] },
+          data: { source: 'api', url: 'https://api.example.com/orders' },
+        },
+      }),
+      format: 'json',
+      filename: 'absolute-data-url.json',
+    });
+    const absoluteOptionsUrl = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'absolute-options-url', title: 'Absolute Options URL', protocolVersion: '0.2' },
+        body: {
+          type: 'form',
+          children: [{
+            type: 'select',
+            props: {
+              field: 'owner',
+              label: 'Owner',
+              optionsSource: {
+                url: 'https://api.example.com/owners',
+                labelField: 'name',
+                valueField: 'id',
+              },
+            },
+          }],
+        },
+      }),
+      format: 'json',
+      filename: 'absolute-options-url.json',
+    });
+
+    expect(mutatingDataRef.passed).toBe(false);
+    expect(Object.values(mutatingDataRef.layers).flat()).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.data.method' }),
+    ]));
+    expect(absoluteDataUrl.passed).toBe(false);
+    expect(Object.values(absoluteDataUrl.layers).flat()).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.data.url' }),
+    ]));
+    expect(absoluteOptionsUrl.passed).toBe(false);
+    expect(absoluteOptionsUrl.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[0].props.optionsSource.url' }),
+    ]));
+  });
+
+  it('rejects reserved RowAction prototype paths', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: {
+          pageId: 'reserved-row-path',
+          title: 'Reserved Row Path',
+          protocolVersion: '0.2',
+          requiredCapabilities: ['actions.row.request'],
+        },
+        body: {
+          type: 'table',
+          props: {
+            rowKey: 'id',
+            pagination: { mode: 'none' },
+            columns: [{ field: 'id', label: 'ID' }],
+            actions: [{
+              key: 'inspect',
+              label: 'Inspect',
+              actionRef: 'inspect',
+              requestMapping: { body: { payload: '$row.__proto__' } },
+            }],
+          },
+        },
+        actions: { inspect: { type: 'request', method: 'POST', url: '/inspect' } },
+      }),
+      format: 'json',
+      filename: 'reserved-row-path.json',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.props.actions[0].requestMapping.body.payload' }),
+    ]));
+  });
+
   it.each(['POST', 'PUT', 'PATCH', 'DELETE'] as const)('allows %s request for form submitAction', method => {
     const result = validateContent({
       content: JSON.stringify({

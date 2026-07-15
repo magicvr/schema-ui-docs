@@ -19,6 +19,12 @@ describe('protocol docs', () => {
     expect(doc.content).toContain('v1.0 发布目标与门禁');
   });
 
+  it('returns the current v2 release goals by stable docId', () => {
+    const doc = getDoc('v2-release-goals');
+    expect(doc.path).toBe('docs/10-v2-release-goals.md');
+    expect(doc.content).toContain('v2.0 发布目标与门禁');
+  });
+
   it('returns available sections when a large doc is truncated', () => {
     const tempPath = path.join(os.tmpdir(), 'schema-ui-mcp-large-doc.md');
     const originalPath = DOC_MAP[0]!.absolutePath;

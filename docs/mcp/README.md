@@ -2,7 +2,7 @@
 
 本目录记录 Schema-UI MCP 服务的设计、实施计划与后续交付说明。MCP 服务的职责边界以 [ADR-0007](../decisions/0007-mcp-protocol-reader-validator.md) 为准：v1 仅提供协议只读查询与 `validate_content` 内容校验，不读取宿主项目文件系统，不生成或修改页面配置。
 
-> 当前 MCP 包与已发布稳定 Docker 镜像版本均为 `1.0.0`。版本状态以 [`docs/CHANGELOG.md`](../CHANGELOG.md) 为准。
+> 当前 MCP 包与协议升级候选版本均为 `2.0.0`。版本状态以 [`docs/CHANGELOG.md`](../CHANGELOG.md) 为准。
 
 ## 文档列表
 
@@ -48,8 +48,8 @@ CD 工作流会将镜像推送到 Docker Hub 仓库：
 当前版本示例：
 
 ```bash
-docker pull <dockerhub-namespace>/schema-ui-mcp:1.0.0
-docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:1.0.0
+docker pull <dockerhub-namespace>/schema-ui-mcp:2.0.0
+docker run --rm -i <dockerhub-namespace>/schema-ui-mcp:2.0.0
 ```
 
 MCP 客户端配置示例：
@@ -63,7 +63,7 @@ MCP 客户端配置示例：
         "run",
         "--rm",
         "-i",
-        "<dockerhub-namespace>/schema-ui-mcp:1.0.0"
+        "<dockerhub-namespace>/schema-ui-mcp:2.0.0"
       ]
     }
   }
@@ -74,8 +74,8 @@ MCP 客户端配置示例：
 
 | Tag | 用途 |
 |---|---|
-| `1.0.0` | 固定 PATCH 版本，推荐团队接入使用 |
-| `1.0` | 当前 `1.0.x` 最新 PATCH |
+| `2.0.0` | 当前 MAJOR 的固定 PATCH 版本示例 |
+| `2.0` | 当前 `2.0.x` 最新 PATCH |
 | `latest` | 最新发布版本，不建议写入稳定接入示例 |
 | `<commit-sha>` | 精确追踪一次 CD 构建产物 |
 
@@ -90,19 +90,19 @@ MCP 使用 stdio transport，Docker 启动参数需要保留 `-i`，不需要 `-
 从仓库根目录构建镜像：
 
 ```bash
-docker build -f mcp/Dockerfile -t schema-ui-mcp:1.0.0 .
+docker build -f mcp/Dockerfile -t schema-ui-mcp:2.0.0 .
 ```
 
 作为 stdio MCP server 启动：
 
 ```bash
-docker run --rm -i schema-ui-mcp:1.0.0
+docker run --rm -i schema-ui-mcp:2.0.0
 ```
 
 Docker smoke test：
 
 ```bash
-npm --prefix mcp run smoke:docker -- schema-ui-mcp:1.0.0
+npm --prefix mcp run smoke:docker -- schema-ui-mcp:2.0.0
 ```
 
-已发布镜像接入示例固定使用稳定 tag `1.0.0`，不使用 `latest`。`mcp/package.json` 中的 MCP SDK 依赖也应固定为明确版本，而不是使用 `latest` 作为包清单策略，避免后续刷新 lockfile 时无意引入 SDK 行为漂移。
+镜像接入示例固定使用完整版本 tag `2.0.0`，不使用 `latest`。`mcp/package.json` 中的 MCP SDK 依赖也应固定为明确版本，而不是使用 `latest` 作为包清单策略，避免后续刷新 lockfile 时无意引入 SDK 行为漂移。

@@ -45,7 +45,7 @@ date: 2026-07-11
   "accepted": false,
   "code": "UNSUPPORTED_PROTOCOL_VERSION",
   "pageVersion": "0.4",
-  "supportedVersions": ["1.0"],
+  "supportedVersions": ["2.0"],
   "missingCapabilities": []
 }
 ```

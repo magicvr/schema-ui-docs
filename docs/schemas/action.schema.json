@@ -16,7 +16,11 @@
       "properties": {
         "type": { "const": "request" },
         "method": { "type": "string", "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"] },
-        "url": { "type": "string" },
+        "url": {
+          "type": "string",
+          "pattern": "^/(?!/)[^\\s\\\\]*$",
+          "description": "请求地址必须是 baseURL 下的单斜杠相对路径"
+        },
         "bodyMapping": {
           "type": "object",
           "description": "表单字段名 -> 请求体字段名的映射；缺省时全部字段按原名传递，声明时作为源字段白名单，仅发送列出的字段",
@@ -25,6 +29,12 @@
             "minLength": 1,
             "description": "目标请求体字段名，必须为非空字符串"
           }
+        },
+        "retryPolicy": {
+          "type": "string",
+          "enum": ["never", "idempotent"],
+          "default": "never",
+          "description": "逻辑调用的重试策略。never 不自动重试；idempotent 使用同一 Idempotency-Key 重试"
         },
         "onSuccess": { "$ref": "#/definitions/OutcomeBehavior" },
         "onError": { "$ref": "#/definitions/OutcomeBehavior" }
@@ -36,7 +46,11 @@
       "type": "object",
       "properties": {
         "type": { "const": "navigate" },
-        "url": { "type": "string" }
+        "url": {
+          "type": "string",
+          "pattern": "^/(?!/)[^\\s\\\\]*$",
+          "description": "导航地址必须是 baseURL 下的单斜杠相对路径"
+        }
       },
       "required": ["type", "url"],
       "additionalProperties": false
@@ -65,12 +79,22 @@
       "type": "object",
       "properties": {
         "type": { "const": "upload" },
-        "url": { "type": "string" },
+        "url": {
+          "type": "string",
+          "pattern": "^/(?!/)[^\\s\\\\]*$",
+          "description": "上传地址必须是 baseURL 下的单斜杠相对路径"
+        },
         "method": {
           "type": "string",
           "enum": ["POST", "PUT"],
           "default": "POST",
           "description": "【可选，upload】上传 HTTP 方法，缺省为 POST"
+        },
+        "retryPolicy": {
+          "type": "string",
+          "enum": ["never", "idempotent"],
+          "default": "never",
+          "description": "逻辑上传调用的重试策略；idempotent 时每个文件请求使用稳定的 Idempotency-Key"
         },
         "fieldName": {
           "type": "string",
@@ -116,7 +140,11 @@
           "enum": ["toast", "navigate", "reload", "closeModal"]
         },
         "message": { "type": "string", "description": "behavior: toast 时的提示文案" },
-        "url": { "type": "string", "description": "behavior: navigate 时的目标地址" }
+        "url": {
+          "type": "string",
+          "pattern": "^/(?!/)[^\\s\\\\]*$",
+          "description": "behavior: navigate 时的 baseURL 下单斜杠相对目标地址"
+        }
       },
       "required": ["behavior"],
       "additionalProperties": false,

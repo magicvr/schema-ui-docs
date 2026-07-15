@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "initial-four-layer-merge",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders?locale=zh-CN&status=legacy",
@@ -36,7 +36,7 @@
     },
     {
       "id": "search-submit-replaces-filters-and-resets-page",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
@@ -75,7 +75,7 @@
     },
     {
       "id": "clear-search-resets-page-and-keeps-sort",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders?status=base",
@@ -106,7 +106,7 @@
     },
     {
       "id": "page-change-keeps-filters-and-sort",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
@@ -138,7 +138,7 @@
     },
     {
       "id": "sort-change-resets-page-and-keeps-filters",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",

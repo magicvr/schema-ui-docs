@@ -15,7 +15,7 @@
         "protocolVersion": {
           "type": "string",
           "pattern": "^[0-9]+\\.[0-9]+$",
-          "description": "必填（since 0.2），稳定版本使用 \"1.0\"，Renderer 版本兼容锚点"
+          "description": "必填（since 0.2），当前协议版本使用 \"2.0\"，Renderer 版本兼容锚点"
         },
         "requiredCapabilities": {
           "type": "array",
@@ -62,11 +62,16 @@
           "description": "数据源类型。仅 api 或 static，禁止 ref"
         },
         "value": {},
-        "url": { "type": "string" },
+        "url": {
+          "type": "string",
+          "pattern": "^/(?!/)[^\\s\\\\]*$",
+          "description": "页面级 API 数据源地址必须是 baseURL 下的单斜杠相对路径"
+        },
         "method": {
           "type": "string",
-          "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
-          "default": "GET"
+          "enum": ["GET"],
+          "default": "GET",
+          "description": "页面级数据源只允许 GET；写操作必须使用 Action"
         },
         "params": {
           "type": "object",

@@ -1,3 +1,10 @@
+import re
+
+
+PROTOCOL_RELATIVE_URL = re.compile(r"^/(?!/)[^\s\\]*$")
+INVOCATION_ID = re.compile(r"^[\x21-\x7e]{1,200}$")
+
+
 def failure(code, file_index, requests=None):
     return {
         "ok": False,
@@ -26,8 +33,8 @@ def matches_accept(file_value, accept):
     return False
 
 
-def request_for(action, file_value):
-    return {
+def request_for(action, file_value, file_index, invocation_id):
+    request = {
         "method": action.get("method", "POST"),
         "url": action["url"],
         "part": {
@@ -36,6 +43,14 @@ def request_for(action, file_value):
             "contentId": file_value["contentId"],
         },
     }
+    retry_policy = action.get("retryPolicy", "never")
+    if retry_policy not in ("never", "idempotent"):
+        return failure("INVALID_RETRY_POLICY", file_index)
+    if retry_policy == "idempotent":
+        if not isinstance(invocation_id, str) or INVOCATION_ID.fullmatch(invocation_id) is None:
+            return failure("MISSING_INVOCATION_ID", file_index)
+        request["headers"] = {"Idempotency-Key": f"{invocation_id}:{file_index}"}
+    return request
 
 
 def response_value(response):
@@ -51,6 +66,8 @@ def response_value(response):
 def execute_upload(input_value):
     action = input_value["action"]
     files = input_value["files"]
+    if not isinstance(action.get("url"), str) or PROTOCOL_RELATIVE_URL.fullmatch(action["url"]) is None:
+        return failure("INVALID_PROTOCOL_URL", 0)
     if not action.get("multiple", False) and len(files) > 1:
         return failure("MULTIPLE_FILES_NOT_ALLOWED", 1)
     for index, file_value in enumerate(files):
@@ -62,7 +79,10 @@ def execute_upload(input_value):
     requests = []
     values = []
     for index, file_value in enumerate(files):
-        requests.append(request_for(action, file_value))
+        request = request_for(action, file_value, index, input_value.get("invocationId"))
+        if request.get("ok") is False:
+            return failure(request["code"], index, requests)
+        requests.append(request)
         result = input_value["results"][index] if index < len(input_value["results"]) else None
         if result is None or result.get("type") != "success":
             return failure("UPLOAD_REQUEST_FAILED", index, requests)

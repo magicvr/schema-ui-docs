@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "stable-snapshot-defers-dependent-visibility",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -67,7 +67,7 @@
     },
     {
       "id": "multiple-fields-commit-in-one-batch",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -134,7 +134,7 @@
     },
     {
       "id": "same-field-later-value-write-wins",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -195,7 +195,7 @@
     },
     {
       "id": "deep-equal-write-does-not-schedule-next-round",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -236,7 +236,7 @@
     },
     {
       "id": "loop-protection-stops-after-ten-rounds",
-      "protocolVersion": "1.0",
+      "protocolVersion": "2.0",
       "category": "reactions",
       "input": {
         "initialValues": {

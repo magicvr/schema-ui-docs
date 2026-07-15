@@ -54,8 +54,8 @@ function processActionOutcome(input) {
   if (transport.type === 'abort') return { ok: false, events: [] };
 
   const events = [transport.type === 'timeout'
-    ? { type: 'errorState', display: '请求超时，请稍后重试', retryable: true }
-    : { type: 'errorState', display: '网络异常，请检查网络连接', retryable: true }];
+    ? { type: 'errorState', display: '请求超时，请稍后重试', retryable: true, outcome: 'unknown' }
+    : { type: 'errorState', display: '网络异常，请检查网络连接', retryable: true, outcome: 'unknown' }];
   if (input.onError) events.push(behaviorEvent(input.onError, input.context));
   return { ok: false, events };
 }

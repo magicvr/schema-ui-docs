@@ -2,7 +2,7 @@
 status: living-document
 owner: 前端组件库团队
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v1.0
+applies_to: schema-ui-protocol v2.0
 ---
 
 # 组件类型（type）注册表
@@ -390,7 +390,7 @@ props:
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| `url` | string | 是 | 远程选项接口地址 |
+| `url` | string | 是 | baseURL 下的单斜杠相对远程选项接口地址 |
 | `params` | object | 否 | 请求参数。key 必须非空，值仅允许 string / finite number / boolean / null，或**完整单个** `$deps.<path>` 整值替换；禁止对象、数组和模板拼接。`null`/`undefined` 删除最终 query 中的同名 key；序列化见 [ADR-0010](./decisions/0010-query-serialization.md) / [04 §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams--datasourcesparams-中-deps-的空值省略规则) |
 | `labelField` | string | 是 | 响应数据中作为选项文案的字段 |
 | `valueField` | string | 是 | 响应数据中作为选项值的字段 |

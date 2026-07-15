@@ -60,6 +60,7 @@ def process_action_outcome(input_value):
         "type": "errorState",
         "display": "请求超时，请稍后重试" if transport["type"] == "timeout" else "网络异常，请检查网络连接",
         "retryable": True,
+        "outcome": "unknown",
     }]
     if input_value.get("onError"):
         events.append(behavior_event(input_value["onError"], input_value.get("context")))
