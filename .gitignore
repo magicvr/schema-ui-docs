@@ -44,3 +44,16 @@ dist/
 .tmp-audit-check/
 __pycache__/
 *.pyc
+
+# --- Claude Code ---
+# 个人项目级设置覆盖（权限审批、本机偏好等）；团队共享请用 .claude/settings.json
+.claude/settings.local.json
+# 其他本地覆盖（插件设置、hookify 规则等）
+.claude/*.local.json
+.claude/*.local.md
+# 项目根的个人 CLAUDE 偏好（与 CLAUDE.md 并列加载，不共享）
+CLAUDE.local.md
+# --worktree / EnterWorktree 创建的隔离工作树
+.claude/worktrees/
+# subagent 本机记忆（memory: local）；项目共享记忆用 .claude/agent-memory/
+.claude/agent-memory-local/
