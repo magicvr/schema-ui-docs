@@ -7,7 +7,8 @@ function failure(code, path) {
 function readPath(response, path) {
   let current = response;
   for (const segment of path.split('.')) {
-    if (current === null || typeof current !== 'object' || Array.isArray(current) || !(segment in current)) {
+    if (current === null || typeof current !== 'object' || Array.isArray(current)
+      || !Object.prototype.hasOwnProperty.call(current, segment)) {
       return { found: false };
     }
     current = current[segment];
@@ -24,6 +25,12 @@ function mapResponse(input) {
   const mapping = Object.hasOwn(input, 'localMapping')
     ? input.localMapping
     : input.datasourceMapping;
+  if (mapping !== undefined && (mapping === null || typeof mapping !== 'object' || Array.isArray(mapping) || Object.keys(mapping).length === 0)) {
+    return failure('INVALID_RESPONSE_MAPPING', 'localMapping');
+  }
+  if ((input.component === 'statCard' || input.component === 'text') && mapping !== undefined) {
+    return failure('RESPONSE_MAPPING_NOT_SUPPORTED', 'localMapping');
+  }
   if (input.component === 'chart' && mapping === undefined) {
     return Array.isArray(input.response)
       ? { ok: true, data: { list: input.response } }

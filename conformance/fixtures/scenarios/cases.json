@@ -252,6 +252,28 @@
           }
         ]
       }
+    },
+    {
+      "id": "unknown-official-scenario-path-rejected",
+      "protocolVersion": "2.0",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/not-official.md",
+        "scenarioMeta": { "pageId": "missing", "protocolVersion": "2.0" },
+        "steps": []
+      },
+      "expected": { "error": "UNKNOWN_SCENARIO_PATH" }
+    },
+    {
+      "id": "official-scenario-metadata-mismatch-rejected",
+      "protocolVersion": "2.0",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/data-table.md",
+        "scenarioMeta": { "pageId": "wrong-page", "protocolVersion": "2.0" },
+        "steps": []
+      },
+      "expected": { "error": "SCENARIO_METADATA_MISMATCH" }
     }
   ]
 }

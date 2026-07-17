@@ -3,17 +3,21 @@ import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "reference-python"))
+PROTOCOL_ROOT = Path(__file__).resolve().parents[2]
+CONFORMANCE_ROOT = PROTOCOL_ROOT / "conformance"
+sys.path.insert(0, str(CONFORMANCE_ROOT / "reference-python"))
 
 from scenario_execution import execute_scenario
 
 
-fixture_path = ROOT / "fixtures" / "scenarios" / "cases.json"
+fixture_path = CONFORMANCE_ROOT / "fixtures" / "scenarios" / "cases.json"
 suite = json.loads(fixture_path.read_text(encoding="utf-8"))
 
 for fixture in suite["cases"]:
-    actual = execute_scenario(fixture["input"])
+    try:
+        actual = execute_scenario(fixture["input"], PROTOCOL_ROOT)
+    except (OSError, ValueError) as error:
+        actual = {"error": str(error).split(":", 1)[0]}
     if actual != fixture["expected"]:
         raise AssertionError(
             f"Scenario fixture failed: {fixture['id']}\n"

@@ -125,7 +125,7 @@ reactions:
 | `scope: row` | `$row.user.id`（嵌套） | 完整后缀路径 | `dependencies: ["user.id"]` | `dependencies: [user]`（不完整） |
 | `scope: row` | `$row.__index` / `$row.__key` | 保留字段名本身 | `dependencies: ["__index"]` | `dependencies: ["$row.__index"]` |
 
-L3a 对 `$row.*` 做精确包含匹配：`dependencies.includes(fieldPathAfterDollarRow)`。`$context.*` 不需要写入 `dependencies`。
+L3a 对 `$deps.*` 做精确包含匹配：`dependencies` 必须声明所引用字段的根字段名；点路径的后续段可用于读取对象属性。除声明匹配外，L3a 还必须将根字段解析到当前 form 的字段符号表；未知根字段即使写入 `dependencies` 也必须拒绝。`$context.*` 不需要写入 `dependencies`。
 
 ## 9. 作用域（`scope`）规则
 
@@ -271,7 +271,7 @@ visibleWhen:
 
 ## 14. 表达式求值时序模型（since 0.2.4）
 
-表达式引擎采用稳定快照模型。每一轮由用户输入、数据加载或显式重新求值触发的表达式求值，都按以下阶段执行。`$context` 在 Renderer 实例初始化时一次性注入；宿主需要更新 context 时必须重挂载并创建新实例，新实例的首次 Snapshot 才读取新值。
+表达式引擎采用稳定快照模型。Renderer mount 时必须先执行一次初始 Snapshot/Evaluate/Commit。每个状态键的 baseline 是组件/字段首次挂载时的协议值；若未另行声明，baseline 就是该字段的初始值。条件变为 false 且没有 `otherwise` 时恢复 baseline；`otherwise` 存在时使用其显式状态。baseline 不会被后续 reaction 写入覆盖。之后每一轮由用户输入、数据加载或显式重新求值触发的表达式求值，都按以下阶段执行。`$context` 在 Renderer 实例初始化时一次性注入；宿主需要更新 context 时必须重挂载并创建新实例，新实例的首次 Snapshot 才读取新值。
 
 1. **Snapshot**：冻结当前表单字段值、节点状态、`$context`、行数据上下文，形成本轮 `inputSnapshot`。
 2. **Evaluate**：本轮所有 `permissions.*`、`visibleWhen.when`、`reactions[].when` 均只读取 `inputSnapshot`。`reactions.fulfill.value` / `otherwise.value` 只产生待提交写入，不会立刻改变同轮其他表达式读取到的值。

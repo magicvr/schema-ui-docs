@@ -5,6 +5,14 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
+## Unreleased
+
+- 审计 `0061`：收紧普通表单 Action URL、Form bodyMapping、RowAction 缺失值与 GET body 边界；统一 JS/Python request/response/scenario reference 的 fail-closed 和 own-property 行为。
+- 审计 `0061`：补齐 request lifecycle latest-wins、Form 提交投影、reaction baseline/比较语义、static/ref 数据形状、Host Extension 边界、运行时默认值和基础组件数值约束；新增 ADR-0015–0019 及双端 conformance suites。
+- 审计 `0061` 关闭复核：修正跨语言缺失/null 深相等、L3a 嵌套 form 符号表、interceptor query、首次 request generation、reaction baseline/指数/loop、scalar mapping 和合法 MCP pageSize 回归；新增 component-format/runtime-defaults/static-ref/scenario 负例，最终 12 套 versioned suite 共 128 个 case。
+
+
+
 ## v2.0.0 — 2026-07-16（协议升级候选）
 
 > **版本说明：** 本候选版本把 0059/V236–V240 的协议边界收紧作为 MAJOR 发布：页面使用 `meta.protocolVersion: "2.0"`，v1.0 页面不能直接进入 v2.0 标准 Renderer。正式发布前需在匹配的 `v2.0.0` tag 上完成独立协议制品发布门禁；MCP 使用独立 `mcp-v<version>` tag。

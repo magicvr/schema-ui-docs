@@ -26,6 +26,26 @@
       }
     },
     {
+      "id": "data-ref-interceptor-cannot-add-get-body",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "dataRef",
+        "dataRef": {
+          "source": "api",
+          "url": "/orders",
+          "requestInterceptor": {
+            "body": { "token": "x" }
+          }
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INTERCEPTOR_VIOLATION",
+        "path": "requestInterceptor"
+      }
+    },
+    {
       "id": "data-ref-post-rejected",
       "protocolVersion": "2.0",
       "category": "request-construction",
@@ -250,6 +270,39 @@
       }
     },
     {
+      "id": "row-action-inherits-idempotency-policy",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": {
+          "method": "POST",
+          "url": "/orders/{id}/approve",
+          "retryPolicy": "idempotent"
+        },
+        "requestMapping": {
+          "path": {
+            "id": "$row.id"
+          }
+        },
+        "row": {
+          "id": 42
+        },
+        "invocationId": "row-inv-001"
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/orders/42/approve",
+          "body": null,
+          "headers": {
+            "Idempotency-Key": "row-inv-001"
+          }
+        }
+      }
+    },
+    {
       "id": "form-action-idempotency-header",
       "protocolVersion": "2.0",
       "category": "request-construction",
@@ -352,6 +405,192 @@
         "ok": false,
         "code": "INVALID_RETRY_POLICY",
         "path": "action.retryPolicy"
+      }
+    },
+    {
+      "id": "form-action-body-mapping-source-missing",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "action": {
+          "method": "POST",
+          "url": "/orders",
+          "bodyMapping": {
+            "missing": "name"
+          }
+        },
+        "formValues": {
+          "name": "A"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNRESOLVED_FORM_VALUE",
+        "path": "bodyMapping.missing"
+      }
+    },
+    {
+      "id": "form-action-get-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "action": {
+          "method": "GET",
+          "url": "/orders"
+        },
+        "formValues": {
+          "name": "A"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "FORM_GET_NOT_ALLOWED",
+        "path": "action.method"
+      }
+    },
+    {
+      "id": "form-action-projection-excludes-hidden-disabled-upload-error",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "action": {
+          "method": "POST",
+          "url": "/orders",
+          "bodyMapping": {
+            "visible": "visible"
+          }
+        },
+        "formValues": {
+          "visible": "ok",
+          "hidden": "old",
+          "disabled": "old",
+          "upload": "partial"
+        },
+        "formProjection": {
+          "visible": { "value": "ok" },
+          "hidden": { "value": "old", "visible": false },
+          "disabled": { "value": "old", "disabled": true },
+          "upload": { "value": "partial", "uploadStatus": "error" }
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/orders",
+          "body": {
+            "visible": "ok"
+          }
+        }
+      }
+    },
+    {
+      "id": "data-ref-interceptor-cannot-change-query",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "dataRef",
+        "dataRef": {
+          "source": "api",
+          "url": "/orders",
+          "params": { "page": 1 },
+          "requestInterceptor": { "url": "/orders?page=2" }
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INTERCEPTOR_VIOLATION",
+        "path": "requestInterceptor"
+      }
+    },
+    {
+      "id": "row-action-missing-query-value",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": { "method": "POST", "url": "/orders" },
+        "requestMapping": { "query": { "owner": "$row.missing" } },
+        "row": { "id": 42 }
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNRESOLVED_ROW_VALUE",
+        "path": "requestMapping.query.owner"
+      }
+    },
+    {
+      "id": "row-action-missing-body-value",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": { "method": "POST", "url": "/orders" },
+        "requestMapping": { "body": { "owner": "$row.missing" } },
+        "row": { "id": 42 }
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNRESOLVED_ROW_VALUE",
+        "path": "requestMapping.body.owner"
+      }
+    },
+    {
+      "id": "row-action-query-null-is-tombstone",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": { "method": "POST", "url": "/orders?owner=old" },
+        "requestMapping": { "query": { "owner": "$row.owner" } },
+        "row": { "owner": null }
+      },
+      "expected": {
+        "ok": true,
+        "request": { "method": "POST", "url": "/orders", "body": null }
+      }
+    },
+    {
+      "id": "form-action-projection-missing-value",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "action": {
+          "method": "POST",
+          "url": "/orders",
+          "bodyMapping": { "visible": "visible" }
+        },
+        "formProjection": { "visible": {} }
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNRESOLVED_FORM_VALUE",
+        "path": "bodyMapping.visible"
+      }
+    },
+    {
+      "id": "form-action-default-projection-omits-missing-value",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "action": { "method": "POST", "url": "/orders" },
+        "formProjection": {
+          "present": { "value": "ok" },
+          "missing": {}
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/orders",
+          "body": { "present": "ok" }
+        }
       }
     }
   ]

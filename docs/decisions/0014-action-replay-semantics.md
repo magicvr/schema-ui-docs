@@ -22,6 +22,7 @@ applies_to: schema-ui-protocol v2.0
 4. 后端必须按 Action 标识、HTTP method、目标 URL 和 `Idempotency-Key` 对同一逻辑调用去重，并复用第一次完成的成功或失败结果。相同 key 用于不同 Action、方法或 URL 时属于冲突，不能静默合并。
 5. `AbortError` 代表用户主动离开页面，不产生可重试结果；HTTP 业务错误不是网络重放，按既有 HTTP 错误契约处理。
 6. conformance harness 使用 `input.invocationId` 表示 Renderer 已生成的运行时 invocation id；页面 DSL 不携带该运行时值。
+7. RowAction 使用 `actionRef` 时继承目标 `type: request` Action 的 `retryPolicy`；一次点击对应一次 invocation，所有重试复用同一 `Idempotency-Key`，超时或网络中断结果为 `unknown`。`requestMapping` 必须在生成 invocation 和首次发送前完成原子解析，映射失败不得产生部分请求。
 
 ## 后果
 

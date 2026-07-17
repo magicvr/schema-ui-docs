@@ -1,0 +1,41 @@
+{
+  "fixtureVersion": "1.0",
+  "category": "component-format",
+  "cases": [
+    {
+      "id": "currency-accepts-finite-number",
+      "protocolVersion": "2.0",
+      "category": "component-format",
+      "input": { "format": "currency", "value": 12.5 },
+      "expected": { "ok": true, "value": 12.5 }
+    },
+    {
+      "id": "currency-rejects-string-coercion",
+      "protocolVersion": "2.0",
+      "category": "component-format",
+      "input": { "format": "currency", "value": "12.5" },
+      "expected": { "ok": false, "code": "COMPONENT_DATA_TYPE_MISMATCH" }
+    },
+    {
+      "id": "percent-rejects-boolean-number-coercion",
+      "protocolVersion": "2.0",
+      "category": "component-format",
+      "input": { "format": "percent", "value": true },
+      "expected": { "ok": false, "code": "COMPONENT_DATA_TYPE_MISMATCH" }
+    },
+    {
+      "id": "datetime-accepts-string",
+      "protocolVersion": "2.0",
+      "category": "component-format",
+      "input": { "format": "datetime", "value": "2026-07-18T12:30:00Z" },
+      "expected": { "ok": true, "value": "2026-07-18T12:30:00Z" }
+    },
+    {
+      "id": "datetime-rejects-number-coercion",
+      "protocolVersion": "2.0",
+      "category": "component-format",
+      "input": { "format": "datetime", "value": 1721305800 },
+      "expected": { "ok": false, "code": "COMPONENT_DATA_TYPE_MISMATCH" }
+    }
+  ]
+}

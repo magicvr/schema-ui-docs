@@ -11,8 +11,8 @@
       "supportsReactions": false,
       "supportsStates": false,
       "props": {
-        "columns": { "type": "number", "required": true },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "columns": { "type": "integer", "minimum": 1, "required": true },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       }
     },
@@ -25,7 +25,7 @@
       "props": {
         "title": { "type": "string", "required": false },
         "titleKey": { "type": "string", "required": false },
-        "span": { "type": "number", "required": false },
+        "span": { "type": "integer", "minimum": 1, "required": false },
         "additionalProperties": false
       }
     },
@@ -56,7 +56,7 @@
             "additionalProperties": false
           }
         },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       }
     },
@@ -77,7 +77,7 @@
           "since": "0.2",
           "description": "since 0.2：指定从 API 响应中取哪个字段作为展示值"
         },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -95,7 +95,7 @@
         "chartType": { "type": "string", "enum": ["line", "bar", "pie"], "required": true },
         "xField": { "type": "string", "required": true },
         "yField": { "type": "string", "required": true },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       }
     },
@@ -114,7 +114,7 @@
           "since": "0.2",
           "description": "since 0.2：data.source 为 api 时，指定取哪个字段作为展示文本。未指定时 Renderer 默认取响应体第一个字段值（与 statCard 保持一致的取值方式，但 statCard 的 valueField 为必填，text 为可选）"
         },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -144,9 +144,10 @@
               "description": "分页模式：server（服务端分页）/ client（客户端分页）/ none（不分页）"
             },
             "pageSize": {
-              "type": "number",
+              "type": "integer",
+              "minimum": 1,
               "required": false,
-              "description": "默认页大小"
+              "description": "服务端分页模式下必填的页大小；client/none 模式不使用"
             }
           },
           "additionalProperties": false
@@ -226,7 +227,7 @@
             "additionalProperties": false
           }
         },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       }
     },
@@ -253,7 +254,7 @@
           "since": "0.2.1",
           "description": "mode=search 时必填，关联表格的 Node id"
         },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false,
         "allOf": [
           {
@@ -280,7 +281,7 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "required": true },
+        "field": { "type": "string", "minLength": 1, "required": true },
         "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "required": { "type": "boolean", "required": false },
@@ -288,7 +289,7 @@
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },
         "tooltip": { "type": "string", "required": false, "since": "0.2" },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -303,7 +304,7 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "required": true },
+        "field": { "type": "string", "minLength": 1, "required": true },
         "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "min": { "type": "number", "required": false, "since": "0.2.1", "description": "最小值" },
@@ -315,7 +316,7 @@
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },
         "tooltip": { "type": "string", "required": false, "since": "0.2" },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -330,7 +331,7 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "required": true },
+        "field": { "type": "string", "minLength": 1, "required": true },
         "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
@@ -341,7 +342,7 @@
         "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -356,8 +357,8 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "startField": { "type": "string", "required": true },
-        "endField": { "type": "string", "required": true },
+        "startField": { "type": "string", "minLength": 1, "required": true },
+        "endField": { "type": "string", "minLength": 1, "required": true },
         "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
@@ -367,7 +368,7 @@
         "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -382,7 +383,7 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "required": true },
+        "field": { "type": "string", "minLength": 1, "required": true },
         "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "accept": { "type": "string", "required": false, "description": "接受的文件 MIME 类型；仅 props.action 直接 URL 模式使用，actionRef 模式由 UploadAction 提供" },
@@ -395,7 +396,7 @@
         "tooltip": { "type": "string", "required": false, "since": "0.2", "description": "悬浮提示文案" },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "anyOf": [
@@ -414,7 +415,7 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "required": true },
+        "field": { "type": "string", "minLength": 1, "required": true },
         "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
         "labelKey": { "type": "string", "required": false },
         "options": {
@@ -455,7 +456,7 @@
         "placeholder": { "type": "string", "required": false, "since": "0.2" },
         "description": { "type": "string", "required": false, "since": "0.2" },
         "tooltip": { "type": "string", "required": false, "since": "0.2" },
-        "span": { "type": "number", "required": false, "since": "0.2" },
+        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false
       },
       "allOf": [

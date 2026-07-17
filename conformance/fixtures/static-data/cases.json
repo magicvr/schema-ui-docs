@@ -1,0 +1,114 @@
+{
+  "fixtureVersion": "1.0",
+  "category": "static-data",
+  "cases": [
+    {
+      "id": "static-table-array",
+      "protocolVersion": "2.0",
+      "category": "static-data",
+      "input": {
+        "component": "table",
+        "data": { "source": "static", "value": [{ "id": 1 }] }
+      },
+      "expected": { "ok": true, "value": [{ "id": 1 }], "network": false }
+    },
+    {
+      "id": "static-chart-ref-array",
+      "protocolVersion": "2.0",
+      "category": "static-data",
+      "input": {
+        "component": "chart",
+        "data": { "source": "ref", "ref": "sales" },
+        "datasources": {
+          "sales": { "source": "static", "value": [{ "x": "Jan", "y": 1 }] }
+        }
+      },
+      "expected": { "ok": true, "value": [{ "x": "Jan", "y": 1 }], "network": false }
+    },
+    {
+      "id": "static-stat-card-ref-value-field",
+      "protocolVersion": "2.0",
+      "category": "static-data",
+      "input": {
+        "component": "statCard",
+        "props": { "valueField": "total" },
+        "data": { "source": "ref", "ref": "summary" },
+        "datasources": {
+          "summary": { "source": "static", "value": { "total": 3 } }
+        }
+      },
+      "expected": { "ok": true, "value": 3, "network": false }
+    },
+    {
+      "id": "static-text-ref-scalar",
+      "protocolVersion": "2.0",
+      "category": "static-data",
+      "input": {
+        "component": "text",
+        "data": { "source": "ref", "ref": "message" },
+        "datasources": {
+          "message": { "source": "static", "value": "ready" }
+        }
+      },
+      "expected": { "ok": true, "value": "ready", "network": false }
+    },
+    {
+      "id": "static-table-object-rejected",
+      "protocolVersion": "2.0",
+      "category": "static-data",
+      "input": {
+        "component": "table",
+        "data": { "source": "static", "value": { "id": 1 } }
+      },
+      "expected": { "ok": false, "code": "STATIC_DATA_SHAPE_MISMATCH" }
+    },
+    {
+      "id": "static-ref-target-missing",
+      "protocolVersion": "2.0",
+      "category": "static-data",
+      "input": {
+        "component": "text",
+        "data": { "source": "ref", "ref": "missing" },
+        "datasources": {}
+      },
+      "expected": { "ok": false, "code": "STATIC_DATA_REF_INVALID" }
+    },
+    {
+      "id": "static-ref-response-mapping-rejected",
+      "protocolVersion": "2.0",
+      "category": "static-data",
+      "input": {
+        "component": "table",
+        "data": {
+          "source": "ref",
+          "ref": "rows",
+          "responseMapping": { "list": "payload.rows" }
+        },
+        "datasources": {
+          "rows": { "source": "static", "value": [] }
+        }
+      },
+      "expected": { "ok": false, "code": "STATIC_RESPONSE_MAPPING_NOT_ALLOWED" }
+    },
+    {
+      "id": "static-text-array-rejected",
+      "protocolVersion": "2.0",
+      "category": "static-data",
+      "input": {
+        "component": "text",
+        "data": { "source": "static", "value": ["not", "scalar"] }
+      },
+      "expected": { "ok": false, "code": "STATIC_DATA_SHAPE_MISMATCH" }
+    },
+    {
+      "id": "static-stat-card-null-rejected",
+      "protocolVersion": "2.0",
+      "category": "static-data",
+      "input": {
+        "component": "statCard",
+        "data": { "source": "static", "value": null }
+      },
+      "expected": { "ok": false, "code": "STATIC_DATA_SHAPE_MISMATCH" }
+    }
+  ]
+}

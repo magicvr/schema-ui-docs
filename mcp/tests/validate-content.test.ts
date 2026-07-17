@@ -358,6 +358,48 @@ describe('validate_content', () => {
     ]));
   });
 
+  it('rejects unknown form dependency roots in nested children and tabs content', () => {
+    const result = validateContent({
+      content: JSON.stringify({
+        meta: { pageId: 'unknown-form-deps', title: 'Unknown form deps', protocolVersion: '0.2' },
+        actions: { submit: { type: 'request', method: 'POST', url: '/submit' } },
+        body: {
+          type: 'form',
+          props: { title: 'Form', submitAction: 'submit' },
+          children: [
+            { type: 'input', props: { field: 'known', label: 'Known' } },
+            {
+              type: 'input',
+              props: { field: 'child', label: 'Child' },
+              visibleWhen: { dependencies: ['typo'], when: '$deps.typo == true' },
+            },
+            {
+              type: 'tabs',
+              props: {
+                items: [{
+                  key: 'details',
+                  label: 'Details',
+                  content: {
+                    type: 'input',
+                    props: { field: 'nested', label: 'Nested' },
+                    visibleWhen: { dependencies: ['missing'], when: '$deps.missing == true' },
+                  },
+                }],
+              },
+            },
+          ],
+        },
+      }),
+      format: 'json',
+      filename: 'unknown-form-deps.json',
+    });
+
+    expect(result.layers.L3a).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'body.children[1].visibleWhen.when', rule: 'UNKNOWN_FORM_FIELD' }),
+      expect.objectContaining({ path: 'body.children[2].props.items[0].content.visibleWhen.when', rule: 'UNKNOWN_FORM_FIELD' }),
+    ]));
+  });
+
   it('uses exact nested row dependency paths', () => {
     const makePage = (dependencies: string[]) => JSON.stringify({
       meta: { pageId: 'nested-row-dep', title: 'Nested row dependency', protocolVersion: '0.2' },
