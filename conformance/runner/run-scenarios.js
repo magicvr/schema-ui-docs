@@ -12,10 +12,15 @@ const fixturePath = path.resolve(__dirname, '../fixtures/scenarios/cases.json');
 const suite = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
 
 for (const fixture of suite.cases) {
-  const actual = executeScenario(
-    fixture.input,
-    relativePath => readOfficialScenario(protocolRoot, relativePath),
-  );
+  let actual;
+  try {
+    actual = executeScenario(
+      fixture.input,
+      relativePath => readOfficialScenario(protocolRoot, relativePath),
+    );
+  } catch (error) {
+    actual = { error: String(error.message).split(':', 1)[0] };
+  }
   assert.deepStrictEqual(actual, fixture.expected, `Scenario fixture failed: ${fixture.id}`);
 }
 

@@ -79,13 +79,55 @@ function isPlainObject(value) {
 const PROTOCOL_RELATIVE_URL = /^\/(?!\/)[^\s\\]*$/;
 const RESERVED_ROW_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
 
+function isValidUnicodeScalarString(value) {
+  for (let index = 0; index < value.length; index += 1) {
+    const codeUnit = value.charCodeAt(index);
+    if (codeUnit >= 0xd800 && codeUnit <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) return false;
+      index += 1;
+    } else if (codeUnit >= 0xdc00 && codeUnit <= 0xdfff) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function validateExistingUrlQuery(url, fieldPath, violations) {
+  const requestPart = url.split('#', 1)[0];
+  const queryIndex = requestPart.indexOf('?');
+  if (queryIndex === -1) return;
+  const query = requestPart.slice(queryIndex + 1);
+  for (const segment of query.split('&')) {
+    if (segment === '') continue;
+    const equalsIndex = segment.indexOf('=');
+    const encodedKey = equalsIndex === -1 ? segment : segment.slice(0, equalsIndex);
+    const encodedValue = equalsIndex === -1 ? '' : segment.slice(equalsIndex + 1);
+    let key;
+    let value;
+    try {
+      key = decodeURIComponent(encodedKey);
+      value = decodeURIComponent(encodedValue);
+    } catch {
+      violations.push({ path: fieldPath, message: 'URL 中已有 query 必须使用合法的百分号编码和 UTF-8（INVALID_BASE_URL_QUERY）' });
+      return;
+    }
+    if (!isValidUnicodeScalarString(key) || !isValidUnicodeScalarString(value) || key.length === 0) {
+      violations.push({ path: fieldPath, message: 'URL 中已有 query 必须使用合法的 Unicode scalar 和非空 key（INVALID_BASE_URL_QUERY）' });
+      return;
+    }
+  }
+}
+
 function validateProtocolUrl(value, fieldPath, violations) {
   if (typeof value !== 'string' || !PROTOCOL_RELATIVE_URL.test(value)) {
     violations.push({
       path: fieldPath,
       message: 'URL 必须是 baseURL 下的单斜杠相对路径；不允许绝对 URL、协议相对 URL、空白或反斜杠',
     });
+    return;
   }
+  validateExistingUrlQuery(value, fieldPath, violations);
 }
 
 /** 判断字段是否在 DSL props 中显式声明 */
@@ -103,6 +145,8 @@ function checkType(value, expectedType, fieldPath, violations) {
       ? typeof value
       : Number.isNaN(value) ? 'NaN' : value > 0 ? 'Infinity' : '-Infinity';
     violations.push({ path: fieldPath, message: `期望有限 number，实际 ${actual}` });
+  } else if (expectedType === 'integer' && (typeof value !== 'number' || !Number.isInteger(value))) {
+    violations.push({ path: fieldPath, message: `期望 integer，实际 ${typeof value === 'number' ? value : typeof value}` });
   } else if (expectedType === 'boolean' && typeof value !== 'boolean') {
     violations.push({ path: fieldPath, message: `期望 boolean，实际 ${typeof value}` });
   } else if (expectedType === 'array' && !Array.isArray(value)) {
@@ -144,8 +188,11 @@ function validateQueryScalarMap(params, paramsPath, violations, allowedVariableP
 
   for (const [key, value] of Object.entries(params)) {
     const valuePath = `${paramsPath}.${key}`;
-    if (key.length === 0) {
-      violations.push({ path: valuePath, message: 'query 参数 key 必须是非空字符串' });
+    if (key.length === 0 || !isValidUnicodeScalarString(key)) {
+      violations.push({
+        path: valuePath,
+        message: 'query 参数 key 必须是非空且合法的 Unicode scalar 字符串',
+      });
     }
 
     const isScalar = value === null
@@ -160,6 +207,14 @@ function validateQueryScalarMap(params, paramsPath, violations, allowedVariableP
       violations.push({
         path: valuePath,
         message: `query 参数值只能是 string/finite number/boolean/null 标量，实际为 ${valueType}`,
+      });
+      continue;
+    }
+
+    if (typeof value === 'string' && !isValidUnicodeScalarString(value)) {
+      violations.push({
+        path: valuePath,
+        message: 'query 参数 key/value 必须是合法的 Unicode scalar 字符串',
       });
       continue;
     }
@@ -224,6 +279,24 @@ function validateStateMap(value, statePath, violations, scope) {
   }
 }
 
+function validateDependencyArray(value, fieldPath, violations) {
+  validateStringArray(value, fieldPath, violations);
+  if (!Array.isArray(value)) return;
+  const seen = new Set();
+  value.forEach((item, index) => {
+    if (typeof item !== 'string') return;
+    const itemPath = `${fieldPath}[${index}]`;
+    const validPath = /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/.test(item);
+    if (!validPath || item.startsWith('$deps.') || item.startsWith('$row.')) {
+      violations.push({ path: itemPath, message: 'dependencies 必须是无 $deps./$row. 前缀的合法字段路径' });
+    }
+    if (seen.has(item)) {
+      violations.push({ path: itemPath, message: `dependencies 不能重复声明 "${item}"` });
+    }
+    seen.add(item);
+  });
+}
+
 function validateVisibleWhen(value, valuePath, violations) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     violations.push({ path: valuePath, message: `期望 object，实际 ${Array.isArray(value) ? 'array' : typeof value}` });
@@ -241,7 +314,7 @@ function validateVisibleWhen(value, valuePath, violations) {
     if (typeof value.scope === 'string') checkEnum(value.scope, ['form', 'row'], `${valuePath}.scope`, violations);
   }
   if (value.dependencies !== undefined) {
-    validateStringArray(value.dependencies, `${valuePath}.dependencies`, violations);
+    validateDependencyArray(value.dependencies, `${valuePath}.dependencies`, violations);
   }
   for (const key of Object.keys(value)) {
     if (!allowedKeys.has(key)) {
@@ -261,7 +334,7 @@ function validateReaction(value, valuePath, violations) {
   if (value.dependencies === undefined) {
     violations.push({ path: `${valuePath}.dependencies`, message: '必填字段 "dependencies" 缺失' });
   } else {
-    validateStringArray(value.dependencies, `${valuePath}.dependencies`, violations);
+    validateDependencyArray(value.dependencies, `${valuePath}.dependencies`, violations);
   }
   if (value.when === undefined) {
     violations.push({ path: `${valuePath}.when`, message: '必填字段 "when" 缺失' });
@@ -488,6 +561,48 @@ function validateNode(node, nodePath, violations, doc, parentIsForm = false) {
       }
     }
 
+    if (type === 'dateRangePicker' && props.startField === props.endField && typeof props.startField === 'string') {
+      violations.push({
+        path: `${nodePath}.props.endField`,
+        message: 'dateRangePicker 的 startField 与 endField 必须不同',
+      });
+    }
+
+    if (type === 'table' && props.pagination?.mode === 'server'
+      && (typeof props.pagination.pageSize !== 'number' || !Number.isInteger(props.pagination.pageSize)
+        || props.pagination.pageSize < 1)) {
+      violations.push({
+        path: `${nodePath}.props.pagination.pageSize`,
+        message: 'server 分页的 pageSize 必须是正整数',
+      });
+    }
+
+    if (type === 'grid' && (typeof props.columns !== 'number' || !Number.isInteger(props.columns) || props.columns < 1)) {
+      violations.push({ path: `${nodePath}.props.columns`, message: 'grid.columns 必须是正整数' });
+    }
+    if (props.span !== undefined && (typeof props.span !== 'number' || !Number.isInteger(props.span) || props.span < 1)) {
+      violations.push({ path: `${nodePath}.props.span`, message: 'span 必须是正整数' });
+    }
+
+    if (type === 'grid' && Array.isArray(children)) {
+      children.forEach((child, index) => {
+        const childSpan = child?.props?.span;
+        if (childSpan !== undefined && typeof childSpan === 'number' && Number.isInteger(childSpan)
+          && childSpan > props.columns) {
+          violations.push({ path: `${nodePath}.children[${index}].props.span`, message: '子节点 span 不得超过父 grid.columns' });
+        }
+      });
+    }
+
+    if (type === 'table' && Array.isArray(props.actions)) {
+      props.actions.forEach((action, index) => {
+        if (action?.visibleField !== undefined
+          && (typeof action.visibleField !== 'string' || !/^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$/.test(action.visibleField))) {
+          violations.push({ path: `${nodePath}.props.actions[${index}].visibleField`, message: 'visibleField 必须是合法 row path，不得包含表达式或模板' });
+        }
+      });
+    }
+
     if (type === 'select' && props.optionsSource?.url !== undefined) {
       validateProtocolUrl(props.optionsSource.url, `${nodePath}.props.optionsSource.url`, violations);
     }
@@ -513,9 +628,13 @@ function validateNode(node, nodePath, violations, doc, parentIsForm = false) {
         violations,
         /^\$deps\.[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$/,
       );
+      if (props.optionsSource.searchable === true && Object.prototype.hasOwnProperty.call(props.optionsSource.params, 'keyword')) {
+        violations.push({ path: `${nodePath}.props.optionsSource.params.keyword`, message: 'searchable optionsSource 的 keyword 由 Renderer 保留，不能在 params 中声明' });
+      }
     }
 
     // --- responseMapping 语义规则（传入 doc 以支持 source:ref 继承解析） ---
+    validateStaticDataShape(node, type, nodePath, doc, violations);
     validateResponseMapping(node, type, compDef, nodePath, violations, doc);
   }
 
@@ -717,11 +836,46 @@ function getEffectiveResponseMapping(node, doc) {
  *
  * 生效映射解析顺序：本地 data.responseMapping 优先，否则继承 doc.datasources[data.ref].responseMapping。
  */
+function validateStaticDataShape(node, type, nodePath, doc, violations) {
+  if (!node?.data || !['static', 'ref'].includes(node.data.source)) return;
+  let value;
+  if (node.data.source === 'static') {
+    value = node.data.value;
+  } else {
+    const target = doc.datasources?.[node.data.ref];
+    if (!target || target.source !== 'static') return;
+    value = target.value;
+  }
+  if (type === 'table' || type === 'chart') {
+    if (!Array.isArray(value)) {
+      violations.push({ path: `${nodePath}.data.value`, message: `${type} 的 static/ref 数据必须是数组` });
+    }
+    return;
+  }
+  if (type === 'statCard' || type === 'text') {
+    if (value === null || Array.isArray(value)
+      || (typeof value !== 'object' && typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')) {
+      violations.push({ path: `${nodePath}.data.value`, message: `${type} 的 static/ref 数据必须是标量或 JSON object` });
+      return;
+    }
+    if (node.props?.valueField && (!value || typeof value !== 'object' || Array.isArray(value)
+      || !Object.prototype.hasOwnProperty.call(value, node.props.valueField))) {
+      violations.push({ path: `${nodePath}.props.valueField`, message: `${type}.valueField 不存在于 static/ref 数据对象中` });
+    }
+  }
+}
 function validateResponseMapping(node, type, compDef, nodePath, violations, doc) {
   const { data, props = {} } = node;
   if (!data || !['api', 'ref'].includes(data.source)) return;
 
   const effectiveRm = getEffectiveResponseMapping(node, doc);
+
+  if ((type === 'statCard' || type === 'text') && effectiveRm !== undefined) {
+    violations.push({
+      path: `${nodePath}.data.responseMapping`,
+      message: `${type} 不支持 responseMapping；请使用 props.valueField（ADR-0005）`,
+    });
+  }
 
   // 数组消费类接口：table / chart 的生效映射存在时必须有 list
   if ((type === 'table' || type === 'chart') && effectiveRm !== undefined && !effectiveRm?.list) {
@@ -774,8 +928,8 @@ function validateRequestMappingValues(mappingSection, sectionPath, violations) {
   const rowRefPattern = /^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)$/;
   for (const [mappingKey, mappingValue] of Object.entries(mappingSection)) {
     const valuePath = `${sectionPath}.${mappingKey}`;
-    if (mappingKey.length === 0) {
-      violations.push({ path: valuePath, message: 'requestMapping key 必须是非空字符串' });
+    if (mappingKey.length === 0 || !isValidUnicodeScalarString(mappingKey)) {
+      violations.push({ path: valuePath, message: 'requestMapping key 必须是非空且合法的 Unicode scalar 字符串' });
     }
     const valueType = mappingValue === null ? 'null' : Array.isArray(mappingValue) ? 'array' : typeof mappingValue;
     if (!['string', 'number', 'boolean', 'null'].includes(valueType) || (typeof mappingValue === 'number' && !Number.isFinite(mappingValue))) {
@@ -786,6 +940,13 @@ function validateRequestMappingValues(mappingSection, sectionPath, violations) {
       continue;
     }
     if (typeof mappingValue === 'string') {
+      if (!isValidUnicodeScalarString(mappingValue)) {
+        violations.push({
+          path: valuePath,
+          message: 'requestMapping 字符串值必须是合法的 Unicode scalar 字符串',
+        });
+        continue;
+      }
       // 只要包含 $ 就必须整体匹配，拒绝模板拼接（如 prefix-$row.id）
       if (mappingValue.includes('$') && !rowRefPattern.test(mappingValue)) {
         violations.push({
@@ -937,6 +1098,95 @@ function validateRowActionRefs(doc, violations) {
   }
 }
 
+function collectFormFields(formNode, formPath, violations) {
+  const fields = new Map();
+  const fieldTypes = new Set(['input', 'inputNumber', 'datePicker', 'upload', 'select']);
+
+  const addField = (name, nodePath, ownerType, propName) => {
+    if (typeof name !== 'string' || name.length === 0) {
+      violations.push({
+        path: `${nodePath}.props.${propName}`,
+        message: '表单字段名必须是非空字符串',
+      });
+      return;
+    }
+    if (fields.has(name)) {
+      violations.push({
+        path: `${nodePath}.props.${propName}`,
+        message: `表单字段名 "${name}" 与 ${fields.get(name).path} 冲突`,
+      });
+      return;
+    }
+    fields.set(name, { path: `${nodePath}.props.${propName}`, ownerType });
+  };
+
+  const scan = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    if (node !== formNode && node.type === 'form') return;
+    if (fieldTypes.has(node.type)) addField(node.props?.field, nodePath, node.type, 'field');
+    if (node.type === 'dateRangePicker') {
+      addField(node.props?.startField, nodePath, node.type, 'startField');
+      addField(node.props?.endField, nodePath, node.type, 'endField');
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, index) => scan(child, `${nodePath}.children[${index}]`));
+    }
+    if (Array.isArray(node.props?.items)) {
+      node.props.items.forEach((item, index) => {
+        if (item?.content) scan(item.content, `${nodePath}.props.items[${index}].content`);
+      });
+    }
+  };
+
+  scan(formNode, formPath);
+  return fields;
+}
+
+function validateFormFieldBindings(node, nodePath, doc, violations) {
+  if (!node || typeof node !== 'object') return;
+  if (node.type === 'form' && node.props?.mode !== 'search') {
+    const fields = collectFormFields(node, nodePath, violations);
+    const actionId = node.props?.submitAction;
+    const action = typeof actionId === 'string' ? doc.actions?.[actionId] : undefined;
+    if (action?.type === 'request' && isPlainObject(action.bodyMapping)) {
+      const targets = new Map();
+      for (const [source, target] of Object.entries(action.bodyMapping)) {
+        if (!fields.has(source)) {
+          violations.push({
+            path: `actions.${actionId}.bodyMapping.${source}`,
+            message: `bodyMapping source "${source}" 不属于提交 form 的字段命名空间`,
+          });
+        }
+        if (targets.has(target)) {
+          violations.push({
+            path: `actions.${actionId}.bodyMapping.${source}`,
+            message: `bodyMapping target "${target}" 与 source "${targets.get(target)}" 冲突，目标字段必须唯一`,
+          });
+        } else {
+          targets.set(target, source);
+        }
+      }
+    }
+  }
+  if (Array.isArray(node.children)) {
+    node.children.forEach((child, index) => validateFormFieldBindings(child, `${nodePath}.children[${index}]`, doc, violations));
+  }
+  if (Array.isArray(node.props?.items)) {
+    node.props.items.forEach((item, index) => {
+      if (item?.content) validateFormFieldBindings(item.content, `${nodePath}.props.items[${index}].content`, doc, violations);
+    });
+  }
+}
+
+function validateModalFormFieldBindings(doc, violations) {
+  if (!isPlainObject(doc.actions)) return;
+  for (const [actionId, action] of Object.entries(doc.actions)) {
+    if (action?.type === 'modal' && action.content) {
+      validateFormFieldBindings(action.content, `actions.${actionId}.content`, doc, violations);
+    }
+  }
+}
+
 /**
  * 校验页面级 action 引用完整性（V85）
  *
@@ -969,6 +1219,11 @@ function validatePageActionRefs(doc, violations) {
           violations.push({
             path: `${nodePath}.props.submitAction`,
             message: `普通表单 submitAction 不得引用 GET request "${submitAction}"；表单字段按 JSON 请求体提交，请使用 POST、PUT、PATCH 或 DELETE`,
+          });
+        } else if (actionDef.type === 'request' && /[{}]/.test(actionDef.url || '')) {
+          violations.push({
+            path: `actions.${submitAction}.url`,
+            message: '普通表单 request Action URL 不得包含未绑定的路径模板；URL 模板仅可用于 RowAction.actionRef',
           });
         }
       }
@@ -1063,18 +1318,18 @@ function validateDataRefsAndTargetTable(doc, violations) {
   }
 
   // First pass：收集 Node 树中所有 id → { type, path }，并检测重复
-  const nodeIds = {};
+  const nodeIds = new Map();
 
   const collectIds = (node, nodePath) => {
     if (!node || typeof node !== 'object') return;
-    if (node.id && typeof node.id === 'string') {
-      if (nodeIds[node.id]) {
+    if (typeof node.id === 'string') {
+      if (nodeIds.has(node.id)) {
         violations.push({
           path: `${nodePath}.id`,
-          message: `重复的 Node id "${node.id}"（首次出现于 ${nodeIds[node.id].path}）`,
+          message: `重复的 Node id "${node.id}"（首次出现于 ${nodeIds.get(node.id).path}）`,
         });
       } else {
-        nodeIds[node.id] = { type: node.type, path: nodePath, node };
+        nodeIds.set(node.id, { type: node.type, path: nodePath, node });
       }
     }
     if (Array.isArray(node.children)) {
@@ -1127,7 +1382,7 @@ function validateDataRefsAndTargetTable(doc, violations) {
     if (node.type === 'form' && node.props && node.props.mode === 'search' && node.props.targetTable !== undefined) {
       const targetTable = node.props.targetTable;
       if (typeof targetTable === 'string') {
-        const targetNode = nodeIds[targetTable];
+        const targetNode = nodeIds.get(targetTable);
         if (!targetNode) {
           violations.push({
             path: `${nodePath}.props.targetTable`,
@@ -1389,6 +1644,8 @@ function validatePage(doc, fileLabel) {
 
   validateRowActionRefs(doc, violations);
   validatePageActionRefs(doc, violations);
+  if (doc.body) validateFormFieldBindings(doc.body, 'body', doc, violations);
+  validateModalFormFieldBindings(doc, violations);
   validateDataRefsAndTargetTable(doc, violations);
   validateActionUrls(doc, violations);
   validateRequiredCapabilities(doc, violations);

@@ -41,7 +41,7 @@ applies_to: schema-ui-protocol v2.0
 
 ### G4. 跨实现发布制品
 
-- [x] 8 个 versioned suites、官方场景、JS/Python reference 和辅助验证器统一消费 v2.0 协议 fixtures。
+- [x] 10 个 versioned suites、官方场景、JS/Python reference 和辅助验证器统一消费 v2.0 协议 fixtures。
 - [x] 核心规范、Schema、fixtures、场景、版本协商和迁移文档进入独立协议制品；MCP 仅声明捆绑版本。
 - [x] `release:check` 对版本、迁移、fixture digest、协议内容 digest 和可复现 tar.gz 执行硬校验。
 

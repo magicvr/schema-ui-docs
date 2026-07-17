@@ -7,8 +7,9 @@
   "properties": {
     "dependencies": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$" },
       "minItems": 0,
+      "uniqueItems": true,
       "description": "依赖字段声明。scope: form（默认）：列出 when 中 $deps.<field> 的字段名（无 $deps. 前缀，如 orderType）；scope: row：列出 when 中 $row.<path> 的 $row. 之后完整点路径（无 $row. 前缀，如 canRefund / user.id / __index），不注入表单级 $deps。未引用 $deps.* / $row.* 时可为空数组，例如仅引用 $self、$context.* 或不引用变量。不得写入带 $deps. / $row. 前缀的字符串。见 docs/02-reaction-expression.md §8.1"
     },
     "when": {

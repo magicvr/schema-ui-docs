@@ -25,9 +25,9 @@ applies_to: schema-ui-protocol v2.0
 
 每个组件类型包含：`type` 标识、用途、`props` 字段清单、是否支持 `children`、是否支持 `data`、是否支持 `reactions`（联动表达式，见 [02-reaction-expression.md](./02-reaction-expression.md)）、是否支持 `states`（空态/加载态/错误态，见 [01-node-protocol.md §3.7](./01-node-protocol.md#37-states可选since-02)）。
 
-**通用约定（since 0.2）：**
-- 任何作为 `grid` 直接子节点的 Node，均可在自身 `props` 中声明 `span`（语义级占栏数），不再要求包一层 `section`（见 B4）。
-- `label`/`title`/`content` 等展示文案字段均可用对应的 `xxxKey` 形式替代（i18n，见 [01-node-protocol.md §6](./01-node-protocol.md#6-国际化i18n字段约定since-02)）。
+- `visibleField` 只能是合法的 row path（`A-Za-z_` 开头，后续为字母、数字、下划线和点），解析为 `$row.<path> == true`；不得写表达式、模板或包含 `$`。
+- `grid.columns`、所有 `span` 和 server `pagination.pageSize` 必须是正整数；直接子节点的 `span` 不得超过父 grid 的 `columns`。
+
 
 ---
 
@@ -96,7 +96,7 @@ props:
 |---|---|---|---|
 | `label` / `labelKey` | string | 是 | 卡片标题 |
 | `unit` | string | 否 | 单位文案 |
-| `format` | enum: `plain`\|`currency`\|`percent` | 否 | 数值展示格式 |
+| `format` | enum: `plain`\|`currency`\|`percent` | 否 | 数值展示格式；currency/percent 要求 finite JSON number，类型不匹配返回 `COMPONENT_DATA_TYPE_MISMATCH`，不得强制转换 |
 | `valueField` | string | 是（since 0.2） | 指定从 API 响应中取哪个字段作为展示值 |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
@@ -152,7 +152,7 @@ data:
 | `title` / `titleKey` | string | 否 | 表格标题；`titleKey` 可替代 `title` 提供 i18n key |
 | `rowKey` | string | 是 | 行唯一标识字段名 |
 | `pagination.mode` | enum: `server`\|`client`\|`none` | 是 | 分页模式 |
-| `pagination.pageSize` | number | 否 | 默认页大小 |
+| `pagination.pageSize` | integer | server 模式必填 | 服务端分页首次请求使用的正整数页大小；client/none 模式不使用 |
 | `columns` | array\<ColumnDef\> | 是 | 列定义，见下 |
 | `actions` | array\<RowAction\> | 否 | 行内操作，见下 |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
@@ -163,7 +163,7 @@ data:
 |---|---|---|
 | `field` | string | 对应数据字段名 |
 | `label` / `labelKey` | string | 列标题（i18n：`labelKey` 可替代 `label`） |
-| `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 展示格式（默认 `plain`） |
+| `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 展示格式（默认 `plain`）；currency 要求 finite JSON number，datetime 要求 string，类型不匹配返回 `COMPONENT_DATA_TYPE_MISMATCH` |
 | `tagMap` | map | `format: tag` 时，值 → `{text, tone}` 的映射。`tone` 可选值：`warning`\|`success`\|`neutral`\|`info`\|`danger` |
 | `visibleWhen` | object | 可选（since 0.2.1）。列条件渲染；读取 `$row.*` 时必须 `scope: row`；仅 `$context.*`（或表格位于 `form` 内时的 `$deps.*`）可用默认 `scope: form`。语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
 | `reactions` | array | 可选（since 0.2.1）。列联动规则；读取 `$row.*` 或列级 `$self` 时必须 `scope: row`；`fulfill`/`otherwise` **无论 scope 仅允许** `visible`/`disabled` |
@@ -394,7 +394,7 @@ props:
 | `params` | object | 否 | 请求参数。key 必须非空，值仅允许 string / finite number / boolean / null，或**完整单个** `$deps.<path>` 整值替换；禁止对象、数组和模板拼接。`null`/`undefined` 删除最终 query 中的同名 key；序列化见 [ADR-0010](./decisions/0010-query-serialization.md) / [04 §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams--datasourcesparams-中-deps-的空值省略规则) |
 | `labelField` | string | 是 | 响应数据中作为选项文案的字段 |
 | `valueField` | string | 是 | 响应数据中作为选项值的字段 |
-| `searchable` | boolean | 否 | 是否支持远程搜索 |
+| `searchable` | boolean | 否 | 是否支持远程搜索；为 true 时 Renderer 追加保留 query `keyword`，空值删除该参数 |
 
 ```yaml
 type: select

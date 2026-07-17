@@ -106,19 +106,14 @@ function tokenize(expr) {
       continue;
     }
 
-    // 数字（含畸形数字检测：超过一个小数点 → INVALID）
-    if (/[0-9]/.test(expr[i]) || (expr[i] === '.' && /[0-9]/.test(expr[i + 1] || ''))) {
-      let j = i;
-      while (j < expr.length && /[0-9.]/.test(expr[j])) j++;
-      const numStr = expr.slice(i, j);
-      const dotCount = (numStr.match(/\./g) || []).length;
-      if (dotCount > 1) {
-        tokens.push({ type: TT.INVALID, value: numStr });
-      } else {
-        tokens.push({ type: TT.NUMBER, value: numStr });
+    // JSON number（整数、小数、指数形式）
+    if (/[0-9-]/.test(expr[i])) {
+      const numberMatch = /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?/.exec(expr.slice(i));
+      if (numberMatch) {
+        tokens.push({ type: TT.NUMBER, value: numberMatch[0] });
+        i += numberMatch[0].length;
+        continue;
       }
-      i = j;
-      continue;
     }
 
     // 多字符运算符：==, !=, >=, <=, &&, ||
@@ -339,7 +334,7 @@ function validateExpression(expr, exprPath, context) {
   *   componentType: string | undefined, // 普通 Node reactions 所属组件类型
    * }
    */
-  const { scope = 'form', dependencies = [], location, hasFormContext = true, componentType } = context;
+  const { scope = 'form', dependencies = [], location, hasFormContext = true, componentType, formFields } = context;
   const violations = [];
 
   if (typeof expr !== 'string' || !expr.trim()) {
@@ -359,7 +354,7 @@ function validateExpression(expr, exprPath, context) {
   const vars = extractVarTokens(tokens);
   const depsFields = vars
     .filter(v => v.startsWith('$deps.'))
-    .map(v => v.slice('$deps.'.length).split('.')[0]); // 取第一段字段名
+    .map(v => v.slice('$deps.'.length));
 
   const rowDepFields = vars
     .filter(v => v.startsWith('$row.'))
@@ -414,13 +409,21 @@ function validateExpression(expr, exprPath, context) {
     }
   }
 
-  // 3. $deps.* 字段必须在 dependencies 中声明
-  for (const field of depsFields) {
-    if (!dependencies.includes(field)) {
+  // 3. $deps.* 字段必须在 dependencies 中声明，并解析到当前 form 的字段根
+  for (const fieldPath of depsFields) {
+    const field = fieldPath.split('.')[0];
+    if (!dependencies.includes(field) && !dependencies.includes(fieldPath)) {
       violations.push({
         path: exprPath,
         rule: 'UNDECLARED_DEP',
-        message: `$deps.${field} 未在 dependencies 中声明`,
+        message: `$deps.${fieldPath} 未在 dependencies 中声明`,
+      });
+    }
+    if (formFields && !formFields.has(field)) {
+      violations.push({
+        path: exprPath,
+        rule: 'UNKNOWN_FORM_FIELD',
+        message: `$deps.${fieldPath} 的字段根不属于当前 form`,
       });
     }
   }
@@ -549,14 +552,39 @@ function isFormContext(node) {
   return node.type === 'form';
 }
 
-function scanNode(node, nodePath, violations, parentIsForm) {
+function collectFormFieldRoots(node, output = new Set(), root = true) {
+  if (!node || typeof node !== 'object') return output;
+  if (!root && node.type === 'form') return output;
+  const fieldTypes = new Set(['input', 'inputNumber', 'datePicker', 'select', 'upload']);
+  if (fieldTypes.has(node.type) && typeof node.props?.field === 'string' && node.props.field.length > 0) {
+    output.add(node.props.field.split('.')[0]);
+  }
+  if (node.type === 'dateRangePicker') {
+    for (const key of ['startField', 'endField']) {
+      if (typeof node.props?.[key] === 'string' && node.props[key].length > 0) {
+        output.add(node.props[key].split('.')[0]);
+      }
+    }
+  }
+  if (Array.isArray(node.children)) {
+    node.children.forEach(child => collectFormFieldRoots(child, output, false));
+  }
+  if (Array.isArray(node.props?.items)) {
+    node.props.items.forEach(item => {
+      if (item?.content) collectFormFieldRoots(item.content, output, false);
+    });
+  }
+  return output;
+}
+function scanNode(node, nodePath, violations, parentIsForm, formFields = null) {
   if (!node || typeof node !== 'object') return;
 
   const inFormCtx = parentIsForm || isFormContext(node);
+  const currentFormFields = node.type === 'form' ? collectFormFieldRoots(node) : formFields;
 
   // --- data.params 中的变量值替换 ---
   if (node.data && node.data.params && typeof node.data.params === 'object') {
-    scanDataParams(node.data.params, `${nodePath}.data.params`, violations, inFormCtx, 'data.params');
+    scanDataParams(node.data.params, `${nodePath}.data.params`, violations, inFormCtx, 'data.params', currentFormFields);
   }
 
   // --- select.optionsSource.params 中的变量值替换 ---
@@ -572,6 +600,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
       violations,
       inFormCtx,
       'optionsSource.params',
+      currentFormFields,
     );
   }
 
@@ -584,7 +613,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
       const exprPath = `${nodePath}.reactions[${idx}].when`;
       if (reaction.when !== undefined && reaction.when !== null) {
         const vs = validateExpression(String(reaction.when), exprPath, {
-          scope, dependencies: deps, location: 'reaction', hasFormContext: inFormCtx, componentType: node.type,
+          scope, dependencies: deps, location: 'reaction', hasFormContext: inFormCtx, formFields: currentFormFields, componentType: node.type,
         });
         violations.push(...vs);
       }
@@ -598,7 +627,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
     const vs = validateExpression(
       String(node.visibleWhen.when),
       `${nodePath}.visibleWhen.when`,
-      { scope, dependencies: deps, location: 'visibleWhen', hasFormContext: inFormCtx },
+      { scope, dependencies: deps, location: 'visibleWhen', hasFormContext: inFormCtx, formFields: currentFormFields },
     );
     violations.push(...vs);
   }
@@ -625,7 +654,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
         const scope = col.visibleWhen.scope || 'form';
         const deps = Array.isArray(col.visibleWhen.dependencies) ? col.visibleWhen.dependencies : [];
         violations.push(...validateExpression(String(col.visibleWhen.when), `${colBase}.visibleWhen.when`, {
-          scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx,
+          scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx, formFields: currentFormFields,
         }));
       }
       if (Array.isArray(col.reactions)) {
@@ -634,7 +663,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(String(r.when), `${colBase}.reactions[${ri}].when`, {
-              scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx,
+              scope, dependencies: deps, location: 'tableColumn', hasFormContext: inFormCtx, formFields: currentFormFields,
             }));
           }
         });
@@ -656,7 +685,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
         const scope = action.visibleWhen.scope || 'form';
         const deps = Array.isArray(action.visibleWhen.dependencies) ? action.visibleWhen.dependencies : [];
         violations.push(...validateExpression(String(action.visibleWhen.when), `${actBase}.visibleWhen.when`, {
-          scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx,
+          scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx, formFields: currentFormFields,
         }));
       }
       if (Array.isArray(action.reactions)) {
@@ -665,7 +694,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
             const scope = r.scope || 'form';
             const deps = Array.isArray(r.dependencies) ? r.dependencies : [];
             violations.push(...validateExpression(String(r.when), `${actBase}.reactions[${ri}].when`, {
-              scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx,
+              scope, dependencies: deps, location: 'tableAction', hasFormContext: inFormCtx, formFields: currentFormFields,
             }));
           }
         });
@@ -684,7 +713,7 @@ function scanNode(node, nodePath, violations, parentIsForm) {
   // --- 递归 children ---
   if (Array.isArray(node.children)) {
     node.children.forEach((child, idx) => {
-      scanNode(child, `${nodePath}.children[${idx}]`, violations, inFormCtx);
+      scanNode(child, `${nodePath}.children[${idx}]`, violations, inFormCtx, currentFormFields);
     });
   }
 
@@ -692,20 +721,20 @@ function scanNode(node, nodePath, violations, parentIsForm) {
   if (node.props && Array.isArray(node.props.items)) {
     node.props.items.forEach((item, idx) => {
       if (item && item.content) {
-        scanNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, inFormCtx);
+        scanNode(item.content, `${nodePath}.props.items[${idx}].content`, violations, inFormCtx, currentFormFields);
       }
     });
   }
 }
 
-function scanDataParams(params, paramsPath, violations, hasFormContext, paramsLabel) {
+function scanDataParams(params, paramsPath, violations, hasFormContext, paramsLabel, formFields = null) {
   // 与 requestMapping 一致：字符串只要包含 $，就必须完整匹配单个 $deps.* 值替换
   const depsRefPattern = /^\$deps\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
 
   for (const [key, value] of Object.entries(params)) {
     const valuePath = Array.isArray(params) ? `${paramsPath}[${key}]` : `${paramsPath}.${key}`;
     if (value && typeof value === 'object') {
-      scanDataParams(value, valuePath, violations, hasFormContext, paramsLabel);
+      scanDataParams(value, valuePath, violations, hasFormContext, paramsLabel, formFields);
       continue;
     }
 
@@ -715,6 +744,14 @@ function scanDataParams(params, paramsPath, violations, hasFormContext, paramsLa
     if (!value.includes('$')) continue;
 
     if (depsRefPattern.test(value)) {
+      const field = value.slice('$deps.'.length).split('.')[0];
+      if (hasFormContext && formFields && !formFields.has(field)) {
+        violations.push({
+          path: valuePath,
+          rule: 'UNKNOWN_FORM_FIELD',
+          message: `$deps.${value.slice('$deps.'.length)} 的字段根不属于当前 form`,
+        });
+      }
       if (!hasFormContext) {
         violations.push({
           path: valuePath,

@@ -76,15 +76,32 @@ function resolveMapping(mapping, row, section) {
       return failure('UNSAFE_ROW_PATH', `requestMapping.${section}.${key}`);
     }
     const resolved = resolveRowValue(configuredValue, row);
-    if (!resolved.found) return failure('UNRESOLVED_ROW_VALUE', `requestMapping.${section}.${key}`);
-    if (section !== 'query' || resolved.value !== undefined) {
-      if (!isScalar(resolved.value)) return failure('INVALID_ROW_VALUE', `requestMapping.${section}.${key}`);
+    if (!resolved.found || resolved.value === undefined) {
+      return failure('UNRESOLVED_ROW_VALUE', `requestMapping.${section}.${key}`);
     }
+    if (!isScalar(resolved.value)) return failure('INVALID_ROW_VALUE', `requestMapping.${section}.${key}`);
     output.push([key, resolved.value]);
   }
   return { ok: true, entries: output };
 }
 
+function requestQuery(url) {
+  const requestPart = url.split('#', 1)[0];
+  const queryIndex = requestPart.indexOf('?');
+  return queryIndex === -1 ? '' : requestPart.slice(queryIndex + 1);
+}
+
+function applyRequestInterceptor(request, interceptor) {
+  if (interceptor === undefined) return { ok: true, request };
+  const candidate = { ...request, ...interceptor };
+  if (request.method === 'GET' && (candidate.method !== 'GET'
+    || (candidate.body !== null && candidate.body !== undefined)
+    || typeof candidate.url !== 'string'
+    || requestQuery(candidate.url) !== requestQuery(request.url))) {
+    return failure('INTERCEPTOR_VIOLATION', 'requestInterceptor');
+  }
+  return { ok: true, request: candidate };
+}
 function buildDataRefRequest(dataRef) {
   const method = dataRef.method === undefined ? 'GET' : dataRef.method;
   if (method !== 'GET') return failure('DATA_REF_METHOD_NOT_READ_ONLY', 'dataRef.method');
@@ -92,16 +109,27 @@ function buildDataRefRequest(dataRef) {
   if (urlError) return urlError;
   const serialized = serializeQuery(dataRef.url, [Object.entries(dataRef.params || {})]);
   if (!serialized.ok) return serialized;
+  const request = {
+    method,
+    url: serialized.url,
+    body: null,
+  };
+  const intercepted = applyRequestInterceptor(request, dataRef.requestInterceptor);
+  if (!intercepted.ok) return intercepted;
   return {
     ok: true,
-    request: { method, url: serialized.url, body: null },
+    request: intercepted.request,
   };
 }
 
 function buildRowActionRequest(input) {
+  const method = input.action.method === undefined ? 'GET' : input.action.method;
   const urlError = validateProtocolUrl(input.action.url, 'action.url');
   if (urlError) return urlError;
   const mapping = input.requestMapping || {};
+  if (['GET', 'DELETE'].includes(method) && mapping.body && Object.keys(mapping.body).length > 0) {
+    return failure('REQUEST_BODY_NOT_ALLOWED', 'requestMapping.body');
+  }
   const pathValues = resolveMapping(mapping.path, input.row, 'path');
   if (!pathValues.ok) return pathValues;
   const queryValues = resolveMapping(mapping.query, input.row, 'query');
@@ -126,7 +154,7 @@ function buildRowActionRequest(input) {
   return {
     ok: true,
     request: addRequestMetadata({
-      method: input.action.method === undefined ? 'GET' : input.action.method,
+      method,
       url: serialized.url,
       body: bodyValues.entries.length === 0 ? null : Object.fromEntries(bodyValues.entries),
     }, metadata),
@@ -134,11 +162,32 @@ function buildRowActionRequest(input) {
 }
 
 function buildFormActionRequest(input) {
+  const method = input.action.method;
   const urlError = validateProtocolUrl(input.action.url, 'action.url');
   if (urlError) return urlError;
-  const body = input.action.bodyMapping
-    ? Object.fromEntries(Object.entries(input.action.bodyMapping).map(([source, target]) => [target, input.formValues[source]]))
-    : { ...input.formValues };
+  if (method === 'GET') return failure('FORM_GET_NOT_ALLOWED', 'action.method');
+  if (/[{}]/.test(input.action.url)) return failure('UNBOUND_URL_TEMPLATE', 'action.url');
+  const formValues = input.formValues || {};
+  const formProjection = input.formProjection;
+  const effectiveValues = formProjection === undefined || formProjection === null
+    ? formValues
+    : Object.fromEntries(Object.entries(formProjection).filter(([, field]) => field && field.mounted !== false
+      && field.visible !== false && field.disabled !== true && field.uploadStatus !== 'error'
+      && Object.prototype.hasOwnProperty.call(field, 'value'))
+      .map(([name, field]) => [name, field.value]));
+  let body;
+  if (input.action.bodyMapping) {
+    body = {};
+    for (const [source, target] of Object.entries(input.action.bodyMapping)) {
+      if (!Object.prototype.hasOwnProperty.call(effectiveValues, source)
+        || effectiveValues[source] === undefined) {
+        return failure('UNRESOLVED_FORM_VALUE', `bodyMapping.${source}`);
+      }
+      body[target] = effectiveValues[source];
+    }
+  } else {
+    body = { ...effectiveValues };
+  }
   const serialized = serializeQuery(input.action.url, []);
   if (!serialized.ok) return serialized;
   const metadata = requestMetadata(input.action, input.invocationId);

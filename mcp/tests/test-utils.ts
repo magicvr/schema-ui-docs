@@ -397,6 +397,7 @@ body:
         rowKey: id
         pagination:
           mode: server
+          pageSize: 20
         columns:
           - field: id
             label: ID
@@ -470,6 +471,7 @@ body:
     rowKey: id
     pagination:
       mode: server
+      pageSize: 20
     columns:
       - field: id
         label: ID

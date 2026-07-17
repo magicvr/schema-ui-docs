@@ -9,6 +9,7 @@ ROW_REFERENCE = re.compile(r"^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-
 PROTOCOL_RELATIVE_URL = re.compile(r"^/(?!/)[^\s\\]*$")
 RESERVED_ROW_PATH_SEGMENTS = {"__proto__", "prototype", "constructor"}
 INVOCATION_ID = re.compile(r"^[\x21-\x7e]{1,200}$")
+_MISSING = object()
 
 
 def failure(code, path):
@@ -56,7 +57,7 @@ def resolve_row_value(value, row):
     current = row
     for segment in match.group(1).split("."):
         if not isinstance(current, dict) or segment not in current:
-            return False, None
+            return False, _MISSING
         current = current[segment]
     return True, current
 
@@ -82,13 +83,33 @@ def resolve_mapping(mapping, row, section):
         if row_reference and any(segment in RESERVED_ROW_PATH_SEGMENTS for segment in row_reference.group(1).split(".")):
             return failure("UNSAFE_ROW_PATH", f"requestMapping.{section}.{key}")
         found, value = resolve_row_value(configured_value, row)
-        if not found:
+        if not found or value is _MISSING:
             return failure("UNRESOLVED_ROW_VALUE", f"requestMapping.{section}.{key}")
-        if section != "query" or value is not None:
-            if not is_scalar(value):
-                return failure("INVALID_ROW_VALUE", f"requestMapping.{section}.{key}")
+        if not is_scalar(value):
+            return failure("INVALID_ROW_VALUE", f"requestMapping.{section}.{key}")
         output.append([key, value])
     return {"ok": True, "entries": output}
+
+
+def request_query(url):
+    request_part = url.split("#", 1)[0]
+    return request_part.split("?", 1)[1] if "?" in request_part else ""
+
+
+def apply_request_interceptor(request, interceptor):
+    if interceptor is None:
+        return {"ok": True, "request": request}
+    candidate = dict(request)
+    candidate.update(interceptor)
+    if request["method"] == "GET" and (
+        candidate.get("method") != "GET"
+        or candidate.get("body") is not None
+        or not isinstance(candidate.get("url"), str)
+        or request_query(candidate["url"]) != request_query(request["url"])
+    ):
+        return failure("INTERCEPTOR_VIOLATION", "requestInterceptor")
+    return {"ok": True, "request": candidate}
+
 
 
 def build_data_ref_request(data_ref):
@@ -101,21 +122,26 @@ def build_data_ref_request(data_ref):
     serialized = serialize_query(data_ref["url"], [params])
     if not serialized["ok"]:
         return serialized
-    return {
-        "ok": True,
-        "request": {
-            "method": data_ref.get("method", "GET"),
-            "url": serialized["url"],
-            "body": None,
-        },
+    request = {
+        "method": data_ref.get("method", "GET"),
+        "url": serialized["url"],
+        "body": None,
     }
+    intercepted = apply_request_interceptor(request, data_ref.get("requestInterceptor"))
+    if not intercepted["ok"]:
+        return intercepted
+    return {"ok": True, "request": intercepted["request"]}
 
 
 def build_row_action_request(input_value):
-    url_error = validate_protocol_url(input_value["action"]["url"], "action.url")
+    action = input_value["action"]
+    method = action.get("method", "GET")
+    url_error = validate_protocol_url(action["url"], "action.url")
     if url_error:
         return url_error
     mapping = input_value.get("requestMapping") or {}
+    if method in ("GET", "DELETE") and isinstance(mapping.get("body"), dict) and mapping["body"]:
+        return failure("REQUEST_BODY_NOT_ALLOWED", "requestMapping.body")
     path_values = resolve_mapping(mapping.get("path"), input_value["row"], "path")
     if not path_values["ok"]:
         return path_values
@@ -143,7 +169,7 @@ def build_row_action_request(input_value):
         return metadata
     body = dict(body_values["entries"]) if body_values["entries"] else None
     request = add_request_metadata({
-        "method": input_value["action"].get("method", "GET"),
+        "method": method,
         "url": serialized["url"],
         "body": body,
     }, metadata)
@@ -158,13 +184,33 @@ def build_form_action_request(input_value):
     url_error = validate_protocol_url(action["url"], "action.url")
     if url_error:
         return url_error
-    if action.get("bodyMapping") is not None:
-        body = {
-            target: input_value["formValues"].get(source)
-            for source, target in action["bodyMapping"].items()
-        }
+    if action["method"] == "GET":
+        return failure("FORM_GET_NOT_ALLOWED", "action.method")
+    if "{" in action["url"] or "}" in action["url"]:
+        return failure("UNBOUND_URL_TEMPLATE", "action.url")
+    form_values = input_value.get("formValues") or {}
+    form_projection = input_value.get("formProjection")
+    if form_projection is None:
+        effective_values = form_values
     else:
-        body = dict(input_value["formValues"])
+        effective_values = {
+            name: field["value"]
+            for name, field in form_projection.items()
+            if isinstance(field, dict)
+            and field.get("mounted", True)
+            and field.get("visible", True)
+            and not field.get("disabled", False)
+            and field.get("uploadStatus") != "error"
+            and "value" in field
+        }
+    if action.get("bodyMapping") is not None:
+        body = {}
+        for source, target in action["bodyMapping"].items():
+            if source not in effective_values or effective_values[source] is _MISSING:
+                return failure("UNRESOLVED_FORM_VALUE", f"bodyMapping.{source}")
+            body[target] = effective_values[source]
+    else:
+        body = dict(effective_values)
     serialized = serialize_query(action["url"], [])
     if not serialized["ok"]:
         return serialized

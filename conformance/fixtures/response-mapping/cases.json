@@ -132,15 +132,9 @@
         }
       },
       "expected": {
-        "ok": true,
-        "data": {
-          "list": [
-            {
-              "id": 5
-            }
-          ],
-          "total": 1
-        }
+        "ok": false,
+        "code": "INVALID_RESPONSE_MAPPING",
+        "path": "localMapping"
       }
     },
     {
@@ -244,6 +238,89 @@
         "ok": false,
         "code": "RESPONSE_MAPPING_TYPE_MISMATCH",
         "path": "payload.count"
+      }
+    },
+    {
+      "id": "explicit-null-local-mapping-is-invalid",
+      "protocolVersion": "2.0",
+      "category": "response-mapping",
+      "input": {
+        "component": "table",
+        "paginationMode": "client",
+        "localMapping": null,
+        "response": {
+          "list": []
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_RESPONSE_MAPPING",
+        "path": "localMapping"
+      }
+    },
+    {
+      "id": "mapped-list-inherited-prototype-property-is-missing",
+      "protocolVersion": "2.0",
+      "category": "response-mapping",
+      "input": {
+        "component": "table",
+        "paginationMode": "client",
+        "localMapping": {
+          "list": "toString"
+        },
+        "response": {
+          "list": []
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "RESPONSE_MAPPING_PATH_MISSING",
+        "path": "toString"
+      }
+    },
+    {
+      "id": "stat-card-response-mapping-rejected",
+      "protocolVersion": "2.0",
+      "category": "response-mapping",
+      "input": {
+        "component": "statCard",
+        "localMapping": { "list": "payload.items" },
+        "response": { "payload": { "items": [1] } }
+      },
+      "expected": {
+        "ok": false,
+        "code": "RESPONSE_MAPPING_NOT_SUPPORTED",
+        "path": "localMapping"
+      }
+    },
+    {
+      "id": "text-response-mapping-rejected",
+      "protocolVersion": "2.0",
+      "category": "response-mapping",
+      "input": {
+        "component": "text",
+        "datasourceMapping": { "list": "payload.items" },
+        "response": { "payload": { "items": ["x"] } }
+      },
+      "expected": {
+        "ok": false,
+        "code": "RESPONSE_MAPPING_NOT_SUPPORTED",
+        "path": "localMapping"
+      }
+    },
+    {
+      "id": "stat-card-null-response-mapping-is-invalid",
+      "protocolVersion": "2.0",
+      "category": "response-mapping",
+      "input": {
+        "component": "statCard",
+        "localMapping": null,
+        "response": { "total": 1 }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_RESPONSE_MAPPING",
+        "path": "localMapping"
       }
     }
   ]

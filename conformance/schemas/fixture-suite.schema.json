@@ -14,8 +14,12 @@
         "version-negotiation",
         "request-construction",
         "response-mapping",
+        "component-format",
         "search-table",
         "reactions",
+        "request-lifecycle",
+        "runtime-defaults",
+        "static-data",
         "actions",
         "uploads",
         "scenarios"

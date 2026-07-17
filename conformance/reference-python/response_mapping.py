@@ -22,11 +22,16 @@ def resolve_mapped_value(response, path):
 
 
 def map_response(input_value):
+    mapping_is_present = "localMapping" in input_value or "datasourceMapping" in input_value
     mapping = (
-        input_value.get("localMapping")
+        input_value["localMapping"]
         if "localMapping" in input_value
         else input_value.get("datasourceMapping")
     )
+    if mapping_is_present and (mapping is None or not isinstance(mapping, dict) or not mapping):
+        return failure("INVALID_RESPONSE_MAPPING", "localMapping")
+    if input_value["component"] in ("statCard", "text") and mapping is not None:
+        return failure("RESPONSE_MAPPING_NOT_SUPPORTED", "localMapping")
     if input_value["component"] == "chart" and mapping is None:
         if isinstance(input_value["response"], list):
             return {"ok": True, "data": {"list": input_value["response"]}}

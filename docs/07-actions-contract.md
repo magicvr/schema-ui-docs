@@ -51,7 +51,7 @@ onSuccess: OutcomeBehavior   # 【可选】
 onError: OutcomeBehavior     # 【可选】
 ```
 
-- `bodyMapping` 是表单字段名到请求体字段名的映射，key 为源字段名、value 为目标请求体字段名（非空字符串）。`bodyMapping` 缺省时，表单各字段按原字段名直接组成请求体 JSON；一旦声明（包括空对象），它就是请求体字段白名单，只发送明确列出的源字段，未列字段不发送。值必须为字符串，不允许嵌套对象、数组或数字。
+- `bodyMapping` 缺省时，提交投影中的字段按原字段名组成请求体；一旦声明 mapping，只能映射投影中存在的字段。提交投影默认包含已 mounted、visible、非 disabled 且 uploadStatus 不是 `error` 的字段；hidden、disabled、unmounted 和上传失败字段不参与 required 校验或请求体。同一 form 的字段名必须唯一，`bodyMapping` 的目标字段名也必须唯一；L2 在页面 Node 树中静态校验这两个命名空间。`bodyMapping` 缺省时，表单各字段按原字段名直接组成请求体 JSON；一旦声明（包括空对象），它就是请求体字段白名单，只发送明确列出的源字段，未列字段不发送。运行时若映射 source 在提交 form 中不存在，或其值为 `undefined`，整个 Action 必须失败且不得发出部分请求。值必须为字符串，不允许嵌套对象、数组或数字。
 
 假设表单值为 `{ customerName: "A", orderType: "normal", remark: "..." }`：
 
@@ -280,7 +280,7 @@ onSuccess:
 
 Action 请求失败时，Renderer 先执行 [04-datasource-contract.md §5-§6](./04-datasource-contract.md#5-认证约定since-025) 的协议级状态处理，再执行不冲突的 `onError`：
 
-- `401` / `403`：触发 `onAuthFailure` 并进入规定错误态，忽略 Action `onError`，防止配置绕过认证/授权流程。
+- `401` / `403`：触发 `onAuthFailure` 并进入规定错误态，忽略 Action `onError` 和任何 `states.error.fallbackText`；401 不展示具体文案，403 使用固定无权限占位。
 - `400` 且存在 `errors`：始终回填字段错误；忽略 `navigate` / `reload` / `closeModal`，保留用户修正入口。若 `onError.behavior: toast`，只展示配置的 toast message；否则展示响应 `message`，避免双重 toast。
 - `400` 无字段错误、`404`、其他 `4xx`、`5xx` 及网络错误：先确定协议规定的安全错误信息，再执行 `onError`。若 `onError.behavior: toast`，配置 message 替代默认/响应 message；其他行为在错误状态记录完成后执行。超时和网络错误的 Action 结果为 `unknown`，不得当作“服务端未提交”处理。
 - `onError` 缺省时，仅执行标准 HTTP 错误处理。

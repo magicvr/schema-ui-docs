@@ -22,7 +22,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:d78527a570c481819cf4855369598bc526247aa9c31c08d175e78987da3d9528';
+  'sha256:5a5095799f2d4af10df1ef89c56b9aa2969af1c250efae8a6bb853c99b34cb7e';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -135,8 +135,12 @@ const expectedCategories = new Set([
   'version-negotiation',
   'request-construction',
   'response-mapping',
+  'component-format',
   'search-table',
   'reactions',
+  'request-lifecycle',
+  'runtime-defaults',
+  'static-data',
   'actions',
   'uploads',
   'scenarios',
@@ -160,7 +164,7 @@ for (const category of expectedCategories) {
   }
   versionedCaseCount += suite.cases.length;
 }
-assert.equal(versionedCaseCount, 78, `Expected 78 versioned fixtures, received ${versionedCaseCount}`);
+assert.equal(versionedCaseCount, 128, `Expected 128 versioned fixtures, received ${versionedCaseCount}`);
 
 // Core specs must declare applies_to for the current major.minor (V231).
 const coreSpecPaths = [
