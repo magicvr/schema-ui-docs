@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.0
+applies_to: schema-ui-protocol v2.1
 ---
 
 # 联动表达式引擎语法规范

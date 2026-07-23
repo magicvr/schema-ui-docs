@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Schema-UI protocol reader and validator MCP server",
   "schemaUiProtocol": {
-    "artifactVersion": "2.0.0",
-    "protocolVersion": "2.0"
+    "artifactVersion": "2.1.0",
+    "protocolVersion": "2.1"
   },
   "schemaUiValidator": {
     "version": "1.0.0"

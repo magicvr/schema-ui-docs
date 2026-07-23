@@ -1,6 +1,6 @@
 ---
 status: example
-protocol_version: v2.0
+protocol_version: v2.1
 last_updated: 2026-07-23
 capabilities:
   - actions.page.trigger
@@ -22,7 +22,7 @@ capabilities:
 meta:
   pageId: order_list_lifecycle
   title: 订单列表
-  protocolVersion: "2.0"
+  protocolVersion: "2.1"
   requiredCapabilities:
     - actions.page.trigger
     - actions.row.navigate
@@ -74,7 +74,7 @@ body:
 meta:
   pageId: order_edit_lifecycle
   title: 编辑订单
-  protocolVersion: "2.0"
+  protocolVersion: "2.1"
   requiredCapabilities:
     - form.record.load
 

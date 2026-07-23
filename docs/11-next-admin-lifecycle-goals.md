@@ -119,7 +119,7 @@ P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-r
 - [x] scenarios conformance 步进（列表加载+行导航、编辑加载回填+提交+navigate 成功）；
 - [x] `requiredCapabilities` 键写入 `08-renderer-spec` 预定义表；
 - [x] CHANGELOG 与迁移说明草稿 [`migrations/2.0-to-2.1-admin-lifecycle.md`](./migrations/2.0-to-2.1-admin-lifecycle.md) 已更新；
-- [ ] 协议制品版本升至 `2.1.0` / 页面 `protocolVersion: "2.1"` 与 release 门禁（可选打包步骤）。
+- [x] 协议制品版本升至 `2.1.0` / 页面 `protocolVersion: "2.1"` 与 release 门禁（见 `12-v2.1-release-goals.md`）。
 
 ### Phase C — P1：选择、批量与权限继承
 
@@ -196,10 +196,10 @@ P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-r
 
 | 项 | 状态 |
 |---|---|
-| 协议制品 / 页面协议 | `2.0.0` / `2.0`（见 `protocol-manifest.json`） |
-| 本轨道 | **Phase B 闭环证据已齐**（语义 + 算法 fixtures + scenarios 步进）；2.1 制品打包与六场景正式清单待补 |
+| 协议制品 / 页面协议 | `2.1.0` / `2.1`（见 `protocol-manifest.json`） |
+| 本轨道 | **P0 已随 v2.1.0 发布**；P1 批量 / 权限继承待立项 |
 | P0 ADR | [0020](./decisions/0020-page-action-trigger.md)、[0021](./decisions/0021-record-navigation-and-form-load.md)（**accepted**） |
-| 下一步具体动作 | 择机打 `2.1.0` 制品；Phase C 批量 ADR 立项 |
+| 下一步具体动作 | Phase C 批量 ADR；是否将 admin 示例升入 `OFFICIAL_SCENARIO_PATHS` |
 
 ---
 

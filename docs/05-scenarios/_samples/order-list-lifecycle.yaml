@@ -1,7 +1,7 @@
 meta:
   pageId: order_list_lifecycle
   title: 订单列表
-  protocolVersion: "2.0"
+  protocolVersion: "2.1"
   requiredCapabilities:
     - actions.page.trigger
     - actions.row.navigate

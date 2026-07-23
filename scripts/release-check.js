@@ -22,7 +22,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:5a5095799f2d4af10df1ef89c56b9aa2969af1c250efae8a6bb853c99b34cb7e';
+  'sha256:a5b91f305d649a5bc1768efc791222a743aaf5c583192b1a0dfebcc99c91001c';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -74,19 +74,36 @@ assert.ok(versions.every(version => version === rootPackage.version), `Package v
 const semverMatch = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(rootPackage.version);
 assert.ok(semverMatch, `Unsupported release version: ${rootPackage.version}`);
 const majorVersion = Number(semverMatch[1]);
+const minorVersion = Number(semverMatch[2]);
+const protocolVersion = `${semverMatch[1]}.${semverMatch[2]}`;
 const releaseTargets = {
-  1: {
+  '1.0': {
     releaseGoalsPath: 'docs/09-v1-release-goals.md',
     migrationPath: 'docs/migrations/0.2-0.3-to-1.0.md',
+    migrationRequiredTopics: ['protocolVersion', 'legacy adapter', 'query', 'pageSize', 'requestMapping', 'actions.upload'],
   },
-  2: {
+  '2.0': {
     releaseGoalsPath: 'docs/10-v2-release-goals.md',
     migrationPath: 'docs/migrations/1.0-to-2.0.md',
+    migrationRequiredTopics: ['protocolVersion', 'legacy adapter', 'query', 'pageSize', 'requestMapping', 'actions.upload'],
+  },
+  '2.1': {
+    releaseGoalsPath: 'docs/12-v2.1-release-goals.md',
+    migrationPath: 'docs/migrations/2.0-to-2.1.md',
+    migrationRequiredTopics: [
+      'protocolVersion',
+      'legacy adapter',
+      'query',
+      'pageSize',
+      'requestMapping',
+      'actions.upload',
+      'actions.page.trigger',
+      'form.record.load',
+    ],
   },
 };
-const releaseTarget = releaseTargets[majorVersion];
-assert.ok(releaseTarget, `Missing release target definition for MAJOR ${majorVersion}`);
-const protocolVersion = `${semverMatch[1]}.${semverMatch[2]}`;
+const releaseTarget = releaseTargets[protocolVersion];
+assert.ok(releaseTarget, `Missing release target definition for protocolVersion ${protocolVersion}`);
 assert.equal(protocolManifest.protocolVersion, protocolVersion, 'Protocol manifest protocolVersion mismatch');
 const componentRegistry = readJson('docs/schemas/component-registry.json');
 for (const [type, definition] of Object.entries(componentRegistry.components)) {
@@ -120,14 +137,7 @@ assert.equal(firstChangelogVersion, rootPackage.version, 'CHANGELOG first releas
 const migrationPath = releaseTarget.migrationPath;
 assert.ok(fs.existsSync(path.join(root, migrationPath)), `Missing migration guide: ${migrationPath}`);
 const migration = readText(migrationPath);
-for (const requiredText of [
-  'protocolVersion',
-  'legacy adapter',
-  'query',
-  'pageSize',
-  'requestMapping',
-  'actions.upload',
-]) {
+for (const requiredText of releaseTarget.migrationRequiredTopics) {
   assert.ok(migration.includes(requiredText), `Migration guide is missing required topic: ${requiredText}`);
 }
 
@@ -164,7 +174,13 @@ for (const category of expectedCategories) {
   }
   versionedCaseCount += suite.cases.length;
 }
-assert.equal(versionedCaseCount, 128, `Expected 128 versioned fixtures, received ${versionedCaseCount}`);
+// Count is recomputed each MINOR when algorithm fixtures grow; keep in sync with suites.
+const expectedVersionedCaseCount = protocolVersion === '2.1' ? 153 : 128;
+assert.equal(
+  versionedCaseCount,
+  expectedVersionedCaseCount,
+  `Expected ${expectedVersionedCaseCount} versioned fixtures, received ${versionedCaseCount}`,
+);
 
 // Core specs must declare applies_to for the current major.minor (V231).
 const coreSpecPaths = [
@@ -192,7 +208,7 @@ for (const relativePath of coreSpecPaths) {
 if (majorVersion >= 1) {
   const releaseGoals = readText(releaseTarget.releaseGoalsPath);
   const g1ToG4 = releaseGoals.slice(releaseGoals.indexOf('### G1.'), releaseGoals.indexOf('## 3. 发布工程门禁'));
-  assert.ok(!g1ToG4.includes('- [ ]'), `G1-G4 must be fully closed for a MAJOR ${majorVersion} release`);
+  assert.ok(!g1ToG4.includes('- [ ]'), `G1-G4 must be fully closed for protocolVersion ${protocolVersion}`);
 }
 
 if (releaseMode) {

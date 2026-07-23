@@ -4,8 +4,8 @@
   "private": true,
   "description": "Non-normative Schema-UI protocol validation helpers",
   "schemaUiProtocol": {
-    "artifactVersion": "2.0.0",
-    "protocolVersion": "2.0"
+    "artifactVersion": "2.1.0",
+    "protocolVersion": "2.1"
   },
   "scripts": {
     "validate": "node ../scripts/validate-all.js",

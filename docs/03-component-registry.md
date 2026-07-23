@@ -2,7 +2,7 @@
 status: living-document
 owner: 前端组件库团队
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.0
+applies_to: schema-ui-protocol v2.1
 ---
 
 # 组件类型（type）注册表

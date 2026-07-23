@@ -1,7 +1,7 @@
 ---
 status: accepted
 date: 2026-07-23
-applies_to: schema-ui-protocol v2.0+ (capability-gated; packaging target MINOR 2.1)
+applies_to: schema-ui-protocol v2.1
 track: docs/11-next-admin-lifecycle-goals.md Phase B / P0
 ---
 
@@ -9,7 +9,7 @@ track: docs/11-next-admin-lifecycle-goals.md Phase B / P0
 
 ## 状态
 
-**Accepted（已接受）。** 字段与执行语义以本 ADR 及同步更新的 `03` / `07` / `08` / Schema / L2 为准。使用本能力的页面必须声明 `meta.requiredCapabilities: [actions.page.trigger]`。制品打包目标仍为 **MINOR `2.1`**；在 `protocolVersion: "2.1"` 正式发布前，合法页面可继续声明 `protocolVersion: "2.0"` 并依赖 capability 协商。开放问题裁决见文末，已并入 D2–D4。
+**Accepted（已接受，随 v2.1.0 发布）。** 字段与执行语义以本 ADR 及 `03` / `07` / `08` / Schema / L2 为准。使用本能力的页面必须声明 `meta.protocolVersion: "2.1"` 与 `meta.requiredCapabilities: [actions.page.trigger]`。开放问题裁决见文末，已并入 D2–D4。
 
 轨道依据：[11-next-admin-lifecycle-goals.md](../11-next-admin-lifecycle-goals.md)、[ADR-0019](./0019-v2-admin-scope.md)。
 

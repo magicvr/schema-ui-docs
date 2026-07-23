@@ -63,4 +63,4 @@ v2.0 之后，继续遵守语义化版本：不改变 v2.0 合法输入和执行
 
 ## 6. v2.0 之后
 
-v2.0 刻意不覆盖完整 Admin 生命周期（见 [ADR-0019](./decisions/0019-v2-admin-scope.md)）。下一步协议目标、优先级与分阶段门禁见 [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md)。该文档是规划轨道，不构成本文件的 v2.0 阻断门禁。
+v2.0 刻意不覆盖完整 Admin 生命周期（见 [ADR-0019](./decisions/0019-v2-admin-scope.md)）。**P0 已在 v2.1.0 落地**（见 [`12-v2.1-release-goals.md`](./12-v2.1-release-goals.md) 与 ADR-0020/0021）。P1+ 见 [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md)。

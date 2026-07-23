@@ -491,6 +491,56 @@
           "form.record.load"
         ]
       }
+    },
+    {
+      "id": "supported-v2-1-version",
+      "protocolVersion": "2.1",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.1"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.0",
+            "2.1"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.1",
+        "supportedVersions": [
+          "2.0",
+          "2.1"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "v2-1-page-rejected-by-v2-0-only-renderer",
+      "protocolVersion": "2.1",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.1"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.0"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "2.1",
+        "supportedVersions": [
+          "2.0"
+        ],
+        "missingCapabilities": []
+      }
     }
   ]
 }
