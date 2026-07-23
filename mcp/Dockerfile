@@ -28,6 +28,7 @@ ARG MCP_VERSION=unknown
 ARG PROTOCOL_ARTIFACT_VERSION=unknown
 ARG VALIDATOR_VERSION=unknown
 LABEL org.opencontainers.image.title="Schema-UI MCP" \
+      org.opencontainers.image.description="Schema-UI MCP stdio server (protocol reader and validator)" \
       org.opencontainers.image.version="${MCP_VERSION}" \
       io.schema-ui.protocol.artifact-version="${PROTOCOL_ARTIFACT_VERSION}" \
       io.schema-ui.validator.version="${VALIDATOR_VERSION}"

@@ -29,6 +29,7 @@
 - [ ] Protocol changes update Schema, fixtures, migration and CHANGELOG where applicable.
 - [ ] `docs/audit/**`, `docs/mcp/**`, `scripts/**` and `mcp/**` remain outside the protocol artifact.
 - [ ] Protocol and MCP release tags remain independent (`v*` vs `mcp-v*`).
+- [ ] Merge to main does not publish release assets (assets only after manual tags).
 
 ## Verification
 

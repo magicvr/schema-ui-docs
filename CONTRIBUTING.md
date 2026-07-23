@@ -60,3 +60,11 @@ npm --prefix mcp run build
 npm --prefix mcp test
 npm --prefix mcp run smoke:tools
 ```
+
+## 发布
+
+- **merge `main`：只 CI，不发资产、不自动打 tag。**
+- **协议与 MCP 独立 tag**（`v*` / `mcp-v*`）；打 tag 后由工作流发布资产。
+- MCP 镜像发布到 **GHCR**（GitHub Packages），不是 Docker Hub。
+
+完整步骤与资产清单见 [`docs/RELEASE.md`](./docs/RELEASE.md)。

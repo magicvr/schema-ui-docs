@@ -40,6 +40,7 @@ applies_to: schema-ui-protocol v2.1
 | [09-v1-release-goals.md](./09-v1-release-goals.md) | 前后端开发者 / 维护者 | `v1.0.0` 历史发布目标与门禁记录 |
 | [10-v2-release-goals.md](./10-v2-release-goals.md) | 前后端开发者 / 维护者 | `v2.0.0` 历史 MAJOR 发布目标与门禁 |
 | [12-v2.1-release-goals.md](./12-v2.1-release-goals.md) | 前后端开发者 / 维护者 | `v2.1.0` 当前 MINOR 发布目标与门禁 |
+| [RELEASE.md](./RELEASE.md) | 维护者 | 发布流程：main 只 CI、独立 tag、协议资产与 MCP GHCR |
 | [11-next-admin-lifecycle-goals.md](./11-next-admin-lifecycle-goals.md) | 前后端开发者 / 维护者 | Admin 生命周期后续轨道（P1+ 规划） |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |

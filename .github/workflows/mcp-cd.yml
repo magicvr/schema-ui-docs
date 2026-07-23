@@ -6,18 +6,22 @@ on:
       - 'mcp-v*'
   workflow_dispatch:
 
+# Protocol tags (v*) never trigger this workflow.
+# MCP images publish to GitHub Container Registry (ghcr.io), not Docker Hub.
+
 permissions:
   contents: read
+  packages: write
 
 jobs:
   build-and-push:
-    name: Build and push MCP Docker image
+    name: Build and push MCP image to GHCR
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
     env:
-      IMAGE_NAME: schema-ui-mcp
-      DOCKERHUB_REPOSITORY: ${{ secrets.DOCKER_USERNAME }}/schema-ui-mcp
+      # Local smoke image name (not pushed).
+      LOCAL_IMAGE_NAME: schema-ui-mcp
 
     steps:
       - name: Checkout
@@ -48,10 +52,11 @@ jobs:
         id: release-check
         run: npm run release:check:mcp:tag
 
-      - name: Compute Docker image tags
+      - name: Compute image repository and tags
         id: mcp-version
         env:
           RELEASE_VERSION: ${{ steps.release-check.outputs.mcp-version }}
+          OWNER: ${{ github.repository_owner }}
         shell: bash
         run: |
           node - <<'NODE'
@@ -60,17 +65,23 @@ jobs:
           const match = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(version);
           if (!match) throw new Error(`Unsupported release version: ${version}`);
 
-          const repository = process.env.DOCKERHUB_REPOSITORY;
+          // GHCR package names must be lowercase.
+          const owner = String(process.env.OWNER || '').toLowerCase();
+          if (!owner) throw new Error('Missing repository owner');
+          const repository = `ghcr.io/${owner}/schema-ui-mcp`;
+
           const tags = [
             `${repository}:${version}`,
             `${repository}:${process.env.GITHUB_SHA}`,
           ];
+          // Stable releases (no pre-release suffix) also update minor alias and latest.
           if (!match[4]) {
             tags.push(`${repository}:${match[1]}.${match[2]}`, `${repository}:latest`);
           }
 
           const output = process.env.GITHUB_OUTPUT;
           fs.appendFileSync(output, `version=${version}\n`);
+          fs.appendFileSync(output, `repository=${repository}\n`);
           fs.appendFileSync(output, `tags<<EOF\n${tags.join('\n')}\nEOF\n`);
           NODE
 
@@ -92,7 +103,10 @@ jobs:
           context: .
           file: mcp/Dockerfile
           load: true
-          tags: ${{ env.IMAGE_NAME }}:${{ steps.mcp-version.outputs.version }}
+          tags: ${{ env.LOCAL_IMAGE_NAME }}:${{ steps.mcp-version.outputs.version }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
             MCP_VERSION=${{ steps.mcp-version.outputs.version }}
             PROTOCOL_ARTIFACT_VERSION=${{ steps.release-check.outputs.protocol-version }}
@@ -101,15 +115,16 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Smoke test MCP Docker image
-        run: npm --prefix mcp run smoke:docker -- ${{ env.IMAGE_NAME }}:${{ steps.mcp-version.outputs.version }}
+        run: npm --prefix mcp run smoke:docker -- ${{ env.LOCAL_IMAGE_NAME }}:${{ steps.mcp-version.outputs.version }}
 
-      - name: Log in to DockerHub
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image to GHCR
         id: push-image
         uses: docker/build-push-action@v6
         with:
@@ -117,6 +132,10 @@ jobs:
           file: mcp/Dockerfile
           push: true
           tags: ${{ steps.mcp-version.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.description=Schema-UI MCP stdio server (protocol reader and validator)
           build-args: |
             MCP_VERSION=${{ steps.mcp-version.outputs.version }}
             PROTOCOL_ARTIFACT_VERSION=${{ steps.release-check.outputs.protocol-version }}
@@ -129,10 +148,11 @@ jobs:
           RELEASE_VERSION: ${{ steps.release-check.outputs.mcp-version }}
           PROTOCOL_CONTENT_DIGEST: ${{ steps.release-check.outputs.protocol-content-digest }}
           IMAGE_DIGEST: ${{ steps.push-image.outputs.digest }}
+          GHCR_REPOSITORY: ${{ steps.mcp-version.outputs.repository }}
         shell: bash
         run: |
-          VERSION_IMAGE="${DOCKERHUB_REPOSITORY}:${RELEASE_VERSION}"
-          SHA_IMAGE="${DOCKERHUB_REPOSITORY}:${GITHUB_SHA}"
+          VERSION_IMAGE="${GHCR_REPOSITORY}:${RELEASE_VERSION}"
+          SHA_IMAGE="${GHCR_REPOSITORY}:${GITHUB_SHA}"
           docker pull "${VERSION_IMAGE}"
           npm --prefix mcp run smoke:docker -- "${VERSION_IMAGE}"
           docker pull "${SHA_IMAGE}"
@@ -151,74 +171,15 @@ jobs:
           fi
 
           {
-            echo "## Release evidence"
+            echo "## MCP Release evidence (GHCR)"
             echo "- Version: \`${RELEASE_VERSION}\`"
             echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Image repository: \`${GHCR_REPOSITORY}\`"
             echo "- Bundled protocol content digest: \`${PROTOCOL_CONTENT_DIGEST}\`"
             echo "- Build digest: \`${IMAGE_DIGEST}\`"
             echo "- Remote image digest: \`${VERSION_DIGEST}\`"
+            echo "- Tags pushed: version, commit SHA; stable also minor + latest"
+            echo ""
+            echo "First public release: set the package visibility to **Public** under"
+            echo "GitHub → Packages → schema-ui-mcp → Package settings, so anonymous pull works."
           } >> "${GITHUB_STEP_SUMMARY}"
-
-      - name: Prune old SHA tags (keep latest 10)
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-          DOCKERHUB_REPOSITORY_NAME: schema-ui-mcp
-        shell: bash
-        run: |
-          LOGIN_RESPONSE=$(curl -s -X POST "https://hub.docker.com/v2/users/login/" \
-            -H "Content-Type: application/json" \
-            -d "{\"username\": \"${DOCKER_USERNAME}\", \"password\": \"${DOCKER_TOKEN}\"}")
-          TOKEN=$(echo "$LOGIN_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('token',''))")
-          if [ -z "$TOKEN" ]; then
-            echo "DockerHub login failed: $LOGIN_RESPONSE"
-            exit 1
-          fi
-
-          PAGE=1
-          SHA_TAGS=()
-          while true; do
-            RESPONSE=$(curl -s -H "Authorization: Bearer ${TOKEN}" \
-              "https://hub.docker.com/v2/repositories/${DOCKER_USERNAME}/${DOCKERHUB_REPOSITORY_NAME}/tags/?page=${PAGE}&page_size=100")
-            COUNT=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('results', [])))")
-            if [ "$COUNT" -eq "0" ]; then break; fi
-
-            TAGS=$(echo "$RESPONSE" | python3 -c "
-          import re, sys, json
-          d = json.load(sys.stdin)
-          sha_re = re.compile(r'^[0-9a-f]{40}$')
-          for r in d.get('results', []):
-              name = r['name']
-              updated = r.get('tag_last_pushed') or r.get('last_updated') or '1970-01-01T00:00:00Z'
-              if sha_re.match(name):
-                  print(updated + ' ' + name)
-          ")
-            while IFS= read -r line; do
-              [ -n "$line" ] && SHA_TAGS+=("$line")
-            done <<< "$TAGS"
-
-            NEXT=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('next') or '')")
-            [ -z "$NEXT" ] && break
-            PAGE=$((PAGE + 1))
-          done
-
-          SORTED=$(printf '%s\n' "${SHA_TAGS[@]}" | sort -r)
-          TO_DELETE=$(printf '%s\n' "$SORTED" | tail -n +11 | awk '{print $2}')
-
-          if [ -z "$TO_DELETE" ]; then
-            echo "No SHA tags to prune."
-            exit 0
-          fi
-
-          FAILED=0
-          while IFS= read -r TAG; do
-            echo "Deleting tag: ${TAG}"
-            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
-              -H "Authorization: Bearer ${TOKEN}" \
-              "https://hub.docker.com/v2/repositories/${DOCKER_USERNAME}/${DOCKERHUB_REPOSITORY_NAME}/tags/${TAG}/")
-            if [ "$HTTP_STATUS" != "204" ]; then
-              echo "Failed to delete tag ${TAG} (HTTP ${HTTP_STATUS})"
-              FAILED=1
-            fi
-          done <<< "$TO_DELETE"
-          exit $FAILED

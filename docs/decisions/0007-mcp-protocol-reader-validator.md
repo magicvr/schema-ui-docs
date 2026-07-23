@@ -162,22 +162,27 @@ MCP v1 使用 stdio transport。
 
 ### D8. Docker 镜像版本策略
 
+**正式分发 registry：GitHub Container Registry（`ghcr.io`）**，包名 `schema-ui-mcp`（`ghcr.io/<owner-lowercase>/schema-ui-mcp`）。不依赖 Docker Hub 作为默认发布目标。
+
 镜像 tag 使用 MCP 自身版本；`mcp/package.json.schemaUiProtocol` 另行声明捆绑的协议制品版本：
 
 ```text
-schema-ui-mcp:0.2.8
-schema-ui-mcp:0.2
-schema-ui-mcp:latest
+ghcr.io/<owner>/schema-ui-mcp:2.0.0
+ghcr.io/<owner>/schema-ui-mcp:2.0
+ghcr.io/<owner>/schema-ui-mcp:latest
+ghcr.io/<owner>/schema-ui-mcp:<git-sha>
 ```
 
 约定：
 
-- 文档示例必须使用 PATCH tag（如 `0.2.8`），避免工程师无意跟随 `latest` 升级；
-- `0.2` 可指向当前最新 `0.2.x`；
-- `latest` 可发布，但不作为接入示例；
+- 文档与生产接入示例必须使用完整 PATCH tag（如 `2.0.0`），避免工程师无意跟随 `latest` 升级；
+- `2.0` 可指向当前最新稳定 `2.0.x`；
+- `latest` 仅在**稳定** MCP 发布时更新，不作为接入示例；
+- 预发布只推完整版本 tag 与 commit SHA，不更新 minor / `latest`；
 - 只有 MCP 需要捆绑新协议制品或自身实现发生变化时才发布新镜像；
 - 镜像内置协议内容必须与 `schemaUiProtocol.artifactVersion` 对应的协议制品 digest 一致；
-- 协议使用 `v<version>` tag，MCP 使用 `mcp-v<version>` tag，两个发布流程互不替代。
+- 协议使用 `v<version>` tag，MCP 使用 `mcp-v<version>` tag，两个发布流程互不替代；
+- merge `main` 只跑 CI，不推镜像；不自动打 tag。完整流程见 [`docs/RELEASE.md`](../RELEASE.md)。
 
 ### D9. 安全与隐私边界
 
