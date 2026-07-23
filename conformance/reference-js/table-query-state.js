@@ -6,6 +6,14 @@ function entries(value) {
   return Object.entries(value || {});
 }
 
+function normalizeSelection(selection) {
+  if (!selection || typeof selection !== 'object') {
+    return { keys: [], count: 0 };
+  }
+  const keys = Array.isArray(selection.keys) ? [...selection.keys] : [];
+  return { keys, count: keys.length };
+}
+
 function applyTableQueryEvent(state, event) {
   if (event === null) return { ...state, filters: { ...state.filters } };
   switch (event.type) {
@@ -17,13 +25,47 @@ function applyTableQueryEvent(state, event) {
       return { ...state, page: event.page };
     case 'changeSort':
       return { ...state, page: 1, sort: event.sort };
+    case 'changePageSize':
+      return { ...state, page: 1, pageSize: event.pageSize };
+    case 'reloadSuccess':
+      return { ...state };
     default:
       throw new Error(`Unknown table query event: ${event.type}`);
   }
 }
 
+/** ADR-0022: any table query transition clears current-page selection. */
+function clearsSelection(event) {
+  return event !== null && event !== undefined;
+}
+
+function applySelectionEvent(selection, selectionEvent) {
+  let next = normalizeSelection(selection);
+  if (!selectionEvent) return next;
+  switch (selectionEvent.type) {
+    case 'setKeys':
+      next = {
+        keys: Array.isArray(selectionEvent.keys) ? [...selectionEvent.keys] : [],
+        count: 0,
+      };
+      next.count = next.keys.length;
+      return next;
+    case 'clear':
+      return { keys: [], count: 0 };
+    default:
+      throw new Error(`Unknown selection event: ${selectionEvent.type}`);
+  }
+}
+
 function buildTableQuery(input) {
   const state = applyTableQueryEvent(input.state, input.event);
+  let selection = normalizeSelection(input.selection);
+  if (clearsSelection(input.event)) {
+    selection = { keys: [], count: 0 };
+  }
+  if (input.selectionEvent) {
+    selection = applySelectionEvent(selection, input.selectionEvent);
+  }
   const rendererState = [
     ['page', state.page],
     ['pageSize', state.pageSize],
@@ -35,7 +77,12 @@ function buildTableQuery(input) {
     rendererState,
   ]);
   if (!serialized.ok) return serialized;
-  return { state, url: serialized.url };
+  const result = { state, url: serialized.url };
+  // Only surface selection when the fixture participates in selection (ADR-0022).
+  if (input.selection !== undefined || input.selectionEvent !== undefined) {
+    result.selection = selection;
+  }
+  return result;
 }
 
-module.exports = { applyTableQueryEvent, buildTableQuery };
+module.exports = { applyTableQueryEvent, applySelectionEvent, buildTableQuery, clearsSelection };

@@ -1017,6 +1017,175 @@
         "code": "UNBOUND_URL_TEMPLATE",
         "path": "action.url"
       }
+    },
+    {
+      "id": "batch-request-body-keys",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch-delete"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys",
+            "reason": "manual"
+          }
+        },
+        "selection": {
+          "keys": [
+            "ORD-1",
+            "ORD-2"
+          ],
+          "count": 2
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/api/orders/batch-delete",
+          "body": {
+            "orderIds": [
+              "ORD-1",
+              "ORD-2"
+            ],
+            "reason": "manual"
+          }
+        },
+        "selectionAfterSuccessReload": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "batch-request-empty-selection-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch-delete"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [],
+          "count": 0
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EMPTY_SELECTION",
+        "path": "selection"
+      }
+    },
+    {
+      "id": "batch-request-keys-in-query-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch"
+        },
+        "batchMapping": {
+          "query": {
+            "ids": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "a"
+          ],
+          "count": 1
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "SELECTION_KEYS_BODY_ONLY",
+        "path": "batchMapping.query.ids"
+      }
+    },
+    {
+      "id": "batch-request-delete-with-body",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "DELETE",
+          "url": "/api/orders/batch"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys"
+          },
+          "query": {
+            "count": "$selection.count"
+          }
+        },
+        "selection": {
+          "keys": [
+            101,
+            102
+          ],
+          "count": 2
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "DELETE",
+          "url": "/api/orders/batch?count=2",
+          "body": {
+            "orderIds": [
+              101,
+              102
+            ]
+          }
+        },
+        "selectionAfterSuccessReload": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "batch-request-get-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "GET",
+          "url": "/api/orders/batch"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "a"
+          ],
+          "count": 1
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "PAGE_TRIGGER_METHOD_NOT_ALLOWED",
+        "path": "action.method"
+      }
     }
   ]
 }

@@ -1124,13 +1124,131 @@ function validateRowNavigateAction(rowAction, rowActionPath, actionDef, actionPa
   }
 }
 
-function validateActionTrigger(trigger, triggerPath, actions, violations) {
+const SELECTION_KEYS = '$selection.keys';
+const SELECTION_COUNT = '$selection.count';
+
+function validateBatchMappingValues(mappingSection, sectionPath, sectionName, violations) {
+  if (mappingSection === undefined) return;
+  if (!isPlainObject(mappingSection)) {
+    violations.push({ path: sectionPath, message: 'batchMapping 的 path/query/body 必须是对象' });
+    return;
+  }
+  for (const [mappingKey, mappingValue] of Object.entries(mappingSection)) {
+    const valuePath = `${sectionPath}.${mappingKey}`;
+    if (mappingKey.length === 0 || !isValidUnicodeScalarString(mappingKey)) {
+      violations.push({ path: valuePath, message: 'batchMapping key 必须是非空且合法的 Unicode scalar 字符串' });
+    }
+    if (mappingValue === SELECTION_KEYS) {
+      if (sectionName !== 'body') {
+        violations.push({
+          path: valuePath,
+          message: '$selection.keys 仅允许作为 batchMapping.body 某字段的整值（ADR-0022 OQ-22-2）',
+        });
+      }
+      continue;
+    }
+    if (mappingValue === SELECTION_COUNT) {
+      if (sectionName === 'path') {
+        violations.push({
+          path: valuePath,
+          message: '$selection.count 不得用于 batchMapping.path',
+        });
+      }
+      continue;
+    }
+    const valueType = mappingValue === null ? 'null' : Array.isArray(mappingValue) ? 'array' : typeof mappingValue;
+    if (!['string', 'number', 'boolean', 'null'].includes(valueType)
+      || (typeof mappingValue === 'number' && !Number.isFinite(mappingValue))) {
+      violations.push({
+        path: valuePath,
+        message: `batchMapping 值只能是字面量、$selection.keys（仅 body）或 $selection.count（query/body），实际为 ${valueType}`,
+      });
+      continue;
+    }
+    if (typeof mappingValue === 'string' && mappingValue.includes('$')) {
+      violations.push({
+        path: valuePath,
+        message: 'batchMapping 字符串中含 $ 时必须整段为 $selection.keys 或 $selection.count；禁止模板拼接与其它变量',
+      });
+    }
+  }
+}
+
+function validateBatchMapping(trigger, triggerPath, actionDef, actionRef, violations) {
+  const mapping = trigger.batchMapping;
+  if (!isPlainObject(mapping)) {
+    violations.push({ path: `${triggerPath}.batchMapping`, message: 'batchMapping 必须是对象' });
+    return;
+  }
+  if (actionDef.type !== 'request') {
+    violations.push({
+      path: `${triggerPath}.batchMapping`,
+      message: 'batchMapping 仅可用于 actionRef 指向 type: request 的 Trigger',
+    });
+    return;
+  }
+  if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(actionDef.method)) {
+    violations.push({
+      path: `${triggerPath}.actionRef`,
+      message: `批量 request 不得使用 method "${actionDef.method}"；仅允许 POST/PUT/PATCH/DELETE`,
+    });
+  }
+  const hasAny = ['path', 'query', 'body'].some(
+    section => isPlainObject(mapping[section]) && Object.keys(mapping[section]).length > 0,
+  );
+  if (!hasAny) {
+    violations.push({
+      path: `${triggerPath}.batchMapping`,
+      message: 'batchMapping 必须至少声明非空 path、query 或 body 之一',
+    });
+  }
+  validateBatchMappingValues(mapping.path, `${triggerPath}.batchMapping.path`, 'path', violations);
+  validateBatchMappingValues(mapping.query, `${triggerPath}.batchMapping.query`, 'query', violations);
+  validateBatchMappingValues(mapping.body, `${triggerPath}.batchMapping.body`, 'body', violations);
+  if (actionDef.url !== undefined) {
+    validateProtocolUrl(actionDef.url, `actions.${actionRef}.url`, violations);
+    validatePathPlaceholderBinding(
+      actionDef.url,
+      mapping.path,
+      `${triggerPath}.batchMapping.path`,
+      `actions.${actionRef}`,
+      violations,
+    );
+  }
+}
+
+/**
+ * @param {object} options
+ * @param {boolean} [options.tableToolbar] - Trigger is on table.toolbar
+ * @param {boolean} [options.hasTableSelection] - parent table declares selection
+ */
+function validateActionTrigger(trigger, triggerPath, actions, violations, options = {}) {
+  const tableToolbar = options.tableToolbar === true;
+  const hasTableSelection = options.hasTableSelection === true;
   if (!isPlainObject(trigger)) return;
   if (typeof trigger.key !== 'string' || trigger.key.length === 0) {
     violations.push({ path: `${triggerPath}.key`, message: 'ActionTrigger.key 必填且必须为非空字符串' });
   }
   if (trigger.label === undefined && trigger.labelKey === undefined) {
     violations.push({ path: triggerPath, message: 'ActionTrigger 必须提供 label 或 labelKey' });
+  }
+  if (trigger.requiresSelection === true && !tableToolbar) {
+    violations.push({
+      path: `${triggerPath}.requiresSelection`,
+      message: 'requiresSelection 仅允许在 table.props.toolbar 上声明（ADR-0022）',
+    });
+  }
+  if (trigger.requiresSelection === true && tableToolbar && !hasTableSelection) {
+    violations.push({
+      path: `${triggerPath}.requiresSelection`,
+      message: 'requiresSelection: true 要求同一 table 声明 props.selection（ADR-0022）',
+    });
+  }
+  if (trigger.batchMapping !== undefined && !tableToolbar) {
+    violations.push({
+      path: `${triggerPath}.batchMapping`,
+      message: 'batchMapping 仅允许在 table.props.toolbar 上声明（ADR-0022）',
+    });
   }
   const actionRef = trigger.actionRef;
   if (typeof actionRef !== 'string') {
@@ -1150,6 +1268,10 @@ function validateActionTrigger(trigger, triggerPath, actions, violations) {
       path: `${triggerPath}.actionRef`,
       message: `ActionTrigger.actionRef 仅可引用 type: request|navigate|modal，当前为 "${actionDef.type}"`,
     });
+    return;
+  }
+  if (trigger.batchMapping !== undefined) {
+    validateBatchMapping(trigger, triggerPath, actionDef, actionRef, violations);
     return;
   }
   if (actionDef.type === 'request') {
@@ -1240,6 +1362,15 @@ function validateRowActionRefs(doc, violations) {
     if (!node || typeof node !== 'object') return;
 
     if (node.type === 'table' && node.props) {
+      const hasTableSelection = isPlainObject(node.props.selection);
+      if (node.props.selection !== undefined) {
+        if (!isPlainObject(node.props.selection) || node.props.selection.mode !== 'multiple') {
+          violations.push({
+            path: `${nodePath}.props.selection.mode`,
+            message: 'table.props.selection.mode 仅允许 "multiple"（ADR-0022）',
+          });
+        }
+      }
       if (Array.isArray(node.props.toolbar)) {
         const toolbarKeys = new Set();
         node.props.toolbar.forEach((trigger, index) => {
@@ -1253,7 +1384,10 @@ function validateRowActionRefs(doc, violations) {
             }
             toolbarKeys.add(trigger.key);
           }
-          validateActionTrigger(trigger, triggerPath, actions, violations);
+          validateActionTrigger(trigger, triggerPath, actions, violations, {
+            tableToolbar: true,
+            hasTableSelection,
+          });
         });
       }
 
@@ -1704,8 +1838,27 @@ function validateRequiredCapabilities(doc, violations) {
       requireCapability('form.record.load', `${nodePath}.props.recordSource`, 'form.props.recordSource');
     }
     if (node.type === 'table' && node.props) {
+      if (node.props.selection !== undefined) {
+        requireCapability('table.selection', `${nodePath}.props.selection`, 'table.props.selection');
+      }
       if (Array.isArray(node.props.toolbar) && node.props.toolbar.length > 0) {
         requireCapability('actions.page.trigger', `${nodePath}.props.toolbar`, 'table.props.toolbar');
+        node.props.toolbar.forEach((trigger, index) => {
+          if (trigger && trigger.batchMapping !== undefined) {
+            requireCapability(
+              'actions.batch.request',
+              `${nodePath}.props.toolbar[${index}].batchMapping`,
+              'toolbar batchMapping',
+            );
+          }
+          if (trigger && trigger.requiresSelection === true) {
+            requireCapability(
+              'table.selection',
+              `${nodePath}.props.toolbar[${index}].requiresSelection`,
+              'toolbar requiresSelection',
+            );
+          }
+        });
       }
       if (Array.isArray(node.props.actions)) {
         const actions = isPlainObject(doc.actions) ? doc.actions : {};

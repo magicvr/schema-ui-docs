@@ -7,6 +7,7 @@
 
 ## Unreleased
 
+- **ADR-0022 accepted（capability 门控，目标 2.2 制品）：** `table.selection`（当前页多选）+ toolbar `batchMapping` / `requiresSelection`（`actions.batch.request`）。Schema、L2、request-construction / search-table / version-negotiation fixtures 与 JS/Python reference 已同步。跨页全选与权限继承不在本 ADR。
 - 发布流程：明确 **merge `main` 只 CI、不发资产、不自动打 tag**；协议 `v*` 与 MCP `mcp-v*` **独立 tag**。见 [`RELEASE.md`](./RELEASE.md)。
 - MCP CD：镜像发布目标从 Docker Hub 改为 **GitHub Container Registry**（`ghcr.io/<owner>/schema-ui-mcp`，稳定版含 `latest` / minor 别名）。工作流见仓库 `.github/workflows/mcp-cd.yml`；使用说明见 `docs/mcp/README.md`（二者不进协议制品包）。
 - 协议 Release：notes 优先摘录 `CHANGELOG` 对应版本节，并附 content/fixture digests。

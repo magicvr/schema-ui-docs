@@ -182,6 +182,28 @@ actions:
 
 编辑表单通过 `form.props.recordSource` 在挂载时 GET 记录并回填，见 [03-component-registry.md](./03-component-registry.md) 与 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md)。提交仍使用本节 `request` + `bodyMapping` 与表单提交投影，不经 `recordSource`。
 
+### 3.5 批量请求绑定（since 2.2 / ADR-0022）
+
+`table.props.toolbar[]` 上的 ActionTrigger 可声明 `batchMapping`，将**当前页选中键**绑定到 `type: request` action。使用时声明 `actions.batch.request`（及通常的 `table.selection` + `actions.page.trigger`）。
+
+```yaml
+batchMapping:
+  body:
+    orderIds: $selection.keys   # 仅 body 整值
+  query:
+    count: $selection.count     # 可选标量
+```
+
+规则摘要：
+
+- 选中数为 0 时不发请求；`requiresSelection: true` 时按钮 disabled。  
+- `$selection.keys` **仅 body**；path 仅字面量。  
+- method：POST/PUT/PATCH/DELETE（含 DELETE+body）；禁止 GET。  
+- 一次点击 = 一次 HTTP；成功 `reload` 清空选中。  
+- 筛选/翻页/排序/reload 清空选中（ADR-0022 D2）。
+
+完整规则见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md)。
+
 ## 4. `navigate` 类型
 
 ```yaml

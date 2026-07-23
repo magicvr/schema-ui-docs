@@ -293,6 +293,77 @@ function buildPageTriggerRequest(input) {
   };
 }
 
+function resolveBatchMappingValue(configuredValue, selection, fieldPath) {
+  if (configuredValue === '$selection.keys') {
+    return { ok: true, value: [...(selection.keys || [])] };
+  }
+  if (configuredValue === '$selection.count') {
+    return { ok: true, value: selection.count };
+  }
+  if (typeof configuredValue === 'string' && configuredValue.includes('$')) {
+    return failure('INVALID_MAPPING_VALUE', fieldPath);
+  }
+  if (!isScalar(configuredValue)) {
+    return failure('INVALID_MAPPING_VALUE', fieldPath);
+  }
+  return { ok: true, value: configuredValue };
+}
+
+function resolveBatchSection(mappingSection, selection, sectionName) {
+  const output = [];
+  for (const [key, configuredValue] of Object.entries(mappingSection || {})) {
+    const fieldPath = `batchMapping.${sectionName}.${key}`;
+    if (configuredValue === '$selection.keys' && sectionName !== 'body') {
+      return failure('SELECTION_KEYS_BODY_ONLY', fieldPath);
+    }
+    if (configuredValue === '$selection.count' && sectionName === 'path') {
+      return failure('INVALID_MAPPING_VALUE', fieldPath);
+    }
+    const resolved = resolveBatchMappingValue(configuredValue, selection, fieldPath);
+    if (!resolved.ok) return resolved;
+    output.push([key, resolved.value]);
+  }
+  return { ok: true, entries: output };
+}
+
+function buildBatchRequest(input) {
+  const keys = Array.isArray(input.selection?.keys) ? input.selection.keys : [];
+  const count = input.selection?.count !== undefined ? input.selection.count : keys.length;
+  const selection = { keys, count };
+  if (keys.length === 0 || count === 0) {
+    return failure('EMPTY_SELECTION', 'selection');
+  }
+  const method = input.action.method;
+  if (!PAGE_TRIGGER_METHODS.has(method)) {
+    return failure('PAGE_TRIGGER_METHOD_NOT_ALLOWED', 'action.method');
+  }
+  const urlError = validateProtocolUrl(input.action.url, 'action.url');
+  if (urlError) return urlError;
+  const mapping = input.batchMapping || {};
+  const pathValues = resolveBatchSection(mapping.path, selection, 'path');
+  if (!pathValues.ok) return pathValues;
+  const queryValues = resolveBatchSection(mapping.query, selection, 'query');
+  if (!queryValues.ok) return queryValues;
+  const bodyValues = resolveBatchSection(mapping.body, selection, 'body');
+  if (!bodyValues.ok) return bodyValues;
+  const withPath = applyPathParams(input.action.url, pathValues.entries, 'batchMapping.path');
+  if (!withPath.ok) return withPath;
+  const serialized = serializeQuery(withPath.url, [queryValues.entries]);
+  if (!serialized.ok) return serialized;
+  const metadata = requestMetadata(input.action, input.invocationId);
+  if (!metadata.ok) return metadata;
+  const body = bodyValues.entries.length === 0 ? null : Object.fromEntries(bodyValues.entries);
+  return {
+    ok: true,
+    request: addRequestMetadata({
+      method,
+      url: serialized.url,
+      body,
+    }, metadata),
+    selectionAfterSuccessReload: { keys: [], count: 0 },
+  };
+}
+
 function buildFormActionRequest(input) {
   const method = input.action.method;
   const urlError = validateProtocolUrl(input.action.url, 'action.url');
@@ -340,6 +411,7 @@ function buildRequest(input) {
   if (input.kind === 'rowNavigate') return buildRowNavigate(input);
   if (input.kind === 'recordSource') return buildRecordSourceRequest(input);
   if (input.kind === 'pageTriggerRequest') return buildPageTriggerRequest(input);
+  if (input.kind === 'batchRequest') return buildBatchRequest(input);
   if (input.kind === 'formAction') return buildFormActionRequest(input);
   return failure('INVALID_REQUEST_KIND', 'kind');
 }

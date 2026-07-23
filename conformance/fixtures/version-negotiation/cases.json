@@ -541,6 +541,74 @@
         ],
         "missingCapabilities": []
       }
+    },
+    {
+      "id": "supported-batch-capabilities",
+      "protocolVersion": "2.1",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.1",
+          "requiredCapabilities": [
+            "table.selection",
+            "actions.batch.request",
+            "actions.page.trigger"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.1"
+          ],
+          "supportedCapabilities": [
+            "table.selection",
+            "actions.batch.request",
+            "actions.page.trigger",
+            "actions.row.request"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.1",
+        "supportedVersions": [
+          "2.1"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "missing-batch-capability",
+      "protocolVersion": "2.1",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.1",
+          "requiredCapabilities": [
+            "table.selection",
+            "actions.batch.request"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.1"
+          ],
+          "supportedCapabilities": [
+            "table.selection"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "MISSING_REQUIRED_CAPABILITY",
+        "pageVersion": "2.1",
+        "supportedVersions": [
+          "2.1"
+        ],
+        "missingCapabilities": [
+          "actions.batch.request"
+        ]
+      }
     }
   ]
 }

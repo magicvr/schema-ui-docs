@@ -307,6 +307,78 @@ def build_page_trigger_request(input_value):
     return {"ok": True, "request": request}
 
 
+def resolve_batch_mapping_value(configured_value, selection, field_path):
+    if configured_value == "$selection.keys":
+        return {"ok": True, "value": list(selection.get("keys") or [])}
+    if configured_value == "$selection.count":
+        return {"ok": True, "value": selection.get("count", 0)}
+    if isinstance(configured_value, str) and "$" in configured_value:
+        return failure("INVALID_MAPPING_VALUE", field_path)
+    if not is_scalar(configured_value):
+        return failure("INVALID_MAPPING_VALUE", field_path)
+    return {"ok": True, "value": configured_value}
+
+
+def resolve_batch_section(mapping_section, selection, section_name):
+    output = []
+    for key, configured_value in (mapping_section or {}).items():
+        field_path = f"batchMapping.{section_name}.{key}"
+        if configured_value == "$selection.keys" and section_name != "body":
+            return failure("SELECTION_KEYS_BODY_ONLY", field_path)
+        if configured_value == "$selection.count" and section_name == "path":
+            return failure("INVALID_MAPPING_VALUE", field_path)
+        resolved = resolve_batch_mapping_value(configured_value, selection, field_path)
+        if not resolved["ok"]:
+            return resolved
+        output.append([key, resolved["value"]])
+    return {"ok": True, "entries": output}
+
+
+def build_batch_request(input_value):
+    keys = list((input_value.get("selection") or {}).get("keys") or [])
+    count = (input_value.get("selection") or {}).get("count", len(keys))
+    selection = {"keys": keys, "count": count}
+    if len(keys) == 0 or count == 0:
+        return failure("EMPTY_SELECTION", "selection")
+    action = input_value["action"]
+    method = action.get("method")
+    if method not in PAGE_TRIGGER_METHODS:
+        return failure("PAGE_TRIGGER_METHOD_NOT_ALLOWED", "action.method")
+    url_error = validate_protocol_url(action["url"], "action.url")
+    if url_error:
+        return url_error
+    mapping = input_value.get("batchMapping") or {}
+    path_values = resolve_batch_section(mapping.get("path"), selection, "path")
+    if not path_values["ok"]:
+        return path_values
+    query_values = resolve_batch_section(mapping.get("query"), selection, "query")
+    if not query_values["ok"]:
+        return query_values
+    body_values = resolve_batch_section(mapping.get("body"), selection, "body")
+    if not body_values["ok"]:
+        return body_values
+    with_path = apply_path_params(action["url"], path_values["entries"], "batchMapping.path")
+    if not with_path["ok"]:
+        return with_path
+    serialized = serialize_query(with_path["url"], [query_values["entries"]])
+    if not serialized["ok"]:
+        return serialized
+    metadata = request_metadata(action, input_value.get("invocationId"))
+    if not metadata["ok"]:
+        return metadata
+    body = dict(body_values["entries"]) if body_values["entries"] else None
+    request = add_request_metadata({
+        "method": method,
+        "url": serialized["url"],
+        "body": body,
+    }, metadata)
+    return {
+        "ok": True,
+        "request": request,
+        "selectionAfterSuccessReload": {"keys": [], "count": 0},
+    }
+
+
 def build_form_action_request(input_value):
     action = input_value["action"]
     url_error = validate_protocol_url(action["url"], "action.url")
@@ -367,6 +439,8 @@ def build_request(input_value):
         return build_record_source_request(input_value)
     if input_value.get("kind") == "pageTriggerRequest":
         return build_page_trigger_request(input_value)
+    if input_value.get("kind") == "batchRequest":
+        return build_batch_request(input_value)
     if input_value.get("kind") == "formAction":
         return build_form_action_request(input_value)
     return failure("INVALID_REQUEST_KIND", "kind")

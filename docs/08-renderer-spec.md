@@ -308,6 +308,8 @@ Renderer 不自动发现、选择或串联 adapter。本协议只定义 adapter 
 | `actions.page.trigger` | `actionButton` / `table.props.toolbar` 页面级动作入口 | ADR-0020 |
 | `actions.row.navigate` | 行级 `type: navigate` + `navigateMapping` | ADR-0021 |
 | `form.record.load` | `form.props.recordSource` 记录加载回填 | ADR-0021 |
+| `table.selection` | `table.props.selection` 当前页多选 | ADR-0022 |
+| `actions.batch.request` | toolbar `batchMapping` 批量 request | ADR-0022 |
 
 ### 3.5 协商结果与错误信息格式
 

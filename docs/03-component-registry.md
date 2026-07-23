@@ -155,7 +155,8 @@ data:
 | `pagination.pageSize` | integer | server 模式必填 | 服务端分页首次请求使用的正整数页大小；client/none 模式不使用 |
 | `columns` | array\<ColumnDef\> | 是 | 列定义，见下 |
 | `actions` | array\<RowAction\> | 否 | 行内操作，见下 |
-| `toolbar` | array\<ActionTrigger\> | 否（since 2.1 / ADR-0020） | 表格工具栏入口；使用时声明 `meta.requiredCapabilities: [actions.page.trigger]`；结构见下方 ActionTrigger |
+| `selection` | object | 否（since 2.2 / ADR-0022） | 多选；`mode: multiple`（MVP 唯一值）；使用时声明 `table.selection`；当前页选中，筛选/翻页/排序/reload 清空 |
+| `toolbar` | array\<ActionTrigger\> | 否（since 2.1 / ADR-0020） | 表格工具栏入口；使用时声明 `actions.page.trigger`；可含 `requiresSelection` / `batchMapping`（ADR-0022） |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 **ColumnDef：**
@@ -196,9 +197,11 @@ data:
 | `actionRef` | string | 是 | 引用顶层 `request` \| `navigate` \| `modal`；禁止 `upload`/`custom` |
 | `confirm` | string | 否 | 二次确认 |
 | `disabled` | boolean | 否 | 静态禁用 |
+| `requiresSelection` | boolean | 否（since 2.2） | 仅 `table.toolbar`；`true` 时选中数为 0 则 disabled；要求同 table 有 `selection` |
+| `batchMapping` | object | 否（since 2.2） | 仅 `table.toolbar` + `type: request`；`body` 可用 `$selection.keys`；见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md) / [07 §3.5](./07-actions-contract.md#35-批量请求绑定since-22-adr-0022) |
 | `visibleWhen` / `permissions` | object | 否 | toolbar 项上 `visibleWhen` 仅 `$context.*`；`actionButton` 作 Node 时遵循普通 Node 规则 |
 
-页面级 Trigger 触发的 `request` **禁止 GET**（仅 POST/PUT/PATCH/DELETE）。完整规则见 [ADR-0020](./decisions/0020-page-action-trigger.md)。
+页面级 Trigger 触发的 `request` **禁止 GET**（仅 POST/PUT/PATCH/DELETE）。完整规则见 [ADR-0020](./decisions/0020-page-action-trigger.md)。批量见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md)。
 
 **作用域说明（since 0.2.1）：** 列/操作内的 `visibleWhen`/`reactions` 可通过 `scope` 属性声明求值作用域；`permissions` 固定仅允许 `$context.*`，不参与 `scope` 语义：
 - `scope: form`（默认）：表达式在表单级求值，可访问 `$deps.*`（表单字段），不可访问 `$row.*`。**注意：仅当表格本身位于 `form.children` 内（如搜索表单嵌入表格场景）时，`$deps.*` 才合法；独立表格的列/操作中即使声明 `scope: form`，`$deps.*` 仍被静态校验拒绝（见 [02-reaction-expression.md §9.1](./02-reaction-expression.md#91-作用域隔离规则)）。

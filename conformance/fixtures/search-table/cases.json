@@ -167,6 +167,134 @@
         },
         "url": "/orders?keyword=invoice&page=1&pageSize=20&sort=createdAt%3Aasc"
       }
+    },
+    {
+      "id": "selection-cleared-on-change-page",
+      "protocolVersion": "2.1",
+      "category": "search-table",
+      "input": {
+        "baseUrl": "/api/orders",
+        "staticParams": {},
+        "state": {
+          "filters": {
+            "status": "PAID"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [
+            "ORD-1",
+            "ORD-2"
+          ],
+          "count": 2
+        },
+        "event": {
+          "type": "changePage",
+          "page": 2
+        }
+      },
+      "expected": {
+        "state": {
+          "filters": {
+            "status": "PAID"
+          },
+          "page": 2,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/api/orders?page=2&pageSize=20&status=PAID",
+        "selection": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "selection-cleared-on-submit-search",
+      "protocolVersion": "2.1",
+      "category": "search-table",
+      "input": {
+        "baseUrl": "/api/orders",
+        "staticParams": {},
+        "state": {
+          "filters": {},
+          "page": 3,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [
+            "ORD-9"
+          ],
+          "count": 1
+        },
+        "event": {
+          "type": "submitSearch",
+          "filters": {
+            "keyword": "x"
+          }
+        }
+      },
+      "expected": {
+        "state": {
+          "filters": {
+            "keyword": "x"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/api/orders?keyword=x&page=1&pageSize=20",
+        "selection": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "selection-set-keys-without-table-event",
+      "protocolVersion": "2.1",
+      "category": "search-table",
+      "input": {
+        "baseUrl": "/api/orders",
+        "staticParams": {},
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [],
+          "count": 0
+        },
+        "event": null,
+        "selectionEvent": {
+          "type": "setKeys",
+          "keys": [
+            "A",
+            "B"
+          ]
+        }
+      },
+      "expected": {
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/api/orders?page=1&pageSize=20",
+        "selection": {
+          "keys": [
+            "A",
+            "B"
+          ],
+          "count": 2
+        }
+      }
     }
   ]
 }
