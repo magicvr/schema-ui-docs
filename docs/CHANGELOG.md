@@ -7,7 +7,7 @@
 
 ## Unreleased
 
-（无）
+- 发布纪律：MCP **MAJOR.MINOR** 与协议产品线对齐（如协议 `2.4` → MCP `2.4.x`），**PATCH 独立**；协议 MINOR/MAJOR 后须跟发 MCP 镜像（内置协议，不运行时拉取）。`release:check:mcp` 强制线对齐；MCP 升至 `2.4.0` 捆绑协议 `2.4.0`。见 [`RELEASE.md`](./RELEASE.md) §2。
 
 ## v2.4.0 — 2026-07-24（标准只读详情 recordView）
 
