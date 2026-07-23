@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-16
-applies_to: schema-ui-protocol v2.0
+last_updated: 2026-07-23
+applies_to: schema-ui-protocol v2.1
 ---
 
 # Schema-Driven UI 协议总纲
@@ -38,7 +38,10 @@ applies_to: schema-ui-protocol v2.0
 | [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
 | [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
 | [09-v1-release-goals.md](./09-v1-release-goals.md) | 前后端开发者 / 维护者 | `v1.0.0` 历史发布目标与门禁记录 |
-| [10-v2-release-goals.md](./10-v2-release-goals.md) | 前后端开发者 / 维护者 | `v2.0.0` 当前收敛目标与发布门禁 |
+| [10-v2-release-goals.md](./10-v2-release-goals.md) | 前后端开发者 / 维护者 | `v2.0.0` 历史 MAJOR 发布目标与门禁 |
+| [12-v2.1-release-goals.md](./12-v2.1-release-goals.md) | 前后端开发者 / 维护者 | `v2.1.0` 当前 MINOR 发布目标与门禁 |
+| [RELEASE.md](./RELEASE.md) | 维护者 | 发布流程：main 只 CI、独立 tag、协议资产与 MCP GHCR |
+| [11-next-admin-lifecycle-goals.md](./11-next-admin-lifecycle-goals.md) | 前后端开发者 / 维护者 | Admin 生命周期后续轨道（P1+ 规划） |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
 | `audit/` | 维护者 | 非协议制品的过程记录；完成结论应沉淀到规范、ADR、迁移或 CHANGELOG |
@@ -51,7 +54,8 @@ applies_to: schema-ui-protocol v2.0
 - 想扩展协议、新增字段 → 先读 `decisions/`，确认没有历史上被否决过的类似方案。
 - 查阅历史审计证据 → 查看 `audit/`；它不是协议权威来源，也不进入协议制品。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`。
-- 维护或发布 `v2.0.0` → 对照 `10-v2-release-goals.md` 的门禁与完成定义；`09-v1-release-goals.md` 仅保留 v1.0.0 历史证据。
+- 维护或发布 `v2.1.0` → 对照 `12-v2.1-release-goals.md`；`10-v2-release-goals.md` / `09-v1-release-goals.md` 为历史 MAJOR 证据。
+- 规划批量等后续 Admin 能力 → 读 `11-next-admin-lifecycle-goals.md`；P0 已落地见 ADR-0020 / 0021。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
 
@@ -81,10 +85,12 @@ applies_to: schema-ui-protocol v2.0
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v2.0.0`，页面通过 `meta.protocolVersion: "2.0"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。发布门禁见 [10-v2-release-goals.md](./10-v2-release-goals.md)。
+当前协议版本：`v2.1.0`，页面通过 `meta.protocolVersion: "2.1"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.1 发布门禁见 [12-v2.1-release-goals.md](./12-v2.1-release-goals.md)；从 2.0 升级见 [migrations/2.0-to-2.1.md](./migrations/2.0-to-2.1.md)。
 
-PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。
+PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。
 
-本协议场景示例覆盖：网格布局、数据表格、表单联动、表格行级后端动作、搜索表单筛选表格、文件上传。后续新增场景类型时，
+**Admin 生命周期 P0**（页面工具栏、行级导航、编辑回填）已由 [ADR-0020](./decisions/0020-page-action-trigger.md) / [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 接受，并以 capability 门控方式进入规范；未使用新字段的页面行为不变。后续批量/权限继承等见 [11-next-admin-lifecycle-goals.md](./11-next-admin-lifecycle-goals.md)。
+
+本协议场景示例覆盖：网格布局、数据表格、表单联动、表格行级后端动作、搜索表单筛选表格、文件上传、列表编辑闭环（扩展示例）。后续新增场景类型时，
 应遵循同一套 Node 结构（`type`/`props`/`data`/`children`/`reactions`），
 不应引入平行的、结构不一致的新概念。如需引入新概念，请先在 `decisions/` 下补充 ADR。

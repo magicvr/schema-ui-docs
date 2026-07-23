@@ -4,30 +4,59 @@
   "cases": [
     {
       "id": "network-page-requires-base-url",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "runtime-defaults",
-      "input": { "kind": "requestConfig", "requiresNetwork": true },
-      "expected": { "ok": false, "code": "MISSING_BASE_URL" }
+      "input": {
+        "kind": "requestConfig",
+        "requiresNetwork": true
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_BASE_URL"
+      }
     },
     {
       "id": "static-page-does-not-require-base-url",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "runtime-defaults",
-      "input": { "kind": "requestConfig", "requiresNetwork": false },
-      "expected": { "ok": true }
+      "input": {
+        "kind": "requestConfig",
+        "requiresNetwork": false
+      },
+      "expected": {
+        "ok": true
+      }
     },
     {
       "id": "data-ref-method-default-materialized",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "runtime-defaults",
-      "input": { "kind": "defaults", "target": "dataRef", "value": { "url": "/orders" } },
-      "expected": { "ok": true, "value": { "url": "/orders", "method": "GET" } }
+      "input": {
+        "kind": "defaults",
+        "target": "dataRef",
+        "value": {
+          "url": "/orders"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "value": {
+          "url": "/orders",
+          "method": "GET"
+        }
+      }
     },
     {
       "id": "upload-defaults-materialized",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "runtime-defaults",
-      "input": { "kind": "defaults", "target": "uploadAction", "value": { "url": "/upload" } },
+      "input": {
+        "kind": "defaults",
+        "target": "uploadAction",
+        "value": {
+          "url": "/upload"
+        }
+      },
       "expected": {
         "ok": true,
         "value": {
@@ -41,29 +70,45 @@
     },
     {
       "id": "missing-required-prop-is-invalid-component",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "runtime-defaults",
       "input": {
         "kind": "component",
         "type": "statCard",
-        "installedTypes": ["statCard"],
-        "requiredProps": ["label", "valueField"],
-        "props": { "label": "Orders" }
+        "installedTypes": [
+          "statCard"
+        ],
+        "requiredProps": [
+          "label",
+          "valueField"
+        ],
+        "props": {
+          "label": "Orders"
+        }
       },
-      "expected": { "ok": false, "code": "INVALID_COMPONENT", "path": "props.valueField" }
+      "expected": {
+        "ok": false,
+        "code": "INVALID_COMPONENT",
+        "path": "props.valueField"
+      }
     },
     {
       "id": "uninstalled-extension-is-unknown-component",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "runtime-defaults",
       "input": {
         "kind": "component",
         "type": "vendor.auditWidget",
-        "installedTypes": ["table"],
+        "installedTypes": [
+          "table"
+        ],
         "requiredProps": [],
         "props": {}
       },
-      "expected": { "ok": false, "code": "UNKNOWN_COMPONENT_TYPE" }
+      "expected": {
+        "ok": false,
+        "code": "UNKNOWN_COMPONENT_TYPE"
+      }
     }
   ]
 }

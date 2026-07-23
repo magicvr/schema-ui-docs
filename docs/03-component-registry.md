@@ -2,7 +2,7 @@
 status: living-document
 owner: 前端组件库团队
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.0
+applies_to: schema-ui-protocol v2.1
 ---
 
 # 组件类型（type）注册表
@@ -155,6 +155,7 @@ data:
 | `pagination.pageSize` | integer | server 模式必填 | 服务端分页首次请求使用的正整数页大小；client/none 模式不使用 |
 | `columns` | array\<ColumnDef\> | 是 | 列定义，见下 |
 | `actions` | array\<RowAction\> | 否 | 行内操作，见下 |
+| `toolbar` | array\<ActionTrigger\> | 否（since 2.1 / ADR-0020） | 表格工具栏入口；使用时声明 `meta.requiredCapabilities: [actions.page.trigger]`；结构见下方 ActionTrigger |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
 **ColumnDef：**
@@ -174,8 +175,9 @@ data:
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
 | `key` | string | 是 | 操作标识；仅供前端识别行内操作类型，不引用顶层 `actions` |
-| `actionRef` | string | 否（since 0.2.7） | 引用顶层 `actions` 中的 `type: request` action，用于声明式行级后端请求；使用时页面必须声明 `meta.requiredCapabilities: [actions.row.request]` |
-| `requestMapping` | object | 否（since 0.2.7） | `actionRef` 的行数据绑定。支持 `path` / `query` / `body` 三段，均为非空 key 的扁平 map；值只允许 string / finite number / boolean / null 或单个 `$row.*` 点路径引用；query 使用 ADR-0010 公共序列化；v0.2 **静态拒绝** `$parentRow.*`；完整规则见 [07-actions-contract.md §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) |
+| `actionRef` | string | 否（since 0.2.7） | 引用顶层 `type: request`（须 `actions.row.request`）或 `type: navigate`（须 `actions.row.navigate`，ADR-0021） |
+| `requestMapping` | object | 否（since 0.2.7） | 引用 **request** 时必填非空；`path`/`query`/`body`；值仅字面量或 `$row.*`；不得与 `navigateMapping` 并存；见 [07 §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) |
+| `navigateMapping` | object | 否（since 2.1 / ADR-0021） | 引用 **navigate** 时必填非空；仅 `path`/`query`；值仅字面量或 `$row.*`；不得与 `requestMapping` 并存；见 [07 §3.2](./07-actions-contract.md#32-行级导航绑定since-21-adr-0021) |
 | `label` / `labelKey` | string | 是 | 操作文案 |
 | `confirm` | string | 否 | 二次确认文案；行级后端请求中仅在 `visibleWhen` / `permissions` / `disabled` 判定通过后、构造请求前展示 |
 | `visibleField` | string | 否 | 行级显隐语法糖（`visibleWhen` 的简化写法），取行数据中同名字段的布尔值作为显隐依据。解析阶段等价展开为 `{ scope: row, dependencies: [field], when: "$row.<field> == true" }`，展开后纳入 [01-node-protocol.md §3.10](./01-node-protocol.md#310-最终可见性优先级公式) 公式 |
@@ -183,7 +185,20 @@ data:
 | `reactions` | array | 否（since 0.2.1） | 操作联动规则；读取 `$row.*` 时必须 `scope: row`；`fulfill`/`otherwise` **无论 scope 仅允许** `visible`/`disabled` |
 | `permissions` | map | 否（since 0.2.1） | 操作级权限控制，表达式仅允许 `$context.*` |
 
-> **行内操作执行边界：** 未声明 `actionRef` 时，`RowAction.key` 只用于 Renderer 将点击事件分发给前端预注册的行内操作处理器，并由该处理器接收当前行上下文。声明 `actionRef` 时，Renderer 按 [ADR-0008](./decisions/0008-row-action-backend-request.md) 与 [07-actions-contract.md §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) 执行标准行级后端请求；`key` 仍保留为操作类型标识，不变成顶层 action id。
+> **行内操作执行边界：** 未声明 `actionRef` 时，`RowAction.key` 只用于 Renderer 将点击事件分发给前端预注册的行内操作处理器，并由该处理器接收当前行上下文。声明 `actionRef` 且目标为 `request` 时，按 [ADR-0008](./decisions/0008-row-action-backend-request.md) / [07 §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) 执行；目标为 `navigate` 时按 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) / [07 §3.2](./07-actions-contract.md#32-行级导航绑定since-21-adr-0021) 执行。`key` 仍为入口标识，不是顶层 action id。
+
+**ActionTrigger（since 2.1 / ADR-0020）：** 页面级动作入口，无行上下文。用于 `table.props.toolbar[]` 与组件 `actionButton`。
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `key` | string | 是 | 入口标识（埋点/测试）；不引用顶层 `actions` |
+| `label` / `labelKey` | string | 是（其一） | 文案 |
+| `actionRef` | string | 是 | 引用顶层 `request` \| `navigate` \| `modal`；禁止 `upload`/`custom` |
+| `confirm` | string | 否 | 二次确认 |
+| `disabled` | boolean | 否 | 静态禁用 |
+| `visibleWhen` / `permissions` | object | 否 | toolbar 项上 `visibleWhen` 仅 `$context.*`；`actionButton` 作 Node 时遵循普通 Node 规则 |
+
+页面级 Trigger 触发的 `request` **禁止 GET**（仅 POST/PUT/PATCH/DELETE）。完整规则见 [ADR-0020](./decisions/0020-page-action-trigger.md)。
 
 **作用域说明（since 0.2.1）：** 列/操作内的 `visibleWhen`/`reactions` 可通过 `scope` 属性声明求值作用域；`permissions` 固定仅允许 `$context.*`，不参与 `scope` 语义：
 - `scope: form`（默认）：表达式在表单级求值，可访问 `$deps.*`（表单字段），不可访问 `$row.*`。**注意：仅当表格本身位于 `form.children` 内（如搜索表单嵌入表格场景）时，`$deps.*` 才合法；独立表格的列/操作中即使声明 `scope: form`，`$deps.*` 仍被静态校验拒绝（见 [02-reaction-expression.md §9.1](./02-reaction-expression.md#91-作用域隔离规则)）。
@@ -215,6 +230,21 @@ actions:
 
 支持 `children`：否。支持 `data`：是（契约见 04 文档）。支持 `reactions`：否。支持 `states`：是（since 0.2）。
 
+### `actionButton`（since 2.1 / ADR-0020）
+
+页面级动作按钮 Node，结构为 ActionTrigger 字段 + 可选 `span`。使用时声明 `actions.page.trigger`。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `key` | string | 是 | 入口标识 |
+| `label` / `labelKey` | string | 是（其一） | 文案 |
+| `actionRef` | string | 是 | 顶层 `request` \| `navigate` \| `modal` |
+| `confirm` | string | 否 | 二次确认 |
+| `disabled` | boolean | 否 | 静态禁用 |
+| `span` | number | 否 | 父级 grid 栏数 |
+
+支持 `children`：否。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。Node 级 `visibleWhen` / `permissions` 可用。
+
 ---
 
 ## 表单类
@@ -230,7 +260,19 @@ actions:
 | `submitAction` | string | 默认模式下是 | 引用顶层 `actions` 中的动作 id。搜索模式下不需要（`mode: search` 时忽略此字段） |
 | `mode` | enum: `default` \| `search` | 否（since 0.2.1） | 表单模式。`search` 模式将表单用作筛选器 |
 | `targetTable` | string | 搜索模式下是 | `mode: search` 时必填，声明关联表格的 Node `id`，提交时触发表格重新请求 |
+| `recordSource` | object | 否（since 2.1 / ADR-0021） | 编辑记录 GET 加载；默认模式可用，**search 禁止**；使用时声明 `form.record.load`；见下 |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
+
+**`recordSource`（ADR-0021）：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `method` | `GET` | 是 | 只读加载 |
+| `url` | string | 是 | baseURL 下单斜杠相对路径；可含 `{name}`；**仅内联**，不得 ref datasources |
+| `path` / `query` | object | 否 | 扁平 map；值 = 字面量或 `$context.route.query.*` / `$context.route.params.*` |
+| `responseMapping` | object | 是（非空） | form `field` → 响应 JSON 点路径；禁止缺省同名自动映射 |
+
+挂载后自动 GET 一次；成功后按 mapping 回填字段并重置 reactions baseline；失败进入错误态且不提交。提交仍走 `submitAction` + 提交投影；id/version 等须映射到**仍参与提交投影**的字段（推荐只读可见字段）。
 
 ```yaml
 # 搜索表单示例（form + table 包裹在 section 中作为 body 的单一 Node）

@@ -1,7 +1,6 @@
 ---
 name: commit
 description: 根据 Git 暂存区变动生成中文提交描述并提交代码；若无暂存改动则自动将所有修改加入暂存区后提交
-model: DeepSeek V4 Flash (deepseek)
 ---
 
 你是一个专业的 Git 提交助手。请按以下步骤操作：

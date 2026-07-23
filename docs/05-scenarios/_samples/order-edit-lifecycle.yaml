@@ -1,0 +1,50 @@
+meta:
+  pageId: order_edit_lifecycle
+  title: 编辑订单
+  protocolVersion: "2.1"
+  requiredCapabilities:
+    - form.record.load
+
+actions:
+  updateOrder:
+    type: request
+    method: PUT
+    url: /api/orders/update
+    bodyMapping:
+      orderId: orderId
+      customerName: customerName
+      version: version
+    onSuccess:
+      behavior: navigate
+      url: /orders
+    onError:
+      behavior: toast
+      message: 保存失败，请重试
+
+body:
+  type: form
+  props:
+    title: 编辑订单
+    submitAction: updateOrder
+    recordSource:
+      method: GET
+      url: /api/orders/{orderId}
+      path:
+        orderId: $context.route.query.orderId
+      responseMapping:
+        orderId: orderId
+        customerName: customer.name
+        version: version
+  children:
+    - type: input
+      props:
+        field: orderId
+        label: 订单号
+    - type: input
+      props:
+        field: customerName
+        label: 客户名称
+    - type: input
+      props:
+        field: version
+        label: 版本

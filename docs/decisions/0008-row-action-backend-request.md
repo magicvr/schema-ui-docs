@@ -58,7 +58,8 @@ body:
 
 - `actionRef` 只能引用顶层 `actions` 中存在的 action；
 - 被引用 action 的 `type` 必须是 `request`；
-- `modal` / `navigate` / `upload` / `custom` 不作为 `RowAction.actionRef` 的标准目标；需要这些行为时继续使用前端预注册 handler 或后续 ADR；
+- `upload` / `custom` 不作为 `RowAction.actionRef` 的标准目标；需要这些行为时继续使用前端预注册 handler 或后续 ADR；
+- **`type: navigate` 行级绑定由 [ADR-0021](./0021-record-navigation-and-form-load.md) 扩展**（`navigateMapping` + capability `actions.row.navigate`）；本 ADR 原文「仅 request」在 0021 接受后以 0021 为准；
 - 未声明 `actionRef` 的 RowAction 仍按 v0.2.6 的本地分发模型处理。
 
 理由：

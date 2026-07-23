@@ -4,7 +4,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { readOfficialScenario } = require('../../scripts/official-scenarios');
+const { readScenarioPageYaml } = require('../../scripts/official-scenarios');
 const { executeScenario } = require('../reference-js/scenario-execution');
 
 const protocolRoot = path.resolve(__dirname, '../..');
@@ -16,7 +16,7 @@ for (const fixture of suite.cases) {
   try {
     actual = executeScenario(
       fixture.input,
-      relativePath => readOfficialScenario(protocolRoot, relativePath),
+      (relativePath, pageId) => readScenarioPageYaml(protocolRoot, relativePath, pageId),
     );
   } catch (error) {
     actual = { error: String(error.message).split(':', 1)[0] };

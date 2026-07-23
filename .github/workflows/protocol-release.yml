@@ -1,5 +1,8 @@
 name: Protocol Release
 
+# Triggered only by an existing git tag (v*). Never create tags from CI.
+# Merges to main do not publish release assets (see protocol-ci.yml + docs/RELEASE.md).
+
 on:
   push:
     tags:
@@ -54,22 +57,27 @@ jobs:
       - name: Build release artifact
         run: npm run build:protocol
 
+      - name: Compose release notes from CHANGELOG
+        run: node scripts/compose-protocol-release-notes.js
+
       - name: Publish GitHub release assets
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           VERSION=$(node -p "require('./protocol-manifest.json').artifactVersion")
+          NOTES_FILE="dist/RELEASE_NOTES.md"
           if gh release view "v${VERSION}" >/dev/null 2>&1; then
             gh release upload "v${VERSION}" \
               "dist/schema-ui-protocol-${VERSION}.tar.gz" \
               "dist/schema-ui-protocol-${VERSION}.tar.gz.sha256" \
               --clobber
+            gh release edit "v${VERSION}" --notes-file "${NOTES_FILE}"
           else
             gh release create "v${VERSION}" \
               "dist/schema-ui-protocol-${VERSION}.tar.gz" \
               "dist/schema-ui-protocol-${VERSION}.tar.gz.sha256" \
               --verify-tag \
               --title "Schema-UI Protocol ${VERSION}" \
-              --generate-notes
+              --notes-file "${NOTES_FILE}"
           fi

@@ -7,11 +7,30 @@
 
 ## Unreleased
 
-- 审计 `0061`：收紧普通表单 Action URL、Form bodyMapping、RowAction 缺失值与 GET body 边界；统一 JS/Python request/response/scenario reference 的 fail-closed 和 own-property 行为。
-- 审计 `0061`：补齐 request lifecycle latest-wins、Form 提交投影、reaction baseline/比较语义、static/ref 数据形状、Host Extension 边界、运行时默认值和基础组件数值约束；新增 ADR-0015–0019 及双端 conformance suites。
-- 审计 `0061` 关闭复核：修正跨语言缺失/null 深相等、L3a 嵌套 form 符号表、interceptor query、首次 request generation、reaction baseline/指数/loop、scalar mapping 和合法 MCP pageSize 回归；新增 component-format/runtime-defaults/static-ref/scenario 负例，最终 12 套 versioned suite 共 128 个 case。
+- 发布流程：明确 **merge `main` 只 CI、不发资产、不自动打 tag**；协议 `v*` 与 MCP `mcp-v*` **独立 tag**。见 [`RELEASE.md`](./RELEASE.md)。
+- MCP CD：镜像发布目标从 Docker Hub 改为 **GitHub Container Registry**（`ghcr.io/<owner>/schema-ui-mcp`，稳定版含 `latest` / minor 别名）。工作流见仓库 `.github/workflows/mcp-cd.yml`；使用说明见 `docs/mcp/README.md`（二者不进协议制品包）。
+- 协议 Release：notes 优先摘录 `CHANGELOG` 对应版本节，并附 content/fixture digests。
 
+## v2.1.0 — 2026-07-23（Admin 生命周期 P0）
 
+> **版本说明：** MINOR 发布。页面使用 `meta.protocolVersion: "2.1"`。未使用新字段的 `2.0` 页面可继续由同时支持 `2.0` 的 Renderer 消费。正式协议制品为 `schema-ui-protocol-2.1.0.tar.gz`。
+
+**协议变更（capability 门控）：**
+- 新增 `actions.page.trigger`：`actionButton`、`table.props.toolbar`（ADR-0020）。
+- 新增 `actions.row.navigate`：行级 `navigate` + `navigateMapping`（ADR-0021）。
+- 新增 `form.record.load`：`form.props.recordSource` 记录 GET 与必填 `responseMapping`（ADR-0021）。
+- 新增 `$context.route` 只读路由快照（MVP 用于 recordSource 绑定）。
+- 同步核心规范、Schema、L2；扩展示例 `admin-list-edit-lifecycle`；迁移 [`2.0-to-2.1.md`](./migrations/2.0-to-2.1.md)；发布目标 [`12-v2.1-release-goals.md`](./12-v2.1-release-goals.md)。
+
+**Conformance：**
+- `request-construction`：`rowNavigate` / `recordSource` / `pageTriggerRequest`。
+- `response-mapping`：`formRecord`。
+- `version-negotiation`：`2.1` 接受/拒绝与 Admin capability 向量。
+- `scenarios`：列表导航 + 编辑加载提交步进；`CONFORMANCE_SCENARIO_PATHS` 与六场景 release 清单分离。
+- 算法类 fixtures `protocolVersion` 统一为 `"2.1"`（12 套 suite，153 cases）。
+
+**轨道文档：**
+- [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md) 记录 P1+ 后续（批量等）。
 
 ## v2.0.0 — 2026-07-16（协议升级候选）
 

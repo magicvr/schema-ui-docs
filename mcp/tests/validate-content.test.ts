@@ -1156,7 +1156,8 @@ ${queryYaml}
 
   it.each([
     ['prefix-$row.id', '模板拼接'],
-    ['$parentRow.id', '嵌套表格'],
+    // L2 message prefers explicit $parentRow rejection (may or may not mention 嵌套表格).
+    ['$parentRow.id', '$parentRow'],
   ])('rejects invalid top-level row request mapping %s', (mappingValue, messageFragment) => {
     const result = validateContent({
       content: JSON.stringify({

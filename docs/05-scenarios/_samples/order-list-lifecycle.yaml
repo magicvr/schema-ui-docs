@@ -1,0 +1,47 @@
+meta:
+  pageId: order_list_lifecycle
+  title: 订单列表
+  protocolVersion: "2.1"
+  requiredCapabilities:
+    - actions.page.trigger
+    - actions.row.navigate
+
+actions:
+  openCreate:
+    type: navigate
+    url: /orders/create
+  openEdit:
+    type: navigate
+    url: /orders/edit
+
+body:
+  type: table
+  id: orderTable
+  props:
+    rowKey: orderId
+    pagination:
+      mode: server
+      pageSize: 20
+    toolbar:
+      - key: create
+        label: 新建
+        actionRef: openCreate
+    columns:
+      - field: orderId
+        label: 订单号
+      - field: customerName
+        label: 客户
+    actions:
+      - key: edit
+        label: 编辑
+        actionRef: openEdit
+        navigateMapping:
+          query:
+            orderId: $row.orderId
+  data:
+    source: api
+    url: /api/orders
+    method: GET
+    responseMapping:
+      list: data.list
+      total: data.total

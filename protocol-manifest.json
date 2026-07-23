@@ -1,8 +1,8 @@
 {
   "manifestVersion": "1.0",
   "name": "schema-ui-protocol",
-  "artifactVersion": "2.0.0",
-  "protocolVersion": "2.0",
+  "artifactVersion": "2.1.0",
+  "protocolVersion": "2.1",
   "authority": {
     "semanticSpecs": [
       "PROJECT_CHARTER.md",
@@ -31,7 +31,9 @@
       "docs/decisions/0016-expression-comparison-semantics.md",
       "docs/decisions/0017-runtime-defaults-and-baseurl.md",
       "docs/decisions/0018-component-boundary-semantics.md",
-      "docs/decisions/0019-v2-admin-scope.md"
+      "docs/decisions/0019-v2-admin-scope.md",
+      "docs/decisions/0020-page-action-trigger.md",
+      "docs/decisions/0021-record-navigation-and-form-load.md"
     ],
     "structuralContracts": [
       "docs/schemas/*.json"
@@ -49,6 +51,9 @@
       "protocol-manifest.json",
       "docs/09-v1-release-goals.md",
       "docs/10-v2-release-goals.md",
+      "docs/12-v2.1-release-goals.md",
+      "docs/11-next-admin-lifecycle-goals.md",
+      "docs/RELEASE.md",
       "docs/migrations/*.md",
       "docs/CHANGELOG.md",
       "conformance/README.md"

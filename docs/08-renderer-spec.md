@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.0
+applies_to: schema-ui-protocol v2.1
 ---
 
 # Renderer（前端渲染器）实现规范
@@ -299,7 +299,15 @@ Renderer 不自动发现、选择或串联 adapter。本协议只定义 adapter 
 | 全部包含在 `supportedCapabilities` 中 | 继续解析渲染 |
 | 存在任一缺失能力 | 拒绝渲染，在页面展示明确错误信息（含缺失能力键） |
 
-能力键由协议或接入方白名单定义。Renderer 不认识的能力键视为不支持，不得静默忽略。当前协议预定义能力键：`actions.upload`、`actions.row.request`。
+能力键由协议或接入方白名单定义。Renderer 不认识的能力键视为不支持，不得静默忽略。当前协议预定义能力键：
+
+| 能力键 | 含义 | 权威 ADR / 规范 |
+|---|---|---|
+| `actions.upload` | 上传 Action / `upload.props.actionRef` | ADR-0012 / `07` |
+| `actions.row.request` | 行级 `type: request` + `requestMapping` | ADR-0008 / `07` §3.1 |
+| `actions.page.trigger` | `actionButton` / `table.props.toolbar` 页面级动作入口 | ADR-0020 |
+| `actions.row.navigate` | 行级 `type: navigate` + `navigateMapping` | ADR-0021 |
+| `form.record.load` | `form.props.recordSource` 记录加载回填 | ADR-0021 |
 
 ### 3.5 协商结果与错误信息格式
 

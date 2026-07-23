@@ -31,9 +31,10 @@ date: 2026-07-11
 - `$context` 是**宿主环境(前端运行时)在渲染每个页面/表单实例时,一次性注入的只读快照**,不是响应式订阅的实时数据源。
   - 理由:如果 `$context` 是响应式的(比如用户权限中途变化就重新求值全部联动表达式),会把"简单声明式判断"变成"隐式响应式系统",大幅增加联动引擎的实现复杂度和调试难度,且协议层难以约束"什么时候该重新求值"。
   - 折衷:若未来确有"运行中用户切换角色需要立即变化显隐"的场景,由宿主环境主动触发一次**整页重新挂载**来刷新 `$context` 快照,而不是在协议层引入响应式语义。
-- `$context` 的结构在协议中**预定义为白名单命名空间**,v0.2 起草阶段只开放两个子命名空间:
+- `$context` 的结构在协议中**预定义为白名单命名空间**：
   - `$context.user`:当前用户身份信息,只读对象。自 **v0.2.5** 起,协议规定最小字段集为 `id`（`string`）、`name`（`string`）、`roles`（`string[]`）；项目可在 Renderer 初始化时扩展专有字段,但**不得覆盖**最小字段集名称。权威字段表见 [`02-reaction-expression.md` §11.1](../02-reaction-expression.md#111-contextuser-最小字段集)。
   - `$context.features`:功能开关(feature flag)映射表,值为布尔或简单枚举；无协议级强制字段,全部内容由接入方注入（见 [`02-reaction-expression.md` §11.2](../02-reaction-expression.md#112-contextfeatures-最小字段集)）。
+  - `$context.route`（**since 2.1 / ADR-0021**）:当前页路由只读快照（`path` / `query` / `params`）；MVP 主要用于 `form.recordSource` 绑定，默认不进入普通 reactions/visibleWhen。见 [`02` §11.3](../02-reaction-expression.md#113-contextroute-最小字段集since-21--adr-0021)。
   - 不在白名单内的 `$context.*` 路径,解析器应报错而非静默返回 `undefined`,避免拼写错误导致的隐性 bug。
 - 注入时机:协议约定宿主环境必须在**表达式引擎初始化之前**完成 `$context` 的构造和挂载,联动/渲染表达式的求值过程中不再重新拉取或修改 `$context`。
 

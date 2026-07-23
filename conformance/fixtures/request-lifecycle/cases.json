@@ -4,15 +4,27 @@
   "cases": [
     {
       "id": "latest-generation-wins-over-old-response",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "request-lifecycle",
       "input": {
         "initialState": "initial",
         "events": [
-          { "type": "start" },
-          { "type": "start" },
-          { "type": "response", "generation": 1, "state": "old" },
-          { "type": "response", "generation": 2, "state": "new" }
+          {
+            "type": "start"
+          },
+          {
+            "type": "start"
+          },
+          {
+            "type": "response",
+            "generation": 1,
+            "state": "old"
+          },
+          {
+            "type": "response",
+            "generation": 2,
+            "state": "new"
+          }
         ]
       },
       "expected": {
@@ -20,20 +32,31 @@
         "active": true,
         "state": "new",
         "committed": [
-          { "generation": 2, "state": "new" }
+          {
+            "generation": 2,
+            "state": "new"
+          }
         ]
       }
     },
     {
       "id": "hidden-node-drops-response",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "request-lifecycle",
       "input": {
         "initialState": "initial",
         "events": [
-          { "type": "start" },
-          { "type": "hide" },
-          { "type": "response", "generation": 1, "state": "hidden-result" }
+          {
+            "type": "start"
+          },
+          {
+            "type": "hide"
+          },
+          {
+            "type": "response",
+            "generation": 1,
+            "state": "hidden-result"
+          }
         ]
       },
       "expected": {
@@ -45,13 +68,19 @@
     },
     {
       "id": "unmounted-node-drops-response",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "request-lifecycle",
       "input": {
         "initialState": null,
         "events": [
-          { "type": "unmount" },
-          { "type": "response", "generation": 1, "state": "late" }
+          {
+            "type": "unmount"
+          },
+          {
+            "type": "response",
+            "generation": 1,
+            "state": "late"
+          }
         ]
       },
       "expected": {
@@ -63,15 +92,25 @@
     },
     {
       "id": "show-does-not-reactivate-hidden-request",
-      "protocolVersion": "2.0",
+      "protocolVersion": "2.1",
       "category": "request-lifecycle",
       "input": {
         "initialState": "initial",
         "events": [
-          { "type": "start" },
-          { "type": "hide" },
-          { "type": "show" },
-          { "type": "response", "generation": 1, "state": "stale" }
+          {
+            "type": "start"
+          },
+          {
+            "type": "hide"
+          },
+          {
+            "type": "show"
+          },
+          {
+            "type": "response",
+            "generation": 1,
+            "state": "stale"
+          }
         ]
       },
       "expected": {
