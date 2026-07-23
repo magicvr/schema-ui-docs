@@ -14,7 +14,7 @@
 | [`form-with-upload.md`](./form-with-upload.md) | `form` / `upload` | 表单内文件上传后随单提交 | `actions.upload`、`actionRef`、UploadAction 约束唯一来源 |
 | [`admin-list-edit-lifecycle.md`](./admin-list-edit-lifecycle.md) | `table` + `form` + actions | 工具栏新建、行进编辑、记录加载回填（扩展示例） | `actions.page.trigger`、`actions.row.navigate`、`form.record.load`（ADR-0020/0021） |
 
-> `admin-list-edit-lifecycle.md` 为 Admin 生命周期 P0 扩展示例，**尚未**列入 `scripts/official-scenarios.js` 的六场景 release 门禁清单。
+> `admin-list-edit-lifecycle.md` 为 Admin 生命周期 P0 扩展示例：**已进入** conformance `scenarios` suite（`CONFORMANCE_SCENARIO_PATHS`），**尚未**列入 `OFFICIAL_SCENARIO_PATHS` 六场景 release 门禁清单。
 
 ## 阅读顺序
 

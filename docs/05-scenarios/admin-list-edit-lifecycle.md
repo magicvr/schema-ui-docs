@@ -14,6 +14,8 @@ capabilities:
 
 本示例拆成**两个页面文档**（列表 + 编辑），覆盖轨道 MVP 锚点 A/B/C。使用前 Renderer 须支持相应 `requiredCapabilities`。在 `protocolVersion: "2.1"` 制品发布前，页面可继续声明 `"2.0"` 并依赖 capability 协商。
 
+端到端可观测步骤见 conformance：`admin-lifecycle-list-row-navigate`、`admin-lifecycle-edit-load-submit`（`conformance/fixtures/scenarios/cases.json`）。
+
 ## 列表页
 
 ```yaml

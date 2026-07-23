@@ -6,6 +6,7 @@ const { buildRequest } = require('./request-construction');
 const { mapResponse } = require('./response-mapping');
 const { buildTableQuery } = require('./table-query-state');
 const { executeUpload } = require('./upload-execution');
+const { CONFORMANCE_SCENARIO_PATHS } = require('../../scripts/official-scenarios');
 
 function executeStep(step) {
   if (step.kind === 'request') return buildRequest(step.input);
@@ -16,21 +17,18 @@ function executeStep(step) {
   throw new Error(`Unknown scenario step: ${step.kind}`);
 }
 
-const OFFICIAL_SCENARIO_PATHS = new Set([
-  'docs/05-scenarios/data-table.md',
-  'docs/05-scenarios/form-with-reactions.md',
-  'docs/05-scenarios/grid-dashboard.md',
-  'docs/05-scenarios/row-backend-actions.md',
-  'docs/05-scenarios/search-form-table.md',
-  'docs/05-scenarios/form-with-upload.md',
-]);
+const ALLOWED_SCENARIO_PATHS = new Set(CONFORMANCE_SCENARIO_PATHS);
 
-function executeScenario(input, readScenario) {
-  if (!OFFICIAL_SCENARIO_PATHS.has(input.scenarioPath)) {
+function executeScenario(input, readScenarioYaml) {
+  if (!ALLOWED_SCENARIO_PATHS.has(input.scenarioPath)) {
     throw new Error(`UNKNOWN_SCENARIO_PATH: ${input.scenarioPath}`);
   }
-  const page = yaml.load(readScenario(input.scenarioPath));
-  if (page.meta.pageId !== input.scenarioMeta.pageId || page.meta.protocolVersion !== input.scenarioMeta.protocolVersion) {
+  const pageId = input.scenarioMeta?.pageId;
+  const yamlText = readScenarioYaml(input.scenarioPath, pageId);
+  const page = yaml.load(yamlText);
+  if (!page?.meta
+    || page.meta.pageId !== input.scenarioMeta.pageId
+    || page.meta.protocolVersion !== input.scenarioMeta.protocolVersion) {
     throw new Error(`SCENARIO_METADATA_MISMATCH: ${input.scenarioPath}`);
   }
   return {
@@ -40,4 +38,4 @@ function executeScenario(input, readScenario) {
   };
 }
 
-module.exports = { executeScenario, executeStep };
+module.exports = { executeScenario, executeStep, ALLOWED_SCENARIO_PATHS };

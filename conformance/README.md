@@ -18,7 +18,7 @@
 | static/ref 同步数据 | `fixtures/static-data/cases.json` | `reference-js/static-data.js`、`reference-python/static_data.py` | `npm run test:conformance:static-data`、`npm run test:conformance:static-data:python` |
 | Action / OutcomeBehavior / 错误时序 | `fixtures/actions/cases.json` | `reference-js/action-outcome.js`、`reference-python/action_outcome.py` | `npm run test:conformance:actions`、`npm run test:conformance:actions:python` |
 | 单文件/多文件上传 | `fixtures/uploads/cases.json` | `reference-js/upload-execution.js`、`reference-python/upload_execution.py` | `npm run test:conformance:uploads`、`npm run test:conformance:uploads:python` |
-| 六个官方场景执行 | `fixtures/scenarios/cases.json` | `reference-js/scenario-execution.js`、`reference-python/scenario_execution.py` | `npm run test:conformance:scenarios`、`npm run test:conformance:scenarios:python` |
+| 官方六场景 + Admin 生命周期扩展示例执行 | `fixtures/scenarios/cases.json` | `reference-js/scenario-execution.js`、`reference-python/scenario_execution.py` | `npm run test:conformance:scenarios`、`npm run test:conformance:scenarios:python` |
 
 ### `cases[].protocolVersion` 语义（V227）
 
@@ -42,7 +42,7 @@ Reaction reference 的条件求值器实现当前调度 fixtures 所需的单个
 
 Action suite 将 HTTP 错误、超时、网络异常、主动中断和认证 hook 作为 transport 事件输入，以有序事件输出验证协议级处理先于 `onError`；错误类别不另复制一套相同期望。
 
-官方场景 suite 以组合步骤复用请求、映射、搜索、Action 和上传 reference。JavaScript 与 Python runner 都从白名单内的 Markdown 官方场景读取 metadata，校验 `scenarioPath`、`pageId` 与 `protocolVersion`，再执行相同后端可观测步骤。
+官方场景 suite 以组合步骤复用请求、映射、搜索、Action 和上传 reference。JavaScript 与 Python runner 都从白名单内的 Markdown 场景读取 metadata，校验 `scenarioPath`、`pageId` 与 `protocolVersion`，再执行相同后端可观测步骤。白名单见 `scripts/official-scenarios.js` 的 `CONFORMANCE_SCENARIO_PATHS`（含官方六场景与 `admin-list-edit-lifecycle` 扩展示例）；多 YAML fence 文档按 `scenarioMeta.pageId` 选页。
 
 ## 目录约定
 

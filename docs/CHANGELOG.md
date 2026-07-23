@@ -9,6 +9,7 @@
 
 - **Admin 生命周期 P0（ADR-0020 / 0021，accepted）：** 页面级 `actionButton` / `table.toolbar`（`actions.page.trigger`）；行级 `navigate` + `navigateMapping`（`actions.row.navigate`）；`form.recordSource` 加载回填（`form.record.load`）；`$context.route` 最小字段集。同步 `03`/`07`/`08`/`02`、Schema、L2、扩展示例 [`admin-list-edit-lifecycle`](./05-scenarios/admin-list-edit-lifecycle.md)、迁移草稿 [`2.0-to-2.1-admin-lifecycle`](./migrations/2.0-to-2.1-admin-lifecycle.md)。既有无新字段的 `2.0` 页面行为不变；新字段由 capability 门控。
 - Conformance P0 向量：`request-construction` 新增 `rowNavigate` / `recordSource` / `pageTriggerRequest` kinds；`response-mapping` 新增 `formRecord` 回填；`version-negotiation` 覆盖 Admin lifecycle capability 接受/缺失序。JS 与 Python reference 双端通过。
+- Scenarios suite：`admin-lifecycle-list-row-navigate`、`admin-lifecycle-edit-load-submit` 锚定 `admin-list-edit-lifecycle.md`（多 fence 按 `pageId` 选页）；`CONFORMANCE_SCENARIO_PATHS` 与 `OFFICIAL_SCENARIO_PATHS` 分离。
 - 新增 [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md)：Admin 生命周期协议轨道目标与优先级。
 - 关闭 ADR-0020 / 0021 开放问题裁决（Trigger 禁止 GET、`key` 必填、不强制入口去重；`responseMapping` 必填、仅内联 url、不新增 hidden、capability 分立）。
 - 审计 `0061`：收紧普通表单 Action URL、Form bodyMapping、RowAction 缺失值与 GET body 边界；统一 JS/Python request/response/scenario reference 的 fail-closed 和 own-property 行为。

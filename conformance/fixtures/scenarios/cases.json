@@ -8,14 +8,22 @@
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/data-table.md",
-        "scenarioMeta": { "pageId": "order_list", "protocolVersion": "2.0" },
+        "scenarioMeta": {
+          "pageId": "order_list",
+          "protocolVersion": "2.0"
+        },
         "steps": [
           {
             "kind": "searchTable",
             "input": {
               "baseUrl": "/api/orders",
               "staticParams": {},
-              "state": { "filters": {}, "page": 1, "pageSize": 20, "sort": null },
+              "state": {
+                "filters": {},
+                "page": 1,
+                "pageSize": 20,
+                "sort": null
+              },
               "event": null
             }
           },
@@ -24,7 +32,15 @@
             "input": {
               "component": "table",
               "paginationMode": "server",
-              "response": { "list": [{ "orderId": "1001", "canRefund": true }], "total": 128 }
+              "response": {
+                "list": [
+                  {
+                    "orderId": "1001",
+                    "canRefund": true
+                  }
+                ],
+                "total": 128
+              }
             }
           }
         ]
@@ -33,8 +49,27 @@
         "pageId": "order_list",
         "protocolVersion": "2.0",
         "steps": [
-          { "state": { "filters": {}, "page": 1, "pageSize": 20, "sort": null }, "url": "/api/orders?page=1&pageSize=20" },
-          { "ok": true, "data": { "list": [{ "orderId": "1001", "canRefund": true }], "total": 128 } }
+          {
+            "state": {
+              "filters": {},
+              "page": 1,
+              "pageSize": 20,
+              "sort": null
+            },
+            "url": "/api/orders?page=1&pageSize=20"
+          },
+          {
+            "ok": true,
+            "data": {
+              "list": [
+                {
+                  "orderId": "1001",
+                  "canRefund": true
+                }
+              ],
+              "total": 128
+            }
+          }
         ]
       }
     },
@@ -44,20 +79,75 @@
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/grid-dashboard.md",
-        "scenarioMeta": { "pageId": "dashboard_sales", "protocolVersion": "2.0" },
+        "scenarioMeta": {
+          "pageId": "dashboard_sales",
+          "protocolVersion": "2.0"
+        },
         "steps": [
-          { "kind": "request", "input": { "kind": "dataRef", "dataRef": { "source": "api", "method": "GET", "url": "/api/stats/order-count" } } },
-          { "kind": "request", "input": { "kind": "dataRef", "dataRef": { "source": "api", "url": "/api/stats/gmv" } } },
-          { "kind": "request", "input": { "kind": "dataRef", "dataRef": { "source": "api", "url": "/api/stats/trend", "params": { "range": "7d" } } } }
+          {
+            "kind": "request",
+            "input": {
+              "kind": "dataRef",
+              "dataRef": {
+                "source": "api",
+                "method": "GET",
+                "url": "/api/stats/order-count"
+              }
+            }
+          },
+          {
+            "kind": "request",
+            "input": {
+              "kind": "dataRef",
+              "dataRef": {
+                "source": "api",
+                "url": "/api/stats/gmv"
+              }
+            }
+          },
+          {
+            "kind": "request",
+            "input": {
+              "kind": "dataRef",
+              "dataRef": {
+                "source": "api",
+                "url": "/api/stats/trend",
+                "params": {
+                  "range": "7d"
+                }
+              }
+            }
+          }
         ]
       },
       "expected": {
         "pageId": "dashboard_sales",
         "protocolVersion": "2.0",
         "steps": [
-          { "ok": true, "request": { "method": "GET", "url": "/api/stats/order-count", "body": null } },
-          { "ok": true, "request": { "method": "GET", "url": "/api/stats/gmv", "body": null } },
-          { "ok": true, "request": { "method": "GET", "url": "/api/stats/trend?range=7d", "body": null } }
+          {
+            "ok": true,
+            "request": {
+              "method": "GET",
+              "url": "/api/stats/order-count",
+              "body": null
+            }
+          },
+          {
+            "ok": true,
+            "request": {
+              "method": "GET",
+              "url": "/api/stats/gmv",
+              "body": null
+            }
+          },
+          {
+            "ok": true,
+            "request": {
+              "method": "GET",
+              "url": "/api/stats/trend?range=7d",
+              "body": null
+            }
+          }
         ]
       }
     },
@@ -67,21 +157,37 @@
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/form-with-reactions.md",
-        "scenarioMeta": { "pageId": "order_create", "protocolVersion": "2.0" },
+        "scenarioMeta": {
+          "pageId": "order_create",
+          "protocolVersion": "2.0"
+        },
         "steps": [
           {
             "kind": "request",
             "input": {
               "kind": "formAction",
-              "action": { "method": "POST", "url": "/api/orders" },
-              "formValues": { "customerName": "张三", "orderType": "wholesale", "wholesaleDiscount": 0.85 }
+              "action": {
+                "method": "POST",
+                "url": "/api/orders"
+              },
+              "formValues": {
+                "customerName": "张三",
+                "orderType": "wholesale",
+                "wholesaleDiscount": 0.85
+              }
             }
           },
           {
             "kind": "action",
             "input": {
-              "transport": { "type": "success", "status": 200 },
-              "onSuccess": { "behavior": "toast", "message": "订单创建成功" }
+              "transport": {
+                "type": "success",
+                "status": 200
+              },
+              "onSuccess": {
+                "behavior": "toast",
+                "message": "订单创建成功"
+              }
             }
           }
         ]
@@ -95,14 +201,24 @@
             "request": {
               "method": "POST",
               "url": "/api/orders",
-              "body": { "customerName": "张三", "orderType": "wholesale", "wholesaleDiscount": 0.85 }
+              "body": {
+                "customerName": "张三",
+                "orderType": "wholesale",
+                "wholesaleDiscount": 0.85
+              }
             }
           },
           {
             "ok": true,
             "events": [
-              { "type": "requestSucceeded", "status": 200 },
-              { "type": "toast", "message": "订单创建成功" }
+              {
+                "type": "requestSucceeded",
+                "status": 200
+              },
+              {
+                "type": "toast",
+                "message": "订单创建成功"
+              }
             ]
           }
         ]
@@ -114,26 +230,47 @@
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/row-backend-actions.md",
-        "scenarioMeta": { "pageId": "order_operations", "protocolVersion": "2.0" },
+        "scenarioMeta": {
+          "pageId": "order_operations",
+          "protocolVersion": "2.0"
+        },
         "steps": [
           {
             "kind": "request",
             "input": {
               "kind": "rowAction",
-              "action": { "method": "POST", "url": "/api/orders/{orderId}/refund" },
-              "requestMapping": {
-                "path": { "orderId": "$row.orderId" },
-                "body": { "amount": "$row.refundableAmount", "source": "order_list" }
+              "action": {
+                "method": "POST",
+                "url": "/api/orders/{orderId}/refund"
               },
-              "row": { "orderId": "1001", "refundableAmount": 199.5 }
+              "requestMapping": {
+                "path": {
+                  "orderId": "$row.orderId"
+                },
+                "body": {
+                  "amount": "$row.refundableAmount",
+                  "source": "order_list"
+                }
+              },
+              "row": {
+                "orderId": "1001",
+                "refundableAmount": 199.5
+              }
             }
           },
           {
             "kind": "action",
             "input": {
-              "transport": { "type": "success", "status": 200 },
-              "onSuccess": { "behavior": "reload" },
-              "context": { "tableId": "order_table" }
+              "transport": {
+                "type": "success",
+                "status": 200
+              },
+              "onSuccess": {
+                "behavior": "reload"
+              },
+              "context": {
+                "tableId": "order_table"
+              }
             }
           }
         ]
@@ -147,14 +284,23 @@
             "request": {
               "method": "POST",
               "url": "/api/orders/1001/refund",
-              "body": { "amount": 199.5, "source": "order_list" }
+              "body": {
+                "amount": 199.5,
+                "source": "order_list"
+              }
             }
           },
           {
             "ok": true,
             "events": [
-              { "type": "requestSucceeded", "status": 200 },
-              { "type": "reloadTable", "tableId": "order_table" }
+              {
+                "type": "requestSucceeded",
+                "status": 200
+              },
+              {
+                "type": "reloadTable",
+                "tableId": "order_table"
+              }
             ]
           }
         ]
@@ -166,17 +312,30 @@
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/search-form-table.md",
-        "scenarioMeta": { "pageId": "order_search", "protocolVersion": "2.0" },
+        "scenarioMeta": {
+          "pageId": "order_search",
+          "protocolVersion": "2.0"
+        },
         "steps": [
           {
             "kind": "searchTable",
             "input": {
               "baseUrl": "/api/orders",
               "staticParams": {},
-              "state": { "filters": {}, "page": 4, "pageSize": 20, "sort": null },
+              "state": {
+                "filters": {},
+                "page": 4,
+                "pageSize": 20,
+                "sort": null
+              },
               "event": {
                 "type": "submitSearch",
-                "filters": { "keyword": "1001", "status": "PAID", "dateFrom": "2026-07-01", "dateTo": "2026-07-11" }
+                "filters": {
+                  "keyword": "1001",
+                  "status": "PAID",
+                  "dateFrom": "2026-07-01",
+                  "dateTo": "2026-07-11"
+                }
               }
             }
           }
@@ -188,7 +347,12 @@
         "steps": [
           {
             "state": {
-              "filters": { "keyword": "1001", "status": "PAID", "dateFrom": "2026-07-01", "dateTo": "2026-07-11" },
+              "filters": {
+                "keyword": "1001",
+                "status": "PAID",
+                "dateFrom": "2026-07-01",
+                "dateTo": "2026-07-11"
+              },
               "page": 1,
               "pageSize": 20,
               "sort": null
@@ -204,19 +368,47 @@
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/form-with-upload.md",
-        "scenarioMeta": { "pageId": "contract_upload", "protocolVersion": "2.0" },
+        "scenarioMeta": {
+          "pageId": "contract_upload",
+          "protocolVersion": "2.0"
+        },
         "steps": [
           {
             "kind": "upload",
             "input": {
-              "action": { "url": "/api/files/upload", "method": "POST", "fieldName": "file", "multiple": true },
+              "action": {
+                "url": "/api/files/upload",
+                "method": "POST",
+                "fieldName": "file",
+                "multiple": true
+              },
               "files": [
-                { "name": "contract.pdf", "type": "application/pdf", "size": 100, "contentId": "contract" },
-                { "name": "appendix.docx", "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "size": 120, "contentId": "appendix" }
+                {
+                  "name": "contract.pdf",
+                  "type": "application/pdf",
+                  "size": 100,
+                  "contentId": "contract"
+                },
+                {
+                  "name": "appendix.docx",
+                  "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                  "size": 120,
+                  "contentId": "appendix"
+                }
               ],
               "results": [
-                { "type": "success", "response": { "url": "https://cdn/contract.pdf" } },
-                { "type": "success", "response": { "id": "appendix-id" } }
+                {
+                  "type": "success",
+                  "response": {
+                    "url": "https://cdn/contract.pdf"
+                  }
+                },
+                {
+                  "type": "success",
+                  "response": {
+                    "id": "appendix-id"
+                  }
+                }
               ]
             }
           },
@@ -224,8 +416,17 @@
             "kind": "request",
             "input": {
               "kind": "formAction",
-              "action": { "method": "POST", "url": "/api/contracts" },
-              "formValues": { "title": "采购合同", "attachments": ["https://cdn/contract.pdf", "appendix-id"] }
+              "action": {
+                "method": "POST",
+                "url": "/api/contracts"
+              },
+              "formValues": {
+                "title": "采购合同",
+                "attachments": [
+                  "https://cdn/contract.pdf",
+                  "appendix-id"
+                ]
+              }
             }
           }
         ]
@@ -237,17 +438,42 @@
           {
             "ok": true,
             "requests": [
-              { "method": "POST", "url": "/api/files/upload", "part": { "name": "file", "fileName": "contract.pdf", "contentId": "contract" } },
-              { "method": "POST", "url": "/api/files/upload", "part": { "name": "file", "fileName": "appendix.docx", "contentId": "appendix" } }
+              {
+                "method": "POST",
+                "url": "/api/files/upload",
+                "part": {
+                  "name": "file",
+                  "fileName": "contract.pdf",
+                  "contentId": "contract"
+                }
+              },
+              {
+                "method": "POST",
+                "url": "/api/files/upload",
+                "part": {
+                  "name": "file",
+                  "fileName": "appendix.docx",
+                  "contentId": "appendix"
+                }
+              }
             ],
-            "fieldValue": ["https://cdn/contract.pdf", "appendix-id"]
+            "fieldValue": [
+              "https://cdn/contract.pdf",
+              "appendix-id"
+            ]
           },
           {
             "ok": true,
             "request": {
               "method": "POST",
               "url": "/api/contracts",
-              "body": { "title": "采购合同", "attachments": ["https://cdn/contract.pdf", "appendix-id"] }
+              "body": {
+                "title": "采购合同",
+                "attachments": [
+                  "https://cdn/contract.pdf",
+                  "appendix-id"
+                ]
+              }
             }
           }
         ]
@@ -259,10 +485,15 @@
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/not-official.md",
-        "scenarioMeta": { "pageId": "missing", "protocolVersion": "2.0" },
+        "scenarioMeta": {
+          "pageId": "missing",
+          "protocolVersion": "2.0"
+        },
         "steps": []
       },
-      "expected": { "error": "UNKNOWN_SCENARIO_PATH" }
+      "expected": {
+        "error": "UNKNOWN_SCENARIO_PATH"
+      }
     },
     {
       "id": "official-scenario-metadata-mismatch-rejected",
@@ -270,10 +501,268 @@
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/data-table.md",
-        "scenarioMeta": { "pageId": "wrong-page", "protocolVersion": "2.0" },
+        "scenarioMeta": {
+          "pageId": "wrong-page",
+          "protocolVersion": "2.0"
+        },
         "steps": []
       },
-      "expected": { "error": "SCENARIO_METADATA_MISMATCH" }
+      "expected": {
+        "error": "SCENARIO_METADATA_MISMATCH"
+      }
+    },
+    {
+      "id": "admin-lifecycle-list-row-navigate",
+      "protocolVersion": "2.0",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/admin-list-edit-lifecycle.md",
+        "scenarioMeta": {
+          "pageId": "order_list_lifecycle",
+          "protocolVersion": "2.0"
+        },
+        "steps": [
+          {
+            "kind": "request",
+            "input": {
+              "kind": "dataRef",
+              "dataRef": {
+                "source": "api",
+                "method": "GET",
+                "url": "/api/orders",
+                "params": {
+                  "page": 1,
+                  "pageSize": 20
+                }
+              }
+            }
+          },
+          {
+            "kind": "responseMapping",
+            "input": {
+              "component": "table",
+              "paginationMode": "server",
+              "localMapping": {
+                "list": "data.list",
+                "total": "data.total"
+              },
+              "response": {
+                "data": {
+                  "list": [
+                    {
+                      "orderId": "ORD-9",
+                      "customerName": "Ada"
+                    }
+                  ],
+                  "total": 1
+                }
+              }
+            }
+          },
+          {
+            "kind": "request",
+            "input": {
+              "kind": "rowNavigate",
+              "action": {
+                "url": "/orders/edit"
+              },
+              "navigateMapping": {
+                "query": {
+                  "orderId": "$row.orderId"
+                }
+              },
+              "row": {
+                "orderId": "ORD-9",
+                "customerName": "Ada"
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "order_list_lifecycle",
+        "protocolVersion": "2.0",
+        "steps": [
+          {
+            "ok": true,
+            "request": {
+              "method": "GET",
+              "url": "/api/orders?page=1&pageSize=20",
+              "body": null
+            }
+          },
+          {
+            "ok": true,
+            "data": {
+              "list": [
+                {
+                  "orderId": "ORD-9",
+                  "customerName": "Ada"
+                }
+              ],
+              "total": 1
+            }
+          },
+          {
+            "ok": true,
+            "navigation": {
+              "url": "/orders/edit?orderId=ORD-9"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "admin-lifecycle-edit-load-submit",
+      "protocolVersion": "2.0",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/admin-list-edit-lifecycle.md",
+        "scenarioMeta": {
+          "pageId": "order_edit_lifecycle",
+          "protocolVersion": "2.0"
+        },
+        "steps": [
+          {
+            "kind": "request",
+            "input": {
+              "kind": "recordSource",
+              "recordSource": {
+                "method": "GET",
+                "url": "/api/orders/{orderId}",
+                "path": {
+                  "orderId": "$context.route.query.orderId"
+                },
+                "responseMapping": {
+                  "orderId": "orderId",
+                  "customerName": "customer.name",
+                  "version": "version"
+                }
+              },
+              "route": {
+                "query": {
+                  "orderId": "ORD-9"
+                },
+                "params": {}
+              }
+            }
+          },
+          {
+            "kind": "responseMapping",
+            "input": {
+              "component": "formRecord",
+              "responseMapping": {
+                "orderId": "orderId",
+                "customerName": "customer.name",
+                "version": "version"
+              },
+              "response": {
+                "orderId": "ORD-9",
+                "customer": {
+                  "name": "Ada"
+                },
+                "version": 3
+              }
+            }
+          },
+          {
+            "kind": "request",
+            "input": {
+              "kind": "formAction",
+              "action": {
+                "method": "PUT",
+                "url": "/api/orders/update",
+                "bodyMapping": {
+                  "orderId": "orderId",
+                  "customerName": "customerName",
+                  "version": "version"
+                }
+              },
+              "formValues": {
+                "orderId": "ORD-9",
+                "customerName": "Ada Lovelace",
+                "version": 3
+              }
+            }
+          },
+          {
+            "kind": "action",
+            "input": {
+              "transport": {
+                "type": "success",
+                "status": 200
+              },
+              "onSuccess": {
+                "behavior": "navigate",
+                "url": "/orders"
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "order_edit_lifecycle",
+        "protocolVersion": "2.0",
+        "steps": [
+          {
+            "ok": true,
+            "request": {
+              "method": "GET",
+              "url": "/api/orders/ORD-9",
+              "body": null
+            }
+          },
+          {
+            "ok": true,
+            "values": {
+              "orderId": "ORD-9",
+              "customerName": "Ada",
+              "version": 3
+            }
+          },
+          {
+            "ok": true,
+            "request": {
+              "method": "PUT",
+              "url": "/api/orders/update",
+              "body": {
+                "orderId": "ORD-9",
+                "customerName": "Ada Lovelace",
+                "version": 3
+              }
+            }
+          },
+          {
+            "ok": true,
+            "events": [
+              {
+                "type": "requestSucceeded",
+                "status": 200
+              },
+              {
+                "type": "navigate",
+                "url": "/orders"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "admin-lifecycle-wrong-page-rejected",
+      "protocolVersion": "2.0",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/admin-list-edit-lifecycle.md",
+        "scenarioMeta": {
+          "pageId": "not_a_page",
+          "protocolVersion": "2.0"
+        },
+        "steps": []
+      },
+      "expected": {
+        "error": "SCENARIO_METADATA_MISMATCH"
+      }
     }
   ]
 }
