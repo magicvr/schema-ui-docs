@@ -32,8 +32,9 @@
 5. **`row-backend-actions.md`** — 表格行级后端动作，展示退款/审批/删除类操作
 6. **`grid-dashboard.md`** — 组合布局，展示多组件协同与数据预声明
 7. **`admin-list-edit-lifecycle.md`** — 完整列表/编辑闭环（需 Renderer 支持新 capability）
-8. **`admin-list-batch.md`** — 当前页多选与批量 request（ADR-0022）
-9. **`permission-inheritance.md`** — 容器权限继承与操作入口意图（ADR-0023）
+8. **`admin-list-detail-lifecycle.md`** — 列表行进详情、只读 `recordView` 加载（ADR-0024）
+9. **`admin-list-batch.md`** — 当前页多选与批量 request（ADR-0022）
+10. **`permission-inheritance.md`** — 容器权限继承与操作入口意图（ADR-0023）
 
 ## 相关文档
 

@@ -1,7 +1,7 @@
 ---
 status: living-document
 owner: 前端组件库团队
-last_updated: 2026-07-13
+last_updated: 2026-07-24
 applies_to: schema-ui-protocol v2.4
 ---
 
@@ -191,9 +191,10 @@ props:
 
 规则摘要：
 
-- **不**支持 `children`、`data`（DataRef）、`reactions`；**支持** `states`（loading/error）。
+- **不**支持 `children`、`data`（DataRef）、`reactions`；**支持** `states`（loading / error / empty 可选，与 ADR-0024 D4 一致）。
 - 主记录**必须**走 `recordSource`，不得用 DataRef 替代主加载。
 - 映射缺失路径 → 该键可观测 `null`（与 form 记录加载一致）。
+- `fields[].key` 必须 ⊆ `recordSource.responseMapping` 的键集：JSON Schema / L0–L1 无法表达该跨字段约束，**仅 L2**（及等价实现）强制；仅跑 L0/L1 的接入方会漏检（审计 0067 V306）。
 - **不是** ADR-0023 cascade 容器；仅 Node 本地 `permissions`。
 - 返回列表 / 去编辑用同页 `actionButton` 等既有入口，不在本组件内嵌 toolbar。
 

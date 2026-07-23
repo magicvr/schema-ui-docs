@@ -462,6 +462,23 @@
           "missing": null
         }
       }
+    },
+    {
+      "id": "record-view-empty-mapping-rejected",
+      "protocolVersion": "2.4",
+      "category": "response-mapping",
+      "input": {
+        "component": "recordView",
+        "responseMapping": {},
+        "response": {
+          "orderId": "1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_RESPONSE_MAPPING",
+        "path": "responseMapping"
+      }
     }
   ]
 }

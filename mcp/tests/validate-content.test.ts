@@ -23,6 +23,10 @@ import {
   missingRowScopeYaml,
   missingSubmitActionTargetYaml,
   missingUploadCapabilityYaml,
+  recordViewOn23Yaml,
+  recordViewMissingCapabilityYaml,
+  recordViewKeyNotInMappingYaml,
+  recordViewMissingRecordSourceYaml,
   nodeParamsResponseMappingOnlyYaml,
   nodeParamsResponseMappingYaml,
   nodePermissionSelfYaml,
@@ -97,6 +101,70 @@ describe('validate_content', () => {
     ]));
     expect(result.suggestedDocs).toContain('docs/03-component-registry.md');
     expect(result.suggestedDocs).toContain('docs/07-actions-contract.md');
+  });
+
+  it('reports recordView on protocolVersion 2.3 as PROTOCOL_VERSION_TOO_LOW (0067/V303)', () => {
+    const result = validateContent({
+      content: recordViewOn23Yaml,
+      format: 'yaml',
+      filename: 'audit-0067-recordview-on-23.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'meta.protocolVersion',
+        message: expect.stringMatching(/PROTOCOL_VERSION_TOO_LOW|recordView|2\.4/),
+      }),
+    ]));
+  });
+
+  it('reports recordView without record.view.load capability (0067/V303)', () => {
+    const result = validateContent({
+      content: recordViewMissingCapabilityYaml,
+      format: 'yaml',
+      filename: 'audit-0067-recordview-missing-cap.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'meta.requiredCapabilities',
+        message: expect.stringMatching(/record\.view\.load/),
+      }),
+    ]));
+  });
+
+  it('reports recordView fields key outside responseMapping (0067/V306)', () => {
+    const result = validateContent({
+      content: recordViewKeyNotInMappingYaml,
+      format: 'yaml',
+      filename: 'audit-0067-recordview-key-not-in-mapping.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'body.props.fields[1].key',
+        message: expect.stringMatching(/responseMapping/),
+      }),
+    ]));
+  });
+
+  it('reports missing recordView.recordSource via props required (0067/V302)', () => {
+    const result = validateContent({
+      content: recordViewMissingRecordSourceYaml,
+      format: 'yaml',
+      filename: 'audit-0067-recordview-missing-record-source.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'body.props.recordSource',
+        message: expect.stringMatching(/recordSource|必填/),
+      }),
+    ]));
   });
 
   it('reports invalid table embedded expression objects through L2', () => {

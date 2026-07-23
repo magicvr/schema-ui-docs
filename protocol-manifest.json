@@ -49,7 +49,8 @@
   "informative": {
     "scenarios": [
       "docs/05-scenarios/**/*.md",
-      "docs/05-scenarios/_samples/order-list-batch.yaml"
+      "docs/05-scenarios/_samples/order-list-batch.yaml",
+      "docs/05-scenarios/_samples/order-detail-lifecycle.yaml"
     ],
     "releaseMetadata": [
       "protocol-manifest.json",

@@ -1,0 +1,24 @@
+# L2 负例：protocolVersion "2.4" + recordView，但未声明 record.view.load（审计 0067 / V303）
+# 期望：path meta.requiredCapabilities，文案要求声明 record.view.load
+meta:
+  pageId: audit_0067_recordview_missing_cap
+  title: bad recordView without capability
+  protocolVersion: "2.4"
+
+body:
+  type: recordView
+  props:
+    title: 订单详情
+    recordSource:
+      method: GET
+      url: /api/orders/{orderId}
+      path:
+        orderId: $context.route.query.orderId
+      responseMapping:
+        orderId: orderId
+        status: status
+    fields:
+      - key: orderId
+        label: 单号
+      - key: status
+        label: 状态

@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-23
+last_updated: 2026-07-24
 applies_to: schema-ui-protocol v2.4
 ---
 
@@ -291,7 +291,7 @@ visibleWhen:
 - 表达式中对 `undefined` 值的比较运算隐式转为 `false`，使节点降级为"不满足条件"。
 - **属性链容错**：任意深度的属性链访问中（如 `$context.user.roles contains 'admin'`），若某环为 `undefined`，后续访问短路返回 `undefined`，不抛异常；参与布尔判断时转 `false`。
 - 渲染流程不得因此中断。具体实现是否抛出告警日志由宿主环境自行决定。
-- `form.recordSource` 绑定的 route 键为 `undefined` 时，按 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 拒绝构造加载请求并进入错误态（不得用空 id 请求）。
+- `form.props.recordSource` 与 `recordView.props.recordSource` 绑定的 route 键为 `undefined` 时，按 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) / [ADR-0024](./decisions/0024-record-view.md) 拒绝构造加载请求并进入错误态（不得用空 id 请求；两者同构 fail-closed）。
 
 > **安全边界声明**：`$context` 不是安全边界，只是渲染边界。`visibleWhen`/`permissions` 控制的是渲染层面的显隐，不能替代后端的真实鉴权。前端 `$context.user.roles` 判断得出的显隐结果，后端必须独立校验，不能信任前端传来的任何身份声明。
 

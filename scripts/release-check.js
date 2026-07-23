@@ -22,7 +22,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:ae70893b69e18c918d9485891a572a7e06f3a986c7de56eddafb391dfcecbffc';
+  'sha256:474a3c091bbac3d1f0a9737e27bfa790d2cf25846706d67afdf3fc45fe8e754e';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -217,8 +217,8 @@ const expectedVersionedCaseCountByProtocol = {
   '2.1': 186,
   '2.2': 189,
   '2.3': 206,
-  // 2.4: +2 response-mapping, +4 version-negotiation, +1 scenarios = 206 + 7 = 213
-  '2.4': 213,
+  // 2.4: base 213（0067 前）+1 record-view-empty-mapping-rejected = 214
+  '2.4': 214,
 };
 const expectedVersionedCaseCount = expectedVersionedCaseCountByProtocol[protocolVersion];
 assert.ok(

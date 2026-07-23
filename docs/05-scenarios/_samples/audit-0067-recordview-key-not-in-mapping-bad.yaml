@@ -1,0 +1,25 @@
+# L2 负例：recordView.fields[].key 不在 responseMapping 键集（审计 0067 / V306）
+# 期望：fields 项 path 报 key 必须出现在 responseMapping
+meta:
+  pageId: audit_0067_recordview_key_not_in_mapping
+  title: bad field key outside mapping
+  protocolVersion: "2.4"
+  requiredCapabilities:
+    - record.view.load
+
+body:
+  type: recordView
+  props:
+    title: 订单详情
+    recordSource:
+      method: GET
+      url: /api/orders/{orderId}
+      path:
+        orderId: $context.route.query.orderId
+      responseMapping:
+        orderId: orderId
+    fields:
+      - key: orderId
+        label: 单号
+      - key: missingFromMapping
+        label: 不存在于 mapping

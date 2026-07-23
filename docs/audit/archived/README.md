@@ -6,6 +6,20 @@
 
 ---
 
+## 0067 — 2026-07-24 — v2.4 recordView 交付原子一致性
+
+**主题：** ADR-0024 `recordView` / `record.view.load` 双重门控与权威链一致性（V300–V308）。  
+**性质：** 2×P0 + 2×P1 + 4×P2 + 1×P3 全部关闭。权威 `01`/`page.schema` 锚点与 2.4 制品对齐；registry `required` 键冲突修复；L2 双重门控与 key⊆mapping 负例进入 CI；文档/场景/manifest 信息项补齐。
+
+| 文件 | 说明 |
+|---|---|
+| [0067-2026-07-24-review.md](./0067-2026-07-24-review.md) | 审计报告 — V300–V308（全部关闭） |
+| [0067-2026-07-24-checklist.md](./0067-2026-07-24-checklist.md) | 跟踪清单 — 修复与归档门禁 |
+
+**关闭证据：** `release:check` / `verify:protocol-artifact` 通过（versionedCaseCount **214**，artifactDigest `sha256:ea1f0b6f…`）；`test:conformance:all` 29 入口全绿；MCP validate-content/components 118 passed。
+
+---
+
 ## 0066 — 2026-07-24 — 协议演进完成度与发布闭环复审
 
 **主题：** Admin 轨道 P0/P1（2.1–2.3）能力完成度 vs Git tag / `main` / 提交闭环（V295–V299）。

@@ -15,7 +15,7 @@
         "protocolVersion": {
           "type": "string",
           "pattern": "^[0-9]+\\.[0-9]+$",
-          "description": "必填（since 0.2），格式 MAJOR.MINOR。当前协议制品为 \"2.3\"。使用 permissionCascade 或 permissionIntent 时必须 \"2.3\" 并声明 permissions.inheritance；2.2 字段仍要求至少 \"2.2\"。L2 强制字段集→版本下限（V282、ADR-0023）"
+          "description": "必填（since 0.2），格式 MAJOR.MINOR。当前协议制品为 \"2.4\"。使用 permissionCascade 或 permissionIntent 时必须 \"2.3\" 并声明 permissions.inheritance；使用 type: recordView 时必须 \"2.4\" 并声明 record.view.load；2.2 字段仍要求至少 \"2.2\"。L2 强制字段集→版本下限（V282、ADR-0023/0024；审计 0067 V300/V301）"
         },
         "requiredCapabilities": {
           "type": "array",

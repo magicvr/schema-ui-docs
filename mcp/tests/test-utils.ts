@@ -581,3 +581,98 @@ body:
       list: result.items
 `;
 
+/** 审计 0067 V303：2.3 + recordView → PROTOCOL_VERSION_TOO_LOW */
+export const recordViewOn23Yaml = `
+meta:
+  pageId: audit_0067_recordview_on_23
+  title: bad recordView on 2.3
+  protocolVersion: "2.3"
+  requiredCapabilities:
+    - record.view.load
+body:
+  type: recordView
+  props:
+    title: 订单详情
+    recordSource:
+      method: GET
+      url: /api/orders/{orderId}
+      path:
+        orderId: $context.route.query.orderId
+      responseMapping:
+        orderId: orderId
+        status: status
+    fields:
+      - key: orderId
+        label: 单号
+      - key: status
+        label: 状态
+`;
+
+/** 审计 0067 V303：2.4 + recordView 缺 record.view.load */
+export const recordViewMissingCapabilityYaml = `
+meta:
+  pageId: audit_0067_recordview_missing_cap
+  title: bad recordView without capability
+  protocolVersion: "2.4"
+body:
+  type: recordView
+  props:
+    title: 订单详情
+    recordSource:
+      method: GET
+      url: /api/orders/{orderId}
+      path:
+        orderId: $context.route.query.orderId
+      responseMapping:
+        orderId: orderId
+        status: status
+    fields:
+      - key: orderId
+        label: 单号
+      - key: status
+        label: 状态
+`;
+
+/** 审计 0067 V306：fields[].key 不在 responseMapping */
+export const recordViewKeyNotInMappingYaml = `
+meta:
+  pageId: audit_0067_recordview_key_not_in_mapping
+  title: bad field key outside mapping
+  protocolVersion: "2.4"
+  requiredCapabilities:
+    - record.view.load
+body:
+  type: recordView
+  props:
+    title: 订单详情
+    recordSource:
+      method: GET
+      url: /api/orders/{orderId}
+      path:
+        orderId: $context.route.query.orderId
+      responseMapping:
+        orderId: orderId
+    fields:
+      - key: orderId
+        label: 单号
+      - key: missingFromMapping
+        label: 不存在于 mapping
+`;
+
+/** 审计 0067 V302：缺 recordSource 仍 fail-closed */
+export const recordViewMissingRecordSourceYaml = `
+meta:
+  pageId: audit_0067_recordview_missing_record_source
+  title: bad recordView without recordSource
+  protocolVersion: "2.4"
+  requiredCapabilities:
+    - record.view.load
+body:
+  type: recordView
+  props:
+    title: 订单详情
+    fields:
+      - key: orderId
+        label: 单号
+`;
+
