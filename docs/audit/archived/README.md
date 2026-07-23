@@ -6,6 +6,20 @@
 
 ---
 
+## 0066 — 2026-07-24 — 协议演进完成度与发布闭环复审
+
+**主题：** Admin 轨道 P0/P1（2.1–2.3）能力完成度 vs Git tag / `main` / 提交闭环（V295–V299）。
+**性质：** 无 P0；2×P1 + 3×P2 全部关闭。`v2.2.0` / `v2.3.0` 已按两阶段方案合入绿色 `main` 并发布；Protocol Release 远端 tar SHA-256 已核验。
+
+| 文件 | 说明 |
+|---|---|
+| [0066-2026-07-24-review.md](./0066-2026-07-24-review.md) | 审计报告 — V295–V299（全部关闭） |
+| [0066-2026-07-24-checklist.md](./0066-2026-07-24-checklist.md) | 跟踪清单 — 发布闭环与归档门禁 |
+
+**关闭证据：** PR #18 / #19 合入 `main` 为 `e234baf` / `4e51b8`；tag `v2.2.0` / `v2.3.0`；Protocol Release runs `30030740748` / `30032479183`；artifact SHA-256 `a09fd94c…` / `b536f527…`；关闭时 `release:check` / `verify:protocol-artifact` / conformance / links / scenarios 通过。
+
+---
+
 ## 0065 — 2026-07-23 — ADR-0023 权限继承提案可接受性响应
 
 **主题：** 容器权限结构树、表单 `edit` 目标、`permissionIntent` 挂载矩阵、fail-closed 时序与 capability 门控（V287–V294）。
