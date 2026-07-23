@@ -1,0 +1,35 @@
+# L3a positive: toolbar visibleWhen/permissions only $context.* (V268)
+meta:
+  pageId: audit_0062_toolbar_ok
+  title: Toolbar context OK
+  protocolVersion: "2.1"
+  requiredCapabilities:
+    - actions.page.trigger
+
+actions:
+  createOrder:
+    type: navigate
+    url: /orders/new
+
+body:
+  type: table
+  id: orders
+  props:
+    rowKey: orderId
+    toolbar:
+      - key: create
+        label: 新建
+        actionRef: createOrder
+        visibleWhen:
+          when: $context.features.canCreate == true
+        permissions:
+          canView: $context.user.roles contains "admin"
+    columns:
+      - field: orderId
+        label: 订单号
+  data:
+    source: api
+    url: /api/orders
+    method: GET
+    responseMapping:
+      list: data.list

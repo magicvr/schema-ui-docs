@@ -22,7 +22,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:eddc3ff3d90aa8b84c50a373d422ce5549bf95501a312d93b1bd83a4b257f918';
+  'sha256:c78c732fc941612075c2e9ebc3da35180df54e85219d441d51901e24b177cf4e';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -175,7 +175,7 @@ for (const category of expectedCategories) {
   versionedCaseCount += suite.cases.length;
 }
 // Count is recomputed each MINOR when algorithm fixtures grow; keep in sync with suites.
-const expectedVersionedCaseCount = protocolVersion === '2.1' ? 163 : 128;
+const expectedVersionedCaseCount = protocolVersion === '2.1' ? 183 : 128;
 assert.equal(
   versionedCaseCount,
   expectedVersionedCaseCount,

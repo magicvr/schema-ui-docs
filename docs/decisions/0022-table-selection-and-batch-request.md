@@ -78,13 +78,14 @@ props:
 规则：
 
 1. **`selection.mode: multiple`（MVP 唯一合法值）。** 缺省 `selection` = 无协议级多选（与 v2.1 一致）。  
-2. **选中键**取当前行 `rowKey` 字段的**标量**值（string / number / boolean）；`null`/`undefined`/非标量行不得进入选中集，开发环境可告警。  
-3. **作用域：仅当前页数据**（本次表格数据请求返回的 `list` 行）。不维护跨页集合。  
-4. **与 ADR-0011 状态机交互（唯一策略）：**  
+2. **选中键**取当前行 `rowKey` 字段的**标量**值（string / finite number / boolean）；`null`/`undefined`/object/array/非有限 number **不得**进入选中集；输入事件中出现时 **静默丢弃**（开发环境可告警）。  
+3. **去重保序：** 同一逻辑键只保留首次出现；`count` **必须**等于规范化后 `keys.length`（审计 0062 / V271）。字符串与数字不互转（`"1"` 与 `1` 为不同键）。  
+4. **作用域：仅当前页数据**（本次表格数据请求返回的 `list` 行）。不维护跨页集合。  
+5. **与 ADR-0011 状态机交互（唯一策略）：**  
    - 用户 **提交搜索**、**清空筛选**、**改变 sort**、**改变 page**、**改变 pageSize**、**表格 data reload 成功** → **清空全部选中**。  
    - 理由：跨页保留未标准化；当前页集合在筛选/翻页后语义漂移。  
-5. **全选当前页**：Renderer 可提供「全选本页」控件；协议只要求结果是「本页全部合法 rowKey 进入集合」，不规定 DOM。  
-6. **不**把 selection 写入 URL query（非 `page`/`pageSize`/`sort`）；selection 是 Renderer 会话态。
+6. **全选当前页**：Renderer 可提供「全选本页」控件；协议只要求结果是「本页全部合法 rowKey 进入集合」，不规定 DOM。  
+7. **不**把 selection 写入 URL query（非 `page`/`pageSize`/`sort`）；selection 是 Renderer 会话态。
 
 ### D3. 选中集合的运行时表示（可观测）
 
@@ -112,8 +113,9 @@ requiresSelection: boolean   # 默认 false
 ```
 
 - `true`：当 `count === 0` 时按钮 **disabled**（不可点）；与静态 `disabled: true` 为 OR。  
-- 仅当 Trigger 挂在 **声明了 `selection` 的同一 table 的 `toolbar[]`** 上时合法；`actionButton` 上出现 `requiresSelection` → L2 拒绝（MVP 无「关联 table id」字段）。  
-- 使用 `requiresSelection: true` 的页面必须同时具备 `table.selection`。
+- 仅当 Trigger 挂在 **声明了 `selection.mode: multiple` 的同一 table 的 `toolbar[]`** 上时合法；`actionButton` 上出现 `requiresSelection` → L2 拒绝（MVP 无「关联 table id」字段）。  
+- 使用 `requiresSelection: true` 的页面必须同时具备 `table.selection`。  
+- **`requiresSelection` 对 `batchMapping` 不是强制字段**（裁决 OQ-22-6）：批量 Trigger 可省略并依赖运行时 `EMPTY_SELECTION`；推荐配置 `true` 以禁用空选点击。
 
 ### D5. `batchMapping`（批量请求绑定）
 
@@ -170,7 +172,8 @@ batchMapping:
 
 - `actionRef` 仅 `type: request`（MVP；批量 navigate/modal 不做）。  
 - method 允许 `POST` / `PUT` / `PATCH` / `DELETE`；**禁止 GET**（与页面 Trigger 纪律一致）。  
-- url 不得含未绑定 `{name}`；若有 path 占位，必须在 `batchMapping.path` 用**字面量**绑完。  
+- url 不得含未绑定 `{name}`；若有 path 占位，必须在 `batchMapping.path` 用**字面量**绑完，且 **path 键集合与 URL 占位符集合完全相等**（运行时 `MISSING_PATH_BINDING` / `EXTRA_PATH_BINDING`，审计 0062 / V267）。  
+- **声明 `batchMapping` 时，同一 table 必须配置 `props.selection.mode: multiple`**（L2 / 审计 0062 / V269）；缺省 selection 的批量配置为静态非法。  
 - 成功 / 失败复用 `OutcomeBehavior`；`reload` = 重新加载**该 table** 数据，并按 D2 **清空选中**。
 
 #### D5d. 执行顺序
@@ -297,6 +300,7 @@ body:
 | **OQ-22-3** | `DELETE` + body 是否允许？ | **允许。** 协议要求构造带 JSON body 的 DELETE（若配置了 body 映射）。 | 批量删除常见；与「页面 Trigger 禁止 GET」不冲突。宿主 HTTP 栈若不能发 DELETE body，属实现限制，须在 Renderer 文档声明，不得静默改 method。 |
 | **OQ-22-4** | keys 是否统一为 string？ | **否。** 保持 `rowKey` 字段运行时标量类型。 | 避免 number id 被强制字符串化导致后端类型错误。 |
 | **OQ-22-5** | 是否需要 `maxSelection`？ | **否（MVP）。** | 限流由后端与产品负责；需要时另开字段。 |
+| **OQ-22-6** | `batchMapping` 是否强制 `requiresSelection: true`？ | **否。** 强制的是 `selection.mode: multiple`；`requiresSelection` 保持可选。 | 空选已由运行时 `EMPTY_SELECTION` 拒绝；强制 disabled 语义会改变仅「点击后提示」的既有产品形态。推荐示例仍写 `requiresSelection: true`。 |
 
 以上裁决已并入 D2–D5；接受本 ADR 时无需再议，除非有新的互操作反例推翻。
 

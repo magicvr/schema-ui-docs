@@ -123,7 +123,35 @@ def resolve_route_mapping(mapping, route, section):
     return {"ok": True, "entries": output}
 
 
+def extract_url_path_params(url):
+    if not isinstance(url, str):
+        return []
+    return re.findall(r"\{([A-Za-z_][A-Za-z0-9_]*)\}", url)
+
+
+def has_invalid_url_template(url):
+    if not isinstance(url, str):
+        return False
+    stripped = re.sub(r"\{[A-Za-z_][A-Za-z0-9_]*\}", "", url)
+    return "{" in stripped or "}" in stripped
+
+
 def apply_path_params(url, path_entries, path_prefix):
+    """Fail-closed path application (V267): placeholders and path keys must match exactly."""
+    if has_invalid_url_template(url):
+        return failure("INVALID_URL_TEMPLATE", path_prefix)
+    placeholders = extract_url_path_params(url)
+    placeholder_set = set(placeholders)
+    mapping_keys = [key for key, _ in path_entries]
+    mapping_key_set = set(mapping_keys)
+
+    for placeholder in placeholder_set:
+        if placeholder not in mapping_key_set:
+            return failure("MISSING_PATH_BINDING", f"{path_prefix}.{placeholder}")
+    for key in mapping_keys:
+        if key not in placeholder_set:
+            return failure("EXTRA_PATH_BINDING", f"{path_prefix}.{key}")
+
     next_url = url
     for key, value in path_entries:
         if value is None:
@@ -132,6 +160,8 @@ def apply_path_params(url, path_entries, path_prefix):
         if encoded is None:
             return failure("INVALID_PATH_VALUE", f"{path_prefix}.{key}")
         next_url = next_url.replace(f"{{{key}}}", encoded)
+    if "{" in next_url or "}" in next_url:
+        return failure("UNRESOLVED_PATH_TEMPLATE", path_prefix)
     return {"ok": True, "url": next_url}
 
 
@@ -247,7 +277,10 @@ def build_row_navigate(input_value):
 
 def build_record_source_request(input_value):
     record_source = input_value.get("recordSource") or {}
-    method = record_source.get("method", "GET")
+    # V270: method is required (matches component DSL / L2); do not default to GET.
+    if "method" not in record_source:
+        return failure("MISSING_RECORD_SOURCE_METHOD", "recordSource.method")
+    method = record_source.get("method")
     if method != "GET":
         return failure("RECORD_SOURCE_METHOD_NOT_GET", "recordSource.method")
     url_error = validate_protocol_url(record_source.get("url"), "recordSource.url")
@@ -283,7 +316,22 @@ def build_record_source_request(input_value):
     }
 
 
+def apply_confirm_gate(input_value):
+    """Shared confirm gate for page-level ActionTrigger (V272 / ADR-0020 D4)."""
+    confirm = input_value.get("confirm")
+    if confirm is None or confirm == "":
+        return None
+    if not isinstance(confirm, str):
+        return failure("INVALID_CONFIRM", "confirm")
+    if input_value.get("confirmAccepted") is not True:
+        return failure("CONFIRM_REJECTED", "confirm")
+    return None
+
+
 def build_page_trigger_request(input_value):
+    confirm_error = apply_confirm_gate(input_value)
+    if confirm_error:
+        return confirm_error
     action = input_value["action"]
     method = action.get("method")
     url_error = validate_protocol_url(action["url"], "action.url")
@@ -305,6 +353,37 @@ def build_page_trigger_request(input_value):
         "body": None,
     }, metadata)
     return {"ok": True, "request": request}
+
+
+def build_page_trigger_navigate(input_value):
+    confirm_error = apply_confirm_gate(input_value)
+    if confirm_error:
+        return confirm_error
+    action = input_value["action"]
+    url_error = validate_protocol_url(action["url"], "action.url")
+    if url_error:
+        return url_error
+    if "{" in action["url"] or "}" in action["url"]:
+        return failure("UNBOUND_URL_TEMPLATE", "action.url")
+    serialized = serialize_query(action["url"], [])
+    if not serialized["ok"]:
+        return serialized
+    return {"ok": True, "navigation": {"url": serialized["url"]}}
+
+
+def build_page_trigger_modal(input_value):
+    confirm_error = apply_confirm_gate(input_value)
+    if confirm_error:
+        return confirm_error
+    action = input_value.get("action") or {}
+    if "modalId" not in action and "content" not in action:
+        return failure("INVALID_MODAL_ACTION", "action")
+    modal = {}
+    if "modalId" in action:
+        modal["modalId"] = action["modalId"]
+    if "content" in action:
+        modal["hasContent"] = True
+    return {"ok": True, "modalOpen": modal}
 
 
 def resolve_batch_mapping_value(configured_value, selection, field_path):
@@ -335,6 +414,9 @@ def resolve_batch_section(mapping_section, selection, section_name):
 
 
 def build_batch_request(input_value):
+    confirm_error = apply_confirm_gate(input_value)
+    if confirm_error:
+        return confirm_error
     keys = list((input_value.get("selection") or {}).get("keys") or [])
     count = (input_value.get("selection") or {}).get("count", len(keys))
     selection = {"keys": keys, "count": count}
@@ -439,6 +521,10 @@ def build_request(input_value):
         return build_record_source_request(input_value)
     if input_value.get("kind") == "pageTriggerRequest":
         return build_page_trigger_request(input_value)
+    if input_value.get("kind") == "pageTriggerNavigate":
+        return build_page_trigger_navigate(input_value)
+    if input_value.get("kind") == "pageTriggerModal":
+        return build_page_trigger_modal(input_value)
     if input_value.get("kind") == "batchRequest":
         return build_batch_request(input_value)
     if input_value.get("kind") == "formAction":

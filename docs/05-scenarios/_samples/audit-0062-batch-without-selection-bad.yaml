@@ -1,0 +1,42 @@
+# L2 negative: batchMapping without table.selection (V269)
+meta:
+  pageId: audit_0062_batch_no_selection
+  title: Batch without selection
+  protocolVersion: "2.1"
+  requiredCapabilities:
+    - actions.page.trigger
+    - actions.batch.request
+
+actions:
+  deleteOrders:
+    type: request
+    method: POST
+    url: /api/orders/batch-delete
+    onSuccess:
+      behavior: reload
+
+body:
+  type: table
+  id: orders
+  props:
+    rowKey: orderId
+    pagination:
+      mode: server
+      pageSize: 20
+    toolbar:
+      - key: batchDelete
+        label: 批量删除
+        actionRef: deleteOrders
+        batchMapping:
+          body:
+            orderIds: $selection.keys
+    columns:
+      - field: orderId
+        label: 订单号
+  data:
+    source: api
+    url: /api/orders
+    method: GET
+    responseMapping:
+      list: data.list
+      total: data.total

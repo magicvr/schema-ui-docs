@@ -197,8 +197,8 @@ data:
 | `actionRef` | string | 是 | 引用顶层 `request` \| `navigate` \| `modal`；禁止 `upload`/`custom` |
 | `confirm` | string | 否 | 二次确认 |
 | `disabled` | boolean | 否 | 静态禁用 |
-| `requiresSelection` | boolean | 否（since 2.2） | 仅 `table.toolbar`；`true` 时选中数为 0 则 disabled；要求同 table 有 `selection` |
-| `batchMapping` | object | 否（since 2.2） | 仅 `table.toolbar` + `type: request`；`body` 可用 `$selection.keys`；见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md) / [07 §3.5](./07-actions-contract.md#35-批量请求绑定since-22-adr-0022) |
+| `requiresSelection` | boolean | 否（since 2.2） | 仅 `table.toolbar`；`true` 时选中数为 0 则 disabled；要求同 table 有 `selection.mode: multiple` |
+| `batchMapping` | object | 否（since 2.2） | 仅 `table.toolbar` + `type: request`；**要求同 table `selection.mode: multiple`**；`body` 可用 `$selection.keys`；见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md) / [07 §3.5](./07-actions-contract.md#35-批量请求绑定since-22-adr-0022) |
 | `visibleWhen` / `permissions` | object | 否 | toolbar 项上 `visibleWhen` 仅 `$context.*`；`actionButton` 作 Node 时遵循普通 Node 规则 |
 
 页面级 Trigger 触发的 `request` **禁止 GET**（仅 POST/PUT/PATCH/DELETE）。完整规则见 [ADR-0020](./decisions/0020-page-action-trigger.md)。批量见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md)。
@@ -270,7 +270,7 @@ actions:
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| `method` | `GET` | 是 | 只读加载 |
+| `method` | `GET` | 是 | 只读加载；**必填**，不得省略（审计 0062 / V270） |
 | `url` | string | 是 | baseURL 下单斜杠相对路径；可含 `{name}`；**仅内联**，不得 ref datasources |
 | `path` / `query` | object | 否 | 扁平 map；值 = 字面量或 `$context.route.query.*` / `$context.route.params.*` |
 | `responseMapping` | object | 是（非空） | form `field` → 响应 JSON 点路径；禁止缺省同名自动映射 |

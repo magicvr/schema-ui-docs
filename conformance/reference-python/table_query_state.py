@@ -1,10 +1,52 @@
+import math
+
 from query_serialization import serialize_query
+
+
+def is_selection_key(value):
+    """ADR-0022 / V271: string | finite number | boolean only."""
+    if isinstance(value, bool):
+        return True
+    if isinstance(value, str):
+        return True
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return math.isfinite(value)
+    return False
+
+
+def selection_key_token(value):
+    if isinstance(value, bool):
+        return f"boolean:{value}"
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        # Normalize -0.0 to 0 for stable identity.
+        normalized = 0 if value == 0 else value
+        return f"number:{normalized}"
+    return f"string:{value}"
+
+
+def normalize_keys(raw_keys):
+    if not isinstance(raw_keys, list):
+        return []
+    seen = set()
+    keys = []
+    for key in raw_keys:
+        if not is_selection_key(key):
+            continue
+        token = selection_key_token(key)
+        if token in seen:
+            continue
+        seen.add(token)
+        if isinstance(key, (int, float)) and not isinstance(key, bool) and key == 0:
+            keys.append(0)
+        else:
+            keys.append(key)
+    return keys
 
 
 def normalize_selection(selection):
     if not isinstance(selection, dict):
         return {"keys": [], "count": 0}
-    keys = list(selection.get("keys") or [])
+    keys = normalize_keys(selection.get("keys"))
     return {"keys": keys, "count": len(keys)}
 
 
@@ -42,7 +84,7 @@ def apply_selection_event(selection, selection_event):
     if selection_event is None:
         return next_selection
     if selection_event["type"] == "setKeys":
-        keys = list(selection_event.get("keys") or [])
+        keys = normalize_keys(selection_event.get("keys"))
         return {"keys": keys, "count": len(keys)}
     if selection_event["type"] == "clear":
         return {"keys": [], "count": 0}

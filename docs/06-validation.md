@@ -27,7 +27,9 @@ applies_to: schema-ui-protocol v2.1
 
 > **v0.2.7 变更（行级后端请求，0039 修订）：** 使用 `table.props.actions[].actionRef` 指向 `type: request` 时，页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。L2 校验器还应检查 `actionRef` 是否存在、是否同时声明非空 `requestMapping`、path 与 URL `{param}` 对齐、映射值只使用字面量或单个 `$row.*`。`$parentRow.*` 静态拒绝。
 
-> **Admin 生命周期 P0（ADR-0020 / 0021）：** `actionButton` / `table.toolbar` → `actions.page.trigger`；行级 `navigate` + `navigateMapping` → `actions.row.navigate`；`form.recordSource` → `form.record.load`（`responseMapping` 必填非空，search 模式禁止）。页面级 Trigger 的 request 禁止 GET。
+> **Admin 生命周期 P0（ADR-0020 / 0021）：** `actionButton` / `table.toolbar` → `actions.page.trigger`；行级 `navigate` + `navigateMapping` → `actions.row.navigate`；`form.recordSource` → `form.record.load`（`method` 必填 GET，`responseMapping` 必填非空，search 模式禁止）。页面级 Trigger 的 request 禁止 GET。
+
+> **审计 0062 收敛：** L3a 遍历 `table.props.toolbar[]` 的 `visibleWhen` / `permissions`（仅 `$context.*`）；L2 在 `batchMapping` 时要求同 table `selection.mode: multiple`；request-construction 对 path 占位符与 mapping 键 fail-closed，并覆盖 page Trigger navigate/modal/confirm。
 
 > **v0.2.8 变更（引用完整性 & 继承 responseMapping 校验 & params.responseMapping 禁令 & Node id 唯一性 & 行级 requestMapping 模板禁令）：** L2 校验器增加以下规则：
 > - `form.props.submitAction` 必须引用顶层 `actions` 中已声明的动作 id；引用 `type: request` 时不得使用 GET，普通表单字段只按 JSON 请求体提交。

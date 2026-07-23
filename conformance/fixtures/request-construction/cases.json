@@ -1186,6 +1186,415 @@
         "code": "PAGE_TRIGGER_METHOD_NOT_ALLOWED",
         "path": "action.method"
       }
+    },
+    {
+      "id": "row-navigate-missing-path-binding-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/{orderId}/edit"
+        },
+        "navigateMapping": {
+          "query": {
+            "from": "list"
+          }
+        },
+        "row": {
+          "orderId": "ORD-1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_PATH_BINDING",
+        "path": "navigateMapping.path.orderId"
+      }
+    },
+    {
+      "id": "row-navigate-extra-path-binding-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/edit"
+        },
+        "navigateMapping": {
+          "path": {
+            "orderId": "$row.orderId"
+          },
+          "query": {
+            "from": "list"
+          }
+        },
+        "row": {
+          "orderId": "ORD-1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EXTRA_PATH_BINDING",
+        "path": "navigateMapping.path.orderId"
+      }
+    },
+    {
+      "id": "row-action-missing-path-binding-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/{orderId}/refund"
+        },
+        "requestMapping": {
+          "query": {
+            "reason": "manual"
+          }
+        },
+        "row": {
+          "orderId": "ORD-1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_PATH_BINDING",
+        "path": "requestMapping.path.orderId"
+      }
+    },
+    {
+      "id": "record-source-missing-path-binding-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "GET",
+          "url": "/api/orders/{orderId}",
+          "responseMapping": {
+            "orderId": "orderId"
+          }
+        },
+        "route": {
+          "query": {
+            "orderId": "ORD-1"
+          },
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_PATH_BINDING",
+        "path": "recordSource.path.orderId"
+      }
+    },
+    {
+      "id": "record-source-extra-path-binding-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "GET",
+          "url": "/api/orders/1",
+          "path": {
+            "orderId": "$context.route.query.orderId"
+          },
+          "responseMapping": {
+            "orderId": "orderId"
+          }
+        },
+        "route": {
+          "query": {
+            "orderId": "ORD-1"
+          },
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EXTRA_PATH_BINDING",
+        "path": "recordSource.path.orderId"
+      }
+    },
+    {
+      "id": "record-source-missing-method-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "url": "/api/orders/1",
+          "responseMapping": {
+            "id": "id"
+          }
+        },
+        "route": {
+          "query": {},
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_RECORD_SOURCE_METHOD",
+        "path": "recordSource.method"
+      }
+    },
+    {
+      "id": "batch-request-missing-path-binding-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/tenants/{tenantId}/orders/batch"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "a"
+          ],
+          "count": 1
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_PATH_BINDING",
+        "path": "batchMapping.path.tenantId"
+      }
+    },
+    {
+      "id": "batch-request-extra-path-binding-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch"
+        },
+        "batchMapping": {
+          "path": {
+            "tenantId": "acme"
+          },
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "a"
+          ],
+          "count": 1
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EXTRA_PATH_BINDING",
+        "path": "batchMapping.path.tenantId"
+      }
+    },
+    {
+      "id": "batch-request-path-literal-ok",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/tenants/{tenantId}/orders/batch"
+        },
+        "batchMapping": {
+          "path": {
+            "tenantId": "acme"
+          },
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "ORD-1",
+            "ORD-2"
+          ],
+          "count": 2
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/api/tenants/acme/orders/batch",
+          "body": {
+            "orderIds": [
+              "ORD-1",
+              "ORD-2"
+            ]
+          }
+        },
+        "selectionAfterSuccessReload": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "page-trigger-navigate-ok",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerNavigate",
+        "action": {
+          "type": "navigate",
+          "url": "/orders/new"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "navigation": {
+          "url": "/orders/new"
+        }
+      }
+    },
+    {
+      "id": "page-trigger-navigate-confirm-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerNavigate",
+        "action": {
+          "type": "navigate",
+          "url": "/orders/new"
+        },
+        "confirm": "离开当前页？",
+        "confirmAccepted": false
+      },
+      "expected": {
+        "ok": false,
+        "code": "CONFIRM_REJECTED",
+        "path": "confirm"
+      }
+    },
+    {
+      "id": "page-trigger-navigate-confirm-accepted",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerNavigate",
+        "action": {
+          "type": "navigate",
+          "url": "/orders/new"
+        },
+        "confirm": "离开当前页？",
+        "confirmAccepted": true
+      },
+      "expected": {
+        "ok": true,
+        "navigation": {
+          "url": "/orders/new"
+        }
+      }
+    },
+    {
+      "id": "page-trigger-modal-ok",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerModal",
+        "action": {
+          "type": "modal",
+          "modalId": "createOrder"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "modalOpen": {
+          "modalId": "createOrder"
+        }
+      }
+    },
+    {
+      "id": "page-trigger-modal-confirm-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerModal",
+        "action": {
+          "type": "modal",
+          "modalId": "createOrder"
+        },
+        "confirm": "打开弹窗？",
+        "confirmAccepted": false
+      },
+      "expected": {
+        "ok": false,
+        "code": "CONFIRM_REJECTED",
+        "path": "confirm"
+      }
+    },
+    {
+      "id": "page-trigger-request-confirm-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/refresh"
+        },
+        "confirm": "刷新列表？",
+        "confirmAccepted": false
+      },
+      "expected": {
+        "ok": false,
+        "code": "CONFIRM_REJECTED",
+        "path": "confirm"
+      }
+    },
+    {
+      "id": "page-trigger-request-confirm-accepted",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/refresh"
+        },
+        "confirm": "刷新列表？",
+        "confirmAccepted": true
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/api/orders/refresh",
+          "body": null
+        }
+      }
+    },
+    {
+      "id": "page-trigger-navigate-unbound-template-rejected",
+      "protocolVersion": "2.1",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerNavigate",
+        "action": {
+          "type": "navigate",
+          "url": "/orders/{id}/edit"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNBOUND_URL_TEMPLATE",
+        "path": "action.url"
+      }
     }
   ]
 }

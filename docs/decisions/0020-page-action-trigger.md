@@ -154,7 +154,13 @@ props:
 - `visibleWhen` / 未来 reactions：  
   - 挂在 **独立 `actionButton` Node** 上时，遵循普通 Node 的 `visibleWhen`（`$context.*`；若位于 form 内可 `$deps.*`）；  
   - 挂在 **`table.props.toolbar[]`** 上时，MVP **仅允许** `$context.*`（无 `$row`、无 `$deps`），避免工具栏随行或随搜索字段隐式抖动；需要随筛选变化的禁用留给后续 ADR。  
-- toolbar Trigger **不**支持 `reactions` 数组（MVP）。
+  - **L3a 必须遍历 `table.props.toolbar[]` 的 `visibleWhen` / `permissions`**（审计 0062 / V268）；即使 table 位于 form 内，toolbar 表达式也不得获得 form `$deps` 上下文。  
+- toolbar Trigger **不**支持 `reactions` 数组（MVP）。  
+- **可观测执行结果（审计 0062 / V272）：**  
+  - `type: request` → 构造 HTTP request（method/url/body/headers）；  
+  - `type: navigate` → `{ navigation: { url } }`（静态相对 URL，无未绑定模板）；  
+  - `type: modal` → `{ modalOpen: { modalId? , hasContent? } }`；  
+  - 非空 `confirm` 且用户未确认 → `CONFIRM_REJECTED`，三种类型均不得继续执行。
 
 ### D6. 与现有概念的关系
 

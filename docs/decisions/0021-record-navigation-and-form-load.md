@@ -144,14 +144,15 @@ props:
 规则：
 
 1. 使用 `recordSource` 时必须声明 `form.record.load`；  
-2. `method` 只允许 `GET`（与 ADR-0013 DataRef 只读一致）；  
+2. **`method` 必填且只允许 `GET`**（与 ADR-0013 DataRef 只读一致）；参考实现与 Renderer **不得**对缺失 method 默认 `GET`（审计 0062 / V270 → `MISSING_RECORD_SOURCE_METHOD`）；  
 3. `url` 为 baseURL 下单斜杠相对路径；**MVP 仅允许内联 url**，不得 `source: ref` 引用页面 `datasources`（裁决 OQ-21-2）；  
 4. `path` / `query` 映射值只允许：字面量，或单个 `$context.route.query.*` / `$context.route.params.*` 点路径（MVP 不开放 `$context.user`）；  
 5. **`responseMapping` 必填**且为非空对象（裁决 OQ-21-1）；L2 对缺省或 `{}` 拒绝；  
-6. 加载时机：form 节点挂载且 `recordSource` 合法后 **自动发起一次**；遵循 latest-wins（ADR-0015）若快速重挂载；  
-7. 加载中：form 进入 loading 态（若 `supportsStates` 或 Renderer 统一 loading）；字段在成功前不得视为用户已编辑的脏数据；  
-8. 加载失败：节点错误态 + 安全错误文案；**不**执行 `submitAction`；`401`/`403` 走全局认证钩子；  
-9. `mode: search` 的 form **禁止** `recordSource`（L2）。
+6. **`path` 与 url `{name}` 双向对齐**，运行时 fail-closed：`MISSING_PATH_BINDING` / `EXTRA_PATH_BINDING`，不得请求未解析模板 URL（审计 0062 / V267）；  
+7. 加载时机：form 节点挂载且 `recordSource` 合法后 **自动发起一次**；遵循 latest-wins（ADR-0015）若快速重挂载；  
+8. 加载中：form 进入 loading 态（若 `supportsStates` 或 Renderer 统一 loading）；字段在成功前不得视为用户已编辑的脏数据；  
+9. 加载失败：节点错误态 + 安全错误文案；**不**执行 `submitAction`；`401`/`403` 走全局认证钩子；  
+10. `mode: search` 的 form **禁止** `recordSource`（L2）。
 
 ### D5. 初始值合并与提交
 

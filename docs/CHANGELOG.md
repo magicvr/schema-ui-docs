@@ -7,6 +7,13 @@
 
 ## Unreleased
 
+- **审计 0062（V267–V272）：** 协议 2.1/2.2 互操作性闭合。
+  - **V267：** request-construction（JS/Python）路径应用 fail-closed：`MISSING_PATH_BINDING` / `EXTRA_PATH_BINDING`；覆盖 row navigate/request、recordSource、batch path。
+  - **V268：** L3a 遍历 `table.props.toolbar` 的 `visibleWhen`/`permissions`（仅 `$context.*`）。
+  - **V269：** L2 要求 `batchMapping` 同 table 声明 `selection.mode: multiple`；`requiresSelection` 对 batch 仍可选（ADR-0022 OQ-22-6）。
+  - **V270：** `recordSource.method` 缺失返回 `MISSING_RECORD_SOURCE_METHOD`，不再默认 GET。
+  - **V271：** selection keys 过滤非标量、去重保序，`count` 规范化。
+  - **V272：** page Trigger `navigate`/`modal` 与 confirm 门控 conformance（`pageTriggerNavigate` / `pageTriggerModal` / `CONFIRM_REJECTED`）。
 - **ADR-0022 accepted（capability 门控，目标 2.2 制品）：** `table.selection`（当前页多选）+ toolbar `batchMapping` / `requiresSelection`（`actions.batch.request`）。Schema、L2、request-construction / search-table / version-negotiation fixtures 与 JS/Python reference 已同步。跨页全选与权限继承不在本 ADR。
 - 发布流程：明确 **merge `main` 只 CI、不发资产、不自动打 tag**；协议 `v*` 与 MCP `mcp-v*` **独立 tag**。见 [`RELEASE.md`](./RELEASE.md)。
 - MCP CD：镜像发布目标从 Docker Hub 改为 **GitHub Container Registry**（`ghcr.io/<owner>/schema-ui-mcp`，稳定版含 `latest` / minor 别名）。工作流见仓库 `.github/workflows/mcp-cd.yml`；使用说明见 `docs/mcp/README.md`（二者不进协议制品包）。

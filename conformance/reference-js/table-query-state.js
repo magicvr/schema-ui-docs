@@ -6,11 +6,46 @@ function entries(value) {
   return Object.entries(value || {});
 }
 
+/**
+ * ADR-0022 / V271: selection keys are string | finite number | boolean only.
+ * Drop null/undefined/object/array/NaN/Infinity; dedupe while preserving first-seen order.
+ * Equality is SameValueZero-compatible for numbers (Object.is except +0/-0), and type-strict
+ * so string "1" and number 1 remain distinct.
+ */
+function isSelectionKey(value) {
+  return typeof value === 'string'
+    || typeof value === 'boolean'
+    || (typeof value === 'number' && Number.isFinite(value));
+}
+
+function selectionKeyToken(value) {
+  if (typeof value === 'number') {
+    // Normalize -0 to 0 for stable identity while keeping finite numbers.
+    return `number:${Object.is(value, -0) ? 0 : value}`;
+  }
+  if (typeof value === 'boolean') return `boolean:${value}`;
+  return `string:${value}`;
+}
+
+function normalizeKeys(rawKeys) {
+  if (!Array.isArray(rawKeys)) return [];
+  const seen = new Set();
+  const keys = [];
+  for (const key of rawKeys) {
+    if (!isSelectionKey(key)) continue;
+    const token = selectionKeyToken(key);
+    if (seen.has(token)) continue;
+    seen.add(token);
+    keys.push(typeof key === 'number' && Object.is(key, -0) ? 0 : key);
+  }
+  return keys;
+}
+
 function normalizeSelection(selection) {
   if (!selection || typeof selection !== 'object') {
     return { keys: [], count: 0 };
   }
-  const keys = Array.isArray(selection.keys) ? [...selection.keys] : [];
+  const keys = normalizeKeys(selection.keys);
   return { keys, count: keys.length };
 }
 
@@ -43,13 +78,10 @@ function applySelectionEvent(selection, selectionEvent) {
   let next = normalizeSelection(selection);
   if (!selectionEvent) return next;
   switch (selectionEvent.type) {
-    case 'setKeys':
-      next = {
-        keys: Array.isArray(selectionEvent.keys) ? [...selectionEvent.keys] : [],
-        count: 0,
-      };
-      next.count = next.keys.length;
-      return next;
+    case 'setKeys': {
+      const keys = normalizeKeys(selectionEvent.keys);
+      return { keys, count: keys.length };
+    }
     case 'clear':
       return { keys: [], count: 0 };
     default:

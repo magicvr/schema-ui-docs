@@ -1241,13 +1241,21 @@ function validateActionTrigger(trigger, triggerPath, actions, violations, option
   if (trigger.requiresSelection === true && tableToolbar && !hasTableSelection) {
     violations.push({
       path: `${triggerPath}.requiresSelection`,
-      message: 'requiresSelection: true 要求同一 table 声明 props.selection（ADR-0022）',
+      message: 'requiresSelection: true 要求同一 table 声明 props.selection.mode: multiple（ADR-0022）',
     });
   }
   if (trigger.batchMapping !== undefined && !tableToolbar) {
     violations.push({
       path: `${triggerPath}.batchMapping`,
       message: 'batchMapping 仅允许在 table.props.toolbar 上声明（ADR-0022）',
+    });
+  }
+  // V269: batchMapping requires a protocol selection model on the same table.
+  // requiresSelection remains optional (runtime EMPTY_SELECTION still rejects count===0).
+  if (trigger.batchMapping !== undefined && tableToolbar && !hasTableSelection) {
+    violations.push({
+      path: `${triggerPath}.batchMapping`,
+      message: 'batchMapping 要求同一 table 声明 props.selection.mode: multiple（ADR-0022 / V269）',
     });
   }
   const actionRef = trigger.actionRef;
@@ -1362,7 +1370,9 @@ function validateRowActionRefs(doc, violations) {
     if (!node || typeof node !== 'object') return;
 
     if (node.type === 'table' && node.props) {
-      const hasTableSelection = isPlainObject(node.props.selection);
+      // Only mode: multiple counts as a usable selection model (V269).
+      const hasTableSelection = isPlainObject(node.props.selection)
+        && node.props.selection.mode === 'multiple';
       if (node.props.selection !== undefined) {
         if (!isPlainObject(node.props.selection) || node.props.selection.mode !== 'multiple') {
           violations.push({

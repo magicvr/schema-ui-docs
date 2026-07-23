@@ -6,6 +6,20 @@
 
 ---
 
+## 0062 — 2026-07-23 — 协议 2.1/2.2 互操作性复审
+
+**主题：** 闭合 Admin 生命周期与 ADR-0022 批量能力的 reference/L2/L3a/fixtures 互操作缺口（V267–V272）。
+**性质：** 5 项 P1 + 1 项 P2 全部关闭；capability 门控下 `protocolVersion: "2.1"` 继续承载 2.2 字段为有意设计。
+
+| 文件 | 说明 |
+|---|---|
+| [0062-2026-07-23-review.md](./0062-2026-07-23-review.md) | 审计报告 — V267–V272（全部关闭） |
+| [0062-2026-07-23-checklist.md](./0062-2026-07-23-checklist.md) | 跟踪清单 — 修复与归档门禁 |
+
+**关闭证据：** 12 套 versioned suite、183 个 case、27 个 JS/Python conformance 入口；fixture digest `sha256:c78c732fc941612075c2e9ebc3da35180df54e85219d441d51901e24b177cf4e`；`release:check` / `validate:scenarios` / `check:links` 通过。
+
+---
+
 ## 0061 — 2026-07-18 — 前后端共享协议互操作性与语义闭合复审
 
 **主题：** 闭合 Form/RowAction、request lifecycle、static/ref、reaction、interceptor、运行时默认值与组件格式等跨实现协议边界（V242–V266）。

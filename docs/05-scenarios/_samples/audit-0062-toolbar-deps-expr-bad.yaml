@@ -1,0 +1,35 @@
+# L3a negative: toolbar must not use $deps.* (V268)
+meta:
+  pageId: audit_0062_toolbar_deps_bad
+  title: Toolbar deps expr bad
+  protocolVersion: "2.1"
+  requiredCapabilities:
+    - actions.page.trigger
+
+actions:
+  exportOrders:
+    type: request
+    method: POST
+    url: /api/orders/export
+
+body:
+  type: table
+  id: orders
+  props:
+    rowKey: orderId
+    toolbar:
+      - key: export
+        label: 导出
+        actionRef: exportOrders
+        visibleWhen:
+          when: $deps.status == "ready"
+          dependencies: [status]
+    columns:
+      - field: orderId
+        label: 订单号
+  data:
+    source: api
+    url: /api/orders
+    method: GET
+    responseMapping:
+      list: data.list
