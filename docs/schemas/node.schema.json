@@ -61,6 +61,10 @@
     "permissions": {
       "$ref": "#/definitions/Permissions",
       "description": "【可选，since 0.2】权限控制，见 docs/01-node-protocol.md §3.9"
+    },
+    "permissionCascade": {
+      "$ref": "#/definitions/PermissionCascade",
+      "description": "【可选，since 2.3 / ADR-0023】容器对后代 edit/delete 目标的显式权限收紧边界；仅 section/grid/form/tabs/table 可用，由 L2 校验位置与同名 permissions 来源"
     }
   },
   "required": ["type"],
@@ -218,6 +222,23 @@
         "description": "扩展动作键（如 approve/export）；协议层不限制键名，建议由接入方通过项目级 CI/Review 约束"
       },
       "minProperties": 1
+    },
+    "PermissionCascade": {
+      "type": "object",
+      "description": "【since 2.3 / ADR-0023】显式 edit/delete 权限继承边界；keys 中每个键须由同一 Node 的 permissions.<key> 提供表达式，位置与能力门控由 L2 校验",
+      "properties": {
+        "keys": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["edit", "delete"]
+          }
+        }
+      },
+      "required": ["keys"],
+      "additionalProperties": false
     }
   }
 }

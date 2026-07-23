@@ -22,7 +22,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:7dfedf13ed151d2064821b7bafa3ac9b9999f66d70c9027a173e760bfdaa1b97';
+  'sha256:f1190a63cca3be04441bcb889d8f53f94f4628754884f6dad6abaea7158dbdfe';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -112,6 +112,16 @@ const releaseTargets = {
       'ALLOW_22_FIELDS_ON_21',
     ],
   },
+  '2.3': {
+    releaseGoalsPath: 'docs/14-v2.3-release-goals.md',
+    migrationPath: 'docs/migrations/2.2-to-2.3.md',
+    migrationRequiredTopics: [
+      'protocolVersion',
+      'permissions.inheritance',
+      'permissionCascade',
+      'permissionIntent',
+    ],
+  },
 };
 const releaseTarget = releaseTargets[protocolVersion];
 assert.ok(releaseTarget, `Missing release target definition for protocolVersion ${protocolVersion}`);
@@ -165,6 +175,7 @@ const expectedCategories = new Set([
   'actions',
   'uploads',
   'scenarios',
+  'permissions-inheritance',
 ]);
 let versionedCaseCount = 0;
 for (const category of expectedCategories) {
@@ -191,6 +202,7 @@ const expectedVersionedCaseCountByProtocol = {
   '2.0': 128,
   '2.1': 186,
   '2.2': 189,
+  '2.3': 206,
 };
 const expectedVersionedCaseCount = expectedVersionedCaseCountByProtocol[protocolVersion];
 assert.ok(

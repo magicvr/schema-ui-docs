@@ -1,8 +1,8 @@
 {
   "name": "schema-ui-protocol-workspace",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": true,
-  "description": "Schema-UI v2.2.0 协议源码、制品构建与辅助验证工作区",
+  "description": "Schema-UI v2.3.0 协议源码、制品构建与辅助验证工作区",
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:scenarios": "node scripts/validate-scenarios.js",
@@ -22,6 +22,8 @@
     "test:conformance:query:python": "python conformance/runner/run-query-serialization-python.py",
     "test:conformance:actions": "node conformance/runner/run-actions.js",
     "test:conformance:actions:python": "python conformance/runner/run-actions-python.py",
+    "test:conformance:permissions-inheritance": "node conformance/runner/run-permissions-inheritance.js",
+    "test:conformance:permissions-inheritance:python": "python conformance/runner/run-permissions-inheritance-python.py",
     "test:conformance:reactions": "node conformance/runner/run-reactions.js",
     "test:conformance:reactions:python": "python conformance/runner/run-reactions-python.py",
     "test:conformance:request-lifecycle": "node conformance/runner/run-request-lifecycle.js",

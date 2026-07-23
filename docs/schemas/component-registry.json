@@ -178,7 +178,7 @@
               "labelKey": { "type": "string", "description": "列标题 i18n key（since 0.2）" },
               "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "列级条件渲染（since 0.2.1）" },
               "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "列级联动规则（since 0.2.1）" },
-              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "列级权限控制（since 0.2.1）" }
+              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "列级权限控制（since 0.2.1）；ADR-0023 中 columns[] 不参与 permissionCascade，且不允许 permissionIntent" }
             },
             "required": ["field"],
             "anyOf": [
@@ -226,7 +226,8 @@
               },
               "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "行级操作条件渲染（since 0.2.1）" },
               "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "行级操作联动规则（since 0.2.1）" },
-              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "行级操作权限控制（since 0.2.1）" }
+              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "行级操作权限控制（since 0.2.1）" },
+              "permissionIntent": { "type": "string", "enum": ["edit", "delete"], "since": "2.3", "description": "【ADR-0023】操作意图；声明后才参与祖先 permissionCascade 的同名 edit/delete 求值" }
             },
             "required": ["key"],
             "anyOf": [
@@ -285,7 +286,8 @@
                 "additionalProperties": false
               },
               "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen" },
-              "permissions": { "$ref": "node.schema.json#/definitions/Permissions" }
+              "permissions": { "$ref": "node.schema.json#/definitions/Permissions" },
+              "permissionIntent": { "type": "string", "enum": ["edit", "delete"], "since": "2.3", "description": "【ADR-0023】操作意图；声明后才参与祖先 permissionCascade 的同名 edit/delete 求值" }
             },
             "required": ["key", "actionRef"],
             "anyOf": [
@@ -316,6 +318,7 @@
         "actionRef": { "type": "string", "required": true, "since": "2.1", "description": "引用顶层 request|navigate|modal；使用时声明 actions.page.trigger" },
         "confirm": { "type": "string", "required": false },
         "disabled": { "type": "boolean", "required": false },
+        "permissionIntent": { "type": "string", "enum": ["edit", "delete"], "required": false, "since": "2.3", "description": "【ADR-0023】操作意图；actionButton 的 Node 级 permissions 仍在 props 外声明" },
         "span": { "type": "integer", "minimum": 1, "required": false },
         "additionalProperties": false
       }

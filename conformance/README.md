@@ -17,14 +17,15 @@
 | 运行时默认值与组件 fallback | `fixtures/runtime-defaults/cases.json` | `reference-js/runtime-defaults.js`、`reference-python/runtime_defaults.py` | `npm run test:conformance:runtime-defaults`、`npm run test:conformance:runtime-defaults:python` |
 | static/ref 同步数据 | `fixtures/static-data/cases.json` | `reference-js/static-data.js`、`reference-python/static_data.py` | `npm run test:conformance:static-data`、`npm run test:conformance:static-data:python` |
 | Action / OutcomeBehavior / 错误时序 | `fixtures/actions/cases.json` | `reference-js/action-outcome.js`、`reference-python/action_outcome.py` | `npm run test:conformance:actions`、`npm run test:conformance:actions:python` |
+| 容器权限继承 / 操作 intent / fail-closed 前置门禁 | `fixtures/permissions-inheritance/cases.json` | `reference-js/permission-inheritance.js`、`reference-python/permission_inheritance.py` | `npm run test:conformance:permissions-inheritance`、`npm run test:conformance:permissions-inheritance:python` |
 | 单文件/多文件上传 | `fixtures/uploads/cases.json` | `reference-js/upload-execution.js`、`reference-python/upload_execution.py` | `npm run test:conformance:uploads`、`npm run test:conformance:uploads:python` |
 | 官方六场景 + Admin 生命周期扩展示例执行 | `fixtures/scenarios/cases.json` | `reference-js/scenario-execution.js`、`reference-python/scenario_execution.py` | `npm run test:conformance:scenarios`、`npm run test:conformance:scenarios:python` |
 
 ### `cases[].protocolVersion` 语义（V227）
 
-- **算法类 suite**（request / response / component-format / search-table / reactions / request-lifecycle / runtime-defaults / static-data / actions / uploads / scenarios）：`protocolVersion` 表示**该 case 适用的协议算法版本**（当前版本为 `"2.1"`），不是历史包版本号。消费者可按 `"2.1"` 过滤跑全量互操作向量。
+- **算法类 suite**（request / response / component-format / search-table / reactions / request-lifecycle / runtime-defaults / static-data / actions / permissions-inheritance / uploads / scenarios）：`protocolVersion` 表示**该 case 适用的协议算法版本**（当前版本为 `"2.3"`），不是历史包版本号。消费者可按 `"2.3"` 过滤跑全量互操作向量。
 - **version-negotiation suite**：`protocolVersion` 与 `input.pageMeta.protocolVersion` 对齐，表示**被测页面声明的协议版本**；其中大量 `0.3` / `2.0` / 非法版本 case 为协商拒绝与能力检查的历史对照，**故意保留**，不得批量改为当前 MINOR。
-- `release:check` 与 `validate:conformance` 对非 version-negotiation suite 强制 case.`protocolVersion` 等于当前制品 MAJOR.MINOR（现为 `"2.1"`）。
+- `release:check` 与 `validate:conformance` 对非 version-negotiation suite 强制 case.`protocolVersion` 等于当前制品 MAJOR.MINOR（现为 `"2.3"`）。
 
 版本化 G4 suite 使用 `schemas/fixture-suite.schema.json`，统一以 `fixtureVersion: "1.0"`、suite `category` 和 `cases[]` 封装。运行 `npm run validate:conformance` 会校验全部 versioned suite，并对**白名单**数组 fixtures（当前仅 `query-serialization`）检查 id 唯一与非空。已删除与 `search-table` 重复的 `table-query-state` 目录；`test:conformance:table-state` 仅转发到 search-table runner。
 
@@ -41,6 +42,8 @@ JavaScript 与 Python 当前都是本仓库 reference，用于证明算法可跨
 Reaction reference 的条件求值器实现当前调度 fixtures 所需的单个 `$deps.<path>` 比较子集，覆盖严格 `==`/`!=`、同型大小比较、`contains`、JSON number（含指数）和 Unicode code point 字符串顺序；它用于隔离验证 ADR-0006/0016 的 Snapshot/Evaluate/Commit/Next-tick 与比较语义，不替代 L3a 的完整逻辑组合、语法和作用域校验。
 
 Action suite 将 HTTP 错误、超时、网络异常、主动中断和认证 hook 作为 transport 事件输入，以有序事件输出验证协议级处理先于 `onError`；错误类别不另复制一套相同期望。
+
+权限继承 suite 使用已求值的 boolean permission 输入，隔离验证 ADR-0023 的结构边、祖先/本地 AND、columns 排除、form default/search、modal/navigate 新根、capability/version gate 和 `visibleWhen → permission → disabled → confirm → action` 的 fail-closed 时序；它不复制 L3a 表达式解析器。
 
 官方场景 suite 以组合步骤复用请求、映射、搜索、Action 和上传 reference。JavaScript 与 Python runner 都从白名单内的 Markdown 场景读取 metadata，校验 `scenarioPath`、`pageId` 与 `protocolVersion`，再执行相同后端可观测步骤。白名单见 `scripts/official-scenarios.js` 的 `CONFORMANCE_SCENARIO_PATHS`（含官方六场景与 `admin-list-edit-lifecycle` 扩展示例）；多 YAML fence 文档按 `scenarioMeta.pageId` 选页。
 

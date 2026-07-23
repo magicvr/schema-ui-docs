@@ -1,6 +1,6 @@
 ---
 status: example
-protocol_version: v2.2
+protocol_version: v2.3
 last_updated: 2026-07-23
 capabilities:
   - actions.page.trigger
@@ -14,7 +14,7 @@ capabilities:
 
 本扩展示例覆盖轨道 Phase C MVP：**当前页**多选 → 工具栏批量删除（一次 HTTP）→ 成功 reload 并清空选中。完整 YAML 见 [`_samples/order-list-batch.yaml`](./_samples/order-list-batch.yaml)。
 
-> **版本说明：** 本扩展示例使用 `protocolVersion: "2.2"` 与 batch capabilities（见 [13-v2.2-release-goals.md](../13-v2.2-release-goals.md) 与 [migrations/2.1-to-2.2.md](../migrations/2.1-to-2.2.md)）。
+> **版本说明：** 本扩展示例使用 `protocolVersion: "2.3"` 与 batch capabilities（见 [13-v2.2-release-goals.md](../13-v2.2-release-goals.md) 与 [migrations/2.1-to-2.2.md](../migrations/2.1-to-2.2.md)）。
 
 可观测构造向量见 conformance：`batch-request-body-keys`、`batch-request-empty-selection-rejected`、`batch-request-count-keys-mismatch-normalized` 等（`request-construction` suite）。
 
@@ -24,7 +24,7 @@ capabilities:
 meta:
   pageId: order_list_batch
   title: 订单列表批量
-  protocolVersion: "2.2"
+  protocolVersion: "2.3"
   requiredCapabilities:
     - actions.page.trigger
     - table.selection

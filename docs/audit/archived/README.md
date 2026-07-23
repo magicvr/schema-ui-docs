@@ -6,6 +6,20 @@
 
 ---
 
+## 0065 — 2026-07-23 — ADR-0023 权限继承提案可接受性响应
+
+**主题：** 容器权限结构树、表单 `edit` 目标、`permissionIntent` 挂载矩阵、fail-closed 时序与 capability 门控（V287–V294）。
+**性质：** 4 项 P1 + 4 项 P2 的可接受性歧义均已写回 ADR-0023，并关闭为**提案层裁决**；方向可接受，但 ADR 仍为 `proposed`，未进入 v2.2 制品或 `protocol-manifest.json`。
+
+| 文件 | 说明 |
+|---|---|
+| [0065-2026-07-23-review.md](./0065-2026-07-23-review.md) | 审计报告 — V287–V294（响应已写回 ADR，接受决议仍未作出） |
+| [0065-2026-07-23-checklist.md](./0065-2026-07-23-checklist.md) | 跟踪清单 — 提案层裁决与归档门禁 |
+
+**后续门禁：** 只有用户独立接受 ADR-0023 后，才按 M1–M6 以新的 MINOR 原子落地 Schema/DSL、L2/L3a、fixtures、Renderer 规范与发布制品；本轮不启动实现。
+
+---
+
 ## 0064 — 2026-07-23 — 2.1/2.2 协议纪律补强
 
 **主题：** 字段集→`protocolVersion` 下限 L2 门禁、page Trigger navigate 模板对称、文档/清单/$selection/body 文案（V282–V286）。

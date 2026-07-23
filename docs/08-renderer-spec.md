@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.2
+last_updated: 2026-07-23
+applies_to: schema-ui-protocol v2.3
 ---
 
 # Renderer（前端渲染器）实现规范
@@ -513,7 +513,15 @@ const renderer = new Renderer({
 
 Action 失败时先执行协议级 HTTP 状态处理，再执行不冲突的 `onError`。`401`/`403` 忽略 Action `onError`；`400 + errors` 必须保留字段错误并抑制 navigate/reload/closeModal；toast message 与其他状态的详细优先级见 [07-actions-contract.md §8.1](./07-actions-contract.md#81-onerror-与标准-http-错误处理顺序)。
 
-### 7.1 行级后端请求动作（since 0.2.7）
+### 7.1 权限继承与动作前置门禁（since 2.3 / ADR-0023）
+
+Renderer 仅在页面声明 `meta.protocolVersion: "2.3"` 和 `permissions.inheritance` 时启用本节。它构建的权限结构边只有 Node `children[]`、`tabs.props.items[].content`、table 的 `actions[]` / `toolbar[]` 操作挂载，以及 default form 的隐式提交入口。modal `content` 和 navigate 后的新页面均是新根；`table.props.columns[]` 始终留在结构树外，仅求值其本地 `permissions`。
+
+对于 default form 的可编辑字段（`input`、`inputNumber`、`datePicker`、`dateRangePicker`、`select`、`upload`）、默认 form submit，以及带 `permissionIntent` 的 RowAction、toolbar Trigger、actionButton，Renderer 按 [01 §3.9.1](./01-node-protocol.md) 计算 effective permission。每个来源表达式仍从同一轮冻结的 `$context.user.*` / `$context.features.*` 快照读取；search form 字段与搜索提交、展示 Node 和未标注意图的入口不得读取祖先 cascade。
+
+动作执行顺序固定为：`visibleWhen` → effective/local permission → `disabled` OR `requiresSelection` → fail-closed stop → `confirm` → Action/form submit。被拒绝的入口可以按组件既有契约隐藏或禁用，但绝不能展示 confirm，也不能构造或发送 request/navigate/modal/submit。此顺序同样适用于 implicit form submit，权限结果不会写入 URL、表单值、`$selection`、reactions 或请求负载。
+
+### 7.2 行级后端请求动作（since 0.2.7）
 
 当 `table.props.actions[]` 声明 `actionRef` 时，Renderer 按以下流程执行：
 
@@ -526,7 +534,7 @@ Action 失败时先执行协议级 HTTP 状态处理，再执行不冲突的 `on
 7. 通过统一请求通道发送请求，继续应用 `baseURL`、`requestInterceptor`、`requestTimeout` 和 `onAuthFailure`；
 8. 根据 `onSuccess` / `onError` 执行结果行为。
 
-点击行内按钮时，Renderer 的交互时序必须是：`visibleWhen` 判定 → `permissions` 判定 → `disabled` 状态判定 → 展示 `confirm`（若声明）→ 构造请求 → 发送请求。不可见、无权限或禁用状态下不得展示确认框，也不得构造请求。
+点击行内按钮时，Renderer 的交互时序必须是：`visibleWhen` 判定 → effective/local `permissions` 判定 → `disabled` 状态判定 → 展示 `confirm`（若声明）→ 构造请求 → 发送请求。不可见、无权限或禁用状态下不得展示确认框，也不得构造请求；带 `permissionIntent` 时第二步使用 §7.1 的祖先 AND。
 
 `requestMapping.path` / `query` / `body` 都是非空 key 的扁平 key-value map。映射值只允许 string / finite number / boolean / null 或单个 `$row.*` 点路径引用，不调用表达式引擎，也不读取 `$deps.*`、`$context.*` 或 `$parentRow.*`，不支持嵌套对象或数组值。路径占位符取值为 `null` / `undefined` 时，Renderer 应拒绝执行该动作并进入动作级错误处理；query 中的 `null` / `undefined` 按 ADR-0010 删除同名 key；body 字段取值失败时，开发环境应输出包含 action id、RowAction key 和字段路径的错误信息。
 

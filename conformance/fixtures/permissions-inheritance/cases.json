@@ -1,0 +1,548 @@
+{
+  "fixtureVersion": "1.0",
+  "category": "permissions-inheritance",
+  "cases": [
+    {
+      "id": "nested-ancestor-and-form-local-tightens",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "section",
+            "id": "root",
+            "permissions": { "edit": true },
+            "permissionCascade": { "keys": ["edit"] },
+            "children": [
+              {
+                "type": "form",
+                "id": "editForm",
+                "permissions": { "edit": false },
+                "permissionCascade": { "keys": ["edit"] },
+                "props": { "submitAction": "save" },
+                "children": [
+                  { "type": "input", "permissions": { "edit": true }, "props": { "field": "name" } }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "editForm:submit", "kind": "formSubmit", "key": "edit", "cascadeApplied": true, "cascadedBy": ["root", "editForm"], "effectivePermission": false },
+          { "targetId": "name", "kind": "formField", "key": "edit", "cascadeApplied": true, "cascadedBy": ["root", "editForm"], "effectivePermission": false }
+        ]
+      }
+    },
+    {
+      "id": "local-permission-cannot-loosen-ancestor",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "section",
+            "id": "root",
+            "permissions": { "edit": true },
+            "permissionCascade": { "keys": ["edit"] },
+            "children": [
+              {
+                "type": "form",
+                "id": "editForm",
+                "props": { "submitAction": "save" },
+                "children": [
+                  { "type": "input", "permissions": { "edit": false }, "props": { "field": "name" } }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "editForm:submit", "kind": "formSubmit", "key": "edit", "cascadeApplied": true, "cascadedBy": ["root"], "effectivePermission": true },
+          { "targetId": "name", "kind": "formField", "key": "edit", "cascadeApplied": true, "cascadedBy": ["root"], "effectivePermission": false }
+        ]
+      }
+    },
+    {
+      "id": "table-actions-toolbar-inherit-columns-stay-local",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "table",
+            "id": "orders",
+            "permissions": { "delete": false },
+            "permissionCascade": { "keys": ["delete"] },
+            "props": {
+              "columns": [
+                { "field": "orderNo", "permissions": { "view": true } }
+              ],
+              "actions": [
+                { "key": "delete", "permissionIntent": "delete", "permissions": { "delete": true } },
+                { "key": "localOnly", "permissions": { "delete": true } }
+              ],
+              "toolbar": [
+                { "key": "deleteAll", "permissionIntent": "delete", "permissions": { "delete": true } }
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "orderNo", "kind": "column", "key": "view", "cascadeApplied": false, "cascadedBy": [], "effectivePermission": true },
+          { "targetId": "delete", "kind": "rowAction", "key": "delete", "cascadeApplied": true, "cascadedBy": ["orders"], "effectivePermission": false },
+          { "targetId": "localOnly", "kind": "rowAction", "key": "delete", "cascadeApplied": false, "cascadedBy": [], "effectivePermission": true },
+          { "targetId": "deleteAll", "kind": "toolbarTrigger", "key": "delete", "cascadeApplied": true, "cascadedBy": ["orders"], "effectivePermission": false }
+        ]
+      }
+    },
+    {
+      "id": "tabs-content-is-a-cascade-edge",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "tabs",
+            "id": "accessTabs",
+            "permissions": { "edit": false },
+            "permissionCascade": { "keys": ["edit"] },
+            "props": {
+              "items": [
+                {
+                  "content": {
+                    "type": "form",
+                    "id": "tabForm",
+                    "props": { "submitAction": "save" },
+                    "children": [
+                      { "type": "input", "props": { "field": "email" } }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "tabForm:submit", "kind": "formSubmit", "key": "edit", "cascadeApplied": true, "cascadedBy": ["accessTabs"], "effectivePermission": false },
+          { "targetId": "email", "kind": "formField", "key": "edit", "cascadeApplied": true, "cascadedBy": ["accessTabs"], "effectivePermission": false }
+        ]
+      }
+    },
+    {
+      "id": "modal-and-navigated-pages-start-new-roots",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "actions": {
+            "editModal": {
+              "type": "modal",
+              "content": {
+                "type": "form",
+                "id": "modalForm",
+                "props": { "submitAction": "saveModal" },
+                "children": [
+                  { "type": "input", "props": { "field": "modalName" } }
+                ]
+              }
+            }
+          },
+          "body": {
+            "type": "section",
+            "id": "guarded",
+            "permissions": { "edit": false },
+            "permissionCascade": { "keys": ["edit"] },
+            "children": [
+              { "type": "actionButton", "props": { "key": "openModal", "permissionIntent": "edit" } }
+            ]
+          }
+        },
+        "navigatedPage": {
+          "body": {
+            "type": "form",
+            "id": "navigatedForm",
+            "props": { "submitAction": "savePage" },
+            "children": [
+              { "type": "input", "props": { "field": "pageName" } }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "openModal", "kind": "actionButton", "key": "edit", "cascadeApplied": true, "cascadedBy": ["guarded"], "effectivePermission": false },
+          { "targetId": "modalForm:submit", "kind": "formSubmit", "key": "edit", "cascadeApplied": false, "cascadedBy": [], "effectivePermission": true },
+          { "targetId": "modalName", "kind": "formField", "key": "edit", "cascadeApplied": false, "cascadedBy": [], "effectivePermission": true },
+          { "targetId": "navigatedForm:submit", "kind": "formSubmit", "key": "edit", "cascadeApplied": false, "cascadedBy": [], "effectivePermission": true },
+          { "targetId": "pageName", "kind": "formField", "key": "edit", "cascadeApplied": false, "cascadedBy": [], "effectivePermission": true }
+        ]
+      }
+    },
+    {
+      "id": "default-form-participates-search-form-does-not",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "section",
+            "id": "readOnly",
+            "permissions": { "edit": false },
+            "permissionCascade": { "keys": ["edit"] },
+            "children": [
+              {
+                "type": "form",
+                "id": "defaultForm",
+                "props": { "submitAction": "save" },
+                "children": [
+                  { "type": "input", "props": { "field": "name" } }
+                ]
+              },
+              {
+                "type": "form",
+                "id": "searchForm",
+                "props": { "mode": "search", "targetTable": "orders" },
+                "children": [
+                  { "type": "input", "props": { "field": "query" } }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "defaultForm:submit", "kind": "formSubmit", "key": "edit", "cascadeApplied": true, "cascadedBy": ["readOnly"], "effectivePermission": false },
+          { "targetId": "name", "kind": "formField", "key": "edit", "cascadeApplied": true, "cascadedBy": ["readOnly"], "effectivePermission": false }
+        ]
+      }
+    },
+    {
+      "id": "existing-container-permission-is-local-without-cascade",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "section",
+            "id": "nonCascading",
+            "permissions": { "edit": false },
+            "children": [
+              {
+                "type": "form",
+                "id": "ordinaryForm",
+                "props": { "submitAction": "save" },
+                "children": [
+                  { "type": "input", "props": { "field": "name" } }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "ordinaryForm:submit", "kind": "formSubmit", "key": "edit", "cascadeApplied": false, "cascadedBy": [], "effectivePermission": true },
+          { "targetId": "name", "kind": "formField", "key": "edit", "cascadeApplied": false, "cascadedBy": [], "effectivePermission": true }
+        ]
+      }
+    },
+    {
+      "id": "all-approved-intent-mounts-participate",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "section",
+            "id": "editGate",
+            "permissions": { "edit": false },
+            "permissionCascade": { "keys": ["edit"] },
+            "children": [
+              {
+                "type": "table",
+                "props": {
+                  "columns": [],
+                  "actions": [
+                    { "key": "rowEdit", "permissionIntent": "edit" }
+                  ],
+                  "toolbar": [
+                    { "key": "toolbarEdit", "permissionIntent": "edit" }
+                  ]
+                }
+              },
+              { "type": "actionButton", "props": { "key": "buttonEdit", "permissionIntent": "edit" } }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "rowEdit", "kind": "rowAction", "key": "edit", "cascadeApplied": true, "cascadedBy": ["editGate"], "effectivePermission": false },
+          { "targetId": "toolbarEdit", "kind": "toolbarTrigger", "key": "edit", "cascadeApplied": true, "cascadedBy": ["editGate"], "effectivePermission": false },
+          { "targetId": "buttonEdit", "kind": "actionButton", "key": "edit", "cascadeApplied": true, "cascadedBy": ["editGate"], "effectivePermission": false }
+        ]
+      }
+    },
+    {
+      "id": "capability-is-required-for-intent",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": [] },
+          "body": {
+            "type": "actionButton",
+            "props": { "key": "edit", "permissionIntent": "edit" }
+          }
+        }
+      },
+      "expected": {
+        "validation": {
+          "valid": false,
+          "errors": [
+            { "code": "CAPABILITY_REQUIRED", "path": "meta.requiredCapabilities" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "version-floor-is-required-for-cascade",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.2", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "form",
+            "permissions": { "edit": true },
+            "permissionCascade": { "keys": ["edit"] },
+            "props": { "submitAction": "save" }
+          }
+        }
+      },
+      "expected": {
+        "validation": {
+          "valid": false,
+          "errors": [
+            { "code": "PROTOCOL_VERSION_TOO_LOW", "path": "meta.protocolVersion" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "cascade-type-and-keys-fail-closed",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "actionButton",
+            "permissions": { "edit": true },
+            "permissionCascade": { "keys": ["edit", "edit", "publish"] },
+            "props": { "key": "bad" }
+          }
+        }
+      },
+      "expected": {
+        "validation": {
+          "valid": false,
+          "errors": [
+            { "code": "PERMISSION_CASCADE_TYPE_INVALID", "path": "body.permissionCascade" },
+            { "code": "PERMISSION_CASCADE_KEYS_INVALID", "path": "body.permissionCascade.keys" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "missing-source-and-forbidden-intent-mounts-fail-closed",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "table",
+            "id": "invalidTable",
+            "permissions": { "edit": true },
+            "permissionCascade": { "keys": ["delete"] },
+            "props": {
+              "columns": [
+                { "field": "hidden", "permissionIntent": "delete" }
+              ],
+              "actions": [
+                { "key": "badAction", "permissionIntent": "approve" }
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "validation": {
+          "valid": false,
+          "errors": [
+            { "code": "PERMISSION_CASCADE_SOURCE_MISSING", "path": "body.permissions.delete" },
+            { "code": "PERMISSION_INTENT_FORBIDDEN", "path": "body.props.columns[0].permissionIntent" },
+            { "code": "PERMISSION_INTENT_INVALID", "path": "body.props.actions[0].permissionIntent" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "visible-when-blocks-before-permission-and-confirm",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "table",
+            "id": "orders",
+            "permissions": { "delete": false },
+            "permissionCascade": { "keys": ["delete"] },
+            "props": { "columns": [], "actions": [{ "key": "delete", "permissionIntent": "delete" }] }
+          }
+        },
+        "execution": { "targetId": "delete", "visible": false, "confirm": true, "confirmed": true }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "delete", "kind": "rowAction", "key": "delete", "cascadeApplied": true, "cascadedBy": ["orders"], "effectivePermission": false }
+        ],
+        "execution": { "outcome": "BLOCKED", "reason": "NOT_VISIBLE", "events": [] }
+      }
+    },
+    {
+      "id": "permission-denial-blocks-before-confirm-and-request",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "table",
+            "id": "orders",
+            "permissions": { "delete": false },
+            "permissionCascade": { "keys": ["delete"] },
+            "props": { "columns": [], "actions": [{ "key": "delete", "permissionIntent": "delete" }] }
+          }
+        },
+        "execution": { "targetId": "delete", "visible": true, "confirm": true, "confirmed": true }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "delete", "kind": "rowAction", "key": "delete", "cascadeApplied": true, "cascadedBy": ["orders"], "effectivePermission": false }
+        ],
+        "execution": { "outcome": "BLOCKED", "reason": "PERMISSION_DENIED", "events": [] }
+      }
+    },
+    {
+      "id": "disabled-or-selection-blocks-before-confirm",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "section",
+            "id": "editGate",
+            "permissions": { "edit": true },
+            "permissionCascade": { "keys": ["edit"] },
+            "children": [
+              { "type": "actionButton", "props": { "key": "edit", "permissionIntent": "edit" } }
+            ]
+          }
+        },
+        "execution": { "targetId": "edit", "visible": true, "disabled": false, "requiresSelection": true, "confirm": true, "confirmed": true }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "edit", "kind": "actionButton", "key": "edit", "cascadeApplied": true, "cascadedBy": ["editGate"], "effectivePermission": true }
+        ],
+        "execution": { "outcome": "BLOCKED", "reason": "DISABLED", "events": [] }
+      }
+    },
+    {
+      "id": "confirm-cancellation-stops-action-after-all-gates-pass",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "section",
+            "id": "editGate",
+            "permissions": { "edit": true },
+            "permissionCascade": { "keys": ["edit"] },
+            "children": [
+              { "type": "actionButton", "props": { "key": "edit", "permissionIntent": "edit" } }
+            ]
+          }
+        },
+        "execution": { "targetId": "edit", "visible": true, "confirm": true, "confirmed": false }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "edit", "kind": "actionButton", "key": "edit", "cascadeApplied": true, "cascadedBy": ["editGate"], "effectivePermission": true }
+        ],
+        "execution": { "outcome": "CONFIRM_CANCELLED", "events": [{ "type": "confirmShown" }] }
+      }
+    },
+    {
+      "id": "action-executes-only-after-confirmation",
+      "protocolVersion": "2.3",
+      "category": "permissions-inheritance",
+      "input": {
+        "page": {
+          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "body": {
+            "type": "section",
+            "id": "editGate",
+            "permissions": { "edit": true },
+            "permissionCascade": { "keys": ["edit"] },
+            "children": [
+              { "type": "actionButton", "props": { "key": "edit", "permissionIntent": "edit" } }
+            ]
+          }
+        },
+        "execution": { "targetId": "edit", "visible": true, "confirm": true, "confirmed": true }
+      },
+      "expected": {
+        "validation": { "valid": true, "errors": [] },
+        "targets": [
+          { "targetId": "edit", "kind": "actionButton", "key": "edit", "cascadeApplied": true, "cascadedBy": ["editGate"], "effectivePermission": true }
+        ],
+        "execution": { "outcome": "EXECUTED", "events": [{ "type": "confirmShown" }, { "type": "actionExecuted" }] }
+      }
+    }
+  ]
+}

@@ -23,12 +23,12 @@ last_updated: 2026-07-23
 
 | Tag 模式 | 版本来源 | 工作流文件 | 产物 |
 |---|---|---|---|
-| `v<artifactVersion>` 如 `v2.2.0` | 根 `package.json` / `protocol-manifest.json` | `.github/workflows/protocol-release.yml` | GitHub Release：`schema-ui-protocol-*.tar.gz` + `.sha256` |
+| `v<artifactVersion>` 如 `v2.3.0` | 根 `package.json` / `protocol-manifest.json` | `.github/workflows/protocol-release.yml` | GitHub Release：`schema-ui-protocol-*.tar.gz` + `.sha256` |
 | `mcp-v<mcpVersion>` 如 `mcp-v2.0.0` | `mcp/package.json` | `.github/workflows/mcp-cd.yml` | GHCR：`ghcr.io/<owner>/schema-ui-mcp` |
 
 - 两套 tag **必须独立**；协议 MINOR 发布不强制同日发 MCP。
 - 发 `mcp-v*` 前，MCP 的 `schemaUiProtocol.artifactVersion` 应指向**已发布**的协议制品版本。
-- 预发布：协议可用 `v2.2.0-rc.1` 等（以 `release:check:tag` 规则为准）；MCP 预发布 tag 只推完整版本与 commit SHA 镜像，**不**更新 `latest` / minor 别名。
+- 预发布：协议可用 `v2.3.0-rc.1` 等（以 `release:check:tag` 规则为准）；MCP 预发布 tag 只推完整版本与 commit SHA 镜像，**不**更新 `latest` / minor 别名。
 
 ## 3. 协议发布清单（人工 + CI）
 
@@ -36,11 +36,11 @@ last_updated: 2026-07-23
 2. 本地：`npm run release:check`、`npm run verify:protocol-artifact`、`npm run test:conformance:all`。
 3. 在目标 commit 上：
    ```bash
-   git tag v2.2.0
-   git push origin v2.2.0
+   git tag v2.3.0
+   git push origin v2.3.0
    ```
 4. 等待 **Protocol Release** 工作流：校验 → 构建 → 创建/更新 GitHub Release 资产。
-5. 消费者 pin：`v2.2.0` 或 tar 的 SHA-256。
+5. 消费者 pin：`v2.3.0` 或 tar 的 SHA-256。
 
 ## 4. MCP 发布清单（人工 + CI）
 

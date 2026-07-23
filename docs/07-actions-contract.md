@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-23
-applies_to: schema-ui-protocol v2.2
+applies_to: schema-ui-protocol v2.3
 ---
 
 # Action 完整契约（since 0.2）
@@ -179,7 +179,19 @@ actions:
 - 引用 `request` 时 method 仅 `POST`/`PUT`/`PATCH`/`DELETE`（禁止 GET）；url 不得含未绑定 `{name}` 模板；**MVP 请求 body 恒为 `null`**（不跑 form 投影、不读 Action `bodyMapping`；RequestAction **无**静态 body 字段；审计 0064 / V286）；
 - 引用 `navigate` 时 url 为静态相对路径（不得含未绑定 `{name}`；L2 与 request 对称拒绝，V283）；引用 `modal` 时至少提供 `modalId` 或 `content`；
 - toolbar Trigger 的 `visibleWhen` / `permissions` 仅允许 `$context.*`（L3a 遍历 `table.props.toolbar[]`，见审计 0062 / V268）；
-- 执行序与行级类似：permissions / visibleWhen → disabled → confirm → 执行 Action → OutcomeBehavior。`confirm` 为非空字符串时，用户取消必须取消后续 request/navigate/modal，不得部分执行（conformance：`CONFIRM_REJECTED`）。
+- 执行序与行级类似：`visibleWhen` → effective/local permissions → `disabled`（并与 `requiresSelection` OR 合成）→ confirm → 执行 Action → OutcomeBehavior。`confirm` 为非空字符串时，用户取消必须取消后续 request/navigate/modal，不得部分执行（conformance：`CONFIRM_REJECTED`）。
+
+### 3.3.1 权限继承与操作入口（since 2.3 / ADR-0023）
+
+当入口声明 `permissionIntent: edit | delete` 时，Renderer 对该键使用 [01 §3.9.1](./01-node-protocol.md) 的祖先 cascade AND 与入口本地 `permissions`；RowAction、`table.props.toolbar[]` 和 `actionButton.props` 是唯一允许的挂载点。未声明 intent 的入口仍只适用它本地既有 `permissions`，不得从 `key`、`actionRef`、HTTP method、URL 或文案猜测意图。`table.props.columns[]` 从不参与此计算。
+
+default form 的 `submitAction` 是隐式 `edit` 入口，不写 `permissionIntent`；search form 没有该入口。所有四类可操作入口必须在 **构造 confirm、request、navigate、modal 或 submit 前** 按下列顺序 fail-closed：
+
+1. 计算 `visibleWhen`；
+2. 计算 effective permission（参与 cascade）或既有本地 permission（其余目标）；
+3. 合成静态 `disabled` 与 `requiresSelection`；
+4. 任一条件拒绝时停止，不展示 confirm，也不构造或发送动作；
+5. 仅在通过前四步后展示 confirm，并在确认后执行动作。
 
 ### 3.4 表单记录加载（since 2.1 / ADR-0021）
 

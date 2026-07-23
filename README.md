@@ -3,7 +3,7 @@
 Schema-UI 是前端 Renderer 与后端页面生产方共同遵守的、框架和语言无关的配置驱动 UI 协议。
 协议本身是本仓库的核心交付物；验证器、reference、MCP 和 Docker 镜像都是非规范性辅助工具。
 
-当前协议版本为 `2.2.0`，页面声明使用 `meta.protocolVersion: "2.2"`。
+当前协议版本为 `2.3.0`，页面声明使用 `meta.protocolVersion: "2.3"`。
 
 开始阅读：[`PROJECT_CHARTER.md`](./PROJECT_CHARTER.md) → [`docs/00-overview.md`](./docs/00-overview.md)。
 
@@ -44,16 +44,17 @@ npm run verify:protocol-artifact
 输出：
 
 ```text
-dist/schema-ui-protocol-2.2.0.tar.gz
-dist/schema-ui-protocol-2.2.0.tar.gz.sha256
+dist/schema-ui-protocol-2.3.0.tar.gz
+dist/schema-ui-protocol-2.3.0.tar.gz.sha256
 dist/protocol/manifest.json
 ```
 
 独立前端和后端仓库应固定协议 tag 或制品 SHA-256，直接消费同一份 Schema 和 fixtures；不得复制后维护
 私有期望结果。JavaScript、Python、Java、.NET 等消费者使用同一个制品，不要求安装或运行 MCP。
 
-当前跨实现消费规则与 fixture 分类见 [`conformance/README.md`](./conformance/README.md)。从 `2.1` 升级到
-`2.2` 请按 [`docs/migrations/2.1-to-2.2.md`](./docs/migrations/2.1-to-2.2.md) 执行；从 `2.0` 请先按
+当前跨实现消费规则与 fixture 分类见 [`conformance/README.md`](./conformance/README.md)。从 `2.2` 升级到
+`2.3` 请按 [`docs/migrations/2.2-to-2.3.md`](./docs/migrations/2.2-to-2.3.md) 执行；从 `2.1` 请先按
+[`docs/migrations/2.1-to-2.2.md`](./docs/migrations/2.1-to-2.2.md) 执行；从 `2.0` 请先按
 [`docs/migrations/2.0-to-2.1.md`](./docs/migrations/2.0-to-2.1.md)。
 
 ## 协议验证
@@ -86,8 +87,8 @@ npm run validate -- "pages/**/*.yaml"
 | 人工 tag `v*` | 协议 GitHub Release：`tar.gz` + `.sha256` |
 | 人工 tag `mcp-v*` | MCP 镜像推到 **GHCR**（`ghcr.io/<owner>/schema-ui-mcp`，含稳定版 `latest`） |
 
-- 协议 tag：`v<protocol-artifact-version>`，例如 `v2.2.0`；
-- 页面协议版本：MAJOR.MINOR，例如 `2.2`；
+- 协议 tag：`v<protocol-artifact-version>`，例如 `v2.3.0`；
+- 页面协议版本：MAJOR.MINOR，例如 `2.3`；
 - MCP tag：`mcp-v<mcp-version>`，例如 `mcp-v2.0.0`（与协议 **独立**）；
 - MCP 与验证器独立 SemVer；镜像正式源为 GitHub Packages，不是 Docker Hub。
 
@@ -97,14 +98,14 @@ npm run validate -- "pages/**/*.yaml"
 
 ### 验证器
 
-`scripts/` 提供 L0/L1、L2、L3a、L4 校验实现。当前 validator 版本为 `1.0.0`，支持协议制品 `2.2.0`，
+`scripts/` 提供 L0/L1、L2、L3a、L4 校验实现。当前 validator 版本为 `1.0.0`，支持协议制品 `2.3.0`，
 兼容声明见 `validator/package.json`。根 CLI 和 MCP 共用同一个 Ajv 装配模块；L4 的禁止字段
 直接从 `node.schema.json` 派生，避免维护第二份规则。使用说明见 [`docs/06-validation.md`](./docs/06-validation.md)。
 
 ### MCP
 
 `mcp/` 提供协议只读查询与 `validate_content` 内容校验。它不读取宿主项目文件系统，不生成或修改页面，
-也不进入协议权威层。MCP 当前版本为 `2.0.0`，捆绑协议制品 `2.2.0`；两个版本独立演进。正式分发为
+也不进入协议权威层。MCP 当前版本为 `2.0.0`，捆绑协议制品 `2.3.0`；两个版本独立演进。正式分发为
 `ghcr.io/<owner>/schema-ui-mcp` 上的 stdio Docker 镜像。
 
 安装、Docker、工具接口见 [`docs/mcp/README.md`](./docs/mcp/README.md)；发布流程见
@@ -124,7 +125,7 @@ npm run validate -- "pages/**/*.yaml"
 └── .github/workflows/             # Protocol 与 MCP 分离的 CI/CD
 ```
 
-协议范围与当前发布门禁见 [`docs/13-v2.2-release-goals.md`](./docs/13-v2.2-release-goals.md)；
+协议范围与当前发布门禁见 [`docs/14-v2.3-release-goals.md`](./docs/14-v2.3-release-goals.md)；
 发布流程见 [`docs/RELEASE.md`](./docs/RELEASE.md)；
 v2.1 历史门禁见 [`docs/12-v2.1-release-goals.md`](./docs/12-v2.1-release-goals.md)；
 v2.0 MAJOR 历史见 [`docs/10-v2-release-goals.md`](./docs/10-v2-release-goals.md)；
