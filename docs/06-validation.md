@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-23
-applies_to: schema-ui-protocol v2.1
+applies_to: schema-ui-protocol v2.2
 ---
 
 # 校验规则与工具链
@@ -31,7 +31,7 @@ applies_to: schema-ui-protocol v2.1
 
 > **审计 0062 收敛：** L3a 遍历 `table.props.toolbar[]` 的 `visibleWhen` / `permissions`（仅 `$context.*`）；L2 在 `batchMapping` 时要求同 table `selection.mode: multiple`；request-construction 对 path 占位符与 mapping 键 fail-closed，并覆盖 page Trigger navigate/modal/confirm。
 
-> **审计 0064 收敛：** L2 强制字段集→`protocolVersion` 下限（2.1 字段 ≥ `"2.1"`；2.2 字段在 `ALLOW_22_FIELDS_ON_21` 时 ≥ `"2.1"`，`2.2.0` tag 后 ≥ `"2.2"`）；page Trigger navigate 模板与 request 对称静态拒绝。
+> **审计 0064 收敛：** L2 强制字段集→`protocolVersion` 下限（2.1 字段 ≥ `"2.1"`；2.2 字段 ≥ `"2.2"`，`ALLOW_22_FIELDS_ON_21=false`）；page Trigger navigate 模板与 request 对称静态拒绝。
 
 > **v0.2.8 变更（引用完整性 & 继承 responseMapping 校验 & params.responseMapping 禁令 & Node id 唯一性 & 行级 requestMapping 模板禁令）：** L2 校验器增加以下规则：
 > - `form.props.submitAction` 必须引用顶层 `actions` 中已声明的动作 id；引用 `type: request` 时不得使用 GET，普通表单字段只按 JSON 请求体提交。
@@ -164,7 +164,7 @@ npm run validate -- "pages/**/*.yaml"
 - [ ] 使用 `actionButton` / `table.toolbar` 时是否声明 `actions.page.trigger`，且 Trigger 的 request 非 GET、navigate/request url 无未绑定 `{name}`？
 - [ ] 使用 `form.recordSource` 时是否声明 `form.record.load`，且 `method: GET` **必填**（缺失与非法 method 分码）、`responseMapping` 非空、非 search 模式？
 - [ ] 使用 `table.props.selection` / `requiresSelection` / `batchMapping` 时是否声明 `table.selection` 与/或 `actions.batch.request`，同 table `selection.mode: multiple`，且 `$selection.keys` 仅出现在 `batchMapping.body`？
-- [ ] 使用 2.1 字段时 `protocolVersion` 是否 ≥ `"2.1"`；使用 2.2 字段时在 `2.2.0` 发布后是否为 `"2.2"`（过渡期见 V275 / V282）？
+- [ ] 使用 2.1 字段时 `protocolVersion` 是否 ≥ `"2.1"`；使用 2.2 字段（`selection` / `requiresSelection` / `batchMapping`）时是否为 `"2.2"`（V282）？
 - [ ] `form.props.submitAction` 是否引用了顶层 `actions` 中存在的动作 id，且 request action 不是 GET？
 - [ ] `upload.props.actionRef` 是否引用了顶层 `actions` 中 `type: upload` 的动作？
 - [ ] `data.source: ref` 时，`data.ref` 是否存在于顶层 `datasources`？

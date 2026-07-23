@@ -7,31 +7,32 @@
 
 ## Unreleased
 
-- **审计 0064（V282–V286）：** 2.1/2.2 协议纪律补强（无 P0），全部关闭。报告见 [`audit/archived/0064-2026-07-23-review.md`](./audit/archived/0064-2026-07-23-review.md)。
-  - **V282：** L2 强制字段集→`protocolVersion` 下限；2.1 字段不得挂 `"2.0"`；2.2 字段过渡期 `ALLOW_22_FIELDS_ON_21`（`2.2.0` tag 时关）。负例：`audit-0064-v21-fields-on-20-bad.yaml`。
-  - **V283：** page Trigger `navigate` 未绑定 `{name}` 与 request 对称 L2 拒绝。负例：`audit-0064-page-trigger-navigate-template-bad.yaml`。
-  - **V284：** `page.schema` / `01` / `00` / `11` 版本与 capability 叙事对齐 2.1 制品与 0022。
-  - **V285：** `02` 变量表收录 `$selection.keys` / `$selection.count`；`06` 检查清单补 selection/batch/版本下限。
-  - **V286：** ADR-0020 / `07` 明确 page Trigger request **body 恒 null**（无静态 body 字段）。
-- **审计 0063（V273–V281）：** 协议 2.1/2.2 残留语义与发布就绪复审（无 P0），全部关闭。报告见 [`audit/archived/0063-2026-07-23-review.md`](./audit/archived/0063-2026-07-23-review.md)。
-  - **V273：** formRecord 缺失路径 conformance 可观测值为 JSON `null`（等价空初始值、不中止回填）；同步 ADR-0021 D5a / `03` / 双端 reference。
-  - **V274 / V281：** batch 构造入口复用 selection 规范化（过滤非标量、去重保序、重算 `count`）；fixtures：`batch-request-count-keys-mismatch-normalized` 等。
-  - **V275 / V277：** ADR-0022 写死 2.2 版本/打包策略；新增 [`migrations/2.1-to-2.2.md`](./migrations/2.1-to-2.2.md)、[`13-v2.2-release-goals.md`](./13-v2.2-release-goals.md)、扩展示例 [`admin-list-batch.md`](./05-scenarios/admin-list-batch.md)。`2.2.0` 制品 tag 按发布目标择机。
-  - **V276：** ADR-0020/0021 示例升至 `"2.1"`；`admin-list-edit-lifecycle` / `11` §7 状态过期句修正。
-  - **V278：** L2 缺失 vs 非法 `recordSource.method` 分码文案。
-  - **V279：** L3a 将 `route` 列为已知根；expression 挂载点报 `FORBIDDEN_CONTEXT_NAMESPACE`。
-  - **V280：** ADR-0021 D7 明确 modal 内 recordSource route 注入非 2.2 互操作门禁。
-- **审计 0062（V267–V272）：** 协议 2.1/2.2 互操作性闭合。
-  - **V267：** request-construction（JS/Python）路径应用 fail-closed：`MISSING_PATH_BINDING` / `EXTRA_PATH_BINDING`；覆盖 row navigate/request、recordSource、batch path。
-  - **V268：** L3a 遍历 `table.props.toolbar` 的 `visibleWhen`/`permissions`（仅 `$context.*`）。
-  - **V269：** L2 要求 `batchMapping` 同 table 声明 `selection.mode: multiple`；`requiresSelection` 对 batch 仍可选（ADR-0022 OQ-22-6）。
-  - **V270：** `recordSource.method` 缺失返回 `MISSING_RECORD_SOURCE_METHOD`，不再默认 GET。
-  - **V271：** selection keys 过滤非标量、去重保序，`count` 规范化。
-  - **V272：** page Trigger `navigate`/`modal` 与 confirm 门控 conformance（`pageTriggerNavigate` / `pageTriggerModal` / `CONFIRM_REJECTED`）。
-- **ADR-0022 accepted（capability 门控，目标 2.2 制品）：** `table.selection`（当前页多选）+ toolbar `batchMapping` / `requiresSelection`（`actions.batch.request`）。Schema、L2、request-construction / search-table / version-negotiation fixtures 与 JS/Python reference 已同步。跨页全选与权限继承不在本 ADR。
-- 发布流程：明确 **merge `main` 只 CI、不发资产、不自动打 tag**；协议 `v*` 与 MCP `mcp-v*` **独立 tag**。见 [`RELEASE.md`](./RELEASE.md)。
-- MCP CD：镜像发布目标从 Docker Hub 改为 **GitHub Container Registry**（`ghcr.io/<owner>/schema-ui-mcp`，稳定版含 `latest` / minor 别名）。工作流见仓库 `.github/workflows/mcp-cd.yml`；使用说明见 `docs/mcp/README.md`（二者不进协议制品包）。
-- 协议 Release：notes 优先摘录 `CHANGELOG` 对应版本节，并附 content/fixture digests。
+（无）
+
+## v2.2.0 — 2026-07-23（表格多选与批量 request）
+
+> **版本说明：** MINOR 发布。页面使用 `meta.protocolVersion: "2.2"`。仅使用 v2.1 字段集的页面可继续声明 `"2.1"`。正式协议制品为 `schema-ui-protocol-2.2.0.tar.gz`。
+
+**协议变更（capability 门控）：**
+- 新增 `table.selection`：`table.props.selection.mode: multiple`（当前页多选；筛选/翻页/排序/reload 清空）（ADR-0022）。
+- 新增 `actions.batch.request`：toolbar `batchMapping` / `requiresSelection`；`$selection.keys` 仅 body、`$selection.count` 可 query/body（ADR-0022）。
+- L2 `ALLOW_22_FIELDS_ON_21=false`：2.2 字段必须 `protocolVersion >= "2.2"`（审计 0064 / V282 发布纪律）。
+- 同步核心规范 `applies_to`、Schema、官方/扩展示例、算法 fixtures 至 `"2.2"`；迁移 [`2.1-to-2.2.md`](./migrations/2.1-to-2.2.md)；发布目标 [`13-v2.2-release-goals.md`](./13-v2.2-release-goals.md)。
+
+**Conformance：**
+- `request-construction`：batch* 向量（含 path 绑定、规范化、`EMPTY_SELECTION`）。
+- `search-table` / table-query-state：selection 清空与键规范化。
+- `version-negotiation`：`2.2` 接受/拒绝 + batch capability 向量。
+- 算法类 fixtures `protocolVersion` 统一为 `"2.2"`（12 套 suite，189 cases；version-negotiation 保留历史页版本输入）。
+
+**发布前审计闭合（本 MINOR 轨道）：**
+- **0062（V267–V272）：** path fail-closed、toolbar L3a、batch 需 selection、recordSource method 必填、selection 键规范化、page Trigger navigate/modal/confirm。
+- **0063（V273–V281）：** formRecord 可观测 `null`、batch 构造规范化、2.2 版本/迁移策略、L2/L3a 诊断、modal route 非门禁。
+- **0064（V282–V286）：** 字段集→版本下限、page Trigger navigate 模板 L2 对称、`$selection` 文档、page Trigger body 恒 null。
+
+**其它（自 2.1.0 Unreleased 并入）：**
+- 发布流程：merge `main` 只 CI；协议 `v*` 与 MCP `mcp-v*` 独立 tag（[`RELEASE.md`](./RELEASE.md)）。
+- MCP CD：镜像目标 **GHCR**（`ghcr.io/<owner>/schema-ui-mcp`）。
 
 ## v2.1.0 — 2026-07-23（Admin 生命周期 P0）
 

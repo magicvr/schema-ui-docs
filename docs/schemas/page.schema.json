@@ -15,7 +15,7 @@
         "protocolVersion": {
           "type": "string",
           "pattern": "^[0-9]+\\.[0-9]+$",
-          "description": "必填（since 0.2），格式 MAJOR.MINOR。当前协议制品为 \"2.1\"；使用 2.2 字段时在 2.2.0 发布前可仍为 \"2.1\" + capability（V275），发布后须 \"2.2\"。L2 另强制字段集→版本下限（V282）"
+          "description": "必填（since 0.2），格式 MAJOR.MINOR。当前协议制品为 \"2.2\"。使用 2.2 字段（table.selection / requiresSelection / batchMapping）时必须 \"2.2\"；仅 2.1 字段集可继续 \"2.1\"。L2 强制字段集→版本下限（V282）"
         },
         "requiredCapabilities": {
           "type": "array",

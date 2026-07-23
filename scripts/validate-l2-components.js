@@ -53,10 +53,10 @@ const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
 const components = registry.components; // { [type]: ComponentDef }
 
 /**
- * V275 / V282: 2.2 字段在 2.2.0 制品 tag 前可挂在 protocolVersion "2.1" + capability。
- * 打 schema-ui-protocol-2.2.0 tag 时必须改为 false，并同步升样例/fixtures（见 docs/13-v2.2-release-goals.md）。
+ * V275 / V282: 2.2.0 正式制品后，2.2 字段要求 protocolVersion >= "2.2"。
+ * 过渡期曾为 true（允许挂在 "2.1" + capability）；见 docs/13-v2.2-release-goals.md。
  */
-const ALLOW_22_FIELDS_ON_21 = true;
+const ALLOW_22_FIELDS_ON_21 = false;
 const FLOOR_21 = '2.1';
 const FLOOR_22 = ALLOW_22_FIELDS_ON_21 ? '2.1' : '2.2';
 

@@ -3,7 +3,7 @@
 meta:
   pageId: audit_0063_context_route_visible_when
   title: bad route in visibleWhen
-  protocolVersion: "2.1"
+  protocolVersion: "2.2"
 
 body:
   type: section

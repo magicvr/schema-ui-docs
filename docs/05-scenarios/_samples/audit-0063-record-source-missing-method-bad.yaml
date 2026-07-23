@@ -3,7 +3,7 @@
 meta:
   pageId: audit_0063_record_source_missing_method
   title: bad recordSource without method
-  protocolVersion: "2.1"
+  protocolVersion: "2.2"
   requiredCapabilities:
     - form.record.load
 

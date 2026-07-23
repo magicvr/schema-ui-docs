@@ -609,6 +609,90 @@
           "actions.batch.request"
         ]
       }
+    },
+    {
+      "id": "v2-2-page-accepted",
+      "protocolVersion": "2.2",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.2"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.1",
+            "2.2"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.2",
+        "supportedVersions": [
+          "2.1",
+          "2.2"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "v2-2-page-rejected-by-v2-1-only-renderer",
+      "protocolVersion": "2.2",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.2"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.1"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "2.2",
+        "supportedVersions": [
+          "2.1"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "supported-batch-capabilities-on-2-2",
+      "protocolVersion": "2.2",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.2",
+          "requiredCapabilities": [
+            "table.selection",
+            "actions.batch.request",
+            "actions.page.trigger"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.2"
+          ],
+          "supportedCapabilities": [
+            "table.selection",
+            "actions.batch.request",
+            "actions.page.trigger"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.2",
+        "supportedVersions": [
+          "2.2"
+        ],
+        "missingCapabilities": []
+      }
     }
   ]
 }

@@ -2,7 +2,7 @@
 meta:
   pageId: audit_0062_toolbar_row_bad
   title: Toolbar row expr bad
-  protocolVersion: "2.1"
+  protocolVersion: "2.2"
   requiredCapabilities:
     - actions.page.trigger
 

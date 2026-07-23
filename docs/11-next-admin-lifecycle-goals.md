@@ -129,7 +129,7 @@ P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-r
 - [x] 关闭 0022 开放问题并 `accepted`。
 - [x] Schema / L2 / `08` capability / fixtures / reference。
 - [x] 官方扩展示例场景（`admin-list-batch.md` + `_samples/order-list-batch.yaml`）+ [`2.1-to-2.2`](./migrations/2.1-to-2.2.md) 迁移短文。
-- [ ] `2.2.0` 制品打包（按 [13-v2.2-release-goals.md](./13-v2.2-release-goals.md) / V275：正式 tag 时升版；当前语义已 capability 门控可用）。
+- [x] `2.2.0` 制品打包（按 [13-v2.2-release-goals.md](./13-v2.2-release-goals.md) / V275：`ALLOW_22_FIELDS_ON_21=false`，样例/fixtures 升 `"2.2"`）。
 
 MVP 摘要（以 0022 正文为准）：
 
@@ -187,7 +187,7 @@ MVP 摘要（以 0022 正文为准）：
 | [`decisions/0019-v2-admin-scope.md`](./decisions/0019-v2-admin-scope.md) | 界定 v2.0 不含完整 Admin；本文件是其后续执行轨道 |
 | [`decisions/0020-page-action-trigger.md`](./decisions/0020-page-action-trigger.md) | P0：页面级 ActionTrigger（**accepted**，v2.1） |
 | [`decisions/0021-record-navigation-and-form-load.md`](./decisions/0021-record-navigation-and-form-load.md) | P0：记录导航与 form 加载回填（**accepted**，v2.1） |
-| [`decisions/0022-table-selection-and-batch-request.md`](./decisions/0022-table-selection-and-batch-request.md) | P1：表格选择与批量 request（**accepted**，目标 2.2） |
+| [`decisions/0022-table-selection-and-batch-request.md`](./decisions/0022-table-selection-and-batch-request.md) | P1：表格选择与批量 request（**accepted**，v2.2） |
 | [`13-v2.2-release-goals.md`](./13-v2.2-release-goals.md) | 2.2 发布门禁与 V275 版本策略 |
 | [`decisions/0008-row-action-backend-request.md`](./decisions/0008-row-action-backend-request.md) | 已覆盖单行 request；批量由其「后果」中 defer，在本轨道 Phase C 接续 |
 | [`PROJECT_CHARTER.md`](../PROJECT_CHARTER.md) | 变更门禁与权威层级；本轨道交付必须遵守 |
@@ -197,11 +197,11 @@ MVP 摘要（以 0022 正文为准）：
 
 | 项 | 状态 |
 |---|---|
-| 协议制品 / 页面协议 | `2.1.0` / `2.1`（见 `protocol-manifest.json`） |
-| 本轨道 | **Phase C 语义与文档已落地**（ADR-0022 + 场景 + 迁移）；`2.2.0` 制品打包按发布目标择机 |
+| 协议制品 / 页面协议 | `2.2.0` / `2.2`（见 `protocol-manifest.json`） |
+| 本轨道 | **Phase C 已随 2.2.0 发布**（ADR-0022 + 场景 + 迁移 + 制品） |
 | P0 ADR | [0020](./decisions/0020-page-action-trigger.md)、[0021](./decisions/0021-record-navigation-and-form-load.md)（**accepted**，v2.1） |
-| P1 批量 | [0022](./decisions/0022-table-selection-and-batch-request.md)（**accepted**） |
-| 下一步具体动作 | 择机 `2.2.0` 发布（见 `13`）；权限继承 ADR |
+| P1 批量 | [0022](./decisions/0022-table-selection-and-batch-request.md)（**accepted**，v2.2） |
+| 下一步具体动作 | 权限继承 ADR（独立）；Phase D 按需 |
 
 ---
 

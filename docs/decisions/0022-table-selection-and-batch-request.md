@@ -1,7 +1,7 @@
 ---
 status: accepted
 date: 2026-07-23
-applies_to: schema-ui-protocol v2.1+ (capability-gated; packaging target MINOR 2.2)
+applies_to: schema-ui-protocol v2.2
 track: docs/11-next-admin-lifecycle-goals.md Phase C / P1
 ---
 
@@ -9,14 +9,14 @@ track: docs/11-next-admin-lifecycle-goals.md Phase C / P1
 
 ## 状态
 
-**Accepted（已接受）。** 字段与执行语义以本 ADR 及同步更新的 `03` / `07` / `08` / Schema / L2 / conformance 为准。使用时页面应声明 `meta.requiredCapabilities` 含 `table.selection` 与/或 `actions.batch.request`。制品打包目标为 **MINOR `2.2`**（门禁见 [`13-v2.2-release-goals.md`](../13-v2.2-release-goals.md)；迁移见 [`migrations/2.1-to-2.2.md`](../migrations/2.1-to-2.2.md)）。
+**Accepted（已接受，随 v2.2.0 发布）。** 字段与执行语义以本 ADR 及同步更新的 `03` / `07` / `08` / Schema / L2 / conformance 为准。使用时页面必须声明 `meta.protocolVersion: "2.2"`，并声明 `meta.requiredCapabilities` 含 `table.selection` 与/或 `actions.batch.request`。门禁见 [`13-v2.2-release-goals.md`](../13-v2.2-release-goals.md)；迁移见 [`migrations/2.1-to-2.2.md`](../migrations/2.1-to-2.2.md)。
 
-#### 版本与打包策略（审计 0063 / V275）
+#### 版本与打包策略（审计 0063 / V275；2.2.0 已发布）
 
 | 阶段 | 页面 `protocolVersion` | 说明 |
 |---|---|---|
-| **2.2.0 制品 tag 之前（当前）** | 可声明 `"2.1"` + batch capabilities | capability 为互操作主门控；算法 fixtures 与扩展示例可暂停在 `"2.1"`。L2 `ALLOW_22_FIELDS_ON_21 === true`（审计 0064 / V282） |
-| **2.2.0 正式发布时** | 使用本 ADR 字段的官方样例、扩展示例与相关算法 fixtures **升至 `"2.2"`** | `package.json` / `protocol-manifest` / 制品 tar 对齐 `2.2.0`；**将 L2 `ALLOW_22_FIELDS_ON_21` 设为 `false`**；`release:check` 按发布目标文档执行 |
+| **2.2.0 制品 tag 之前（历史）** | 可声明 `"2.1"` + batch capabilities | capability 为互操作主门控；过渡期 L2 `ALLOW_22_FIELDS_ON_21 === true` |
+| **2.2.0 正式发布（当前）** | 使用本 ADR 字段的官方样例、扩展示例与相关算法 fixtures 为 `"2.2"` | `package.json` / `protocol-manifest` / 制品 tar 对齐 `2.2.0`；L2 `ALLOW_22_FIELDS_ON_21 === false` |
 | **2.2.0 发布之后** | 使用 `table.selection` / `actions.batch.request` 字段的页面 **必须** 声明 `"2.2"` | 与 2.1 字段要求 `"2.1"` 的纪律一致；L2 强制字段集→版本下限。仅 2.1 字段集的页面可继续 `"2.1"`。Renderer 可在 `supportedVersions` 中同时列出 `2.1` 与 `2.2` |
 
 开放问题见文末裁决表，已并入 D2–D5。
