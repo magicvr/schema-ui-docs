@@ -196,14 +196,23 @@
             "type": "object",
             "properties": {
               "key": { "type": "string", "required": true },
-              "actionRef": { "type": "string", "description": "【可选，since 0.2.7】引用顶层 actions 中的 request action，用于声明式行级后端请求；使用时必须声明 meta.requiredCapabilities: [actions.row.request]" },
+              "actionRef": { "type": "string", "description": "【可选，since 0.2.7】引用顶层 actions 中 type:request 或 type:navigate 的 action；request 须声明 actions.row.request，navigate 须声明 actions.row.navigate（ADR-0021）" },
               "requestMapping": {
                 "type": "object",
-                "description": "【可选，since 0.2.7】RowAction.actionRef 的请求参数绑定；path/query/body 均为非空 key 的扁平 map；path 替换 url 中的 {param}，query 生成查询参数，body 生成 JSON 请求体；值仅允许 string/finite number/boolean/null 或单个 $row.* 点路径引用；v0.2 静态拒绝 $parentRow.*（无嵌套表格挂载结构）",
+                "description": "【可选，since 0.2.7】RowAction 引用 type:request 时的参数绑定；path/query/body 均为非空 key 的扁平 map；值仅允许 string/finite number/boolean/null 或单个 $row.* 点路径；不得与 navigateMapping 同时出现",
                 "properties": {
                   "path": { "type": "object" },
                   "query": { "type": "object" },
                   "body": { "type": "object" }
+                },
+                "additionalProperties": false
+              },
+              "navigateMapping": {
+                "type": "object",
+                "description": "【可选，since 2.1 / ADR-0021】RowAction 引用 type:navigate 时的 path/query 绑定；值仅允许字面量或单个 $row.*；不得声明 body；不得与 requestMapping 同时出现",
+                "properties": {
+                  "path": { "type": "object" },
+                  "query": { "type": "object" }
                 },
                 "additionalProperties": false
               },
@@ -227,7 +236,53 @@
             "additionalProperties": false
           }
         },
+        "toolbar": {
+          "type": "array",
+          "required": false,
+          "since": "2.1",
+          "description": "【ADR-0020】表格工具栏 ActionTrigger 列表；使用时必须声明 meta.requiredCapabilities: [actions.page.trigger]",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "type": "string", "required": true },
+              "label": { "type": "string" },
+              "labelKey": { "type": "string" },
+              "actionRef": { "type": "string", "required": true, "description": "引用顶层 request|navigate|modal action" },
+              "confirm": { "type": "string" },
+              "disabled": { "type": "boolean" },
+              "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen" },
+              "permissions": { "$ref": "node.schema.json#/definitions/Permissions" }
+            },
+            "required": ["key", "actionRef"],
+            "anyOf": [
+              { "required": ["label"] },
+              { "required": ["labelKey"] }
+            ],
+            "additionalProperties": false
+          }
+        },
         "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "additionalProperties": false
+      }
+    },
+    "actionButton": {
+      "category": "操作",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": false,
+      "supportsStates": false,
+      "anyOf": [
+        { "required": ["label"] },
+        { "required": ["labelKey"] }
+      ],
+      "props": {
+        "key": { "type": "string", "required": true, "since": "2.1", "description": "入口标识；不引用顶层 actions" },
+        "label": { "type": "string" },
+        "labelKey": { "type": "string" },
+        "actionRef": { "type": "string", "required": true, "since": "2.1", "description": "引用顶层 request|navigate|modal；使用时声明 actions.page.trigger" },
+        "confirm": { "type": "string", "required": false },
+        "disabled": { "type": "boolean", "required": false },
+        "span": { "type": "integer", "minimum": 1, "required": false },
         "additionalProperties": false
       }
     },
@@ -253,6 +308,27 @@
           "required": false,
           "since": "0.2.1",
           "description": "mode=search 时必填，关联表格的 Node id"
+        },
+        "recordSource": {
+          "type": "object",
+          "required": false,
+          "since": "2.1",
+          "description": "【ADR-0021】编辑表单记录 GET 加载；使用时声明 form.record.load；responseMapping 必填非空；search 模式禁止",
+          "properties": {
+            "method": { "type": "string", "enum": ["GET"], "required": true },
+            "url": { "type": "string", "required": true },
+            "path": { "type": "object", "required": false },
+            "query": { "type": "object", "required": false },
+            "responseMapping": {
+              "type": "object",
+              "required": true,
+              "description": "form field → 响应点路径；必填非空",
+              "minProperties": 1,
+              "additionalProperties": { "type": "string" }
+            }
+          },
+          "required": ["method", "url", "responseMapping"],
+          "additionalProperties": false
         },
         "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
         "additionalProperties": false,

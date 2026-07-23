@@ -46,7 +46,7 @@ actions:          # 【可选】页面级可复用动作定义（完整契约见
 
 > **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（当前协议版本使用 `"2.0"`），**不含 PATCH 或预发布标识**。Renderer 据此判断按哪套解析规则处理页面文档，是协议后续演进做版本兼容判断的锚点。同一 MAJOR.MINOR 的补丁或 RC 包共享该值；Renderer 的兼容性判断基于支持的 MAJOR.MINOR，不依赖包 PATCH。旧 `v0.1` 文档缺少该字段时仅可由显式 legacy adapter 处理；v1.0 文档必须先经过显式迁移 adapter；新建或修改的文档必须显式声明。
 
-> **`meta.requiredCapabilities`（可选，since 0.2.6）：** 字符串数组，声明页面依赖的 Renderer 执行能力，用于补足 PATCH 级能力协商。`protocolVersion` 仍只表达结构版本；当 PATCH 版本新增需要 Renderer 执行支持的能力时，页面必须通过 `requiredCapabilities` 显式声明。Renderer 若不支持其中任一能力，应在静态校验阶段拒绝渲染，而不是进入运行时后部分失效。当前协议预定义能力键：`actions.upload`（使用 `actions[].type: upload` 或 `upload.props.actionRef` 时必填）、`actions.row.request`（使用 `table.props.actions[].actionRef` 时必填）。
+> **`meta.requiredCapabilities`（可选，since 0.2.6）：** 字符串数组，声明页面依赖的 Renderer 执行能力，用于补足 PATCH 级能力协商。`protocolVersion` 仍只表达结构版本；当 PATCH 版本新增需要 Renderer 执行支持的能力时，页面必须通过 `requiredCapabilities` 显式声明。Renderer 若不支持其中任一能力，应在静态校验阶段拒绝渲染，而不是进入运行时后部分失效。当前协议预定义能力键：`actions.upload`（上传）、`actions.row.request`（行级 request）、`actions.page.trigger`（页面级 `actionButton` / `table.toolbar`，ADR-0020）、`actions.row.navigate`（行级 navigate，ADR-0021）、`form.record.load`（`form.recordSource`，ADR-0021）。完整表见 [08-renderer-spec.md §3.4](./08-renderer-spec.md#34-执行能力匹配规则since-026)。
 
 ## 3. Node 结构（核心）
 

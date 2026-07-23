@@ -32,6 +32,7 @@ applies_to: schema-ui-protocol v2.0
 | `$self` | 当前字段自身的当前值（字段级）；`dateRangePicker` 自身 reactions 中可受控访问 `$self.start` / `$self.end`；当前列对应单元格的原始数据值（`scope: row` 列表达式） | 表单字段 `reactions`、表格列 `scope: row` 表达式 | `$self` |
 | `$context.user.*` | 当前用户身份信息（只读快照，最小字段集见 §11.1） | 条件表达式挂载点：`reactions` / `visibleWhen` / `permissions` / 表格列与操作表达式；**不含** `data.params` / `optionsSource.params` / `datasources.*.params` 值替换（见附录 A / §10.7） | `$context.user.roles` |
 | `$context.features.*` | 功能开关映射表（只读快照，最小字段集见 §11.2） | 同上（条件表达式挂载点，不含 params 值替换） | `$context.features.newDashboard` |
+| `$context.route.*` | 当前页路由只读快照（§11.3，since 2.1 / ADR-0021） | **默认不**进入普通 `reactions` / `visibleWhen`；MVP 仅用于 `form.props.recordSource` 的 path/query 整值绑定 | `$context.route.query.orderId` |
 | `$row.<字段名>` | 当前行的原始数据对象（未经格式化处理） | 表格 `columns`/`actions` 中 `scope: row` 表达式 | `$row.level` |
 | `$row.__index` | 当前行在数据集中的序号（从 0 开始） | 同上 | `$row.__index` |
 | `$row.__key` | 当前行的唯一标识（取表格 `rowKey` 字段值） | 同上 | `$row.__key` |
@@ -248,13 +249,31 @@ visibleWhen:
   when: "$context.features.newDashboard == true"
 ```
 
+### 11.3 `$context.route` 最小字段集（since 2.1 / ADR-0021）
+
+宿主在 Renderer 实例初始化时注入的**只读路由快照**（与 `user`/`features` 相同：路由变化须重挂载）。
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `$context.route.path` | `string` | 当前页 path（不含 query；是否含应用 base 由宿主约定） |
+| `$context.route.query.<name>` | `string` | 当前页 query；值一律字符串；缺失键为 `undefined` |
+| `$context.route.params.<name>` | `string` | 可选；宿主路由 path 参数（如 `/orders/:orderId`） |
+
+**MVP 使用边界：**
+
+- 允许作为 `form.props.recordSource.path` / `query` 映射值中的**整值替换**（单个 `$context.route.query.*` 或 `$context.route.params.*`）；
+- **默认禁止**出现在普通 `reactions` / `visibleWhen` / `permissions` / `data.params`（L2/L3a 若遇到应拒绝，直至后续 ADR 放开）；
+- 不是安全边界；记录 id 必须由后端鉴权。
+
+完整加载回填语义见 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 与 [03-component-registry.md](./03-component-registry.md) `form.recordSource`。
+
 ## 12. `$context` 白名单扩展流程
 
-`$context` 的白名单命名空间（`user`、`features`）是协议级约束，不是项目级配置。新增命名空间必须通过以下流程：
+`$context` 的白名单命名空间（`user`、`features`、`route`）是协议级约束，不是项目级配置。新增命名空间必须通过以下流程：
 
-1. 提出新 ADR，论证新命名空间的必要性（是否确实无法被现有 `user`/`features` 承载）；
+1. 提出新 ADR，论证新命名空间的必要性（是否确实无法被现有 `user`/`features`/`route` 承载）；
 2. ADR 通过后同步更新本文档 §2 的变量命名空间表；
-3. **禁止**接入方在项目层面自行扩展白名单之外的 `$context.*` 路径。如果确有项目专有上下文需求，应在渲染接入层建立项目级映射层，将项目专有数据映射到 `$context.user` 或 `$context.features` 之下，而不是绕过白名单直接注入新的根级命名空间。
+3. **禁止**接入方在项目层面自行扩展白名单之外的 `$context.*` 路径。如果确有项目专有上下文需求，应在渲染接入层建立项目级映射层，将项目专有数据映射到已有白名单命名空间之下，而不是绕过白名单直接注入新的根级命名空间。
 
 理由：防止不同接入方各自扩展导致 `$context` 结构碎片化，最终削弱"一种表达式语法，多个挂载点使用"的协议价值。
 
@@ -262,10 +281,11 @@ visibleWhen:
 
 若宿主环境未注入 `$context`（如旧版本运行时、测试环境、协议降级场景）：
 
-- 所有白名单命名空间路径（`$context.user`、`$context.features`）返回 `undefined`。
+- 所有白名单命名空间路径（`$context.user`、`$context.features`、`$context.route`）返回 `undefined`。
 - 表达式中对 `undefined` 值的比较运算隐式转为 `false`，使节点降级为"不满足条件"。
 - **属性链容错**：任意深度的属性链访问中（如 `$context.user.roles contains 'admin'`），若某环为 `undefined`，后续访问短路返回 `undefined`，不抛异常；参与布尔判断时转 `false`。
 - 渲染流程不得因此中断。具体实现是否抛出告警日志由宿主环境自行决定。
+- `form.recordSource` 绑定的 route 键为 `undefined` 时，按 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 拒绝构造加载请求并进入错误态（不得用空 id 请求）。
 
 > **安全边界声明**：`$context` 不是安全边界，只是渲染边界。`visibleWhen`/`permissions` 控制的是渲染层面的显隐，不能替代后端的真实鉴权。前端 `$context.user.roles` 判断得出的显隐结果，后端必须独立校验，不能信任前端传来的任何身份声明。
 

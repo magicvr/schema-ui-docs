@@ -53,7 +53,7 @@ applies_to: schema-ui-protocol v2.0
 - 查阅历史审计证据 → 查看 `audit/`；它不是协议权威来源，也不进入协议制品。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`。
 - 维护或发布 `v2.0.0` → 对照 `10-v2-release-goals.md` 的门禁与完成定义；`09-v1-release-goals.md` 仅保留 v1.0.0 历史证据。
-- 规划 v2.0 之后的完整 Admin 能力（工具栏、批量、编辑回填等）→ 读 `11-next-admin-lifecycle-goals.md`；在对应 capability 落地前不得当作已支持语义。
+- 规划 v2.0 之后的完整 Admin 能力（工具栏、批量、编辑回填等）→ 读 `11-next-admin-lifecycle-goals.md`；P0 候选见 `decisions/0020` / `0021`（proposed）；在对应 capability 落地前不得当作已支持语义。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
 
@@ -85,10 +85,10 @@ applies_to: schema-ui-protocol v2.0
 
 当前协议版本：`v2.0.0`，页面通过 `meta.protocolVersion: "2.0"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。发布门禁见 [10-v2-release-goals.md](./10-v2-release-goals.md)。
 
-PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。
+PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。
 
-v2.0 之后的演进方向是 **Admin 生命周期协议轨道**（页面级动作入口、记录导航与编辑回填、表格选择与批量、权限继承等），见 [11-next-admin-lifecycle-goals.md](./11-next-admin-lifecycle-goals.md)。该轨道在 capability / ADR / fixtures 落地前不属于当前页面契约；与 [ADR-0019](./decisions/0019-v2-admin-scope.md) 的范围划分一致。
+**Admin 生命周期 P0**（页面工具栏、行级导航、编辑回填）已由 [ADR-0020](./decisions/0020-page-action-trigger.md) / [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 接受，并以 capability 门控方式进入规范；未使用新字段的页面行为不变。后续批量/权限继承等见 [11-next-admin-lifecycle-goals.md](./11-next-admin-lifecycle-goals.md)。
 
-本协议场景示例覆盖：网格布局、数据表格、表单联动、表格行级后端动作、搜索表单筛选表格、文件上传。后续新增场景类型时，
+本协议场景示例覆盖：网格布局、数据表格、表单联动、表格行级后端动作、搜索表单筛选表格、文件上传、列表编辑闭环（扩展示例）。后续新增场景类型时，
 应遵循同一套 Node 结构（`type`/`props`/`data`/`children`/`reactions`），
 不应引入平行的、结构不一致的新概念。如需引入新概念，请先在 `decisions/` 下补充 ADR。

@@ -31,7 +31,9 @@
       "docs/decisions/0016-expression-comparison-semantics.md",
       "docs/decisions/0017-runtime-defaults-and-baseurl.md",
       "docs/decisions/0018-component-boundary-semantics.md",
-      "docs/decisions/0019-v2-admin-scope.md"
+      "docs/decisions/0019-v2-admin-scope.md",
+      "docs/decisions/0020-page-action-trigger.md",
+      "docs/decisions/0021-record-navigation-and-form-load.md"
     ],
     "structuralContracts": [
       "docs/schemas/*.json"

@@ -7,7 +7,9 @@
 
 ## Unreleased
 
-- 新增 [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md)：确立 v2.0 之后的 Admin 生命周期协议轨道（页面级动作入口、记录导航与编辑回填、表格选择与批量、权限继承等）；规划文档，不改变 `2.0` 页面语义。同步总纲文档地图、ADR-0019 前向引用与 `protocol-manifest.json` 发布元数据清单。
+- **Admin 生命周期 P0（ADR-0020 / 0021，accepted）：** 页面级 `actionButton` / `table.toolbar`（`actions.page.trigger`）；行级 `navigate` + `navigateMapping`（`actions.row.navigate`）；`form.recordSource` 加载回填（`form.record.load`）；`$context.route` 最小字段集。同步 `03`/`07`/`08`/`02`、Schema、L2、扩展示例 [`admin-list-edit-lifecycle`](./05-scenarios/admin-list-edit-lifecycle.md)、迁移草稿 [`2.0-to-2.1-admin-lifecycle`](./migrations/2.0-to-2.1-admin-lifecycle.md)。既有无新字段的 `2.0` 页面行为不变；新字段由 capability 门控。
+- 新增 [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md)：Admin 生命周期协议轨道目标与优先级。
+- 关闭 ADR-0020 / 0021 开放问题裁决（Trigger 禁止 GET、`key` 必填、不强制入口去重；`responseMapping` 必填、仅内联 url、不新增 hidden、capability 分立）。
 - 审计 `0061`：收紧普通表单 Action URL、Form bodyMapping、RowAction 缺失值与 GET body 边界；统一 JS/Python request/response/scenario reference 的 fail-closed 和 own-property 行为。
 - 审计 `0061`：补齐 request lifecycle latest-wins、Form 提交投影、reaction baseline/比较语义、static/ref 数据形状、Host Extension 边界、运行时默认值和基础组件数值约束；新增 ADR-0015–0019 及双端 conformance suites。
 - 审计 `0061` 关闭复核：修正跨语言缺失/null 深相等、L3a 嵌套 form 符号表、interceptor query、首次 request generation、reaction baseline/指数/loop、scalar mapping 和合法 MCP pageSize 回归；新增 component-format/runtime-defaults/static-ref/scenario 负例，最终 12 套 versioned suite 共 128 个 case。

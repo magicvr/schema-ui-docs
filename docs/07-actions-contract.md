@@ -13,9 +13,9 @@ applies_to: schema-ui-protocol v2.0
 ## 1. 使用位置
 
 顶层文档结构中的 `actions` 字段（详见 [01-node-protocol.md §2](./01-node-protocol.md#2-顶层文档结构)），
-供 `form.props.submitAction`、`upload.props.actionRef`、`table.props.actions[].actionRef` 等按 id 引用。
+供 `form.props.submitAction`、`upload.props.actionRef`、`table.props.actions[].actionRef`、`table.props.toolbar[].actionRef`、`actionButton.props.actionRef` 等按 id 引用。
 
-> **说明：** `table.props.actions[].key` 是表格行内操作的本地标识，不引用顶层 `actions`；需要声明式行级后端请求时使用 `table.props.actions[].actionRef`。相关约定见 [03-component-registry.md](./03-component-registry.md) 中 `RowAction` 定义与 [ADR-0008](./decisions/0008-row-action-backend-request.md)。
+> **说明：** `table.props.actions[].key` 与 ActionTrigger/`actionButton` 的 `key` 是入口本地标识，不引用顶层 `actions`。行级 request 见 [ADR-0008](./decisions/0008-row-action-backend-request.md) / §3.1；行级 navigate 见 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) / §3.2；页面级入口见 [ADR-0020](./decisions/0020-page-action-trigger.md)。
 
 ```yaml
 actions:
@@ -142,6 +142,45 @@ requestMapping:
 - `confirm` 保留在 `RowAction` 层声明，因为确认文案属于按钮触发入口，而不是后端请求定义。
 
 Renderer 执行时先判定 `visibleWhen` / `permissions` / `disabled` 等状态；按钮可点击后再展示 `confirm`，确认通过后构造请求。`onSuccess.behavior: reload` 表示重新加载触发该动作的表格数据。
+
+### 3.2 行级导航绑定（since 2.1 / ADR-0021）
+
+`RowAction.actionRef` 可引用顶层 `type: navigate` action，并通过 `navigateMapping` 绑定当前行到目标 URL。使用时页面必须声明 `meta.requiredCapabilities: [actions.row.navigate]`。
+
+```yaml
+actions:
+  openEdit:
+    type: navigate
+    url: /orders/edit
+
+# table.props.actions:
+- key: edit
+  label: 编辑
+  actionRef: openEdit
+  navigateMapping:
+    query:
+      orderId: $row.orderId
+```
+
+规则：
+
+- 不得与 `requestMapping` 同时出现；
+- 仅 `path` / `query`（无 `body`）；值纪律与 §3.1 的 `$row.*` / 字面量规则相同；
+- `path` 与 url `{name}` 占位符双向对齐；query 序列化遵循 ADR-0010；
+- path 映射结果为 `null`/`undefined` 时拒绝导航；
+- 执行序：可见可点 → confirm → 解析 mapping → 宿主导航到最终相对 URL。
+
+### 3.3 页面级 ActionTrigger（since 2.1 / ADR-0020）
+
+`actionButton` 与 `table.props.toolbar[]` 通过 `actionRef` 引用顶层 `request` | `navigate` | `modal`（禁止 `upload`/`custom`）。使用时声明 `actions.page.trigger`。
+
+- 无行上下文，无 Trigger 级 `requestMapping`；
+- 引用 `request` 时 method 仅 `POST`/`PUT`/`PATCH`/`DELETE`（禁止 GET）；url 不得含未绑定 `{name}` 模板；
+- 执行序与行级类似：permissions / visibleWhen → disabled → confirm → 执行 Action → OutcomeBehavior。
+
+### 3.4 表单记录加载（since 2.1 / ADR-0021）
+
+编辑表单通过 `form.props.recordSource` 在挂载时 GET 记录并回填，见 [03-component-registry.md](./03-component-registry.md) 与 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md)。提交仍使用本节 `request` + `bodyMapping` 与表单提交投影，不经 `recordSource`。
 
 ## 4. `navigate` 类型
 

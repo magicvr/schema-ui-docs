@@ -25,7 +25,9 @@ applies_to: schema-ui-protocol v2.0
 
 > **v0.2.4 变更（`responseMapping` 条件必填）：** `schemas/node.schema.json` 只能表达 `responseMapping` 的结构下限，不能仅凭 `DataRef` 判断组件消费数据的语义。校验器必须在 L2、L4 或人工 review 中结合组件类型和 `props` 补充检查：`table` / `chart` 这类数组消费组件在 `source: api` 或 `source: ref` 的生效 `responseMapping` 时必须提供 `list`；`table.props.pagination.mode: server` 时必须提供 `total`。生效映射解析规则：节点本地 `data.responseMapping` 优先，否则当 `data.source: ref` 时继承 `datasources[data.ref].responseMapping`；无任何映射时不强制（沿用默认字段名语义）。这两条规则与 `04-datasource-contract.md` §4.1.1 和 ADR-0005 保持一致。
 
-> **v0.2.7 变更（行级后端请求，0039 修订）：** 使用 `table.props.actions[].actionRef` 时，页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。L2 校验器还应检查 `actionRef` 是否存在、是否引用 `type: request` action、是否同时声明非空 `requestMapping`、`requestMapping.path` 是否与 URL `{param}` 占位符一致、映射值是否只使用字面量或单个 `$row.*` 点路径。因 v0.2 尚无嵌套表格挂载结构，`$parentRow.*` 保守拒绝。
+> **v0.2.7 变更（行级后端请求，0039 修订）：** 使用 `table.props.actions[].actionRef` 指向 `type: request` 时，页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。L2 校验器还应检查 `actionRef` 是否存在、是否同时声明非空 `requestMapping`、path 与 URL `{param}` 对齐、映射值只使用字面量或单个 `$row.*`。`$parentRow.*` 静态拒绝。
+
+> **Admin 生命周期 P0（ADR-0020 / 0021）：** `actionButton` / `table.toolbar` → `actions.page.trigger`；行级 `navigate` + `navigateMapping` → `actions.row.navigate`；`form.recordSource` → `form.record.load`（`responseMapping` 必填非空，search 模式禁止）。页面级 Trigger 的 request 禁止 GET。
 
 > **v0.2.8 变更（引用完整性 & 继承 responseMapping 校验 & params.responseMapping 禁令 & Node id 唯一性 & 行级 requestMapping 模板禁令）：** L2 校验器增加以下规则：
 > - `form.props.submitAction` 必须引用顶层 `actions` 中已声明的动作 id；引用 `type: request` 时不得使用 GET，普通表单字段只按 JSON 请求体提交。
@@ -154,7 +156,9 @@ npm run validate -- "pages/**/*.yaml"
 - [ ] `table` / `chart` 这类数组消费组件的生效 `responseMapping`（本地或继承自 `datasources.*`）是否提供了 `list`？
 - [ ] `table.props.pagination.mode: server` 时，生效 `responseMapping` 是否提供了 `total`？
 - [ ] 表格类 Node 的 `columns[].field` 是否与后端响应体字段名一致？
-- [ ] 使用 `table.props.actions[].actionRef` 时，是否声明了 `actions.row.request` 能力，并提供了合法的 `requestMapping`？
+- [ ] 行级 `actionRef` → request 时是否声明 `actions.row.request` 与合法 `requestMapping`？→ navigate 时是否声明 `actions.row.navigate` 与合法 `navigateMapping`？
+- [ ] 使用 `actionButton` / `table.toolbar` 时是否声明 `actions.page.trigger`，且 Trigger 的 request 非 GET？
+- [ ] 使用 `form.recordSource` 时是否声明 `form.record.load`，且 `responseMapping` 非空、非 search 模式？
 - [ ] `form.props.submitAction` 是否引用了顶层 `actions` 中存在的动作 id，且 request action 不是 GET？
 - [ ] `upload.props.actionRef` 是否引用了顶层 `actions` 中 `type: upload` 的动作？
 - [ ] `data.source: ref` 时，`data.ref` 是否存在于顶层 `datasources`？

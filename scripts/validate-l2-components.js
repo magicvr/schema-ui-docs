@@ -13,12 +13,15 @@
  *      - 生效映射解析顺序：本地 data.responseMapping 优先，否则当 source: ref 时继承 datasources[ref].responseMapping；无映射时不强制
  *   9. params.responseMapping 禁令（ADR-0005 D1）：
  *      - responseMapping 不属于请求参数，禁止放入 data.params 或 datasources.*.params
- *   6. 执行能力与行级 action 引用规则：
- *      - 使用 RowAction.actionRef 时必须声明 actions.row.request 能力
- *      - RowAction.actionRef 必须引用顶层 request action，且 RowAction 必须声明 requestMapping
+ *   6. 执行能力与行级/页面 action 引用规则：
+ *      - RowAction.actionRef → type:request 须 actions.row.request + requestMapping
+ *      - RowAction.actionRef → type:navigate 须 actions.row.navigate + navigateMapping（ADR-0021）
+ *      - actionButton / table.toolbar 须 actions.page.trigger（ADR-0020）
+ *      - form.recordSource 须 form.record.load；search 模式禁止；responseMapping 必填非空（ADR-0021）
  *   7. 页面级 action 引用完整性校验：
  *      - form.props.submitAction 必须存在于 doc.actions
  *      - upload.props.actionRef 必须存在于 doc.actions 且 type 必须为 upload
+ *      - ActionTrigger.actionRef 仅允许 request|navigate|modal；request 禁止 GET
  *   8. datasource / targetTable 引用存在性校验：
  *      - data.source: ref 时，data.ref 必须存在于 doc.datasources
  *      - form.mode: search 的 targetTable 必须在页面 Node 树中存在 id 匹配且 type: table 的节点
@@ -918,24 +921,32 @@ function hasNonEmptyRequestMapping(mapping) {
   );
 }
 
-function validateRequestMappingValues(mappingSection, sectionPath, violations) {
+const ROW_REF_PATTERN = /^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)$/;
+const ROUTE_REF_PATTERN = /^\$context\.route\.(query|params)\.([A-Za-z_][A-Za-z0-9_]*)$/;
+
+function validateFlatMappingValues(mappingSection, sectionPath, violations, options) {
+  const {
+    label,
+    variableMessage,
+    variablePattern,
+    allowVariables = true,
+  } = options;
   if (mappingSection === undefined) return;
   if (!isPlainObject(mappingSection)) {
-    violations.push({ path: sectionPath, message: 'requestMapping 的 path/query/body 必须是对象' });
+    violations.push({ path: sectionPath, message: `${label} 的 path/query/body 段必须是对象` });
     return;
   }
 
-  const rowRefPattern = /^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)$/;
   for (const [mappingKey, mappingValue] of Object.entries(mappingSection)) {
     const valuePath = `${sectionPath}.${mappingKey}`;
     if (mappingKey.length === 0 || !isValidUnicodeScalarString(mappingKey)) {
-      violations.push({ path: valuePath, message: 'requestMapping key 必须是非空且合法的 Unicode scalar 字符串' });
+      violations.push({ path: valuePath, message: `${label} key 必须是非空且合法的 Unicode scalar 字符串` });
     }
     const valueType = mappingValue === null ? 'null' : Array.isArray(mappingValue) ? 'array' : typeof mappingValue;
     if (!['string', 'number', 'boolean', 'null'].includes(valueType) || (typeof mappingValue === 'number' && !Number.isFinite(mappingValue))) {
       violations.push({
         path: valuePath,
-        message: `requestMapping 必须是扁平 key-value map；值只能是 string/finite number/boolean/null 或单个行上下文引用，实际为 ${valueType}`,
+        message: `${label} 必须是扁平 key-value map；值只能是 string/finite number/boolean/null 或单个允许的上下文引用，实际为 ${valueType}`,
       });
       continue;
     }
@@ -943,24 +954,85 @@ function validateRequestMappingValues(mappingSection, sectionPath, violations) {
       if (!isValidUnicodeScalarString(mappingValue)) {
         violations.push({
           path: valuePath,
-          message: 'requestMapping 字符串值必须是合法的 Unicode scalar 字符串',
+          message: `${label} 字符串值必须是合法的 Unicode scalar 字符串`,
         });
         continue;
       }
-      // 只要包含 $ 就必须整体匹配，拒绝模板拼接（如 prefix-$row.id）
-      if (mappingValue.includes('$') && !rowRefPattern.test(mappingValue)) {
-        violations.push({
-          path: valuePath,
-          message: '行级 requestMapping 仅允许单个 $row.* 点路径引用；v0.2 静态拒绝嵌套表格及 $parentRow.*，也不得使用 $deps.*、$context.*、模板拼接或表达式',
-        });
+      if (mappingValue.includes('$')) {
+        if (!allowVariables || !variablePattern.test(mappingValue)) {
+          violations.push({
+            path: valuePath,
+            message: variableMessage,
+          });
+          continue;
+        }
+        const rowRefMatch = ROW_REF_PATTERN.exec(mappingValue);
+        if (rowRefMatch && rowRefMatch[1].split('.').some(segment => RESERVED_ROW_PATH_SEGMENTS.has(segment))) {
+          violations.push({
+            path: valuePath,
+            message: `${label} 不允许通过 $row.* 读取原型链保留路径 __proto__、prototype 或 constructor`,
+          });
+        }
       }
-      const rowRefMatch = rowRefPattern.exec(mappingValue);
-      if (rowRefMatch && rowRefMatch[1].split('.').some(segment => RESERVED_ROW_PATH_SEGMENTS.has(segment))) {
-        violations.push({
-          path: valuePath,
-          message: '行级 requestMapping 不允许通过 $row.* 读取原型链保留路径 __proto__、prototype 或 constructor',
-        });
-      }
+    }
+  }
+}
+
+function validateRequestMappingValues(mappingSection, sectionPath, violations) {
+  validateFlatMappingValues(mappingSection, sectionPath, violations, {
+    label: 'requestMapping',
+    variablePattern: ROW_REF_PATTERN,
+    variableMessage: '行级 requestMapping 仅允许单个 $row.* 点路径引用；静态拒绝 $parentRow.*，也不得使用 $deps.*、$context.*、模板拼接或表达式',
+  });
+}
+
+function validateNavigateMappingValues(mappingSection, sectionPath, violations) {
+  validateFlatMappingValues(mappingSection, sectionPath, violations, {
+    label: 'navigateMapping',
+    variablePattern: ROW_REF_PATTERN,
+    variableMessage: '行级 navigateMapping 仅允许单个 $row.* 点路径引用；不得使用 $deps.*、$context.*、模板拼接或表达式',
+  });
+}
+
+function validateRecordSourceMappingValues(mappingSection, sectionPath, violations) {
+  validateFlatMappingValues(mappingSection, sectionPath, violations, {
+    label: 'recordSource',
+    variablePattern: ROUTE_REF_PATTERN,
+    variableMessage: 'recordSource.path/query 值仅允许字面量或单个 $context.route.query.* / $context.route.params.* 引用',
+  });
+}
+
+function hasNonEmptyNavigateMapping(mapping) {
+  if (!isPlainObject(mapping)) return false;
+  return ['path', 'query'].some(section =>
+    isPlainObject(mapping[section]) && Object.keys(mapping[section]).length > 0,
+  );
+}
+
+function validatePathPlaceholderBinding(url, mappingPath, mappingPathField, actionPath, violations) {
+  if (hasInvalidUrlTemplate(url)) {
+    violations.push({
+      path: `${actionPath}.url`,
+      message: 'url 路径参数只允许完整的 {identifier} 占位符；禁止空、数字开头、连字符、嵌套、孤立或未闭合花括号',
+    });
+    return;
+  }
+  const placeholders = new Set(extractUrlPathParams(url));
+  const pathMapping = isPlainObject(mappingPath) ? mappingPath : {};
+  for (const placeholder of placeholders) {
+    if (pathMapping[placeholder] === undefined) {
+      violations.push({
+        path: `${mappingPathField}.${placeholder}`,
+        message: `url 中的路径参数 {${placeholder}} 必须在映射 path 中声明`,
+      });
+    }
+  }
+  for (const mappingKey of Object.keys(pathMapping)) {
+    if (!placeholders.has(mappingKey)) {
+      violations.push({
+        path: `${mappingPathField}.${mappingKey}`,
+        message: `path.${mappingKey} 没有对应的 url 路径参数 {${mappingKey}}`,
+      });
     }
   }
 }
@@ -982,10 +1054,16 @@ function validateActionUrls(doc, violations) {
 }
 
 function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPath, violations) {
+  if (rowAction.navigateMapping !== undefined) {
+    violations.push({
+      path: `${rowActionPath}.navigateMapping`,
+      message: 'type: request 的 RowAction 不得声明 navigateMapping',
+    });
+  }
   if (!hasNonEmptyRequestMapping(rowAction.requestMapping)) {
     violations.push({
       path: `${rowActionPath}.requestMapping`,
-      message: 'RowAction.actionRef 必须同时声明非空 requestMapping，以显式绑定当前行数据',
+      message: 'RowAction.actionRef 引用 type: request 时必须同时声明非空 requestMapping，以显式绑定当前行数据',
     });
     return;
   }
@@ -994,33 +1072,13 @@ function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPat
   validateRequestMappingValues(mapping.path, `${rowActionPath}.requestMapping.path`, violations);
   validateRequestMappingValues(mapping.query, `${rowActionPath}.requestMapping.query`, violations);
   validateRequestMappingValues(mapping.body, `${rowActionPath}.requestMapping.body`, violations);
-
-  if (hasInvalidUrlTemplate(actionDef.url)) {
-    violations.push({
-      path: `${actionPath}.url`,
-      message: 'url 路径参数只允许完整的 {identifier} 占位符；禁止空、数字开头、连字符、嵌套、孤立或未闭合花括号',
-    });
-    return;
-  }
-
-  const placeholders = new Set(extractUrlPathParams(actionDef.url));
-  const pathMapping = isPlainObject(mapping.path) ? mapping.path : {};
-  for (const placeholder of placeholders) {
-    if (pathMapping[placeholder] === undefined) {
-      violations.push({
-        path: `${rowActionPath}.requestMapping.path.${placeholder}`,
-        message: `url 中的路径参数 {${placeholder}} 必须在 requestMapping.path 中声明`,
-      });
-    }
-  }
-  for (const mappingKey of Object.keys(pathMapping)) {
-    if (!placeholders.has(mappingKey)) {
-      violations.push({
-        path: `${rowActionPath}.requestMapping.path.${mappingKey}`,
-        message: `requestMapping.path.${mappingKey} 没有对应的 url 路径参数 {${mappingKey}}`,
-      });
-    }
-  }
+  validatePathPlaceholderBinding(
+    actionDef.url,
+    mapping.path,
+    `${rowActionPath}.requestMapping.path`,
+    actionPath,
+    violations,
+  );
 
   if (['GET', 'DELETE'].includes(actionDef.method) && isPlainObject(mapping.body) && Object.keys(mapping.body).length > 0) {
     violations.push({
@@ -1030,48 +1088,230 @@ function validateRowRequestAction(rowAction, rowActionPath, actionDef, actionPat
   }
 }
 
+function validateRowNavigateAction(rowAction, rowActionPath, actionDef, actionPath, violations) {
+  if (rowAction.requestMapping !== undefined) {
+    violations.push({
+      path: `${rowActionPath}.requestMapping`,
+      message: 'type: navigate 的 RowAction 不得声明 requestMapping；请使用 navigateMapping',
+    });
+  }
+  if (!hasNonEmptyNavigateMapping(rowAction.navigateMapping)) {
+    violations.push({
+      path: `${rowActionPath}.navigateMapping`,
+      message: 'RowAction.actionRef 引用 type: navigate 时必须同时声明非空 navigateMapping（path 与/或 query）',
+    });
+    return;
+  }
+  if (rowAction.navigateMapping && rowAction.navigateMapping.body !== undefined) {
+    violations.push({
+      path: `${rowActionPath}.navigateMapping.body`,
+      message: 'navigateMapping 不得声明 body',
+    });
+  }
+
+  const mapping = rowAction.navigateMapping;
+  validateNavigateMappingValues(mapping.path, `${rowActionPath}.navigateMapping.path`, violations);
+  validateNavigateMappingValues(mapping.query, `${rowActionPath}.navigateMapping.query`, violations);
+  validatePathPlaceholderBinding(
+    actionDef.url,
+    mapping.path,
+    `${rowActionPath}.navigateMapping.path`,
+    actionPath,
+    violations,
+  );
+  if (actionDef.url !== undefined) {
+    validateProtocolUrl(actionDef.url, `${actionPath}.url`, violations);
+  }
+}
+
+function validateActionTrigger(trigger, triggerPath, actions, violations) {
+  if (!isPlainObject(trigger)) return;
+  if (typeof trigger.key !== 'string' || trigger.key.length === 0) {
+    violations.push({ path: `${triggerPath}.key`, message: 'ActionTrigger.key 必填且必须为非空字符串' });
+  }
+  if (trigger.label === undefined && trigger.labelKey === undefined) {
+    violations.push({ path: triggerPath, message: 'ActionTrigger 必须提供 label 或 labelKey' });
+  }
+  const actionRef = trigger.actionRef;
+  if (typeof actionRef !== 'string') {
+    violations.push({ path: `${triggerPath}.actionRef`, message: 'ActionTrigger.actionRef 必填且必须为字符串' });
+    return;
+  }
+  const actionDef = actions[actionRef];
+  if (!actionDef) {
+    violations.push({
+      path: `${triggerPath}.actionRef`,
+      message: `ActionTrigger.actionRef 引用了不存在的顶层 action "${actionRef}"`,
+    });
+    return;
+  }
+  if (!['request', 'navigate', 'modal'].includes(actionDef.type)) {
+    violations.push({
+      path: `${triggerPath}.actionRef`,
+      message: `ActionTrigger.actionRef 仅可引用 type: request|navigate|modal，当前为 "${actionDef.type}"`,
+    });
+    return;
+  }
+  if (actionDef.type === 'request') {
+    if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(actionDef.method)) {
+      violations.push({
+        path: `${triggerPath}.actionRef`,
+        message: `页面级 ActionTrigger 引用的 request 不得使用 method "${actionDef.method}"；仅允许 POST/PUT/PATCH/DELETE（ADR-0020 OQ-20-1）`,
+      });
+    }
+    if (actionDef.url !== undefined) {
+      validateProtocolUrl(actionDef.url, `actions.${actionRef}.url`, violations);
+      if (/[{}]/.test(actionDef.url || '')) {
+        violations.push({
+          path: `actions.${actionRef}.url`,
+          message: '页面级 ActionTrigger 引用的 request URL 不得包含未绑定的路径模板',
+        });
+      }
+    }
+  }
+  if (actionDef.type === 'navigate' && actionDef.url !== undefined) {
+    validateProtocolUrl(actionDef.url, `actions.${actionRef}.url`, violations);
+  }
+}
+
+function validateRecordSource(formNode, nodePath, violations) {
+  const recordSource = formNode.props?.recordSource;
+  if (recordSource === undefined) return;
+  if (formNode.props?.mode === 'search') {
+    violations.push({
+      path: `${nodePath}.props.recordSource`,
+      message: 'mode: search 的 form 禁止声明 recordSource',
+    });
+    return;
+  }
+  if (!isPlainObject(recordSource)) {
+    violations.push({ path: `${nodePath}.props.recordSource`, message: 'recordSource 必须是对象' });
+    return;
+  }
+  if (recordSource.method !== 'GET') {
+    violations.push({
+      path: `${nodePath}.props.recordSource.method`,
+      message: 'recordSource.method 只允许 GET',
+    });
+  }
+  if (typeof recordSource.url !== 'string') {
+    violations.push({ path: `${nodePath}.props.recordSource.url`, message: 'recordSource.url 必填' });
+  } else {
+    validateProtocolUrl(recordSource.url, `${nodePath}.props.recordSource.url`, violations);
+  }
+  if (!isPlainObject(recordSource.responseMapping) || Object.keys(recordSource.responseMapping).length === 0) {
+    violations.push({
+      path: `${nodePath}.props.recordSource.responseMapping`,
+      message: 'recordSource.responseMapping 必填且必须为非空对象（ADR-0021 OQ-21-1）',
+    });
+  } else {
+    for (const [field, pathExpr] of Object.entries(recordSource.responseMapping)) {
+      if (typeof field !== 'string' || field.length === 0 || typeof pathExpr !== 'string' || pathExpr.length === 0) {
+        violations.push({
+          path: `${nodePath}.props.recordSource.responseMapping.${field}`,
+          message: 'responseMapping 的键与值必须是非空字符串（form field → 响应点路径）',
+        });
+      }
+    }
+  }
+  if (recordSource.ref !== undefined || recordSource.source !== undefined) {
+    violations.push({
+      path: `${nodePath}.props.recordSource`,
+      message: 'recordSource 不得引用 datasources ref；MVP 仅允许内联 url（ADR-0021 OQ-21-2）',
+    });
+  }
+  validateRecordSourceMappingValues(recordSource.path, `${nodePath}.props.recordSource.path`, violations);
+  validateRecordSourceMappingValues(recordSource.query, `${nodePath}.props.recordSource.query`, violations);
+  if (typeof recordSource.url === 'string') {
+    validatePathPlaceholderBinding(
+      recordSource.url,
+      recordSource.path,
+      `${nodePath}.props.recordSource.path`,
+      `${nodePath}.props.recordSource`,
+      violations,
+    );
+  }
+}
+
 function validateRowActionRefs(doc, violations) {
   const actions = isPlainObject(doc.actions) ? doc.actions : {};
 
   const scanNode = (node, nodePath) => {
     if (!node || typeof node !== 'object') return;
 
-    if (node.type === 'table' && node.props && Array.isArray(node.props.actions)) {
-      node.props.actions.forEach((rowAction, rowActionIndex) => {
-        if (!rowAction) return;
+    if (node.type === 'table' && node.props) {
+      if (Array.isArray(node.props.toolbar)) {
+        const toolbarKeys = new Set();
+        node.props.toolbar.forEach((trigger, index) => {
+          const triggerPath = `${nodePath}.props.toolbar[${index}]`;
+          if (trigger && typeof trigger.key === 'string') {
+            if (toolbarKeys.has(trigger.key)) {
+              violations.push({
+                path: `${triggerPath}.key`,
+                message: `table.toolbar 内 key "${trigger.key}" 重复`,
+              });
+            }
+            toolbarKeys.add(trigger.key);
+          }
+          validateActionTrigger(trigger, triggerPath, actions, violations);
+        });
+      }
 
-        const rowActionPath = `${nodePath}.props.actions[${rowActionIndex}]`;
-        if (rowAction.requestMapping !== undefined && rowAction.actionRef === undefined) {
-          violations.push({
-            path: `${rowActionPath}.requestMapping`,
-            message: 'RowAction.requestMapping 只能与 actionRef 一起使用；本地 handler 模式不接受 requestMapping',
-          });
-        }
+      if (Array.isArray(node.props.actions)) {
+        node.props.actions.forEach((rowAction, rowActionIndex) => {
+          if (!rowAction) return;
 
-        if (rowAction.actionRef === undefined) return;
+          const rowActionPath = `${nodePath}.props.actions[${rowActionIndex}]`;
+          if (rowAction.requestMapping !== undefined && rowAction.actionRef === undefined) {
+            violations.push({
+              path: `${rowActionPath}.requestMapping`,
+              message: 'RowAction.requestMapping 只能与 actionRef 一起使用；本地 handler 模式不接受 requestMapping',
+            });
+          }
+          if (rowAction.navigateMapping !== undefined && rowAction.actionRef === undefined) {
+            violations.push({
+              path: `${rowActionPath}.navigateMapping`,
+              message: 'RowAction.navigateMapping 只能与 actionRef 一起使用',
+            });
+          }
 
-        const actionRef = rowAction.actionRef;
-        if (typeof actionRef !== 'string') return;
+          if (rowAction.actionRef === undefined) return;
 
-        const actionDef = actions[actionRef];
-        if (!actionDef) {
+          const actionRef = rowAction.actionRef;
+          if (typeof actionRef !== 'string') return;
+
+          const actionDef = actions[actionRef];
+          if (!actionDef) {
+            violations.push({
+              path: `${rowActionPath}.actionRef`,
+              message: `RowAction.actionRef 引用了不存在的顶层 action "${actionRef}"`,
+            });
+            return;
+          }
+
+          if (actionDef.type === 'request') {
+            validateRowRequestAction(rowAction, rowActionPath, actionDef, `actions.${actionRef}`, violations);
+            return;
+          }
+          if (actionDef.type === 'navigate') {
+            validateRowNavigateAction(rowAction, rowActionPath, actionDef, `actions.${actionRef}`, violations);
+            return;
+          }
+
           violations.push({
             path: `${rowActionPath}.actionRef`,
-            message: `RowAction.actionRef 引用了不存在的顶层 action "${actionRef}"`,
+            message: `RowAction.actionRef 仅可引用 type: request 或 type: navigate，当前为 "${actionDef.type}"`,
           });
-          return;
-        }
+        });
+      }
+    }
 
-        if (actionDef.type !== 'request') {
-          violations.push({
-            path: `${rowActionPath}.actionRef`,
-            message: `RowAction.actionRef 仅可引用 type: request 的 action，当前为 "${actionDef.type}"`,
-          });
-          return;
-        }
+    if (node.type === 'actionButton' && node.props) {
+      validateActionTrigger(node.props, `${nodePath}.props`, actions, violations);
+    }
 
-        validateRowRequestAction(rowAction, rowActionPath, actionDef, `actions.${actionRef}`, violations);
-      });
+    if (node.type === 'form' && node.props) {
+      validateRecordSource(node, nodePath, violations);
     }
 
     if (Array.isArray(node.children)) {
@@ -1088,7 +1328,6 @@ function validateRowActionRefs(doc, violations) {
 
   if (doc.body) scanNode(doc.body, 'body');
 
-  // --- 遍历 actions[].type: modal 的 content Node ---
   if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
     for (const [actionId, actionDef] of Object.entries(doc.actions)) {
       if (actionDef && actionDef.type === 'modal' && actionDef.content) {
@@ -1458,12 +1697,36 @@ function validateRequiredCapabilities(doc, violations) {
     if (node.type === 'upload' && node.props && node.props.actionRef !== undefined) {
       requireCapability('actions.upload', `${nodePath}.props.actionRef`, 'upload.props.actionRef');
     }
-    if (node.type === 'table' && node.props && Array.isArray(node.props.actions)) {
-      node.props.actions.forEach((rowAction, rowActionIndex) => {
-        if (rowAction && rowAction.actionRef !== undefined) {
-          requireCapability('actions.row.request', `${nodePath}.props.actions[${rowActionIndex}].actionRef`, 'RowAction.actionRef');
-        }
-      });
+    if (node.type === 'actionButton') {
+      requireCapability('actions.page.trigger', `${nodePath}`, 'actionButton');
+    }
+    if (node.type === 'form' && node.props && node.props.recordSource !== undefined) {
+      requireCapability('form.record.load', `${nodePath}.props.recordSource`, 'form.props.recordSource');
+    }
+    if (node.type === 'table' && node.props) {
+      if (Array.isArray(node.props.toolbar) && node.props.toolbar.length > 0) {
+        requireCapability('actions.page.trigger', `${nodePath}.props.toolbar`, 'table.props.toolbar');
+      }
+      if (Array.isArray(node.props.actions)) {
+        const actions = isPlainObject(doc.actions) ? doc.actions : {};
+        node.props.actions.forEach((rowAction, rowActionIndex) => {
+          if (!rowAction || rowAction.actionRef === undefined) return;
+          const actionDef = actions[rowAction.actionRef];
+          if (actionDef && actionDef.type === 'navigate') {
+            requireCapability(
+              'actions.row.navigate',
+              `${nodePath}.props.actions[${rowActionIndex}].actionRef`,
+              'RowAction.actionRef → navigate',
+            );
+          } else {
+            requireCapability(
+              'actions.row.request',
+              `${nodePath}.props.actions[${rowActionIndex}].actionRef`,
+              'RowAction.actionRef → request',
+            );
+          }
+        });
+      }
     }
     if (Array.isArray(node.children)) {
       node.children.forEach((child, idx) => scanNode(child, `${nodePath}.children[${idx}]`));
@@ -1479,7 +1742,6 @@ function validateRequiredCapabilities(doc, violations) {
 
   if (doc.body) scanNode(doc.body, 'body');
 
-  // --- 遍历 actions[].type: modal 的 content Node ---
   if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
     for (const [actionId, actionDef] of Object.entries(doc.actions)) {
       if (actionDef && actionDef.type === 'modal' && actionDef.content) {
