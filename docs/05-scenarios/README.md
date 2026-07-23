@@ -13,11 +13,12 @@
 | [`search-form-table.md`](./search-form-table.md) | `form` + `table` | 搜索表单筛选服务端分页表格 | `mode: search`、`targetTable`、API 数据源合并 query |
 | [`form-with-upload.md`](./form-with-upload.md) | `form` / `upload` | 表单内文件上传后随单提交 | `actions.upload`、`actionRef`、UploadAction 约束唯一来源 |
 | [`admin-list-edit-lifecycle.md`](./admin-list-edit-lifecycle.md) | `table` + `form` + actions | 工具栏新建、行进编辑、记录加载回填（扩展示例） | `actions.page.trigger`、`actions.row.navigate`、`form.record.load`（ADR-0020/0021） |
+| [`admin-list-detail-lifecycle.md`](./admin-list-detail-lifecycle.md) | `table` + `recordView` | 列表行进详情、只读 recordView 加载（扩展示例） | `actions.row.navigate`、`record.view.load`（ADR-0021/0024） |
 | [`admin-list-batch.md`](./admin-list-batch.md) | `table` + toolbar batch | 当前页多选与批量 request（扩展示例） | `table.selection`、`actions.batch.request`（ADR-0022） |
 | [`permission-inheritance.md`](./permission-inheritance.md) | `section` / `form` / `table` + actions | 容器 edit/delete 继承与显式操作 intent（扩展示例） | `permissionCascade`、`permissionIntent`、`permissions.inheritance`（ADR-0023） |
 
 > `admin-list-edit-lifecycle.md` 为 Admin 生命周期 P0 扩展示例：**已进入** conformance `scenarios` suite（`CONFORMANCE_SCENARIO_PATHS`），**尚未**列入 `OFFICIAL_SCENARIO_PATHS` 六场景 release 门禁清单。  
-> `admin-list-batch.md` 为 Phase C 扩展示例：机器可读样例见 `_samples/order-list-batch.yaml`；当前示例按 `2.3` 制品统一声明 `protocolVersion: "2.3"`。
+> `admin-list-batch.md` 为 Phase C 扩展示例：机器可读样例见 `_samples/order-list-batch.yaml`；当前示例按 `2.4` 制品统一声明 `protocolVersion: "2.4"`。
 > `permission-inheritance.md` 为 ADR-0023 扩展示例；跨语言可观测规则由 `permissions-inheritance` fixture suite 覆盖。
 
 ## 阅读顺序

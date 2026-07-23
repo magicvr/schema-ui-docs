@@ -18,6 +18,7 @@
  *      - RowAction.actionRef → type:navigate 须 actions.row.navigate + navigateMapping（ADR-0021）
  *      - actionButton / table.toolbar 须 actions.page.trigger（ADR-0020）
  *      - form.recordSource 须 form.record.load；search 模式禁止；responseMapping 必填非空（ADR-0021）
+ *      - recordView 须 record.view.load；recordSource + fields 必填；fields[].key ⊆ responseMapping（ADR-0024）
  *   7. 页面级 action 引用完整性校验：
  *      - form.props.submitAction 必须存在于 doc.actions
  *      - upload.props.actionRef 必须存在于 doc.actions 且 type 必须为 upload
@@ -29,6 +30,7 @@
  *      - 2.1 字段（actionButton / toolbar / navigateMapping / recordSource）要求 protocolVersion >= "2.1"
  *      - 2.2 字段（selection / requiresSelection / batchMapping）在 ALLOW_22_FIELDS_ON_21 时 >= "2.1"，否则 >= "2.2"
  *      - 2.3 字段（permissionCascade / permissionIntent）要求 protocolVersion >= "2.3" 且 permissions.inheritance
+ *      - 2.4 字段（recordView）要求 protocolVersion >= "2.4" 且 record.view.load
  *
  * 用法：
  *   node scripts/validate-l2-components.js <file-or-glob> [--json]
@@ -61,7 +63,9 @@ const ALLOW_22_FIELDS_ON_21 = false;
 const FLOOR_21 = '2.1';
 const FLOOR_22 = ALLOW_22_FIELDS_ON_21 ? '2.1' : '2.2';
 const FLOOR_23 = '2.3';
+const FLOOR_24 = '2.4';
 const PERMISSION_INHERITANCE_CAPABILITY = 'permissions.inheritance';
+const RECORD_VIEW_LOAD_CAPABILITY = 'record.view.load';
 const PERMISSION_CASCADE_NODE_TYPES = new Set(['section', 'grid', 'form', 'tabs', 'table']);
 const PERMISSION_CASCADE_KEYS = new Set(['edit', 'delete']);
 
@@ -1491,10 +1495,18 @@ function validateActionTrigger(trigger, triggerPath, actions, violations, option
   }
 }
 
-function validateRecordSource(formNode, nodePath, violations) {
-  const recordSource = formNode.props?.recordSource;
-  if (recordSource === undefined) return;
-  if (formNode.props?.mode === 'search') {
+function validateRecordSource(node, nodePath, violations) {
+  const recordSource = node.props?.recordSource;
+  if (recordSource === undefined) {
+    if (node.type === 'recordView') {
+      violations.push({
+        path: `${nodePath}.props.recordSource`,
+        message: 'recordView.props.recordSource 必填（ADR-0024）',
+      });
+    }
+    return;
+  }
+  if (node.type === 'form' && node.props?.mode === 'search') {
     violations.push({
       path: `${nodePath}.props.recordSource`,
       message: 'mode: search 的 form 禁止声明 recordSource',
@@ -1524,14 +1536,14 @@ function validateRecordSource(formNode, nodePath, violations) {
   if (!isPlainObject(recordSource.responseMapping) || Object.keys(recordSource.responseMapping).length === 0) {
     violations.push({
       path: `${nodePath}.props.recordSource.responseMapping`,
-      message: 'recordSource.responseMapping 必填且必须为非空对象（ADR-0021 OQ-21-1）',
+      message: 'recordSource.responseMapping 必填且必须为非空对象（ADR-0021 OQ-21-1 / ADR-0024）',
     });
   } else {
     for (const [field, pathExpr] of Object.entries(recordSource.responseMapping)) {
       if (typeof field !== 'string' || field.length === 0 || typeof pathExpr !== 'string' || pathExpr.length === 0) {
         violations.push({
           path: `${nodePath}.props.recordSource.responseMapping.${field}`,
-          message: 'responseMapping 的键与值必须是非空字符串（form field → 响应点路径）',
+          message: 'responseMapping 的键与值必须是非空字符串（展示/表单键 → 响应点路径）',
         });
       }
     }
@@ -1553,6 +1565,66 @@ function validateRecordSource(formNode, nodePath, violations) {
       violations,
     );
   }
+}
+
+function validateRecordViewFields(node, nodePath, violations) {
+  const fields = node.props?.fields;
+  if (!Array.isArray(fields) || fields.length === 0) {
+    violations.push({
+      path: `${nodePath}.props.fields`,
+      message: 'recordView.props.fields 必填且至少一项（ADR-0024）',
+    });
+    return;
+  }
+  const mappingKeys = isPlainObject(node.props?.recordSource?.responseMapping)
+    ? new Set(Object.keys(node.props.recordSource.responseMapping))
+    : null;
+  const seenKeys = new Set();
+  fields.forEach((field, index) => {
+    const fieldPath = `${nodePath}.props.fields[${index}]`;
+    if (!isPlainObject(field)) {
+      violations.push({ path: fieldPath, message: 'fields 项必须是对象' });
+      return;
+    }
+    if (typeof field.key !== 'string' || field.key.length === 0) {
+      violations.push({ path: `${fieldPath}.key`, message: 'fields[].key 必填非空字符串' });
+    } else {
+      if (seenKeys.has(field.key)) {
+        violations.push({
+          path: `${fieldPath}.key`,
+          message: `fields[].key "${field.key}" 重复`,
+        });
+      }
+      seenKeys.add(field.key);
+      if (mappingKeys && !mappingKeys.has(field.key)) {
+        violations.push({
+          path: `${fieldPath}.key`,
+          message: `fields[].key "${field.key}" 必须出现在 recordSource.responseMapping 中（ADR-0024）`,
+        });
+      }
+    }
+    const hasLabel = typeof field.label === 'string' && field.label.length > 0;
+    const hasLabelKey = typeof field.labelKey === 'string' && field.labelKey.length > 0;
+    if (!hasLabel && !hasLabelKey) {
+      violations.push({
+        path: fieldPath,
+        message: 'fields[] 须提供 label 或 labelKey',
+      });
+    }
+    if (field.format === 'tag') {
+      if (!isPlainObject(field.tagMap) || Object.keys(field.tagMap).length === 0) {
+        violations.push({
+          path: `${fieldPath}.tagMap`,
+          message: 'format: tag 时 tagMap 必填且为非空对象',
+        });
+      }
+    } else if (field.tagMap !== undefined) {
+      violations.push({
+        path: `${fieldPath}.tagMap`,
+        message: 'tagMap 仅允许 format: tag',
+      });
+    }
+  });
 }
 
 function validateRowActionRefs(doc, violations) {
@@ -1648,6 +1720,10 @@ function validateRowActionRefs(doc, violations) {
 
     if (node.type === 'form' && node.props) {
       validateRecordSource(node, nodePath, violations);
+    }
+    if (node.type === 'recordView') {
+      validateRecordSource(node, nodePath, violations);
+      validateRecordViewFields(node, nodePath, violations);
     }
 
     if (Array.isArray(node.children)) {
@@ -2057,6 +2133,9 @@ function validateProtocolVersionFloor(doc, violations) {
     if (node.type === 'form' && node.props && node.props.recordSource !== undefined) {
       requireFloor(`${nodePath}.props.recordSource`, 'form.props.recordSource', FLOOR_21);
     }
+    if (node.type === 'recordView') {
+      requireFloor(nodePath, 'recordView', FLOOR_24);
+    }
     if (node.type === 'table' && node.props) {
       if (node.props.selection !== undefined) {
         requireFloor(`${nodePath}.props.selection`, 'table.props.selection', FLOOR_22);
@@ -2179,6 +2258,9 @@ function validateRequiredCapabilities(doc, violations) {
     }
     if (node.type === 'form' && node.props && node.props.recordSource !== undefined) {
       requireCapability('form.record.load', `${nodePath}.props.recordSource`, 'form.props.recordSource');
+    }
+    if (node.type === 'recordView') {
+      requireCapability(RECORD_VIEW_LOAD_CAPABILITY, nodePath, 'recordView');
     }
     if (node.type === 'table' && node.props) {
       if (node.props.selection !== undefined) {

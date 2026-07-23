@@ -693,6 +693,122 @@
         ],
         "missingCapabilities": []
       }
+    },
+    {
+      "id": "v2-4-page-accepted",
+      "protocolVersion": "2.4",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.4"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.3",
+            "2.4"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.4",
+        "supportedVersions": [
+          "2.3",
+          "2.4"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "v2-4-page-rejected-by-v2-3-only-renderer",
+      "protocolVersion": "2.4",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.4"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.3"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "2.4",
+        "supportedVersions": [
+          "2.3"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "missing-record-view-capability",
+      "protocolVersion": "2.4",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.4",
+          "requiredCapabilities": [
+            "record.view.load"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.4"
+          ],
+          "supportedCapabilities": [
+            "form.record.load",
+            "actions.row.navigate"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "MISSING_REQUIRED_CAPABILITY",
+        "pageVersion": "2.4",
+        "supportedVersions": [
+          "2.4"
+        ],
+        "missingCapabilities": [
+          "record.view.load"
+        ]
+      }
+    },
+    {
+      "id": "supported-record-view-capability",
+      "protocolVersion": "2.4",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.4",
+          "requiredCapabilities": [
+            "record.view.load",
+            "actions.row.navigate"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.4"
+          ],
+          "supportedCapabilities": [
+            "record.view.load",
+            "actions.row.navigate",
+            "form.record.load"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.4",
+        "supportedVersions": [
+          "2.4"
+        ],
+        "missingCapabilities": []
+      }
     }
   ]
 }

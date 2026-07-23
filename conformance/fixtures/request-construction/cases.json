@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "data-ref-default-get",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -27,7 +27,7 @@
     },
     {
       "id": "data-ref-interceptor-cannot-add-get-body",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -49,7 +49,7 @@
     },
     {
       "id": "data-ref-post-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -71,7 +71,7 @@
     },
     {
       "id": "row-action-path-query-body",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -114,7 +114,7 @@
     },
     {
       "id": "row-action-delete-with-query",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -145,7 +145,7 @@
     },
     {
       "id": "row-action-path-rfc3986-encoding",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -173,7 +173,7 @@
     },
     {
       "id": "row-action-missing-row-path",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -198,7 +198,7 @@
     },
     {
       "id": "row-action-null-path",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -223,7 +223,7 @@
     },
     {
       "id": "row-action-nested-body-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -250,7 +250,7 @@
     },
     {
       "id": "row-action-prototype-path-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -273,7 +273,7 @@
     },
     {
       "id": "row-action-inherits-idempotency-policy",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -306,7 +306,7 @@
     },
     {
       "id": "form-action-idempotency-header",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -336,7 +336,7 @@
     },
     {
       "id": "form-action-idempotency-requires-invocation-id",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -357,7 +357,7 @@
     },
     {
       "id": "data-ref-absolute-url-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -374,7 +374,7 @@
     },
     {
       "id": "form-action-absolute-url-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -392,7 +392,7 @@
     },
     {
       "id": "form-action-invalid-retry-policy-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -411,7 +411,7 @@
     },
     {
       "id": "form-action-body-mapping-source-missing",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -434,7 +434,7 @@
     },
     {
       "id": "form-action-get-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -454,7 +454,7 @@
     },
     {
       "id": "form-action-projection-excludes-hidden-disabled-upload-error",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -502,7 +502,7 @@
     },
     {
       "id": "data-ref-interceptor-cannot-change-query",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -525,7 +525,7 @@
     },
     {
       "id": "row-action-missing-query-value",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -550,7 +550,7 @@
     },
     {
       "id": "row-action-missing-body-value",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -575,7 +575,7 @@
     },
     {
       "id": "row-action-query-null-is-tombstone",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -603,7 +603,7 @@
     },
     {
       "id": "form-action-projection-missing-value",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -626,7 +626,7 @@
     },
     {
       "id": "form-action-default-projection-omits-missing-value",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -654,7 +654,7 @@
     },
     {
       "id": "row-navigate-query-from-row",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -680,7 +680,7 @@
     },
     {
       "id": "row-navigate-path-encoding",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -705,7 +705,7 @@
     },
     {
       "id": "row-navigate-null-path-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -729,7 +729,7 @@
     },
     {
       "id": "row-navigate-body-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -756,7 +756,7 @@
     },
     {
       "id": "row-navigate-empty-mapping-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -776,7 +776,7 @@
     },
     {
       "id": "row-navigate-context-ref-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -800,7 +800,7 @@
     },
     {
       "id": "record-source-get-from-route-query",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -836,7 +836,7 @@
     },
     {
       "id": "record-source-from-route-params",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -868,7 +868,7 @@
     },
     {
       "id": "record-source-missing-route-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -895,7 +895,7 @@
     },
     {
       "id": "record-source-empty-response-mapping-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -917,7 +917,7 @@
     },
     {
       "id": "record-source-post-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -941,7 +941,7 @@
     },
     {
       "id": "record-source-ref-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -966,7 +966,7 @@
     },
     {
       "id": "page-trigger-post-ok",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerRequest",
@@ -986,7 +986,7 @@
     },
     {
       "id": "page-trigger-get-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerRequest",
@@ -1003,7 +1003,7 @@
     },
     {
       "id": "page-trigger-unbound-template-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerRequest",
@@ -1020,7 +1020,7 @@
     },
     {
       "id": "batch-request-body-keys",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1063,7 +1063,7 @@
     },
     {
       "id": "batch-request-empty-selection-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1089,7 +1089,7 @@
     },
     {
       "id": "batch-request-count-keys-mismatch-normalized",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1132,7 +1132,7 @@
     },
     {
       "id": "batch-request-non-scalar-and-dup-keys-normalized",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1183,7 +1183,7 @@
     },
     {
       "id": "batch-request-all-non-scalar-keys-empty",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1217,7 +1217,7 @@
     },
     {
       "id": "batch-request-keys-in-query-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1245,7 +1245,7 @@
     },
     {
       "id": "batch-request-delete-with-body",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1289,7 +1289,7 @@
     },
     {
       "id": "batch-request-get-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1317,7 +1317,7 @@
     },
     {
       "id": "row-navigate-missing-path-binding-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -1341,7 +1341,7 @@
     },
     {
       "id": "row-navigate-extra-path-binding-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -1368,7 +1368,7 @@
     },
     {
       "id": "row-action-missing-path-binding-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -1393,7 +1393,7 @@
     },
     {
       "id": "record-source-missing-path-binding-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -1419,7 +1419,7 @@
     },
     {
       "id": "record-source-extra-path-binding-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -1448,7 +1448,7 @@
     },
     {
       "id": "record-source-missing-method-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -1471,7 +1471,7 @@
     },
     {
       "id": "batch-request-missing-path-binding-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1499,7 +1499,7 @@
     },
     {
       "id": "batch-request-extra-path-binding-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1530,7 +1530,7 @@
     },
     {
       "id": "batch-request-path-literal-ok",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "batchRequest",
@@ -1574,7 +1574,7 @@
     },
     {
       "id": "page-trigger-navigate-ok",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerNavigate",
@@ -1592,7 +1592,7 @@
     },
     {
       "id": "page-trigger-navigate-confirm-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerNavigate",
@@ -1611,7 +1611,7 @@
     },
     {
       "id": "page-trigger-navigate-confirm-accepted",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerNavigate",
@@ -1631,7 +1631,7 @@
     },
     {
       "id": "page-trigger-modal-ok",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerModal",
@@ -1649,7 +1649,7 @@
     },
     {
       "id": "page-trigger-modal-confirm-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerModal",
@@ -1668,7 +1668,7 @@
     },
     {
       "id": "page-trigger-request-confirm-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerRequest",
@@ -1687,7 +1687,7 @@
     },
     {
       "id": "page-trigger-request-confirm-accepted",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerRequest",
@@ -1709,7 +1709,7 @@
     },
     {
       "id": "page-trigger-navigate-unbound-template-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerNavigate",

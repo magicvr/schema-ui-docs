@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-23
-applies_to: schema-ui-protocol v2.3
+applies_to: schema-ui-protocol v2.4
 ---
 
 # 校验规则与工具链
@@ -34,6 +34,8 @@ applies_to: schema-ui-protocol v2.3
 > **审计 0064 收敛：** L2 强制字段集→`protocolVersion` 下限（2.1 字段 ≥ `"2.1"`；2.2 字段 ≥ `"2.2"`，`ALLOW_22_FIELDS_ON_21=false`）；page Trigger navigate 模板与 request 对称静态拒绝。
 
 > **v2.3 / ADR-0023 权限继承：** L1 接受封闭的 Node `permissionCascade: { keys: [edit|delete] }` 形状；组件 DSL 只在 RowAction、toolbar Trigger 和 `actionButton.props` 接受 `permissionIntent`。L2 必须 fail-closed：cascade 仅能挂在 `section` / `grid` / `form` / `tabs` / `table`，`keys` 非空去重且每项有同 Node 的 `permissions.<key>` string 来源；intent 仅为 `edit` / `delete`，columns、顶层 actions、form submit 与其它挂载点均拒绝。任何 cascade/intent 都要求 `meta.protocolVersion >= "2.3"` 和 `meta.requiredCapabilities` 中的 `permissions.inheritance`。L3a 继续扫描所有实际 `permissions.*` 来源，故继承新增的表达式不获得额外的变量命名空间或语法豁免。
+
+> **v2.4 / ADR-0024 只读详情：** `type: recordView` 要求 `meta.protocolVersion >= "2.4"` 与 `record.view.load`。L2 校验 `recordSource`（与 form 同构：method 必填 GET、responseMapping 非空、path 占位对齐）及 `fields[]`（非空、key 唯一且 ⊆ responseMapping、`format: tag` 时 tagMap 必填）。`$context.route` 可绑定 `recordView.props.recordSource` 的 path/query，仍禁止出现在普通表达式挂载点。
 
 > **v0.2.8 变更（引用完整性 & 继承 responseMapping 校验 & params.responseMapping 禁令 & Node id 唯一性 & 行级 requestMapping 模板禁令）：** L2 校验器增加以下规则：
 > - `form.props.submitAction` 必须引用顶层 `actions` 中已声明的动作 id；引用 `type: request` 时不得使用 GET，普通表单字段只按 JSON 请求体提交。

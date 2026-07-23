@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-23
-applies_to: schema-ui-protocol v2.3
+applies_to: schema-ui-protocol v2.4
 ---
 
 # Renderer（前端渲染器）实现规范
@@ -310,6 +310,8 @@ Renderer 不自动发现、选择或串联 adapter。本协议只定义 adapter 
 | `form.record.load` | `form.props.recordSource` 记录加载回填 | ADR-0021 |
 | `table.selection` | `table.props.selection` 当前页多选 | ADR-0022 |
 | `actions.batch.request` | toolbar `batchMapping` 批量 request | ADR-0022 |
+| `permissions.inheritance` | 容器 `permissionCascade` 与入口 `permissionIntent` | ADR-0023 |
+| `record.view.load` | `recordView` 只读详情加载与字段展示 | ADR-0024 |
 
 ### 3.5 协商结果与错误信息格式
 

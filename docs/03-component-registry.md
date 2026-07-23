@@ -2,7 +2,7 @@
 status: living-document
 owner: 前端组件库团队
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.3
+applies_to: schema-ui-protocol v2.4
 ---
 
 # 组件类型（type）注册表
@@ -143,6 +143,63 @@ data:
 ---
 
 ## 数据类
+
+### `recordView`（since 2.4 / ADR-0024）
+
+标准**只读详情**：按 id GET 一条记录，用字段表展示。列表表格往往只展示部分列时，用本组件查阅完整记录。使用时页面须声明 `meta.requiredCapabilities: [record.view.load]` 且 `meta.protocolVersion: "2.4"`（或更高 MINOR）。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `title` / `titleKey` | string | 否 | 详情区块标题 |
+| `recordSource` | object | 是 | 与 `form.recordSource` **同构**：`method: GET`、`url`、可选 `path`/`query`、必填非空 `responseMapping`；path/query 仅字面量或 `$context.route.query.*` / `$context.route.params.*` |
+| `fields` | array\<FieldDef\> | 是 | 至少一项；见下 |
+| `span` | number | 否 | 在父级 grid 中占几栏 |
+
+**FieldDef：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `key` | string | 是 | 展示键；必须是 `recordSource.responseMapping` 的键；`fields[]` 内唯一 |
+| `label` / `labelKey` | string | 是（至少一个） | 字段标签 |
+| `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 否 | 默认 `plain`；与 table 列 format 对齐 |
+| `tagMap` | map | `format: tag` 时必填 | 值 → `{text, tone}`；`tone`：`warning`\|`success`\|`neutral`\|`info`\|`danger` |
+
+```yaml
+type: recordView
+props:
+  title: 基本信息
+  recordSource:
+    method: GET
+    url: /api/orders/{orderId}
+    path:
+      orderId: $context.route.query.orderId
+    responseMapping:
+      orderId: orderId
+      customerName: customer.name
+      status: status
+      amount: amount
+  fields:
+    - { key: orderId, label: 订单号 }
+    - { key: customerName, label: 客户 }
+    - key: status
+      label: 状态
+      format: tag
+      tagMap:
+        paid: { text: 已支付, tone: success }
+    - { key: amount, label: 金额, format: currency }
+```
+
+规则摘要：
+
+- **不**支持 `children`、`data`（DataRef）、`reactions`；**支持** `states`（loading/error）。
+- 主记录**必须**走 `recordSource`，不得用 DataRef 替代主加载。
+- 映射缺失路径 → 该键可观测 `null`（与 form 记录加载一致）。
+- **不是** ADR-0023 cascade 容器；仅 Node 本地 `permissions`。
+- 返回列表 / 去编辑用同页 `actionButton` 等既有入口，不在本组件内嵌 toolbar。
+
+完整语义见 [ADR-0024](./decisions/0024-record-view.md)。扩展示例见 [05-scenarios/admin-list-detail-lifecycle.md](./05-scenarios/admin-list-detail-lifecycle.md)。
+
+支持 `children`：否。支持 `data`：否。支持 `reactions`：否。支持 `states`：是。
 
 ### `table`
 数据表格，自动分页。完整契约见 [04-datasource-contract.md](./04-datasource-contract.md)。

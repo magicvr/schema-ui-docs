@@ -42,7 +42,8 @@ function mapFormRecord(input) {
 }
 
 function mapResponse(input) {
-  if (input.component === 'formRecord') {
+  // formRecord (ADR-0021) and recordView (ADR-0024) share explicit mapping → values.
+  if (input.component === 'formRecord' || input.component === 'recordView') {
     return mapFormRecord(input);
   }
   const mapping = Object.hasOwn(input, 'localMapping')

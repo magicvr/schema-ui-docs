@@ -19,7 +19,7 @@
         },
         "requiredCapabilities": {
           "type": "array",
-          "description": "可选（since 0.2.6），页面依赖的 Renderer 执行能力列表。预定义键含 actions.upload、actions.row.request、actions.page.trigger、actions.row.navigate、form.record.load、table.selection、actions.batch.request、permissions.inheritance",
+          "description": "可选（since 0.2.6），页面依赖的 Renderer 执行能力列表。预定义键含 actions.upload、actions.row.request、actions.page.trigger、actions.row.navigate、form.record.load、table.selection、actions.batch.request、permissions.inheritance、record.view.load",
           "items": {
             "type": "string",
             "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$"

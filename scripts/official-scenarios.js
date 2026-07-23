@@ -16,6 +16,7 @@ const OFFICIAL_SCENARIO_PATHS = [
 const CONFORMANCE_SCENARIO_PATHS = [
   ...OFFICIAL_SCENARIO_PATHS,
   'docs/05-scenarios/admin-list-edit-lifecycle.md',
+  'docs/05-scenarios/admin-list-detail-lifecycle.md',
 ];
 
 function extractAllYamlFences(markdown) {

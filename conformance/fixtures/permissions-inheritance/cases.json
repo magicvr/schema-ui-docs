@@ -4,11 +4,11 @@
   "cases": [
     {
       "id": "nested-ancestor-and-form-local-tightens",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "section",
             "id": "root",
@@ -39,11 +39,11 @@
     },
     {
       "id": "local-permission-cannot-loosen-ancestor",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "section",
             "id": "root",
@@ -72,11 +72,11 @@
     },
     {
       "id": "table-actions-toolbar-inherit-columns-stay-local",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "table",
             "id": "orders",
@@ -109,11 +109,11 @@
     },
     {
       "id": "tabs-content-is-a-cascade-edge",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "tabs",
             "id": "accessTabs",
@@ -146,11 +146,11 @@
     },
     {
       "id": "modal-and-navigated-pages-start-new-roots",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "actions": {
             "editModal": {
               "type": "modal",
@@ -198,11 +198,11 @@
     },
     {
       "id": "default-form-participates-search-form-does-not",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "section",
             "id": "readOnly",
@@ -239,11 +239,11 @@
     },
     {
       "id": "existing-container-permission-is-local-without-cascade",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "section",
             "id": "nonCascading",
@@ -271,11 +271,11 @@
     },
     {
       "id": "all-approved-intent-mounts-participate",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "section",
             "id": "editGate",
@@ -310,11 +310,11 @@
     },
     {
       "id": "capability-is-required-for-intent",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": [] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": [] },
           "body": {
             "type": "actionButton",
             "props": { "key": "edit", "permissionIntent": "edit" }
@@ -332,7 +332,7 @@
     },
     {
       "id": "version-floor-is-required-for-cascade",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -356,11 +356,11 @@
     },
     {
       "id": "cascade-type-and-keys-fail-closed",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "actionButton",
             "permissions": { "edit": true },
@@ -381,11 +381,11 @@
     },
     {
       "id": "missing-source-and-forbidden-intent-mounts-fail-closed",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "table",
             "id": "invalidTable",
@@ -415,11 +415,11 @@
     },
     {
       "id": "visible-when-blocks-before-permission-and-confirm",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "table",
             "id": "orders",
@@ -440,11 +440,11 @@
     },
     {
       "id": "permission-denial-blocks-before-confirm-and-request",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "table",
             "id": "orders",
@@ -465,11 +465,11 @@
     },
     {
       "id": "disabled-or-selection-blocks-before-confirm",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "section",
             "id": "editGate",
@@ -492,11 +492,11 @@
     },
     {
       "id": "confirm-cancellation-stops-action-after-all-gates-pass",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "section",
             "id": "editGate",
@@ -519,11 +519,11 @@
     },
     {
       "id": "action-executes-only-after-confirmation",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "permissions-inheritance",
       "input": {
         "page": {
-          "meta": { "protocolVersion": "2.3", "requiredCapabilities": ["permissions.inheritance"] },
+          "meta": { "protocolVersion": "2.4", "requiredCapabilities": ["permissions.inheritance"] },
           "body": {
             "type": "section",
             "id": "editGate",
