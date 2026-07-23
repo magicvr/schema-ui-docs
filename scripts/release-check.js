@@ -22,7 +22,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:a5b91f305d649a5bc1768efc791222a743aaf5c583192b1a0dfebcc99c91001c';
+  'sha256:7dfedf13ed151d2064821b7bafa3ac9b9999f66d70c9027a173e760bfdaa1b97';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -101,6 +101,17 @@ const releaseTargets = {
       'form.record.load',
     ],
   },
+  '2.2': {
+    releaseGoalsPath: 'docs/13-v2.2-release-goals.md',
+    migrationPath: 'docs/migrations/2.1-to-2.2.md',
+    migrationRequiredTopics: [
+      'protocolVersion',
+      'table.selection',
+      'actions.batch.request',
+      'actions.page.trigger',
+      'ALLOW_22_FIELDS_ON_21',
+    ],
+  },
 };
 const releaseTarget = releaseTargets[protocolVersion];
 assert.ok(releaseTarget, `Missing release target definition for protocolVersion ${protocolVersion}`);
@@ -175,7 +186,17 @@ for (const category of expectedCategories) {
   versionedCaseCount += suite.cases.length;
 }
 // Count is recomputed each MINOR when algorithm fixtures grow; keep in sync with suites.
-const expectedVersionedCaseCount = protocolVersion === '2.1' ? 153 : 128;
+const expectedVersionedCaseCountByProtocol = {
+  '1.0': 65,
+  '2.0': 128,
+  '2.1': 186,
+  '2.2': 189,
+};
+const expectedVersionedCaseCount = expectedVersionedCaseCountByProtocol[protocolVersion];
+assert.ok(
+  expectedVersionedCaseCount !== undefined,
+  `No expectedVersionedCaseCount for protocolVersion ${protocolVersion}`,
+);
 assert.equal(
   versionedCaseCount,
   expectedVersionedCaseCount,

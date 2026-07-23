@@ -7,9 +7,32 @@
 
 ## Unreleased
 
-- 发布流程：明确 **merge `main` 只 CI、不发资产、不自动打 tag**；协议 `v*` 与 MCP `mcp-v*` **独立 tag**。见 [`RELEASE.md`](./RELEASE.md)。
-- MCP CD：镜像发布目标从 Docker Hub 改为 **GitHub Container Registry**（`ghcr.io/<owner>/schema-ui-mcp`，稳定版含 `latest` / minor 别名）。工作流见仓库 `.github/workflows/mcp-cd.yml`；使用说明见 `docs/mcp/README.md`（二者不进协议制品包）。
-- 协议 Release：notes 优先摘录 `CHANGELOG` 对应版本节，并附 content/fixture digests。
+（无）
+
+## v2.2.0 — 2026-07-23（表格多选与批量 request）
+
+> **版本说明：** MINOR 发布。页面使用 `meta.protocolVersion: "2.2"`。仅使用 v2.1 字段集的页面可继续声明 `"2.1"`。正式协议制品为 `schema-ui-protocol-2.2.0.tar.gz`。
+
+**协议变更（capability 门控）：**
+- 新增 `table.selection`：`table.props.selection.mode: multiple`（当前页多选；筛选/翻页/排序/reload 清空）（ADR-0022）。
+- 新增 `actions.batch.request`：toolbar `batchMapping` / `requiresSelection`；`$selection.keys` 仅 body、`$selection.count` 可 query/body（ADR-0022）。
+- L2 `ALLOW_22_FIELDS_ON_21=false`：2.2 字段必须 `protocolVersion >= "2.2"`（审计 0064 / V282 发布纪律）。
+- 同步核心规范 `applies_to`、Schema、官方/扩展示例、算法 fixtures 至 `"2.2"`；迁移 [`2.1-to-2.2.md`](./migrations/2.1-to-2.2.md)；发布目标 [`13-v2.2-release-goals.md`](./13-v2.2-release-goals.md)。
+
+**Conformance：**
+- `request-construction`：batch* 向量（含 path 绑定、规范化、`EMPTY_SELECTION`）。
+- `search-table` / table-query-state：selection 清空与键规范化。
+- `version-negotiation`：`2.2` 接受/拒绝 + batch capability 向量。
+- 算法类 fixtures `protocolVersion` 统一为 `"2.2"`（12 套 suite，189 cases；version-negotiation 保留历史页版本输入）。
+
+**发布前审计闭合（本 MINOR 轨道）：**
+- **0062（V267–V272）：** path fail-closed、toolbar L3a、batch 需 selection、recordSource method 必填、selection 键规范化、page Trigger navigate/modal/confirm。
+- **0063（V273–V281）：** formRecord 可观测 `null`、batch 构造规范化、2.2 版本/迁移策略、L2/L3a 诊断、modal route 非门禁。
+- **0064（V282–V286）：** 字段集→版本下限、page Trigger navigate 模板 L2 对称、`$selection` 文档、page Trigger body 恒 null。
+
+**其它（自 2.1.0 Unreleased 并入）：**
+- 发布流程：merge `main` 只 CI；协议 `v*` 与 MCP `mcp-v*` 独立 tag（[`RELEASE.md`](./RELEASE.md)）。
+- MCP CD：镜像目标 **GHCR**（`ghcr.io/<owner>/schema-ui-mcp`）。
 
 ## v2.1.0 — 2026-07-23（Admin 生命周期 P0）
 

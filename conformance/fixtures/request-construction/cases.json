@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "data-ref-default-get",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -27,7 +27,7 @@
     },
     {
       "id": "data-ref-interceptor-cannot-add-get-body",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -49,7 +49,7 @@
     },
     {
       "id": "data-ref-post-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -71,7 +71,7 @@
     },
     {
       "id": "row-action-path-query-body",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -114,7 +114,7 @@
     },
     {
       "id": "row-action-delete-with-query",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -145,7 +145,7 @@
     },
     {
       "id": "row-action-path-rfc3986-encoding",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -173,7 +173,7 @@
     },
     {
       "id": "row-action-missing-row-path",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -198,7 +198,7 @@
     },
     {
       "id": "row-action-null-path",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -223,7 +223,7 @@
     },
     {
       "id": "row-action-nested-body-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -250,7 +250,7 @@
     },
     {
       "id": "row-action-prototype-path-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -273,7 +273,7 @@
     },
     {
       "id": "row-action-inherits-idempotency-policy",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -306,7 +306,7 @@
     },
     {
       "id": "form-action-idempotency-header",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -336,7 +336,7 @@
     },
     {
       "id": "form-action-idempotency-requires-invocation-id",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -357,7 +357,7 @@
     },
     {
       "id": "data-ref-absolute-url-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -374,7 +374,7 @@
     },
     {
       "id": "form-action-absolute-url-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -392,7 +392,7 @@
     },
     {
       "id": "form-action-invalid-retry-policy-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -411,7 +411,7 @@
     },
     {
       "id": "form-action-body-mapping-source-missing",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -434,7 +434,7 @@
     },
     {
       "id": "form-action-get-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -454,7 +454,7 @@
     },
     {
       "id": "form-action-projection-excludes-hidden-disabled-upload-error",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -502,7 +502,7 @@
     },
     {
       "id": "data-ref-interceptor-cannot-change-query",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "dataRef",
@@ -525,7 +525,7 @@
     },
     {
       "id": "row-action-missing-query-value",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -550,7 +550,7 @@
     },
     {
       "id": "row-action-missing-body-value",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -575,7 +575,7 @@
     },
     {
       "id": "row-action-query-null-is-tombstone",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
@@ -603,7 +603,7 @@
     },
     {
       "id": "form-action-projection-missing-value",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -626,7 +626,7 @@
     },
     {
       "id": "form-action-default-projection-omits-missing-value",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "formAction",
@@ -654,7 +654,7 @@
     },
     {
       "id": "row-navigate-query-from-row",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -680,7 +680,7 @@
     },
     {
       "id": "row-navigate-path-encoding",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -705,7 +705,7 @@
     },
     {
       "id": "row-navigate-null-path-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -729,7 +729,7 @@
     },
     {
       "id": "row-navigate-body-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -756,7 +756,7 @@
     },
     {
       "id": "row-navigate-empty-mapping-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -776,7 +776,7 @@
     },
     {
       "id": "row-navigate-context-ref-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "rowNavigate",
@@ -800,7 +800,7 @@
     },
     {
       "id": "record-source-get-from-route-query",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -836,7 +836,7 @@
     },
     {
       "id": "record-source-from-route-params",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -868,7 +868,7 @@
     },
     {
       "id": "record-source-missing-route-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -895,7 +895,7 @@
     },
     {
       "id": "record-source-empty-response-mapping-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -917,7 +917,7 @@
     },
     {
       "id": "record-source-post-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -941,7 +941,7 @@
     },
     {
       "id": "record-source-ref-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "recordSource",
@@ -966,7 +966,7 @@
     },
     {
       "id": "page-trigger-post-ok",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerRequest",
@@ -986,7 +986,7 @@
     },
     {
       "id": "page-trigger-get-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerRequest",
@@ -1003,13 +1003,719 @@
     },
     {
       "id": "page-trigger-unbound-template-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "request-construction",
       "input": {
         "kind": "pageTriggerRequest",
         "action": {
           "method": "POST",
           "url": "/api/orders/{id}/refresh"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNBOUND_URL_TEMPLATE",
+        "path": "action.url"
+      }
+    },
+    {
+      "id": "batch-request-body-keys",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch-delete"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys",
+            "reason": "manual"
+          }
+        },
+        "selection": {
+          "keys": [
+            "ORD-1",
+            "ORD-2"
+          ],
+          "count": 2
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/api/orders/batch-delete",
+          "body": {
+            "orderIds": [
+              "ORD-1",
+              "ORD-2"
+            ],
+            "reason": "manual"
+          }
+        },
+        "selectionAfterSuccessReload": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "batch-request-empty-selection-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch-delete"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [],
+          "count": 0
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EMPTY_SELECTION",
+        "path": "selection"
+      }
+    },
+    {
+      "id": "batch-request-count-keys-mismatch-normalized",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys",
+            "count": "$selection.count"
+          }
+        },
+        "selection": {
+          "keys": [
+            "ORD-1",
+            "ORD-2"
+          ],
+          "count": 1
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/api/orders/batch",
+          "body": {
+            "orderIds": [
+              "ORD-1",
+              "ORD-2"
+            ],
+            "count": 2
+          }
+        },
+        "selectionAfterSuccessReload": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "batch-request-non-scalar-and-dup-keys-normalized",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch-delete"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys",
+            "count": "$selection.count"
+          }
+        },
+        "selection": {
+          "keys": [
+            "ORD-1",
+            null,
+            {
+              "x": 1
+            },
+            "ORD-1",
+            "ORD-2",
+            [
+              "nested"
+            ]
+          ],
+          "count": 6
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/api/orders/batch-delete",
+          "body": {
+            "orderIds": [
+              "ORD-1",
+              "ORD-2"
+            ],
+            "count": 2
+          }
+        },
+        "selectionAfterSuccessReload": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "batch-request-all-non-scalar-keys-empty",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch-delete"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            null,
+            {
+              "id": 1
+            },
+            [
+              "a"
+            ]
+          ],
+          "count": 3
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EMPTY_SELECTION",
+        "path": "selection"
+      }
+    },
+    {
+      "id": "batch-request-keys-in-query-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch"
+        },
+        "batchMapping": {
+          "query": {
+            "ids": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "a"
+          ],
+          "count": 1
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "SELECTION_KEYS_BODY_ONLY",
+        "path": "batchMapping.query.ids"
+      }
+    },
+    {
+      "id": "batch-request-delete-with-body",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "DELETE",
+          "url": "/api/orders/batch"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys"
+          },
+          "query": {
+            "count": "$selection.count"
+          }
+        },
+        "selection": {
+          "keys": [
+            101,
+            102
+          ],
+          "count": 2
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "DELETE",
+          "url": "/api/orders/batch?count=2",
+          "body": {
+            "orderIds": [
+              101,
+              102
+            ]
+          }
+        },
+        "selectionAfterSuccessReload": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "batch-request-get-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "GET",
+          "url": "/api/orders/batch"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "a"
+          ],
+          "count": 1
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "PAGE_TRIGGER_METHOD_NOT_ALLOWED",
+        "path": "action.method"
+      }
+    },
+    {
+      "id": "row-navigate-missing-path-binding-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/{orderId}/edit"
+        },
+        "navigateMapping": {
+          "query": {
+            "from": "list"
+          }
+        },
+        "row": {
+          "orderId": "ORD-1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_PATH_BINDING",
+        "path": "navigateMapping.path.orderId"
+      }
+    },
+    {
+      "id": "row-navigate-extra-path-binding-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/edit"
+        },
+        "navigateMapping": {
+          "path": {
+            "orderId": "$row.orderId"
+          },
+          "query": {
+            "from": "list"
+          }
+        },
+        "row": {
+          "orderId": "ORD-1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EXTRA_PATH_BINDING",
+        "path": "navigateMapping.path.orderId"
+      }
+    },
+    {
+      "id": "row-action-missing-path-binding-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowAction",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/{orderId}/refund"
+        },
+        "requestMapping": {
+          "query": {
+            "reason": "manual"
+          }
+        },
+        "row": {
+          "orderId": "ORD-1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_PATH_BINDING",
+        "path": "requestMapping.path.orderId"
+      }
+    },
+    {
+      "id": "record-source-missing-path-binding-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "GET",
+          "url": "/api/orders/{orderId}",
+          "responseMapping": {
+            "orderId": "orderId"
+          }
+        },
+        "route": {
+          "query": {
+            "orderId": "ORD-1"
+          },
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_PATH_BINDING",
+        "path": "recordSource.path.orderId"
+      }
+    },
+    {
+      "id": "record-source-extra-path-binding-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "GET",
+          "url": "/api/orders/1",
+          "path": {
+            "orderId": "$context.route.query.orderId"
+          },
+          "responseMapping": {
+            "orderId": "orderId"
+          }
+        },
+        "route": {
+          "query": {
+            "orderId": "ORD-1"
+          },
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EXTRA_PATH_BINDING",
+        "path": "recordSource.path.orderId"
+      }
+    },
+    {
+      "id": "record-source-missing-method-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "url": "/api/orders/1",
+          "responseMapping": {
+            "id": "id"
+          }
+        },
+        "route": {
+          "query": {},
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_RECORD_SOURCE_METHOD",
+        "path": "recordSource.method"
+      }
+    },
+    {
+      "id": "batch-request-missing-path-binding-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/tenants/{tenantId}/orders/batch"
+        },
+        "batchMapping": {
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "a"
+          ],
+          "count": 1
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_PATH_BINDING",
+        "path": "batchMapping.path.tenantId"
+      }
+    },
+    {
+      "id": "batch-request-extra-path-binding-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/batch"
+        },
+        "batchMapping": {
+          "path": {
+            "tenantId": "acme"
+          },
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "a"
+          ],
+          "count": 1
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EXTRA_PATH_BINDING",
+        "path": "batchMapping.path.tenantId"
+      }
+    },
+    {
+      "id": "batch-request-path-literal-ok",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "batchRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/tenants/{tenantId}/orders/batch"
+        },
+        "batchMapping": {
+          "path": {
+            "tenantId": "acme"
+          },
+          "body": {
+            "orderIds": "$selection.keys"
+          }
+        },
+        "selection": {
+          "keys": [
+            "ORD-1",
+            "ORD-2"
+          ],
+          "count": 2
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/api/tenants/acme/orders/batch",
+          "body": {
+            "orderIds": [
+              "ORD-1",
+              "ORD-2"
+            ]
+          }
+        },
+        "selectionAfterSuccessReload": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "page-trigger-navigate-ok",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerNavigate",
+        "action": {
+          "type": "navigate",
+          "url": "/orders/new"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "navigation": {
+          "url": "/orders/new"
+        }
+      }
+    },
+    {
+      "id": "page-trigger-navigate-confirm-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerNavigate",
+        "action": {
+          "type": "navigate",
+          "url": "/orders/new"
+        },
+        "confirm": "离开当前页？",
+        "confirmAccepted": false
+      },
+      "expected": {
+        "ok": false,
+        "code": "CONFIRM_REJECTED",
+        "path": "confirm"
+      }
+    },
+    {
+      "id": "page-trigger-navigate-confirm-accepted",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerNavigate",
+        "action": {
+          "type": "navigate",
+          "url": "/orders/new"
+        },
+        "confirm": "离开当前页？",
+        "confirmAccepted": true
+      },
+      "expected": {
+        "ok": true,
+        "navigation": {
+          "url": "/orders/new"
+        }
+      }
+    },
+    {
+      "id": "page-trigger-modal-ok",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerModal",
+        "action": {
+          "type": "modal",
+          "modalId": "createOrder"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "modalOpen": {
+          "modalId": "createOrder"
+        }
+      }
+    },
+    {
+      "id": "page-trigger-modal-confirm-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerModal",
+        "action": {
+          "type": "modal",
+          "modalId": "createOrder"
+        },
+        "confirm": "打开弹窗？",
+        "confirmAccepted": false
+      },
+      "expected": {
+        "ok": false,
+        "code": "CONFIRM_REJECTED",
+        "path": "confirm"
+      }
+    },
+    {
+      "id": "page-trigger-request-confirm-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/refresh"
+        },
+        "confirm": "刷新列表？",
+        "confirmAccepted": false
+      },
+      "expected": {
+        "ok": false,
+        "code": "CONFIRM_REJECTED",
+        "path": "confirm"
+      }
+    },
+    {
+      "id": "page-trigger-request-confirm-accepted",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/refresh"
+        },
+        "confirm": "刷新列表？",
+        "confirmAccepted": true
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/api/orders/refresh",
+          "body": null
+        }
+      }
+    },
+    {
+      "id": "page-trigger-navigate-unbound-template-rejected",
+      "protocolVersion": "2.2",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerNavigate",
+        "action": {
+          "type": "navigate",
+          "url": "/orders/{id}/edit"
         }
       },
       "expected": {

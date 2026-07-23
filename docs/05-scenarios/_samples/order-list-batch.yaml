@@ -1,0 +1,51 @@
+meta:
+  pageId: order_list_batch
+  title: 订单列表批量
+  protocolVersion: "2.2"
+  requiredCapabilities:
+    - actions.page.trigger
+    - table.selection
+    - actions.batch.request
+
+actions:
+  deleteOrders:
+    type: request
+    method: POST
+    url: /api/orders/batch-delete
+    onSuccess:
+      behavior: reload
+    onError:
+      behavior: toast
+      message: 批量删除失败
+
+body:
+  type: table
+  id: orderTable
+  props:
+    rowKey: orderId
+    selection:
+      mode: multiple
+    pagination:
+      mode: server
+      pageSize: 20
+    toolbar:
+      - key: batchDelete
+        label: 批量删除
+        actionRef: deleteOrders
+        requiresSelection: true
+        confirm: 确认删除所选订单？
+        batchMapping:
+          body:
+            orderIds: $selection.keys
+    columns:
+      - field: orderId
+        label: 订单号
+      - field: customerName
+        label: 客户
+  data:
+    source: api
+    url: /api/orders
+    method: GET
+    responseMapping:
+      list: data.list
+      total: data.total

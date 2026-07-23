@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.1
+last_updated: 2026-07-23
+applies_to: schema-ui-protocol v2.2
 ---
 
 # Action 完整契约（since 0.2）
@@ -168,6 +168,7 @@ actions:
 - 仅 `path` / `query`（无 `body`）；值纪律与 §3.1 的 `$row.*` / 字面量规则相同；
 - `path` 与 url `{name}` 占位符双向对齐；query 序列化遵循 ADR-0010；
 - path 映射结果为 `null`/`undefined` 时拒绝导航；
+- **运行时路径应用 fail-closed（审计 0062 / V267）：** 有效 URL 占位符集合与 `path` mapping 键集合必须完全相等；缺失键返回 `MISSING_PATH_BINDING`，多余键返回 `EXTRA_PATH_BINDING`，不得保留未解析的 `{name}` 片段继续导航或发请求。该规则同样适用于行级 `requestMapping.path`、`recordSource.path` 与 `batchMapping.path`；
 - 执行序：可见可点 → confirm → 解析 mapping → 宿主导航到最终相对 URL。
 
 ### 3.3 页面级 ActionTrigger（since 2.1 / ADR-0020）
@@ -175,12 +176,39 @@ actions:
 `actionButton` 与 `table.props.toolbar[]` 通过 `actionRef` 引用顶层 `request` | `navigate` | `modal`（禁止 `upload`/`custom`）。使用时声明 `actions.page.trigger`。
 
 - 无行上下文，无 Trigger 级 `requestMapping`；
-- 引用 `request` 时 method 仅 `POST`/`PUT`/`PATCH`/`DELETE`（禁止 GET）；url 不得含未绑定 `{name}` 模板；
-- 执行序与行级类似：permissions / visibleWhen → disabled → confirm → 执行 Action → OutcomeBehavior。
+- 引用 `request` 时 method 仅 `POST`/`PUT`/`PATCH`/`DELETE`（禁止 GET）；url 不得含未绑定 `{name}` 模板；**MVP 请求 body 恒为 `null`**（不跑 form 投影、不读 Action `bodyMapping`；RequestAction **无**静态 body 字段；审计 0064 / V286）；
+- 引用 `navigate` 时 url 为静态相对路径（不得含未绑定 `{name}`；L2 与 request 对称拒绝，V283）；引用 `modal` 时至少提供 `modalId` 或 `content`；
+- toolbar Trigger 的 `visibleWhen` / `permissions` 仅允许 `$context.*`（L3a 遍历 `table.props.toolbar[]`，见审计 0062 / V268）；
+- 执行序与行级类似：permissions / visibleWhen → disabled → confirm → 执行 Action → OutcomeBehavior。`confirm` 为非空字符串时，用户取消必须取消后续 request/navigate/modal，不得部分执行（conformance：`CONFIRM_REJECTED`）。
 
 ### 3.4 表单记录加载（since 2.1 / ADR-0021）
 
 编辑表单通过 `form.props.recordSource` 在挂载时 GET 记录并回填，见 [03-component-registry.md](./03-component-registry.md) 与 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md)。提交仍使用本节 `request` + `bodyMapping` 与表单提交投影，不经 `recordSource`。
+
+### 3.5 批量请求绑定（since 2.2 / ADR-0022）
+
+`table.props.toolbar[]` 上的 ActionTrigger 可声明 `batchMapping`，将**当前页选中键**绑定到 `type: request` action。使用时声明 `actions.batch.request`（及通常的 `table.selection` + `actions.page.trigger`）。
+
+```yaml
+batchMapping:
+  body:
+    orderIds: $selection.keys   # 仅 body 整值
+  query:
+    count: $selection.count     # 可选标量
+```
+
+规则摘要：
+
+- 选中数为 0 时不发请求；`requiresSelection: true` 时按钮 disabled。  
+- **声明 `batchMapping` 的 toolbar Trigger 要求同一 table 配置 `props.selection.mode: multiple`（L2 / V269）**；`requiresSelection: true` 仍为可选 UX 字段（运行时 `EMPTY_SELECTION` 仍拒绝 count===0）。  
+- `$selection.keys` **仅 body**；path 仅字面量，且与 url `{name}` 双向对齐（运行时同 V267）。  
+- method：POST/PUT/PATCH/DELETE（含 DELETE+body）；禁止 GET。  
+- 一次点击 = 一次 HTTP；成功 `reload` 清空选中。  
+- 筛选/翻页/排序/reload 清空选中（ADR-0022 D2）。  
+- 选中键仅 string / finite number / boolean；去重保序；`count === keys.length`（V271）。  
+- **batch 构造入口**对 selection 再执行同一规范化并重算 `count`（V274 / V281）；规范化后为空 → `EMPTY_SELECTION`。
+
+完整规则见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md)。
 
 ## 4. `navigate` 类型
 

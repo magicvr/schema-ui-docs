@@ -1,0 +1,43 @@
+# L2 负例：2.2 字段不得挂在 protocolVersion "2.1"（ALLOW_22_FIELDS_ON_21=false / V282）
+meta:
+  pageId: audit_v22_fields_on_21
+  title: bad
+  protocolVersion: "2.1"
+  requiredCapabilities:
+    - actions.page.trigger
+    - table.selection
+    - actions.batch.request
+
+actions:
+  deleteOrders:
+    type: request
+    method: POST
+    url: /api/orders/batch-delete
+
+body:
+  type: table
+  props:
+    rowKey: orderId
+    selection:
+      mode: multiple
+    pagination:
+      mode: server
+      pageSize: 20
+    toolbar:
+      - key: batchDelete
+        label: 批量删除
+        actionRef: deleteOrders
+        requiresSelection: true
+        batchMapping:
+          body:
+            orderIds: $selection.keys
+    columns:
+      - field: orderId
+        label: 单号
+  data:
+    source: api
+    url: /api/orders
+    method: GET
+    responseMapping:
+      list: data.list
+      total: data.total

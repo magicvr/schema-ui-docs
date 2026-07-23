@@ -49,7 +49,7 @@ v2.0 已有三类标准动作挂载点：
 
 ```yaml
 meta:
-  protocolVersion: "2.0"   # 2.1 制品发布后可改为 "2.1"
+  protocolVersion: "2.1"
   requiredCapabilities:
     - actions.page.trigger
 ```
@@ -136,13 +136,13 @@ props:
 对 `type: request` 且无表单上下文的 Trigger：
 
 - 不跑 form 提交投影与 `bodyMapping`；  
-- 请求体以 Action 静态定义为准；MVP **不**新增 Trigger 级 body 映射；  
+- **MVP 请求 body 恒为 JSON `null`**（RequestAction **无**静态 body 字段；不得发明 `body: {...}` 私货字段）。需要固定载荷时使用后端固定接口契约，或后续 ADR 扩展；MVP **不**新增 Trigger 级 body 映射（审计 0064 / V286）；  
 - **method 只允许 `POST` / `PUT` / `PATCH` / `DELETE`**，**禁止 `GET`**（裁决 OQ-20-1）；无 body 的刷新类命令使用上述方法之一，或仅依赖既有 `onSuccess.behavior: reload` 触发列表重载而无需多余 request；  
 - 读数据继续用 DataRef / `form.recordSource`（ADR-0021），不把 GET 伪装成页面级 Action。
 
 对 `type: navigate`：
 
-- 使用 Action 的静态 `url`；行相关动态 URL 见 [ADR-0021](./0021-record-navigation-and-form-load.md) 的行级 navigate 映射，**不**在本 ADR 的 Trigger 上做。
+- 使用 Action 的静态 `url`（不得含未绑定 `{name}`；L2 与 request 对称静态拒绝，审计 0064 / V283）；行相关动态 URL 见 [ADR-0021](./0021-record-navigation-and-form-load.md) 的行级 navigate 映射，**不**在本 ADR 的 Trigger 上做。
 
 对 `type: modal`：
 
@@ -154,7 +154,13 @@ props:
 - `visibleWhen` / 未来 reactions：  
   - 挂在 **独立 `actionButton` Node** 上时，遵循普通 Node 的 `visibleWhen`（`$context.*`；若位于 form 内可 `$deps.*`）；  
   - 挂在 **`table.props.toolbar[]`** 上时，MVP **仅允许** `$context.*`（无 `$row`、无 `$deps`），避免工具栏随行或随搜索字段隐式抖动；需要随筛选变化的禁用留给后续 ADR。  
-- toolbar Trigger **不**支持 `reactions` 数组（MVP）。
+  - **L3a 必须遍历 `table.props.toolbar[]` 的 `visibleWhen` / `permissions`**（审计 0062 / V268）；即使 table 位于 form 内，toolbar 表达式也不得获得 form `$deps` 上下文。  
+- toolbar Trigger **不**支持 `reactions` 数组（MVP）。  
+- **可观测执行结果（审计 0062 / V272）：**  
+  - `type: request` → 构造 HTTP request（method/url/body/headers）；  
+  - `type: navigate` → `{ navigation: { url } }`（静态相对 URL，无未绑定模板）；  
+  - `type: modal` → `{ modalOpen: { modalId? , hasContent? } }`；  
+  - 非空 `confirm` 且用户未确认 → `CONFIRM_REJECTED`，三种类型均不得继续执行。
 
 ### D6. 与现有概念的关系
 

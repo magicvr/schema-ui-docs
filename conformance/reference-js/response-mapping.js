@@ -34,7 +34,8 @@ function mapFormRecord(input) {
       return failure('INVALID_RESPONSE_MAPPING', `responseMapping.${field}`);
     }
     const resolved = readPath(input.response, pathExpr);
-    // ADR-0021: missing path does not abort the whole fill; JSON uses null for undefined.
+    // ADR-0021 D5a / V273: missing path does not abort the whole fill.
+    // Conformance-observable value is JSON null (equivalent empty initial; not undefined).
     values[field] = resolved.found ? resolved.value : null;
   }
   return { ok: true, values };

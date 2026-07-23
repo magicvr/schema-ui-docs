@@ -1,0 +1,43 @@
+# L2 负例：2.1 字段挂在 protocolVersion "2.0"（审计 0064 / V282）
+# 期望：path meta.protocolVersion，文案含 PROTOCOL_VERSION_TOO_LOW 与 actionButton / toolbar
+meta:
+  pageId: audit_0064_v21_on_20
+  title: bad 2.1 fields on 2.0
+  protocolVersion: "2.0"
+  requiredCapabilities:
+    - actions.page.trigger
+
+actions:
+  openCreate:
+    type: navigate
+    url: /orders/create
+
+body:
+  type: section
+  children:
+    - type: actionButton
+      props:
+        key: create
+        label: 新建
+        actionRef: openCreate
+    - type: table
+      id: orders
+      props:
+        rowKey: orderId
+        pagination:
+          mode: server
+          pageSize: 20
+        toolbar:
+          - key: createToolbar
+            label: 新建
+            actionRef: openCreate
+        columns:
+          - field: orderId
+            label: 单号
+      data:
+        source: api
+        url: /api/orders
+        method: GET
+        responseMapping:
+          list: data.list
+          total: data.total

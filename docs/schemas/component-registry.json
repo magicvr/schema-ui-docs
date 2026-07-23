@@ -236,11 +236,27 @@
             "additionalProperties": false
           }
         },
+        "selection": {
+          "type": "object",
+          "required": false,
+          "since": "2.2",
+          "description": "【ADR-0022】表格多选；使用时声明 table.selection。MVP 仅 mode:multiple，当前页选中，筛选/翻页/排序/reload 清空",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["multiple"],
+              "required": true,
+              "description": "MVP 仅 multiple"
+            }
+          },
+          "required": ["mode"],
+          "additionalProperties": false
+        },
         "toolbar": {
           "type": "array",
           "required": false,
           "since": "2.1",
-          "description": "【ADR-0020】表格工具栏 ActionTrigger 列表；使用时必须声明 meta.requiredCapabilities: [actions.page.trigger]",
+          "description": "【ADR-0020】表格工具栏 ActionTrigger 列表；使用时必须声明 meta.requiredCapabilities: [actions.page.trigger]。batchMapping/requiresSelection 见 ADR-0022",
           "items": {
             "type": "object",
             "properties": {
@@ -250,6 +266,24 @@
               "actionRef": { "type": "string", "required": true, "description": "引用顶层 request|navigate|modal action" },
               "confirm": { "type": "string" },
               "disabled": { "type": "boolean" },
+              "requiresSelection": {
+                "type": "boolean",
+                "required": false,
+                "since": "2.2",
+                "description": "【ADR-0022】true 时选中数为 0 则 disabled；要求同 table 声明 selection"
+              },
+              "batchMapping": {
+                "type": "object",
+                "required": false,
+                "since": "2.2",
+                "description": "【ADR-0022】批量 request 绑定；body 值可为 $selection.keys；query 可为 $selection.count 或字面量；使用时声明 actions.batch.request",
+                "properties": {
+                  "path": { "type": "object" },
+                  "query": { "type": "object" },
+                  "body": { "type": "object" }
+                },
+                "additionalProperties": false
+              },
               "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen" },
               "permissions": { "$ref": "node.schema.json#/definitions/Permissions" }
             },

@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.1
+applies_to: schema-ui-protocol v2.2
 ---
 
 # Renderer（前端渲染器）实现规范
@@ -308,6 +308,8 @@ Renderer 不自动发现、选择或串联 adapter。本协议只定义 adapter 
 | `actions.page.trigger` | `actionButton` / `table.props.toolbar` 页面级动作入口 | ADR-0020 |
 | `actions.row.navigate` | 行级 `type: navigate` + `navigateMapping` | ADR-0021 |
 | `form.record.load` | `form.props.recordSource` 记录加载回填 | ADR-0021 |
+| `table.selection` | `table.props.selection` 当前页多选 | ADR-0022 |
+| `actions.batch.request` | toolbar `batchMapping` 批量 request | ADR-0022 |
 
 ### 3.5 协商结果与错误信息格式
 
@@ -518,7 +520,7 @@ Action 失败时先执行协议级 HTTP 状态处理，再执行不冲突的 `on
 1. 确认页面已通过 `actions.row.request` 能力匹配；
 2. 确认 `actionRef` 指向顶层 `actions` 中的 `type: request` action；
 3. 按当前行上下文对 `requestMapping.path` / `query` / `body` 做简单取值替换；
-4. 用 `requestMapping.path` 替换 `action.url` 中的 `{name}` 占位符，并对 path segment 做 URL 编码；
+4. 用 `requestMapping.path` 替换 `action.url` 中的 `{name}` 占位符，并对 path segment 做 URL 编码；**替换前**要求 URL 中合法 `{name}` 集合与 `path` 键集合完全相等，否则 fail-closed（`MISSING_PATH_BINDING` / `EXTRA_PATH_BINDING`），不得发出仍含未解析模板的 URL；
 5. 将 `requestMapping.query` 交给 ADR-0010 公共 query 序列化器；
 6. 对非 `GET` / `DELETE` 请求，将 `requestMapping.body` 序列化为 JSON 请求体；
 7. 通过统一请求通道发送请求，继续应用 `baseURL`、`requestInterceptor`、`requestTimeout` 和 `onAuthFailure`；

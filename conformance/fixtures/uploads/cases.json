@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "single-file-defaults-and-url-priority",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -46,7 +46,7 @@
     },
     {
       "id": "single-file-id-fallback-and-custom-request",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -89,7 +89,7 @@
     },
     {
       "id": "multiple-files-preserve-selection-order",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -155,7 +155,7 @@
     },
     {
       "id": "multiple-disabled-rejects-before-request",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -187,7 +187,7 @@
     },
     {
       "id": "max-size-rejects-whole-batch-before-request",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -221,7 +221,7 @@
     },
     {
       "id": "accept-extension-is-case-insensitive",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -263,7 +263,7 @@
     },
     {
       "id": "accept-mime-wildcard-rejects-nonmatching-file",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -290,7 +290,7 @@
     },
     {
       "id": "invalid-success-response-rejects-field-commit",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -334,7 +334,7 @@
     },
     {
       "id": "multiple-request-failure-stops-and-is-atomic",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -409,7 +409,7 @@
     },
     {
       "id": "idempotent-upload-uses-file-key",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -455,7 +455,7 @@
     },
     {
       "id": "idempotent-upload-requires-invocation-id",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -482,7 +482,7 @@
     },
     {
       "id": "absolute-upload-url-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {
@@ -501,7 +501,7 @@
     },
     {
       "id": "invalid-upload-retry-policy-rejected",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "uploads",
       "input": {
         "action": {

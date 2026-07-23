@@ -1,0 +1,20 @@
+# L2 负例：page Trigger navigate URL 含未绑定 {name}（审计 0064 / V283）
+# 期望：path actions.openEdit.url，文案含未绑定的路径模板
+meta:
+  pageId: audit_0064_navigate_template
+  title: bad page trigger navigate template
+  protocolVersion: "2.2"
+  requiredCapabilities:
+    - actions.page.trigger
+
+actions:
+  openEdit:
+    type: navigate
+    url: /orders/{id}/edit
+
+body:
+  type: actionButton
+  props:
+    key: edit
+    label: 编辑
+    actionRef: openEdit

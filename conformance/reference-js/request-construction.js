@@ -1,6 +1,7 @@
 'use strict';
 
 const { serializeQuery } = require('./query-serialization');
+const { normalizeSelection } = require('./table-query-state');
 
 const ROW_REFERENCE = /^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)$/;
 const ROUTE_REFERENCE = /^\$context\.route\.(query|params)\.([A-Za-z_][A-Za-z0-9_]*)$/;
@@ -119,7 +120,42 @@ function resolveRouteMapping(mapping, route, section) {
   return { ok: true, entries: output };
 }
 
+function extractUrlPathParams(url) {
+  if (typeof url !== 'string') return [];
+  return Array.from(url.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g), match => match[1]);
+}
+
+function hasInvalidUrlTemplate(url) {
+  if (typeof url !== 'string') return false;
+  return url.replace(/\{[A-Za-z_][A-Za-z0-9_]*\}/g, '').includes('{')
+    || url.replace(/\{[A-Za-z_][A-Za-z0-9_]*\}/g, '').includes('}');
+}
+
+/**
+ * Fail-closed path application (V267): URL placeholders and path mapping keys must be equal sets.
+ * Missing placeholder → MISSING_PATH_BINDING; extra mapping key → EXTRA_PATH_BINDING;
+ * invalid brace syntax → INVALID_URL_TEMPLATE; residual template after apply → UNRESOLVED_PATH_TEMPLATE.
+ */
 function applyPathParams(url, pathEntries, pathPrefix) {
+  if (hasInvalidUrlTemplate(url)) {
+    return failure('INVALID_URL_TEMPLATE', pathPrefix);
+  }
+  const placeholders = extractUrlPathParams(url);
+  const placeholderSet = new Set(placeholders);
+  const mappingKeys = pathEntries.map(([key]) => key);
+  const mappingKeySet = new Set(mappingKeys);
+
+  for (const placeholder of placeholderSet) {
+    if (!mappingKeySet.has(placeholder)) {
+      return failure('MISSING_PATH_BINDING', `${pathPrefix}.${placeholder}`);
+    }
+  }
+  for (const key of mappingKeys) {
+    if (!placeholderSet.has(key)) {
+      return failure('EXTRA_PATH_BINDING', `${pathPrefix}.${key}`);
+    }
+  }
+
   let nextUrl = url;
   for (const [key, value] of pathEntries) {
     if (value === null || value === undefined) {
@@ -128,6 +164,10 @@ function applyPathParams(url, pathEntries, pathPrefix) {
     const encoded = encodePathValue(value);
     if (encoded === null) return failure('INVALID_PATH_VALUE', `${pathPrefix}.${key}`);
     nextUrl = nextUrl.replaceAll(`{${key}}`, encoded);
+  }
+  // Residual valid or invalid braces after substitution are protocol failures.
+  if (/[{}]/.test(nextUrl)) {
+    return failure('UNRESOLVED_PATH_TEMPLATE', pathPrefix);
   }
   return { ok: true, url: nextUrl };
 }
@@ -231,7 +271,11 @@ function buildRowNavigate(input) {
 
 function buildRecordSourceRequest(input) {
   const recordSource = input.recordSource || {};
-  if (recordSource.method !== undefined && recordSource.method !== 'GET') {
+  // V270: method is required (matches component DSL / L2); do not default to GET.
+  if (recordSource.method === undefined) {
+    return failure('MISSING_RECORD_SOURCE_METHOD', 'recordSource.method');
+  }
+  if (recordSource.method !== 'GET') {
     return failure('RECORD_SOURCE_METHOD_NOT_GET', 'recordSource.method');
   }
   const urlError = validateProtocolUrl(recordSource.url, 'recordSource.url');
@@ -269,7 +313,25 @@ function buildRecordSourceRequest(input) {
   };
 }
 
+/**
+ * Shared confirm gate for page-level ActionTrigger (V272 / ADR-0020 D4).
+ * When `confirm` is a non-empty string, `confirmAccepted` must be true or the invocation is cancelled.
+ */
+function applyConfirmGate(input) {
+  const confirm = input.confirm;
+  if (confirm === undefined || confirm === null || confirm === '') return null;
+  if (typeof confirm !== 'string') {
+    return failure('INVALID_CONFIRM', 'confirm');
+  }
+  if (input.confirmAccepted !== true) {
+    return failure('CONFIRM_REJECTED', 'confirm');
+  }
+  return null;
+}
+
 function buildPageTriggerRequest(input) {
+  const confirmError = applyConfirmGate(input);
+  if (confirmError) return confirmError;
   const method = input.action.method;
   const urlError = validateProtocolUrl(input.action.url, 'action.url');
   if (urlError) return urlError;
@@ -290,6 +352,115 @@ function buildPageTriggerRequest(input) {
       url: serialized.url,
       body: null,
     }, metadata),
+  };
+}
+
+/** Page ActionTrigger → type:navigate (static url; no row mapping). V272. */
+function buildPageTriggerNavigate(input) {
+  const confirmError = applyConfirmGate(input);
+  if (confirmError) return confirmError;
+  const urlError = validateProtocolUrl(input.action.url, 'action.url');
+  if (urlError) return urlError;
+  if (/[{}]/.test(input.action.url || '')) {
+    return failure('UNBOUND_URL_TEMPLATE', 'action.url');
+  }
+  const serialized = serializeQuery(input.action.url, []);
+  if (!serialized.ok) return serialized;
+  return {
+    ok: true,
+    navigation: {
+      url: serialized.url,
+    },
+  };
+}
+
+/** Page ActionTrigger → type:modal. Observable open only (no DOM). V272. */
+function buildPageTriggerModal(input) {
+  const confirmError = applyConfirmGate(input);
+  if (confirmError) return confirmError;
+  const action = input.action || {};
+  if (action.modalId === undefined && action.content === undefined) {
+    return failure('INVALID_MODAL_ACTION', 'action');
+  }
+  const modal = {};
+  if (action.modalId !== undefined) modal.modalId = action.modalId;
+  if (action.content !== undefined) modal.hasContent = true;
+  return {
+    ok: true,
+    modalOpen: modal,
+  };
+}
+
+function resolveBatchMappingValue(configuredValue, selection, fieldPath) {
+  if (configuredValue === '$selection.keys') {
+    return { ok: true, value: [...(selection.keys || [])] };
+  }
+  if (configuredValue === '$selection.count') {
+    return { ok: true, value: selection.count };
+  }
+  if (typeof configuredValue === 'string' && configuredValue.includes('$')) {
+    return failure('INVALID_MAPPING_VALUE', fieldPath);
+  }
+  if (!isScalar(configuredValue)) {
+    return failure('INVALID_MAPPING_VALUE', fieldPath);
+  }
+  return { ok: true, value: configuredValue };
+}
+
+function resolveBatchSection(mappingSection, selection, sectionName) {
+  const output = [];
+  for (const [key, configuredValue] of Object.entries(mappingSection || {})) {
+    const fieldPath = `batchMapping.${sectionName}.${key}`;
+    if (configuredValue === '$selection.keys' && sectionName !== 'body') {
+      return failure('SELECTION_KEYS_BODY_ONLY', fieldPath);
+    }
+    if (configuredValue === '$selection.count' && sectionName === 'path') {
+      return failure('INVALID_MAPPING_VALUE', fieldPath);
+    }
+    const resolved = resolveBatchMappingValue(configuredValue, selection, fieldPath);
+    if (!resolved.ok) return resolved;
+    output.push([key, resolved.value]);
+  }
+  return { ok: true, entries: output };
+}
+
+function buildBatchRequest(input) {
+  const confirmError = applyConfirmGate(input);
+  if (confirmError) return confirmError;
+  // ADR-0022 / V274 / V281: same selection normalization as table-query-state
+  // (filter non-scalars, dedupe preserve order, count === keys.length).
+  const selection = normalizeSelection(input.selection);
+  if (selection.keys.length === 0 || selection.count === 0) {
+    return failure('EMPTY_SELECTION', 'selection');
+  }
+  const method = input.action.method;
+  if (!PAGE_TRIGGER_METHODS.has(method)) {
+    return failure('PAGE_TRIGGER_METHOD_NOT_ALLOWED', 'action.method');
+  }
+  const urlError = validateProtocolUrl(input.action.url, 'action.url');
+  if (urlError) return urlError;
+  const mapping = input.batchMapping || {};
+  const pathValues = resolveBatchSection(mapping.path, selection, 'path');
+  if (!pathValues.ok) return pathValues;
+  const queryValues = resolveBatchSection(mapping.query, selection, 'query');
+  if (!queryValues.ok) return queryValues;
+  const bodyValues = resolveBatchSection(mapping.body, selection, 'body');
+  if (!bodyValues.ok) return bodyValues;
+  const withPath = applyPathParams(input.action.url, pathValues.entries, 'batchMapping.path');
+  if (!withPath.ok) return withPath;
+  const serialized = serializeQuery(withPath.url, [queryValues.entries]);
+  if (!serialized.ok) return serialized;
+  const metadata = requestMetadata(input.action, input.invocationId);
+  if (!metadata.ok) return metadata;
+  const body = bodyValues.entries.length === 0 ? null : Object.fromEntries(bodyValues.entries);
+  return {
+    ok: true,
+    request: addRequestMetadata({
+      method,
+      url: serialized.url,
+      body,
+    }, metadata),
+    selectionAfterSuccessReload: { keys: [], count: 0 },
   };
 }
 
@@ -340,6 +511,9 @@ function buildRequest(input) {
   if (input.kind === 'rowNavigate') return buildRowNavigate(input);
   if (input.kind === 'recordSource') return buildRecordSourceRequest(input);
   if (input.kind === 'pageTriggerRequest') return buildPageTriggerRequest(input);
+  if (input.kind === 'pageTriggerNavigate') return buildPageTriggerNavigate(input);
+  if (input.kind === 'pageTriggerModal') return buildPageTriggerModal(input);
+  if (input.kind === 'batchRequest') return buildBatchRequest(input);
   if (input.kind === 'formAction') return buildFormActionRequest(input);
   return failure('INVALID_REQUEST_KIND', 'kind');
 }

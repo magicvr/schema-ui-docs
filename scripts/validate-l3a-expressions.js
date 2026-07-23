@@ -3,7 +3,7 @@
  * L3a 表达式静态校验器
  *
  * 对页面配置中所有出现表达式的位置（reactions[].when、visibleWhen.when、
- * permissions.*）进行静态校验：
+ * permissions.*、table.props.toolbar[] 的 visibleWhen/permissions）进行静态校验：
  *
  *   1. 语法合法性 —— 仅允许白名单运算符，禁止函数调用、算术运算；
  *      contains 的右操作数必须为字符串、数字、布尔或 null 字面量
@@ -16,6 +16,8 @@
  *      - v0.2 静态拒绝 $parentRow.*（组件 DSL 尚无嵌套表格挂载结构）
  *      - permissions.* 不能出现 $deps.*（仅 $context.user.* / $context.features.*）
  *      - 非表单 visibleWhen 按 Node 树位置判定，仅允许 $context.user.* / $context.features.*
+ *      - $context.route 为已知根，但普通表达式挂载点拒绝（FORBIDDEN_CONTEXT_NAMESPACE；审计 0063 / V279）
+ *      - table.toolbar Trigger 一律按非表单上下文校验（仅 $context.*；审计 0062 / V268）
  *      - 表格 actions 任意 scope 不能出现 $self
  *      - 表格列/操作 scope:form 使用 $deps.* 时要求表格位于 form 上下文
  *      - data.params / optionsSource.params / datasources.*.params 仅允许字面量或完整单个 $deps.* 值替换（禁止模板拼接），且 $deps.* 仅允许出现在表单上下文
@@ -73,6 +75,9 @@ const ALLOWED_KEYWORDS = new Set(['contains', 'true', 'false', 'null']);
 // 变量命名空间前缀白名单
 const ALLOWED_NS_PREFIXES = ['$deps.', '$self', '$row.', '$parentRow.', '$context.'];
 const COMPARISON_OPERATORS = new Set(['==', '!=', '>', '>=', '<', '<=', 'contains']);
+// Known $context roots per 02 §11 / ADR-0003 / ADR-0021 (route is known but not for ordinary expressions).
+const KNOWN_CONTEXT_ROOTS = new Set(['user', 'features', 'route']);
+// Ordinary expression mounts (reactions / visibleWhen / permissions / toolbar) only allow user/features.
 const ALLOWED_CONTEXT_ROOTS = new Set(['user', 'features']);
 
 /**
@@ -399,11 +404,18 @@ function validateExpression(expr, exprPath, context) {
 
     if (variableName.startsWith('$context.')) {
       const contextRoot = variableName.slice('$context.'.length).split('.')[0];
-      if (!ALLOWED_CONTEXT_ROOTS.has(contextRoot)) {
+      if (!KNOWN_CONTEXT_ROOTS.has(contextRoot)) {
         violations.push({
           path: exprPath,
           rule: 'UNKNOWN_CONTEXT_NAMESPACE',
-          message: `未知 $context 根命名空间 "${contextRoot}"，只允许：${[...ALLOWED_CONTEXT_ROOTS].join(', ')}`,
+          message: `未知 $context 根命名空间 "${contextRoot}"，已知根：${[...KNOWN_CONTEXT_ROOTS].join(', ')}`,
+        });
+      } else if (!ALLOWED_CONTEXT_ROOTS.has(contextRoot)) {
+        // V279: route is a known root but forbidden on ordinary expression mounts.
+        violations.push({
+          path: exprPath,
+          rule: 'FORBIDDEN_CONTEXT_NAMESPACE',
+          message: `$context.${contextRoot} 不得用于本挂载点；MVP 仅允许 form.recordSource 的 path/query 绑定（02 §11.3）`,
         });
       }
     }
@@ -703,6 +715,33 @@ function scanNode(node, nodePath, violations, parentIsForm, formFields = null) {
         for (const [permissionKey, expr] of Object.entries(action.permissions)) {
           if (typeof expr !== 'string') continue;
           violations.push(...validateExpression(expr, `${actBase}.permissions.${permissionKey}`, {
+            scope: 'form', dependencies: [], location: 'permission', hasFormContext: false,
+          }));
+        }
+      }
+    });
+
+    // V268 / ADR-0020 D5: toolbar ActionTrigger visibleWhen/permissions only $context.*
+    // (no row/form context even if table is nested inside a form).
+    const toolbar = Array.isArray(node.props.toolbar) ? node.props.toolbar : [];
+    toolbar.forEach((trigger, ti) => {
+      if (!trigger) return;
+      const toolBase = `${nodePath}.props.toolbar[${ti}]`;
+      if (trigger.visibleWhen && trigger.visibleWhen.when !== undefined && trigger.visibleWhen.when !== null) {
+        const scope = trigger.visibleWhen.scope || 'form';
+        const deps = Array.isArray(trigger.visibleWhen.dependencies) ? trigger.visibleWhen.dependencies : [];
+        violations.push(...validateExpression(String(trigger.visibleWhen.when), `${toolBase}.visibleWhen.when`, {
+          scope,
+          dependencies: deps,
+          location: 'visibleWhen',
+          hasFormContext: false,
+          formFields: null,
+        }));
+      }
+      if (trigger.permissions && typeof trigger.permissions === 'object') {
+        for (const [permissionKey, expr] of Object.entries(trigger.permissions)) {
+          if (typeof expr !== 'string') continue;
+          violations.push(...validateExpression(expr, `${toolBase}.permissions.${permissionKey}`, {
             scope: 'form', dependencies: [], location: 'permission', hasFormContext: false,
           }));
         }

@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "network-page-requires-base-url",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "runtime-defaults",
       "input": {
         "kind": "requestConfig",
@@ -17,7 +17,7 @@
     },
     {
       "id": "static-page-does-not-require-base-url",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "runtime-defaults",
       "input": {
         "kind": "requestConfig",
@@ -29,7 +29,7 @@
     },
     {
       "id": "data-ref-method-default-materialized",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "runtime-defaults",
       "input": {
         "kind": "defaults",
@@ -48,7 +48,7 @@
     },
     {
       "id": "upload-defaults-materialized",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "runtime-defaults",
       "input": {
         "kind": "defaults",
@@ -70,7 +70,7 @@
     },
     {
       "id": "missing-required-prop-is-invalid-component",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "runtime-defaults",
       "input": {
         "kind": "component",
@@ -94,7 +94,7 @@
     },
     {
       "id": "uninstalled-extension-is-unknown-component",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "runtime-defaults",
       "input": {
         "kind": "component",

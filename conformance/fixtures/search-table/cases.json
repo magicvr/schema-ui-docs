@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "initial-four-layer-merge",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders?locale=zh-CN&status=legacy",
@@ -36,7 +36,7 @@
     },
     {
       "id": "search-submit-replaces-filters-and-resets-page",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
@@ -75,7 +75,7 @@
     },
     {
       "id": "clear-search-resets-page-and-keeps-sort",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders?status=base",
@@ -106,7 +106,7 @@
     },
     {
       "id": "page-change-keeps-filters-and-sort",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
@@ -138,7 +138,7 @@
     },
     {
       "id": "sort-change-resets-page-and-keeps-filters",
-      "protocolVersion": "2.1",
+      "protocolVersion": "2.2",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
@@ -166,6 +166,283 @@
           "sort": "createdAt:asc"
         },
         "url": "/orders?keyword=invoice&page=1&pageSize=20&sort=createdAt%3Aasc"
+      }
+    },
+    {
+      "id": "selection-cleared-on-change-page",
+      "protocolVersion": "2.2",
+      "category": "search-table",
+      "input": {
+        "baseUrl": "/api/orders",
+        "staticParams": {},
+        "state": {
+          "filters": {
+            "status": "PAID"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [
+            "ORD-1",
+            "ORD-2"
+          ],
+          "count": 2
+        },
+        "event": {
+          "type": "changePage",
+          "page": 2
+        }
+      },
+      "expected": {
+        "state": {
+          "filters": {
+            "status": "PAID"
+          },
+          "page": 2,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/api/orders?page=2&pageSize=20&status=PAID",
+        "selection": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "selection-cleared-on-submit-search",
+      "protocolVersion": "2.2",
+      "category": "search-table",
+      "input": {
+        "baseUrl": "/api/orders",
+        "staticParams": {},
+        "state": {
+          "filters": {},
+          "page": 3,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [
+            "ORD-9"
+          ],
+          "count": 1
+        },
+        "event": {
+          "type": "submitSearch",
+          "filters": {
+            "keyword": "x"
+          }
+        }
+      },
+      "expected": {
+        "state": {
+          "filters": {
+            "keyword": "x"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/api/orders?keyword=x&page=1&pageSize=20",
+        "selection": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    },
+    {
+      "id": "selection-set-keys-without-table-event",
+      "protocolVersion": "2.2",
+      "category": "search-table",
+      "input": {
+        "baseUrl": "/api/orders",
+        "staticParams": {},
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [],
+          "count": 0
+        },
+        "event": null,
+        "selectionEvent": {
+          "type": "setKeys",
+          "keys": [
+            "A",
+            "B"
+          ]
+        }
+      },
+      "expected": {
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/api/orders?page=1&pageSize=20",
+        "selection": {
+          "keys": [
+            "A",
+            "B"
+          ],
+          "count": 2
+        }
+      }
+    },
+    {
+      "id": "selection-dedupes-keys-preserve-order",
+      "protocolVersion": "2.2",
+      "category": "search-table",
+      "input": {
+        "baseUrl": "/api/orders",
+        "staticParams": {},
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [],
+          "count": 0
+        },
+        "event": null,
+        "selectionEvent": {
+          "type": "setKeys",
+          "keys": [
+            "A",
+            "B",
+            "A",
+            "C",
+            "B"
+          ]
+        }
+      },
+      "expected": {
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/api/orders?page=1&pageSize=20",
+        "selection": {
+          "keys": [
+            "A",
+            "B",
+            "C"
+          ],
+          "count": 3
+        }
+      }
+    },
+    {
+      "id": "selection-filters-non-scalar-keys",
+      "protocolVersion": "2.2",
+      "category": "search-table",
+      "input": {
+        "baseUrl": "/api/orders",
+        "staticParams": {},
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [],
+          "count": 0
+        },
+        "event": null,
+        "selectionEvent": {
+          "type": "setKeys",
+          "keys": [
+            "ok",
+            null,
+            {
+              "id": 1
+            },
+            [
+              1
+            ],
+            true,
+            42,
+            "ok"
+          ]
+        }
+      },
+      "expected": {
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/api/orders?page=1&pageSize=20",
+        "selection": {
+          "keys": [
+            "ok",
+            true,
+            42
+          ],
+          "count": 3
+        }
+      }
+    },
+    {
+      "id": "selection-mixed-scalar-types-and-count",
+      "protocolVersion": "2.2",
+      "category": "search-table",
+      "input": {
+        "baseUrl": "/api/orders",
+        "staticParams": {},
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [
+            "legacy"
+          ],
+          "count": 99
+        },
+        "event": null,
+        "selectionEvent": {
+          "type": "setKeys",
+          "keys": [
+            1,
+            "1",
+            false,
+            1,
+            "1"
+          ]
+        }
+      },
+      "expected": {
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/api/orders?page=1&pageSize=20",
+        "selection": {
+          "keys": [
+            1,
+            "1",
+            false
+          ],
+          "count": 3
+        }
       }
     }
   ]

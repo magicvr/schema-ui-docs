@@ -1,6 +1,6 @@
 ---
 status: example
-protocol_version: v2.1
+protocol_version: v2.2
 last_updated: 2026-07-23
 capabilities:
   - actions.page.trigger
@@ -12,7 +12,7 @@ capabilities:
 
 对应能力：[ADR-0020](../decisions/0020-page-action-trigger.md)、[ADR-0021](../decisions/0021-record-navigation-and-form-load.md)。
 
-本示例拆成**两个页面文档**（列表 + 编辑），覆盖轨道 MVP 锚点 A/B/C。使用前 Renderer 须支持相应 `requiredCapabilities`。在 `protocolVersion: "2.1"` 制品发布前，页面可继续声明 `"2.0"` 并依赖 capability 协商。
+本示例拆成**两个页面文档**（列表 + 编辑），覆盖轨道 MVP 锚点 A/B/C。使用前 Renderer 须支持相应 `requiredCapabilities`。页面声明 `meta.protocolVersion: "2.2"` 与对应 capability；`2.1.0` 制品已发布，不再建议用 `"2.0"` 承载本场景字段。
 
 端到端可观测步骤见 conformance：`admin-lifecycle-list-row-navigate`、`admin-lifecycle-edit-load-submit`（`conformance/fixtures/scenarios/cases.json`）。
 
@@ -22,7 +22,7 @@ capabilities:
 meta:
   pageId: order_list_lifecycle
   title: 订单列表
-  protocolVersion: "2.1"
+  protocolVersion: "2.2"
   requiredCapabilities:
     - actions.page.trigger
     - actions.row.navigate
@@ -74,7 +74,7 @@ body:
 meta:
   pageId: order_edit_lifecycle
   title: 编辑订单
-  protocolVersion: "2.1"
+  protocolVersion: "2.2"
   requiredCapabilities:
     - form.record.load
 
