@@ -33,7 +33,8 @@
 
 - 不修改 `protocol-manifest.json` 的版本；
 - `npm run build:protocol` 的 `contentDigest` 应保持不变；
-- MCP 版本可独立变化，`schemaUiProtocol` 仅在捆绑新协议制品时更新；
+- MCP 的 **MAJOR.MINOR 必须与捆绑协议线一致**（如协议 `2.4` → MCP `2.4.x`）；**PATCH 可独立**演进；
+- `schemaUiProtocol` 在捆绑新协议制品时更新；协议 MINOR/MAJOR 发布后须跟发 MCP 镜像；
 - validator 版本由 `validator/package.json` 独立维护，协议兼容范围必须显式声明；
 - 新 MCP 写入、生成、网络或宿主文件访问能力必须另开 ADR，且默认不进入 `protocol.*` 工具集合。
 
@@ -64,7 +65,7 @@ npm --prefix mcp run smoke:tools
 ## 发布
 
 - **merge `main`：只 CI，不发资产、不自动打 tag。**
-- **协议与 MCP 独立 tag**（`v*` / `mcp-v*`）；打 tag 后由工作流发布资产。
+- **协议与 MCP 独立 tag**（`v*` / `mcp-v*`），但 MCP **MAJOR.MINOR 对齐协议线**；打 tag 后由工作流发布资产。
 - MCP 镜像发布到 **GHCR**（GitHub Packages），不是 Docker Hub。
 
 完整步骤与资产清单见 [`docs/RELEASE.md`](./docs/RELEASE.md)。

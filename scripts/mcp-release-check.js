@@ -10,6 +10,13 @@ const root = path.resolve(__dirname, '..');
 const releaseMode = process.argv.includes('--release');
 const readJson = relativePath => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
 
+/** @returns {string} MAJOR.MINOR from MAJOR.MINOR or full SemVer */
+function majorMinor(version) {
+  const match = /^(\d+)\.(\d+)(?:\.|$|-)/.exec(String(version || ''));
+  assert.ok(match, `version must start with MAJOR.MINOR: ${version}`);
+  return `${match[1]}.${match[2]}`;
+}
+
 const protocolPackage = readJson('package.json');
 const protocolManifest = readJson('protocol-manifest.json');
 const mcpPackage = readJson('mcp/package.json');
@@ -32,6 +39,23 @@ assert.equal(
   'MCP bundled protocol protocolVersion mismatch',
 );
 
+// Line alignment: MCP MAJOR.MINOR === protocol line (protocolVersion and artifact MAJOR.MINOR).
+// PATCH may diverge so MCP can ship program-only fixes on the same protocol line.
+const mcpLine = majorMinor(mcpPackage.version);
+const protocolLine = protocolManifest.protocolVersion;
+const artifactLine = majorMinor(protocolManifest.artifactVersion);
+assert.equal(
+  protocolLine,
+  artifactLine,
+  'protocolVersion must equal artifactVersion MAJOR.MINOR',
+);
+assert.equal(
+  mcpLine,
+  protocolLine,
+  `MCP MAJOR.MINOR (${mcpLine}) must match bundled protocol line (${protocolLine}); `
+    + 'PATCH may evolve independently (e.g. MCP 2.4.1 with protocol 2.4.0)',
+);
+
 if (releaseMode) {
   const expectedRef = `refs/tags/mcp-v${mcpPackage.version}`;
   assert.equal(process.env.GITHUB_REF, expectedRef, `MCP release must run from ${expectedRef}`);
@@ -40,6 +64,7 @@ if (releaseMode) {
 const artifact = buildProtocolArtifact();
 const result = {
   mcpVersion: mcpPackage.version,
+  mcpProtocolLine: mcpLine,
   bundledProtocolArtifactVersion: protocolManifest.artifactVersion,
   protocolVersion: protocolManifest.protocolVersion,
   protocolContentDigest: artifact.contentDigest,

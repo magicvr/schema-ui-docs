@@ -88,9 +88,9 @@ npm run validate -- "pages/**/*.yaml"
 | 人工 tag `mcp-v*` | MCP 镜像推到 **GHCR**（`ghcr.io/<owner>/schema-ui-mcp`，含稳定版 `latest`） |
 
 - 协议 tag：`v<protocol-artifact-version>`，例如 `v2.4.0`；
-- 页面协议版本：MAJOR.MINOR，例如 `2.3`；
-- MCP tag：`mcp-v<mcp-version>`，例如 `mcp-v2.0.0`（与协议 **独立**）；
-- MCP 与验证器独立 SemVer；镜像正式源为 GitHub Packages，不是 Docker Hub。
+- 页面协议版本：MAJOR.MINOR，例如 `2.4`；
+- MCP tag：`mcp-v<mcp-version>`，例如 `mcp-v2.4.0`（tag 独立推送；**MAJOR.MINOR 与协议线对齐**，PATCH 可独立）；
+- 验证器独立 SemVer；MCP 镜像正式源为 GitHub Packages，不是 Docker Hub。
 
 `npm run release:check:tag` 只验证协议 tag。协议工作流生成 tar.gz 和 SHA-256；MCP 工作流不改变协议版本。
 
@@ -105,8 +105,8 @@ npm run validate -- "pages/**/*.yaml"
 ### MCP
 
 `mcp/` 提供协议只读查询与 `validate_content` 内容校验。它不读取宿主项目文件系统，不生成或修改页面，
-也不进入协议权威层。MCP 当前版本为 `2.0.0`，捆绑协议制品 `2.4.0`；两个版本独立演进。正式分发为
-`ghcr.io/<owner>/schema-ui-mcp` 上的 stdio Docker 镜像。
+也不进入协议权威层。MCP 当前版本为 `2.4.0`，捆绑协议制品 `2.4.0`（MAJOR.MINOR 共线；MCP PATCH 可独立演进）。正式分发为
+`ghcr.io/<owner>/schema-ui-mcp` 上的 stdio Docker 镜像（内置协议快照，运行时不远程刷新）。
 
 安装、Docker、工具接口见 [`docs/mcp/README.md`](./docs/mcp/README.md)；发布流程见
 [`docs/RELEASE.md`](./docs/RELEASE.md) 与 [`ADR-0007`](./docs/decisions/0007-mcp-protocol-reader-validator.md)。
