@@ -1,6 +1,6 @@
 ---
 status: example
-protocol_version: v2.2
+protocol_version: v2.3
 last_updated: 2026-07-10
 ---
 
@@ -16,7 +16,7 @@ last_updated: 2026-07-10
 meta:
   pageId: dashboard_sales
   title: 销售看板
-  protocolVersion: "2.2"
+  protocolVersion: "2.3"
 
 datasources:
   orderCountStats:

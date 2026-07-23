@@ -2,7 +2,7 @@
 status: living-document
 owner: 前端组件库团队
 last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.2
+applies_to: schema-ui-protocol v2.3
 ---
 
 # 组件类型（type）注册表
@@ -169,7 +169,7 @@ data:
 | `tagMap` | map | `format: tag` 时，值 → `{text, tone}` 的映射。`tone` 可选值：`warning`\|`success`\|`neutral`\|`info`\|`danger` |
 | `visibleWhen` | object | 可选（since 0.2.1）。列条件渲染；读取 `$row.*` 时必须 `scope: row`；仅 `$context.*`（或表格位于 `form` 内时的 `$deps.*`）可用默认 `scope: form`。语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
 | `reactions` | array | 可选（since 0.2.1）。列联动规则；读取 `$row.*` 或列级 `$self` 时必须 `scope: row`；`fulfill`/`otherwise` **无论 scope 仅允许** `visible`/`disabled` |
-| `permissions` | map | 可选（since 0.2.1）。列级权限控制，表达式仅允许 `$context.*` |
+| `permissions` | map | 可选（since 0.2.1）。列级权限控制，表达式仅允许 `$context.*`；**不参与** `permissionCascade`，也不允许 `permissionIntent` |
 
 **RowAction（since 0.2.1 重构）：**
 
@@ -185,6 +185,7 @@ data:
 | `visibleWhen` | object | 否（since 0.2.1） | 操作条件渲染；读取 `$row.*` 时必须 `scope: row`；仅 `$context.*`（或表格位于 `form` 内时的 `$deps.*`）可用默认 `scope: form`。语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
 | `reactions` | array | 否（since 0.2.1） | 操作联动规则；读取 `$row.*` 时必须 `scope: row`；`fulfill`/`otherwise` **无论 scope 仅允许** `visible`/`disabled` |
 | `permissions` | map | 否（since 0.2.1） | 操作级权限控制，表达式仅允许 `$context.*` |
+| `permissionIntent` | enum: `edit` \| `delete` | 否（since 2.3 / ADR-0023） | 显式操作意图；仅声明后才把祖先同名 `permissionCascade` 纳入有效权限，不从 `key`、`actionRef`、HTTP method 或文案推断 |
 
 > **行内操作执行边界：** 未声明 `actionRef` 时，`RowAction.key` 只用于 Renderer 将点击事件分发给前端预注册的行内操作处理器，并由该处理器接收当前行上下文。声明 `actionRef` 且目标为 `request` 时，按 [ADR-0008](./decisions/0008-row-action-backend-request.md) / [07 §3.1](./07-actions-contract.md#31-行级后端请求绑定since-027) 执行；目标为 `navigate` 时按 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) / [07 §3.2](./07-actions-contract.md#32-行级导航绑定since-21-adr-0021) 执行。`key` 仍为入口标识，不是顶层 action id。
 
@@ -200,6 +201,7 @@ data:
 | `requiresSelection` | boolean | 否（since 2.2） | 仅 `table.toolbar`；`true` 时选中数为 0 则 disabled；要求同 table 有 `selection.mode: multiple` |
 | `batchMapping` | object | 否（since 2.2） | 仅 `table.toolbar` + `type: request`；**要求同 table `selection.mode: multiple`**；`body` 可用 `$selection.keys`；见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md) / [07 §3.5](./07-actions-contract.md#35-批量请求绑定since-22-adr-0022) |
 | `visibleWhen` / `permissions` | object | 否 | toolbar 项上 `visibleWhen` 仅 `$context.*`；`actionButton` 作 Node 时遵循普通 Node 规则 |
+| `permissionIntent` | enum: `edit` \| `delete` | 否（since 2.3 / ADR-0023） | 仅 RowAction、toolbar Trigger 与 `actionButton.props` 的入口字段；未声明时仅适用本地 `permissions` |
 
 页面级 Trigger 触发的 `request` **禁止 GET**（仅 POST/PUT/PATCH/DELETE）。完整规则见 [ADR-0020](./decisions/0020-page-action-trigger.md)。批量见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md)。
 
@@ -244,9 +246,10 @@ actions:
 | `actionRef` | string | 是 | 顶层 `request` \| `navigate` \| `modal` |
 | `confirm` | string | 否 | 二次确认 |
 | `disabled` | boolean | 否 | 静态禁用 |
+| `permissionIntent` | enum: `edit` \| `delete` | 否（since 2.3 / ADR-0023） | 写在 `actionButton.props`；声明后才参与祖先同名 `permissionCascade` |
 | `span` | number | 否 | 父级 grid 栏数 |
 
-支持 `children`：否。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。Node 级 `visibleWhen` / `permissions` 可用。
+支持 `children`：否。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。Node 级 `visibleWhen` / `permissions` 可用；`permissionCascade` 不可用于 `actionButton`，因为它不是容器白名单 type。
 
 ---
 
@@ -329,6 +332,8 @@ body:
 > **搜索模式下数据流：** 搜索表单字段值 → Renderer 收集为 query 参数 → 附加到 `targetTable` 的有效 API 数据源 → 将 `page` 重置为 `1` 并重新请求。有效数据源必须是目标 table 的内联 `data.source: api`，或 `data.source: ref` 最终指向的 API datasource；无 `data`、静态数据或静态引用由 L2 拒绝。表格原有静态 params 与搜索表单参数自动合并，搜索参数优先级更高，Renderer 分页/排序状态最后覆盖。`page`、`pageSize`、`sort` 是保留名，搜索表单的 `field` / `startField` / `endField` 不得使用。`mode: search` 下的 `dateRangePicker` 以 `startField`/`endField` 作为两个独立参数传递；其他字段类组件以各自的 `field` 值作为参数名。清空筛选、翻页与排序状态转换见 [ADR-0011](./decisions/0011-reserved-query-params.md)。
 >
 > **搜索模式与 actions 的关系：** `mode: search` 时 `submitAction` 被忽略。搜索表单不需要独立的动作定义——提交行为被协议层定义为"刷新目标表格"，不经过 `actions` 路由。
+
+> **v2.3 权限继承：** default form（`mode` 缺省或 `default`）中的 `input`、`inputNumber`、`datePicker`、`dateRangePicker`、`select`、`upload` 是 `edit` cascade 目标；其 `submitAction` 是不声明字段的隐式 `edit` 操作目标。effective `edit=false` 时字段按既有只读/禁用语义呈现，提交不可执行。search form 字段和搜索提交不参与该 cascade，`submitAction` 上也不允许声明 `permissionIntent`。
 
 支持 `children`：是（字段类 Node）。支持 `data`：否。支持 `reactions`：否。支持 `states`：否。
 

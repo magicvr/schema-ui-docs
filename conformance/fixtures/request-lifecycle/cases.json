@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "latest-generation-wins-over-old-response",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "request-lifecycle",
       "input": {
         "initialState": "initial",
@@ -41,7 +41,7 @@
     },
     {
       "id": "hidden-node-drops-response",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "request-lifecycle",
       "input": {
         "initialState": "initial",
@@ -68,7 +68,7 @@
     },
     {
       "id": "unmounted-node-drops-response",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "request-lifecycle",
       "input": {
         "initialState": null,
@@ -92,7 +92,7 @@
     },
     {
       "id": "show-does-not-reactivate-hidden-request",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "request-lifecycle",
       "input": {
         "initialState": "initial",

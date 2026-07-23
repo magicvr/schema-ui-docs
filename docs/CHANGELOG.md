@@ -9,6 +9,21 @@
 
 （无）
 
+## v2.3.0 — 2026-07-23（容器权限继承与操作 intent）
+
+> **版本说明：** MINOR 发布。使用 `permissionCascade` 或 `permissionIntent` 的页面必须声明 `meta.protocolVersion: "2.3"` 与 `permissions.inheritance`。未声明新字段和 capability 的合法 `2.2` 页面保持原有本地 `permissions` 语义。正式协议制品为 `schema-ui-protocol-2.3.0.tar.gz`。
+
+**协议变更（ADR-0023）：**
+- 新增 Node `permissionCascade: { keys: [edit | delete] }`，仅 `section` / `grid` / `form` / `tabs` / `table` 可声明；每个 key 必须有同 Node 的 `permissions.<key>` source。
+- 新增 `permissionIntent: edit | delete`，仅可挂在 `table.props.actions[]`、`table.props.toolbar[]` 或 `actionButton.props`；default form submit 是隐式 `edit` 目标。
+- 有效权限对参与目标按祖先 cascade source 与本地 `permissions` 做单调 AND；modal content 与导航页为新根。`table.props.columns[]` 不参与级联，继续仅适用本地 `permissions`。
+- L2 对位置、keys、同名 source、intent、capability 与 `2.3` 版本下限 fail-closed；L3a 继续限制 source 表达式为既有 `$context.user.*` / `$context.features.*` 白名单。
+
+**Conformance 与示例：**
+- 新增 `permissions-inheritance` 的 17 个 JS/Python 共享向量，覆盖 children/tabs、跨根边界、columns 排除、default/search form、intent、版本/capability 与 fail-closed 执行时序。
+- 全部 12 个算法 suite 与六个官方场景统一声明 `protocolVersion: "2.3"`；`version-negotiation` 保留历史页面版本输入。版本化 fixture 共 13 类、206 cases。
+- 新增扩展示例 [`permission-inheritance.md`](./05-scenarios/permission-inheritance.md)、迁移指南 [`2.2-to-2.3.md`](./migrations/2.2-to-2.3.md) 与发布目标 [`14-v2.3-release-goals.md`](./14-v2.3-release-goals.md)。
+
 ## v2.2.0 — 2026-07-23（表格多选与批量 request）
 
 > **版本说明：** MINOR 发布。页面使用 `meta.protocolVersion: "2.2"`。仅使用 v2.1 字段集的页面可继续声明 `"2.1"`。正式协议制品为 `schema-ui-protocol-2.2.0.tar.gz`。

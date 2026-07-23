@@ -28,6 +28,7 @@
  *  10. 字段集 → protocolVersion 下限（审计 0064 / V282）：
  *      - 2.1 字段（actionButton / toolbar / navigateMapping / recordSource）要求 protocolVersion >= "2.1"
  *      - 2.2 字段（selection / requiresSelection / batchMapping）在 ALLOW_22_FIELDS_ON_21 时 >= "2.1"，否则 >= "2.2"
+ *      - 2.3 字段（permissionCascade / permissionIntent）要求 protocolVersion >= "2.3" 且 permissions.inheritance
  *
  * 用法：
  *   node scripts/validate-l2-components.js <file-or-glob> [--json]
@@ -59,6 +60,10 @@ const components = registry.components; // { [type]: ComponentDef }
 const ALLOW_22_FIELDS_ON_21 = false;
 const FLOOR_21 = '2.1';
 const FLOOR_22 = ALLOW_22_FIELDS_ON_21 ? '2.1' : '2.2';
+const FLOOR_23 = '2.3';
+const PERMISSION_INHERITANCE_CAPABILITY = 'permissions.inheritance';
+const PERMISSION_CASCADE_NODE_TYPES = new Set(['section', 'grid', 'form', 'tabs', 'table']);
+const PERMISSION_CASCADE_KEYS = new Set(['edit', 'delete']);
 
 // ---------------------------------------------------------------------------
 // YAML / JSON 解析
@@ -385,6 +390,170 @@ function validatePermissions(value, valuePath, violations) {
   for (const [key, expr] of Object.entries(value)) {
     if (typeof expr !== 'string') {
       violations.push({ path: `${valuePath}.${key}`, message: `期望 string，实际 ${typeof expr}` });
+    }
+  }
+}
+
+function validatePermissionCascade(node, nodePath, violations) {
+  if (node.permissionCascade === undefined) return;
+  const cascadePath = `${nodePath}.permissionCascade`;
+  if (!PERMISSION_CASCADE_NODE_TYPES.has(node.type)) {
+    violations.push({
+      path: cascadePath,
+      message: `permissionCascade 仅允许声明在 ${[...PERMISSION_CASCADE_NODE_TYPES].join('/')} Node 上（ADR-0023）`,
+    });
+  }
+  const cascade = node.permissionCascade;
+  if (!isPlainObject(cascade)) {
+    violations.push({ path: cascadePath, message: 'permissionCascade 必须是对象（PERMISSION_CASCADE_INVALID）' });
+    return;
+  }
+  for (const key of Object.keys(cascade)) {
+    if (key !== 'keys') {
+      violations.push({ path: `${cascadePath}.${key}`, message: 'permissionCascade 只允许 keys 字段' });
+    }
+  }
+  if (!Array.isArray(cascade.keys) || cascade.keys.length === 0) {
+    violations.push({ path: `${cascadePath}.keys`, message: 'permissionCascade.keys 必须是非空数组（PERMISSION_CASCADE_KEYS_INVALID）' });
+    return;
+  }
+  const seen = new Set();
+  cascade.keys.forEach((key, index) => {
+    const keyPath = `${cascadePath}.keys[${index}]`;
+    if (typeof key !== 'string' || !PERMISSION_CASCADE_KEYS.has(key)) {
+      violations.push({ path: keyPath, message: 'permissionCascade.keys 仅允许 edit 或 delete（PERMISSION_CASCADE_KEYS_INVALID）' });
+      return;
+    }
+    if (seen.has(key)) {
+      violations.push({ path: keyPath, message: `permissionCascade.keys 不得重复 "${key}"（PERMISSION_CASCADE_KEYS_INVALID）` });
+      return;
+    }
+    seen.add(key);
+    if (!isPlainObject(node.permissions) || typeof node.permissions[key] !== 'string') {
+      violations.push({
+        path: `${nodePath}.permissions.${key}`,
+        message: `permissionCascade.keys 包含 "${key}" 时必须在同一 Node 声明 string 类型 permissions.${key}（PERMISSION_CASCADE_SOURCE_MISSING）`,
+      });
+    }
+  });
+}
+
+function validatePermissionIntent(value, valuePath, violations, mountLabel) {
+  if (!isPlainObject(value) || value.permissionIntent === undefined) return;
+  if (typeof value.permissionIntent !== 'string' || !PERMISSION_CASCADE_KEYS.has(value.permissionIntent)) {
+    violations.push({
+      path: `${valuePath}.permissionIntent`,
+      message: `${mountLabel}.permissionIntent 仅允许 edit 或 delete（PERMISSION_INTENT_INVALID）`,
+    });
+  }
+}
+
+function validateForbiddenPermissionField(value, valuePath, field, violations, message) {
+  if (!isPlainObject(value) || value[field] === undefined) return;
+  violations.push({ path: `${valuePath}.${field}`, message });
+}
+
+/**
+ * ADR-0023 的结构级 fail-closed 约束。L0/L1 与组件 DSL 会覆盖大部分
+ * closed-object 情况；此处仍显式扫描，保证单独运行 L2 时不会接受错误挂载。
+ */
+function validatePermissionInheritance(doc, violations) {
+  const scanNode = (node, nodePath) => {
+    if (!isPlainObject(node)) return;
+    validatePermissionCascade(node, nodePath, violations);
+    validateForbiddenPermissionField(
+      node,
+      nodePath,
+      'permissionIntent',
+      violations,
+      'permissionIntent 仅允许 table.props.actions[]、table.props.toolbar[] 或 actionButton.props（ADR-0023）',
+    );
+
+    const props = isPlainObject(node.props) ? node.props : {};
+    if (node.type === 'actionButton') {
+      validatePermissionIntent(props, `${nodePath}.props`, violations, 'actionButton.props');
+    } else {
+      validateForbiddenPermissionField(
+        props,
+        `${nodePath}.props`,
+        'permissionIntent',
+        violations,
+        'permissionIntent 仅允许 table.props.actions[]、table.props.toolbar[] 或 actionButton.props（ADR-0023）',
+      );
+    }
+
+    if (node.type === 'table') {
+      const validateNonMount = (entry, entryPath, label) => {
+        validateForbiddenPermissionField(
+          entry,
+          entryPath,
+          'permissionIntent',
+          violations,
+          `${label} 不允许 permissionIntent；columns[] 只保留本地 permissions，permissionIntent 仅允许操作入口（ADR-0023）`,
+        );
+        validateForbiddenPermissionField(
+          entry,
+          entryPath,
+          'permissionCascade',
+          violations,
+          `${label} 不允许 permissionCascade；仅 Node 容器可声明（ADR-0023）`,
+        );
+      };
+      if (Array.isArray(props.columns)) {
+        props.columns.forEach((column, index) => {
+          validateNonMount(column, `${nodePath}.props.columns[${index}]`, 'table.props.columns[]');
+        });
+      }
+      for (const [collection, mountLabel] of [
+        ['actions', 'table.props.actions[]'],
+        ['toolbar', 'table.props.toolbar[]'],
+      ]) {
+        if (!Array.isArray(props[collection])) continue;
+        props[collection].forEach((entry, index) => {
+          const entryPath = `${nodePath}.props.${collection}[${index}]`;
+          validatePermissionIntent(entry, entryPath, violations, mountLabel);
+          validateForbiddenPermissionField(
+            entry,
+            entryPath,
+            'permissionCascade',
+            violations,
+            `${mountLabel} 不允许 permissionCascade；仅 Node 容器可声明（ADR-0023）`,
+          );
+        });
+      }
+    }
+
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, index) => scanNode(child, `${nodePath}.children[${index}]`));
+    }
+    if (Array.isArray(props.items)) {
+      props.items.forEach((item, index) => {
+        if (item?.content) scanNode(item.content, `${nodePath}.props.items[${index}].content`);
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+  if (!isPlainObject(doc.actions)) return;
+  for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+    const actionPath = `actions.${actionId}`;
+    validateForbiddenPermissionField(
+      actionDef,
+      actionPath,
+      'permissionCascade',
+      violations,
+      '顶层 actions 定义不是权限结构树 Node，不允许 permissionCascade（ADR-0023）',
+    );
+    validateForbiddenPermissionField(
+      actionDef,
+      actionPath,
+      'permissionIntent',
+      violations,
+      '顶层 actions 定义不是操作入口，不允许 permissionIntent（ADR-0023）',
+    );
+    if (actionDef?.type === 'modal' && actionDef.content) {
+      // Modal content starts a new inheritance root, but its own containers remain valid.
+      scanNode(actionDef.content, `${actionPath}.content`);
     }
   }
 }
@@ -1876,6 +2045,12 @@ function validateProtocolVersionFloor(doc, violations) {
 
   const scanNode = (node, nodePath) => {
     if (!node || typeof node !== 'object') return;
+    if (node.permissionCascade !== undefined) {
+      requireFloor(`${nodePath}.permissionCascade`, 'permissionCascade', FLOOR_23);
+    }
+    if (node.permissionIntent !== undefined || node.props?.permissionIntent !== undefined) {
+      requireFloor(`${nodePath}.permissionIntent`, 'permissionIntent', FLOOR_23);
+    }
     if (node.type === 'actionButton') {
       requireFloor(nodePath, 'actionButton', FLOOR_21);
     }
@@ -1890,6 +2065,13 @@ function validateProtocolVersionFloor(doc, violations) {
         requireFloor(`${nodePath}.props.toolbar`, 'table.props.toolbar', FLOOR_21);
         node.props.toolbar.forEach((trigger, index) => {
           if (!trigger) return;
+          if (trigger.permissionIntent !== undefined) {
+            requireFloor(
+              `${nodePath}.props.toolbar[${index}].permissionIntent`,
+              'toolbar permissionIntent',
+              FLOOR_23,
+            );
+          }
           if (trigger.batchMapping !== undefined) {
             requireFloor(
               `${nodePath}.props.toolbar[${index}].batchMapping`,
@@ -1908,6 +2090,13 @@ function validateProtocolVersionFloor(doc, violations) {
       }
       if (Array.isArray(node.props.actions)) {
         node.props.actions.forEach((rowAction, rowActionIndex) => {
+          if (rowAction?.permissionIntent !== undefined) {
+            requireFloor(
+              `${nodePath}.props.actions[${rowActionIndex}].permissionIntent`,
+              'RowAction permissionIntent',
+              FLOOR_23,
+            );
+          }
           if (rowAction && rowAction.navigateMapping !== undefined) {
             requireFloor(
               `${nodePath}.props.actions[${rowActionIndex}].navigateMapping`,
@@ -1976,6 +2165,12 @@ function validateRequiredCapabilities(doc, violations) {
 
   const scanNode = (node, nodePath) => {
     if (!node || typeof node !== 'object') return;
+    if (node.permissionCascade !== undefined) {
+      requireCapability(PERMISSION_INHERITANCE_CAPABILITY, `${nodePath}.permissionCascade`, 'permissionCascade');
+    }
+    if (node.permissionIntent !== undefined || node.props?.permissionIntent !== undefined) {
+      requireCapability(PERMISSION_INHERITANCE_CAPABILITY, `${nodePath}.permissionIntent`, 'permissionIntent');
+    }
     if (node.type === 'upload' && node.props && node.props.actionRef !== undefined) {
       requireCapability('actions.upload', `${nodePath}.props.actionRef`, 'upload.props.actionRef');
     }
@@ -1992,6 +2187,13 @@ function validateRequiredCapabilities(doc, violations) {
       if (Array.isArray(node.props.toolbar) && node.props.toolbar.length > 0) {
         requireCapability('actions.page.trigger', `${nodePath}.props.toolbar`, 'table.props.toolbar');
         node.props.toolbar.forEach((trigger, index) => {
+          if (trigger && trigger.permissionIntent !== undefined) {
+            requireCapability(
+              PERMISSION_INHERITANCE_CAPABILITY,
+              `${nodePath}.props.toolbar[${index}].permissionIntent`,
+              'toolbar permissionIntent',
+            );
+          }
           if (trigger && trigger.batchMapping !== undefined) {
             requireCapability(
               'actions.batch.request',
@@ -2011,6 +2213,13 @@ function validateRequiredCapabilities(doc, violations) {
       if (Array.isArray(node.props.actions)) {
         const actions = isPlainObject(doc.actions) ? doc.actions : {};
         node.props.actions.forEach((rowAction, rowActionIndex) => {
+          if (rowAction?.permissionIntent !== undefined) {
+            requireCapability(
+              PERMISSION_INHERITANCE_CAPABILITY,
+              `${nodePath}.props.actions[${rowActionIndex}].permissionIntent`,
+              'RowAction permissionIntent',
+            );
+          }
           if (!rowAction || rowAction.actionRef === undefined) return;
           const actionDef = actions[rowAction.actionRef];
           if (actionDef && actionDef.type === 'navigate') {
@@ -2045,6 +2254,13 @@ function validateRequiredCapabilities(doc, violations) {
 
   if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
     for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef?.permissionCascade !== undefined || actionDef?.permissionIntent !== undefined) {
+        requireCapability(
+          PERMISSION_INHERITANCE_CAPABILITY,
+          `actions.${actionId}`,
+          '顶层 action 的 permissionCascade/permissionIntent',
+        );
+      }
       if (actionDef && actionDef.type === 'modal' && actionDef.content) {
         scanNode(actionDef.content, `actions.${actionId}.content`);
       }
@@ -2211,6 +2427,7 @@ function validatePage(doc, fileLabel) {
   validateModalFormFieldBindings(doc, violations);
   validateDataRefsAndTargetTable(doc, violations);
   validateActionUrls(doc, violations);
+  validatePermissionInheritance(doc, violations);
   validateRequiredCapabilities(doc, violations);
   validateProtocolVersionFloor(doc, violations);
   validateParamsResponseMappingBan(doc, violations);

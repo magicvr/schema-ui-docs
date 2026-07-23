@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "success-toast",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -32,7 +32,7 @@
     },
     {
       "id": "success-row-reload",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -62,7 +62,7 @@
     },
     {
       "id": "validation-errors-suppress-navigation",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -104,7 +104,7 @@
     },
     {
       "id": "validation-errors-configured-toast-replaces-response-message",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -146,7 +146,7 @@
     },
     {
       "id": "unauthorized-auth-hook-suppresses-on-error",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -177,7 +177,7 @@
     },
     {
       "id": "forbidden-auth-hook-and-safe-placeholder",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -208,7 +208,7 @@
     },
     {
       "id": "not-found-records-safe-error-before-reload",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -241,7 +241,7 @@
     },
     {
       "id": "server-error-toast-overrides-safe-default",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -272,7 +272,7 @@
     },
     {
       "id": "timeout-records-error-before-close-modal",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -299,7 +299,7 @@
     },
     {
       "id": "network-error-uses-safe-message",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {
@@ -320,7 +320,7 @@
     },
     {
       "id": "abort-is-silent-and-suppresses-on-error",
-      "protocolVersion": "2.2",
+      "protocolVersion": "2.3",
       "category": "actions",
       "input": {
         "transport": {

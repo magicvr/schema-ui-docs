@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-13
-applies_to: schema-ui-protocol v2.2
+last_updated: 2026-07-23
+applies_to: schema-ui-protocol v2.3
 ---
 
 # 核心协议规范：Node 结构定义
@@ -25,8 +25,8 @@ meta:            # 页面元信息
   pageId: string
   title: string
   description: string
-  protocolVersion: string   # 必填（since 0.2）。当前制品使用 "2.2"；2.2 字段纪律见 migrations/2.1-to-2.2
-  requiredCapabilities: [string] # 可选（since 0.2.6）。执行能力协商，如 actions.page.trigger / table.selection
+  protocolVersion: string   # 必填（since 0.2）。当前制品使用 "2.3"；权限继承字段纪律见 migrations/2.2-to-2.3
+  requiredCapabilities: [string] # 可选（since 0.2.6）。执行能力协商，如 actions.page.trigger / table.selection / permissions.inheritance
 
 datasources:     # 【可选】页面级预声明数据源，供 body 内节点通过 ref 引用；仅允许 source: api 或 source: static，禁止 source: ref（引用链会导致递归风险）
   <sourceId>: DatasourceDeclaration
@@ -44,9 +44,9 @@ actions:          # 【可选】页面级可复用动作定义（完整契约见
 | `body` | 是 | 页面主体的根 Node |
 | `actions` | 否 | 供 Node 内按钮/表单提交等引用的动作定义，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
 
-> **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（当前协议版本使用 `"2.2"`），**不含 PATCH 或预发布标识**。Renderer 据此判断按哪套解析规则处理页面文档，是协议后续演进做版本兼容判断的锚点。同一 MAJOR.MINOR 的补丁或 RC 包共享该值；Renderer 的兼容性判断基于支持的 MAJOR.MINOR，不依赖包 PATCH。旧 `v0.1` 文档缺少该字段时仅可由显式 legacy adapter 处理；v1.0 文档必须先经过显式迁移 adapter；新建或修改的文档必须显式声明。仅使用 2.1 字段集的页面可继续声明 `"2.1"`；使用 `table.selection` / `batchMapping` / `requiresSelection` 时必须 `"2.2"`（L2 V282）。
+> **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（当前协议版本使用 `"2.3"`），**不含 PATCH 或预发布标识**。Renderer 据此判断按哪套解析规则处理页面文档，是协议后续演进做版本兼容判断的锚点。同一 MAJOR.MINOR 的补丁或 RC 包共享该值；Renderer 的兼容性判断基于支持的 MAJOR.MINOR，不依赖包 PATCH。旧 `v0.1` 文档缺少该字段时仅可由显式 legacy adapter 处理；v1.0 文档必须先经过显式迁移 adapter；新建或修改的文档必须显式声明。仅使用 2.1 字段集的页面可继续声明 `"2.1"`；使用 `table.selection` / `batchMapping` / `requiresSelection` 时必须至少 `"2.2"`；使用 `permissionCascade` 或 `permissionIntent` 时必须 `"2.3"`（L2 fail-closed）。
 
-> **`meta.requiredCapabilities`（可选，since 0.2.6）：** 字符串数组，声明页面依赖的 Renderer 执行能力，用于补足 PATCH 级能力协商。`protocolVersion` 仍只表达结构版本；当 PATCH 版本新增需要 Renderer 执行支持的能力时，页面必须通过 `requiredCapabilities` 显式声明。Renderer 若不支持其中任一能力，应在静态校验阶段拒绝渲染，而不是进入运行时后部分失效。当前协议预定义能力键：`actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`（ADR-0022）。完整表见 [08-renderer-spec.md §3.4](./08-renderer-spec.md#34-执行能力匹配规则since-026)。
+> **`meta.requiredCapabilities`（可选，since 0.2.6）：** 字符串数组，声明页面依赖的 Renderer 执行能力，用于补足 PATCH 级能力协商。`protocolVersion` 仍只表达结构版本；当 PATCH 版本新增需要 Renderer 执行支持的能力时，页面必须通过 `requiredCapabilities` 显式声明。Renderer 若不支持其中任一能力，应在静态校验阶段拒绝渲染，而不是进入运行时后部分失效。当前协议预定义能力键：`actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`（ADR-0023）。完整表见 [08-renderer-spec.md §3.4](./08-renderer-spec.md#34-执行能力匹配规则since-026)。
 
 ## 3. Node 结构（核心）
 
@@ -62,6 +62,8 @@ reactions: [Reaction]       # 可选。声明式联动规则（支持 reactions 
 states: StatesMap          # 可选（since 0.2）。空态/加载态/错误态定制
 visibleWhen: VisibleWhen   # 可选（since 0.2）。节点级条件渲染，见 §3.8
 permissions: Permissions   # 可选（since 0.2）。权限控制，见 §3.9
+permissionCascade:         # 可选（since 2.3）。容器对后代 edit/delete 的显式收紧边界，见 §3.9.1
+  keys: [edit, delete]
 ```
 
 ### 3.1 `type`（必填）
@@ -208,6 +210,33 @@ permissions:
 协议层不限制扩展动作键名；接入方可按需使用自定义动作键（如 `approve`/`export`），并通过项目级 CI/Review 约束其命名与适用范围。
 
 > **权限判定语法**：`permissions.*` 的表达式复用与 `visibleWhen` 相同的解析器，但**仅允许使用 `$context.*`，禁止出现 `$deps.*`**（静态校验拒绝）。理由：权限判断只应依赖用户身份，不应混入业务字段状态。
+
+### 3.9.1 `permissionCascade`（容器级 edit/delete 收紧，since 2.3）
+
+`permissionCascade` 是 `permissions.edit` / `permissions.delete` 的显式继承开关，而不是新的权限表达式：
+
+```yaml
+type: form
+permissions:
+  edit: "$context.user.roles contains 'editor'"
+permissionCascade:
+  keys: [edit]
+```
+
+- 仅 `section`、`grid`、`form`、`tabs`、`table` Node 可声明；`keys` 必须是非空、去重的 `edit` / `delete` 数组，且同一 Node 必须为每个键声明同名的 string `permissions.<key>`。
+- 页面只要出现 `permissionCascade` 或 `permissionIntent`，就必须同时声明 `meta.protocolVersion: "2.3"` 与 `meta.requiredCapabilities: [permissions.inheritance]`。缺少任一项由 L2 拒绝。
+- 权限结构边仅为 Node `children[]`、`tabs.props.items[].content`、`table.props.actions[]`、`table.props.toolbar[]`，以及 default form 的隐式 `submitAction`。`actions[].type: modal.content` 和导航进入的新页面各自从新根开始，不继承触发入口的祖先。
+- `table.props.columns[]` 不在该结构树内，也不是 cascade 目标；其既有 `permissions` 始终只按列本地规则处理。没有 `permissionIntent` 的操作入口、search form 字段/搜索提交和展示类 Node 同样不读取祖先 cascade。
+
+对参与 cascade 的目标 `t` 和 `k ∈ {edit, delete}`，Renderer 计算：
+
+```text
+effectivePermission(t, k) =
+  AND(根到 t 的路径上，每个声明 k ∈ permissionCascade.keys 的祖先的 permissions[k])
+  AND(t.permissions[k]，若 t 自身声明)
+```
+
+未声明的祖先边界和本地键均按 `true`。该公式只能收紧，不能用子节点的本地权限重新授权。容器仅声明既有 `permissions.edit` / `permissions.delete` 而没有同名 `permissionCascade.keys` 时，保持 v2.2 的本地语义，绝不向后代隐式传播。目标集合、表单字段白名单和操作入口的 `permissionIntent` 见 [03-component-registry.md](./03-component-registry.md)。
 
 ### 3.10 最终可见性优先级公式
 
