@@ -1,7 +1,7 @@
 ---
 status: candidate
 owner: 前后端架构组
-last_updated: 2026-07-16
+last_updated: 2026-07-23
 applies_to: schema-ui-protocol v2.0
 ---
 
@@ -60,3 +60,7 @@ v2.0 之后，继续遵守语义化版本：不改变 v2.0 合法输入和执行
 ## 5. 完成定义
 
 只有 G1–G4、发布工程门禁和迁移证据同时满足，才能把当前 v2.0 发布物视为完成。v1.0 历史发布证据保留在 [`09-v1-release-goals.md`](./09-v1-release-goals.md)，不与 v2.0 的当前门禁混用。
+
+## 6. v2.0 之后
+
+v2.0 刻意不覆盖完整 Admin 生命周期（见 [ADR-0019](./decisions/0019-v2-admin-scope.md)）。下一步协议目标、优先级与分阶段门禁见 [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md)。该文档是规划轨道，不构成本文件的 v2.0 阻断门禁。

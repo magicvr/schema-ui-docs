@@ -116,4 +116,5 @@ npm run validate -- "pages/**/*.yaml"
 ```
 
 协议范围、发布目标和当前稳定性门禁见 [`docs/10-v2-release-goals.md`](./docs/10-v2-release-goals.md)；
+v2.0 之后的 Admin 生命周期协议轨道见 [`docs/11-next-admin-lifecycle-goals.md`](./docs/11-next-admin-lifecycle-goals.md)；
 历史版本记录见 [`docs/CHANGELOG.md`](./docs/CHANGELOG.md)。

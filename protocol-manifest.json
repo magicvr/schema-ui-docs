@@ -49,6 +49,7 @@
       "protocol-manifest.json",
       "docs/09-v1-release-goals.md",
       "docs/10-v2-release-goals.md",
+      "docs/11-next-admin-lifecycle-goals.md",
       "docs/migrations/*.md",
       "docs/CHANGELOG.md",
       "conformance/README.md"
