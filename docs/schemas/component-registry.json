@@ -122,6 +122,80 @@
         { "required": ["contentKey"] }
       ]
     },
+    "recordView": {
+      "category": "数据",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": false,
+      "supportsStates": true,
+      "props": {
+        "title": { "type": "string", "required": false, "since": "2.4", "description": "详情区块标题" },
+        "titleKey": { "type": "string", "required": false, "since": "2.4" },
+        "recordSource": {
+          "type": "object",
+          "required": true,
+          "since": "2.4",
+          "description": "【ADR-0024】只读详情记录 GET 加载；使用时声明 record.view.load；形状与 form.recordSource 同构；responseMapping 必填非空。字段级 required 仅允许布尔（本字段 true=必填）；嵌套键 method/url/responseMapping 的必填由各自 properties.*.required 布尔表达，禁止在本对象上再写 required 数组以免覆盖字段级布尔（审计 0067 V302）",
+          "properties": {
+            "method": { "type": "string", "enum": ["GET"], "required": true },
+            "url": { "type": "string", "required": true },
+            "path": { "type": "object", "required": false },
+            "query": { "type": "object", "required": false },
+            "responseMapping": {
+              "type": "object",
+              "required": true,
+              "description": "展示键 → 响应点路径；必填非空；fields[].key 必须是本对象的键",
+              "minProperties": 1,
+              "additionalProperties": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "array",
+          "required": true,
+          "minItems": 1,
+          "since": "2.4",
+          "description": "只读字段表；每项 key 必须出现在 recordSource.responseMapping",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "type": "string", "minLength": 1, "required": true, "description": "展示键；对应 responseMapping 的键" },
+              "label": { "type": "string" },
+              "labelKey": { "type": "string" },
+              "format": {
+                "type": "string",
+                "enum": ["plain", "currency", "datetime", "tag"],
+                "required": false,
+                "description": "展示格式；默认 plain；tag 时 tagMap 必填"
+              },
+              "tagMap": {
+                "type": "object",
+                "required": false,
+                "description": "format: tag 时，值 → {text, tone} 的映射",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "text": { "type": "string" },
+                    "tone": { "type": "string", "enum": ["warning", "success", "neutral", "info", "danger"] }
+                  },
+                  "required": ["text"],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": ["key"],
+            "anyOf": [
+              { "required": ["label"] },
+              { "required": ["labelKey"] }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "span": { "type": "integer", "minimum": 1, "required": false },
+        "additionalProperties": false
+      }
+    },
     "table": {
       "category": "数据",
       "supportsChildren": false,
@@ -350,7 +424,7 @@
           "type": "object",
           "required": false,
           "since": "2.1",
-          "description": "【ADR-0021】编辑表单记录 GET 加载；使用时声明 form.record.load；responseMapping 必填非空；search 模式禁止",
+          "description": "【ADR-0021】编辑表单记录 GET 加载；使用时声明 form.record.load；responseMapping 必填非空；search 模式禁止。字段级 required 仅允许布尔（本字段 false=可选）；嵌套键 method/url/responseMapping 的必填由各自 properties.*.required 布尔表达，禁止在本对象上再写 required 数组以免覆盖字段级布尔（审计 0067 V302）",
           "properties": {
             "method": { "type": "string", "enum": ["GET"], "required": true },
             "url": { "type": "string", "required": true },
@@ -364,7 +438,6 @@
               "additionalProperties": { "type": "string" }
             }
           },
-          "required": ["method", "url", "responseMapping"],
           "additionalProperties": false
         },
         "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },

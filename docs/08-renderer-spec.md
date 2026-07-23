@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-23
-applies_to: schema-ui-protocol v2.3
+last_updated: 2026-07-24
+applies_to: schema-ui-protocol v2.4
 ---
 
 # Renderer（前端渲染器）实现规范
@@ -230,6 +230,25 @@ body:
 
 > 继承映射的校验规则详见 [06-validation.md](./06-validation.md#1-校验层级) v0.2.8 变更与 [04-datasource-contract.md §4.1.1](./04-datasource-contract.md#411-响应字段名映射-responsemappingsince-024)。
 
+### 2.5.1 记录加载：`form.record.load` 与 `record.view.load`（since 2.1 / 2.4）
+
+本节收敛编辑回填与只读详情的 Renderer 执行摘要；完整语义见 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md)、[ADR-0024](./decisions/0024-record-view.md) 与 [03-component-registry.md](./03-component-registry.md)。
+
+| 能力键 | 挂载 | 触发 | 映射结果 |
+|---|---|---|---|
+| `form.record.load` | `form.props.recordSource` | 表单挂载后 **一次** GET | 写入表单字段初始值 |
+| `record.view.load` | `recordView.props.recordSource` | 节点挂载后 **一次** GET | 写入只读 `fields[]` 展示值 |
+
+共同纪律：
+
+- `method` 必须为 `GET`；`responseMapping` 必填且非空（显式映射，禁止缺省同名自动映射）。
+- 映射路径缺失 → 该键可观测值为 JSON `null`，不中止整次映射（与 response-mapping suite 一致）。
+- path/query 仅允许字面量或单个 `$context.route.query.*` / `$context.route.params.*`；绑定键为 `undefined` 时**拒绝构造请求**并进入节点 error 态（不得用空 id 请求；见 [02 §13](./02-reaction-expression.md)）。
+- HTTP 失败 → 节点 error 态；不渲染字段值。loading / error / empty 走 Node `states`（可选）。
+- 401/403 走全局认证边界（§2.6 / `onAuthFailure`），不单独发明详情鉴权通道。
+- `recordView` **禁止**用 DataRef（`data`）替代主记录加载；**不**复用 `form.record.load` 能力键。
+- 页面须声明对应 capability；`recordView` 另须 `meta.protocolVersion >= "2.4"`（L2 双重门控）。
+
 ### 2.6 请求初始化配置（since 0.2.5）
 
 Renderer 初始化时可接收宿主应用提供的请求配置，用于统一处理认证、超时与鉴权失败回调：
@@ -310,6 +329,8 @@ Renderer 不自动发现、选择或串联 adapter。本协议只定义 adapter 
 | `form.record.load` | `form.props.recordSource` 记录加载回填 | ADR-0021 |
 | `table.selection` | `table.props.selection` 当前页多选 | ADR-0022 |
 | `actions.batch.request` | toolbar `batchMapping` 批量 request | ADR-0022 |
+| `permissions.inheritance` | 容器 `permissionCascade` 与入口 `permissionIntent` | ADR-0023 |
+| `record.view.load` | `recordView` 只读详情加载与字段展示 | ADR-0024 |
 
 ### 3.5 协商结果与错误信息格式
 

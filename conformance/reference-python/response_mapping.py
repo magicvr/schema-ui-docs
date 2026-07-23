@@ -37,7 +37,8 @@ def map_form_record(input_value):
 
 
 def map_response(input_value):
-    if input_value.get("component") == "formRecord":
+    # formRecord (ADR-0021) and recordView (ADR-0024) share explicit mapping → values.
+    if input_value.get("component") in ("formRecord", "recordView"):
         return map_form_record(input_value)
     mapping_is_present = "localMapping" in input_value or "datasourceMapping" in input_value
     mapping = (

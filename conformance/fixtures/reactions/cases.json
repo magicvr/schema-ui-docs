@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "stable-snapshot-defers-dependent-visibility",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -71,7 +71,7 @@
     },
     {
       "id": "multiple-fields-commit-in-one-batch",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -138,7 +138,7 @@
     },
     {
       "id": "same-field-later-value-write-wins",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -199,7 +199,7 @@
     },
     {
       "id": "deep-equal-write-does-not-schedule-next-round",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -240,7 +240,7 @@
     },
     {
       "id": "baseline-restores-when-condition-becomes-false",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -310,7 +310,7 @@
     },
     {
       "id": "baseline-restores-after-trigger-turns-false",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -385,7 +385,7 @@
     },
     {
       "id": "strict-comparison-does-not-coerce-types",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -442,7 +442,7 @@
     },
     {
       "id": "contains-uses-strict-element-equality",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -492,7 +492,7 @@
     },
     {
       "id": "missing-field-commits-explicit-null",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -539,7 +539,7 @@
     },
     {
       "id": "explicit-write-wins-over-implicit-baseline-reset",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -624,7 +624,7 @@
     },
     {
       "id": "json-number-exponent-and-unicode-code-point-order",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -668,7 +668,7 @@
     },
     {
       "id": "loop-protection-stops-after-ten-rounds",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {
@@ -708,7 +708,7 @@
     },
     {
       "id": "nested-boolean-and-number-are-not-deep-equal",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "reactions",
       "input": {
         "initialValues": {

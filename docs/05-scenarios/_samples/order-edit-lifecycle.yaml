@@ -1,7 +1,7 @@
 meta:
   pageId: order_edit_lifecycle
   title: 编辑订单
-  protocolVersion: "2.3"
+  protocolVersion: "2.4"
   requiredCapabilities:
     - form.record.load
 

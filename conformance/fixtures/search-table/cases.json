@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "initial-four-layer-merge",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders?locale=zh-CN&status=legacy",
@@ -36,7 +36,7 @@
     },
     {
       "id": "search-submit-replaces-filters-and-resets-page",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
@@ -75,7 +75,7 @@
     },
     {
       "id": "clear-search-resets-page-and-keeps-sort",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders?status=base",
@@ -106,7 +106,7 @@
     },
     {
       "id": "page-change-keeps-filters-and-sort",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
@@ -138,7 +138,7 @@
     },
     {
       "id": "sort-change-resets-page-and-keeps-filters",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/orders",
@@ -170,7 +170,7 @@
     },
     {
       "id": "selection-cleared-on-change-page",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/api/orders",
@@ -213,7 +213,7 @@
     },
     {
       "id": "selection-cleared-on-submit-search",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/api/orders",
@@ -255,7 +255,7 @@
     },
     {
       "id": "selection-set-keys-without-table-event",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/api/orders",
@@ -298,7 +298,7 @@
     },
     {
       "id": "selection-dedupes-keys-preserve-order",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/api/orders",
@@ -345,7 +345,7 @@
     },
     {
       "id": "selection-filters-non-scalar-keys",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/api/orders",
@@ -398,7 +398,7 @@
     },
     {
       "id": "selection-mixed-scalar-types-and-count",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "search-table",
       "input": {
         "baseUrl": "/api/orders",

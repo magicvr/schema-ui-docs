@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-23
-applies_to: schema-ui-protocol v2.3
+last_updated: 2026-07-24
+applies_to: schema-ui-protocol v2.4
 ---
 
 # 核心协议规范：Node 结构定义
@@ -25,8 +25,8 @@ meta:            # 页面元信息
   pageId: string
   title: string
   description: string
-  protocolVersion: string   # 必填（since 0.2）。当前制品使用 "2.3"；权限继承字段纪律见 migrations/2.2-to-2.3
-  requiredCapabilities: [string] # 可选（since 0.2.6）。执行能力协商，如 actions.page.trigger / table.selection / permissions.inheritance
+  protocolVersion: string   # 必填（since 0.2）。当前制品使用 "2.4"；字段集→版本下限见下文与 migrations/
+  requiredCapabilities: [string] # 可选（since 0.2.6）。执行能力协商，如 actions.page.trigger / table.selection / permissions.inheritance / record.view.load
 
 datasources:     # 【可选】页面级预声明数据源，供 body 内节点通过 ref 引用；仅允许 source: api 或 source: static，禁止 source: ref（引用链会导致递归风险）
   <sourceId>: DatasourceDeclaration
@@ -44,9 +44,9 @@ actions:          # 【可选】页面级可复用动作定义（完整契约见
 | `body` | 是 | 页面主体的根 Node |
 | `actions` | 否 | 供 Node 内按钮/表单提交等引用的动作定义，完整契约见 [07-actions-contract.md](./07-actions-contract.md) |
 
-> **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（当前协议版本使用 `"2.3"`），**不含 PATCH 或预发布标识**。Renderer 据此判断按哪套解析规则处理页面文档，是协议后续演进做版本兼容判断的锚点。同一 MAJOR.MINOR 的补丁或 RC 包共享该值；Renderer 的兼容性判断基于支持的 MAJOR.MINOR，不依赖包 PATCH。旧 `v0.1` 文档缺少该字段时仅可由显式 legacy adapter 处理；v1.0 文档必须先经过显式迁移 adapter；新建或修改的文档必须显式声明。仅使用 2.1 字段集的页面可继续声明 `"2.1"`；使用 `table.selection` / `batchMapping` / `requiresSelection` 时必须至少 `"2.2"`；使用 `permissionCascade` 或 `permissionIntent` 时必须 `"2.3"`（L2 fail-closed）。
+> **`meta.protocolVersion`（since 0.2）：** 必填字符串，格式为 MAJOR.MINOR（当前协议版本使用 `"2.4"`），**不含 PATCH 或预发布标识**。Renderer 据此判断按哪套解析规则处理页面文档，是协议后续演进做版本兼容判断的锚点。同一 MAJOR.MINOR 的补丁或 RC 包共享该值；Renderer 的兼容性判断基于支持的 MAJOR.MINOR，不依赖包 PATCH。旧 `v0.1` 文档缺少该字段时仅可由显式 legacy adapter 处理；v1.0 文档必须先经过显式迁移 adapter；新建或修改的文档必须显式声明。仅使用 2.1 字段集的页面可继续声明 `"2.1"`；使用 `table.selection` / `batchMapping` / `requiresSelection` 时必须至少 `"2.2"`；使用 `permissionCascade` 或 `permissionIntent` 时必须 `"2.3"`（L2 fail-closed）；使用 `type: recordView` 时必须 `meta.protocolVersion >= "2.4"` 且声明 `meta.requiredCapabilities` 含 `record.view.load`（L2 双重门控 fail-closed，ADR-0024）。字段集→版本下限由 L2 强制，见 [06-validation.md](./06-validation.md) 与 [00-overview.md](./00-overview.md)。
 
-> **`meta.requiredCapabilities`（可选，since 0.2.6）：** 字符串数组，声明页面依赖的 Renderer 执行能力，用于补足 PATCH 级能力协商。`protocolVersion` 仍只表达结构版本；当 PATCH 版本新增需要 Renderer 执行支持的能力时，页面必须通过 `requiredCapabilities` 显式声明。Renderer 若不支持其中任一能力，应在静态校验阶段拒绝渲染，而不是进入运行时后部分失效。当前协议预定义能力键：`actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`（ADR-0023）。完整表见 [08-renderer-spec.md §3.4](./08-renderer-spec.md#34-执行能力匹配规则since-026)。
+> **`meta.requiredCapabilities`（可选，since 0.2.6）：** 字符串数组，声明页面依赖的 Renderer 执行能力，用于补足 PATCH 级能力协商。`protocolVersion` 仍只表达结构版本；当 PATCH 版本新增需要 Renderer 执行支持的能力时，页面必须通过 `requiredCapabilities` 显式声明。Renderer 若不支持其中任一能力，应在静态校验阶段拒绝渲染，而不是进入运行时后部分失效。当前协议预定义能力键：`actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`（ADR-0023）、`record.view.load`（ADR-0024）。完整表见 [08-renderer-spec.md §3.4](./08-renderer-spec.md#34-执行能力匹配规则since-026)。
 
 ## 3. Node 结构（核心）
 

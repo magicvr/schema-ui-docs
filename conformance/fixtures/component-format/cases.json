@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "currency-accepts-finite-number",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "component-format",
       "input": {
         "format": "currency",
@@ -17,7 +17,7 @@
     },
     {
       "id": "currency-rejects-string-coercion",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "component-format",
       "input": {
         "format": "currency",
@@ -30,7 +30,7 @@
     },
     {
       "id": "percent-rejects-boolean-number-coercion",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "component-format",
       "input": {
         "format": "percent",
@@ -43,7 +43,7 @@
     },
     {
       "id": "datetime-accepts-string",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "component-format",
       "input": {
         "format": "datetime",
@@ -56,7 +56,7 @@
     },
     {
       "id": "datetime-rejects-number-coercion",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "component-format",
       "input": {
         "format": "datetime",

@@ -1,8 +1,8 @@
 {
   "manifestVersion": "1.0",
   "name": "schema-ui-protocol",
-  "artifactVersion": "2.3.0",
-  "protocolVersion": "2.3",
+  "artifactVersion": "2.4.0",
+  "protocolVersion": "2.4",
   "authority": {
     "semanticSpecs": [
       "PROJECT_CHARTER.md",
@@ -35,7 +35,8 @@
       "docs/decisions/0020-page-action-trigger.md",
       "docs/decisions/0021-record-navigation-and-form-load.md",
       "docs/decisions/0022-table-selection-and-batch-request.md",
-      "docs/decisions/0023-container-permission-inheritance.md"
+      "docs/decisions/0023-container-permission-inheritance.md",
+      "docs/decisions/0024-record-view.md"
     ],
     "structuralContracts": [
       "docs/schemas/*.json"
@@ -48,7 +49,8 @@
   "informative": {
     "scenarios": [
       "docs/05-scenarios/**/*.md",
-      "docs/05-scenarios/_samples/order-list-batch.yaml"
+      "docs/05-scenarios/_samples/order-list-batch.yaml",
+      "docs/05-scenarios/_samples/order-detail-lifecycle.yaml"
     ],
     "releaseMetadata": [
       "protocol-manifest.json",
@@ -61,7 +63,8 @@
       "docs/RELEASE.md",
       "docs/migrations/*.md",
       "docs/CHANGELOG.md",
-      "conformance/README.md"
+      "conformance/README.md",
+      "docs/15-v2.4-release-goals.md"
     ]
   },
   "excluded": [

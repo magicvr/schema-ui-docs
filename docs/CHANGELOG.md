@@ -9,6 +9,26 @@
 
 （无）
 
+## v2.4.0 — 2026-07-24（标准只读详情 recordView）
+
+> **版本说明：** MINOR 发布。使用 `type: recordView` 的页面必须声明 `meta.protocolVersion: "2.4"` 与 `record.view.load`。未使用该组件的合法 `2.3` 页面行为不变。正式协议制品为 `schema-ui-protocol-2.4.0.tar.gz`。
+
+**协议变更（ADR-0024）：**
+- 新增组件类型 `recordView`：只读字段表 + 与 form 同构的 `recordSource`（GET、path/query 路由绑定、显式 `responseMapping`）。
+- 新增预定义 capability：`record.view.load`。
+- `fields[]`：`key` 必须属于 `responseMapping`；`format` 对齐 table 列（`plain` / `currency` / `datetime` / `tag`）；`format: tag` 时 `tagMap` 必填。
+- `$context.route` 绑定位置扩展到 `recordView.props.recordSource`；仍禁止普通表达式挂载点。
+- L2 双重门控：`protocolVersion >= "2.4"` + capability；结构 fail-closed。
+
+**Conformance 与示例：**
+- `response-mapping`：`recordView` 显式映射与缺失路径 → null。
+- `version-negotiation`：`2.4` 接受/拒绝与 `record.view.load`。
+- `scenarios`：`admin-lifecycle-detail-load`；扩展示例 [`admin-list-detail-lifecycle.md`](./05-scenarios/admin-list-detail-lifecycle.md)。
+- 算法类 fixtures 与官方六场景统一 `protocolVersion: "2.4"`；version-negotiation 保留历史页面版本输入。版本化 fixture 共 13 类、214 cases（含 `record-view-empty-mapping-rejected` 对称负例）。
+- 迁移 [`2.3-to-2.4.md`](./migrations/2.3-to-2.4.md)；发布目标 [`15-v2.4-release-goals.md`](./15-v2.4-release-goals.md)。
+
+**轨道：** Phase D 仅交付 `recordView`；导入导出、异步任务、树表、行内编辑、跨页全选等仍为后续一等公民候选，见 [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md)。
+
 ## v2.3.0 — 2026-07-23（容器权限继承与操作 intent）
 
 > **版本说明：** MINOR 发布。使用 `permissionCascade` 或 `permissionIntent` 的页面必须声明 `meta.protocolVersion: "2.3"` 与 `permissions.inheritance`。未声明新字段和 capability 的合法 `2.2` 页面保持原有本地 `permissions` 语义。正式协议制品为 `schema-ui-protocol-2.3.0.tar.gz`。

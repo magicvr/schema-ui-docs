@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "table-default-list-and-total",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -32,7 +32,7 @@
     },
     {
       "id": "table-inherits-datasource-mapping",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -66,7 +66,7 @@
     },
     {
       "id": "local-mapping-completely-overrides-datasource",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -108,7 +108,7 @@
     },
     {
       "id": "empty-local-mapping-does-not-inherit-datasource",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -139,7 +139,7 @@
     },
     {
       "id": "client-table-does-not-require-total",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -170,7 +170,7 @@
     },
     {
       "id": "chart-default-bare-array",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "chart",
@@ -195,7 +195,7 @@
     },
     {
       "id": "mapped-list-path-missing",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -218,7 +218,7 @@
     },
     {
       "id": "mapped-total-type-invalid",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -242,7 +242,7 @@
     },
     {
       "id": "explicit-null-local-mapping-is-invalid",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -260,7 +260,7 @@
     },
     {
       "id": "mapped-list-inherited-prototype-property-is-missing",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "table",
@@ -280,7 +280,7 @@
     },
     {
       "id": "stat-card-response-mapping-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "statCard",
@@ -303,7 +303,7 @@
     },
     {
       "id": "text-response-mapping-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "text",
@@ -326,7 +326,7 @@
     },
     {
       "id": "stat-card-null-response-mapping-is-invalid",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "statCard",
@@ -343,7 +343,7 @@
     },
     {
       "id": "form-record-explicit-mapping",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "formRecord",
@@ -372,7 +372,7 @@
     },
     {
       "id": "form-record-missing-path-becomes-null",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "formRecord",
@@ -394,10 +394,81 @@
     },
     {
       "id": "form-record-empty-mapping-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "response-mapping",
       "input": {
         "component": "formRecord",
+        "responseMapping": {},
+        "response": {
+          "orderId": "1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_RESPONSE_MAPPING",
+        "path": "responseMapping"
+      }
+    },
+    {
+      "id": "record-view-explicit-mapping",
+      "protocolVersion": "2.4",
+      "category": "response-mapping",
+      "input": {
+        "component": "recordView",
+        "responseMapping": {
+          "orderId": "orderId",
+          "customerName": "customer.name",
+          "status": "status",
+          "amount": "amount"
+        },
+        "response": {
+          "orderId": "ORD-1",
+          "customer": {
+            "name": "Ada"
+          },
+          "status": "paid",
+          "amount": 12800,
+          "extra": "ignored"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "values": {
+          "orderId": "ORD-1",
+          "customerName": "Ada",
+          "status": "paid",
+          "amount": 12800
+        }
+      }
+    },
+    {
+      "id": "record-view-missing-path-becomes-null",
+      "protocolVersion": "2.4",
+      "category": "response-mapping",
+      "input": {
+        "component": "recordView",
+        "responseMapping": {
+          "orderId": "orderId",
+          "missing": "not.there"
+        },
+        "response": {
+          "orderId": "ORD-2"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "values": {
+          "orderId": "ORD-2",
+          "missing": null
+        }
+      }
+    },
+    {
+      "id": "record-view-empty-mapping-rejected",
+      "protocolVersion": "2.4",
+      "category": "response-mapping",
+      "input": {
+        "component": "recordView",
         "responseMapping": {},
         "response": {
           "orderId": "1"

@@ -1,6 +1,6 @@
 ---
 status: stable
-applies_to: schema-ui-protocol v2.3
+applies_to: schema-ui-protocol v2.4
 ---
 
 # 扩展示例：编辑与删除权限继承
@@ -11,7 +11,7 @@ applies_to: schema-ui-protocol v2.3
 meta:
   pageId: order_permission_boundary
   title: 订单权限边界
-  protocolVersion: "2.3"
+  protocolVersion: "2.4"
   requiredCapabilities:
     - permissions.inheritance
     - actions.page.trigger

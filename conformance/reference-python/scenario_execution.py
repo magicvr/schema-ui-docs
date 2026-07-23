@@ -31,6 +31,7 @@ CONFORMANCE_SCENARIO_PATHS = {
     "docs/05-scenarios/search-form-table.md",
     "docs/05-scenarios/form-with-upload.md",
     "docs/05-scenarios/admin-list-edit-lifecycle.md",
+    "docs/05-scenarios/admin-list-detail-lifecycle.md",
 }
 
 

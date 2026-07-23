@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "static-table-array",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "static-data",
       "input": {
         "component": "table",
@@ -29,7 +29,7 @@
     },
     {
       "id": "static-chart-ref-array",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "static-data",
       "input": {
         "component": "chart",
@@ -62,7 +62,7 @@
     },
     {
       "id": "static-stat-card-ref-value-field",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "static-data",
       "input": {
         "component": "statCard",
@@ -90,7 +90,7 @@
     },
     {
       "id": "static-text-ref-scalar",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "static-data",
       "input": {
         "component": "text",
@@ -113,7 +113,7 @@
     },
     {
       "id": "static-table-object-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "static-data",
       "input": {
         "component": "table",
@@ -131,7 +131,7 @@
     },
     {
       "id": "static-ref-target-missing",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "static-data",
       "input": {
         "component": "text",
@@ -148,7 +148,7 @@
     },
     {
       "id": "static-ref-response-mapping-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "static-data",
       "input": {
         "component": "table",
@@ -173,7 +173,7 @@
     },
     {
       "id": "static-text-array-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "static-data",
       "input": {
         "component": "text",
@@ -192,7 +192,7 @@
     },
     {
       "id": "static-stat-card-null-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "static-data",
       "input": {
         "component": "statCard",

@@ -4,13 +4,13 @@
   "cases": [
     {
       "id": "official-data-table",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/data-table.md",
         "scenarioMeta": {
           "pageId": "order_list",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": [
           {
@@ -47,7 +47,7 @@
       },
       "expected": {
         "pageId": "order_list",
-        "protocolVersion": "2.3",
+        "protocolVersion": "2.4",
         "steps": [
           {
             "state": {
@@ -75,13 +75,13 @@
     },
     {
       "id": "official-grid-dashboard",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/grid-dashboard.md",
         "scenarioMeta": {
           "pageId": "dashboard_sales",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": [
           {
@@ -122,7 +122,7 @@
       },
       "expected": {
         "pageId": "dashboard_sales",
-        "protocolVersion": "2.3",
+        "protocolVersion": "2.4",
         "steps": [
           {
             "ok": true,
@@ -153,13 +153,13 @@
     },
     {
       "id": "official-form-with-reactions",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/form-with-reactions.md",
         "scenarioMeta": {
           "pageId": "order_create",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": [
           {
@@ -194,7 +194,7 @@
       },
       "expected": {
         "pageId": "order_create",
-        "protocolVersion": "2.3",
+        "protocolVersion": "2.4",
         "steps": [
           {
             "ok": true,
@@ -226,13 +226,13 @@
     },
     {
       "id": "official-row-backend-actions",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/row-backend-actions.md",
         "scenarioMeta": {
           "pageId": "order_operations",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": [
           {
@@ -277,7 +277,7 @@
       },
       "expected": {
         "pageId": "order_operations",
-        "protocolVersion": "2.3",
+        "protocolVersion": "2.4",
         "steps": [
           {
             "ok": true,
@@ -308,13 +308,13 @@
     },
     {
       "id": "official-search-form-table",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/search-form-table.md",
         "scenarioMeta": {
           "pageId": "order_search",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": [
           {
@@ -343,7 +343,7 @@
       },
       "expected": {
         "pageId": "order_search",
-        "protocolVersion": "2.3",
+        "protocolVersion": "2.4",
         "steps": [
           {
             "state": {
@@ -364,13 +364,13 @@
     },
     {
       "id": "official-form-with-upload",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/form-with-upload.md",
         "scenarioMeta": {
           "pageId": "contract_upload",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": [
           {
@@ -433,7 +433,7 @@
       },
       "expected": {
         "pageId": "contract_upload",
-        "protocolVersion": "2.3",
+        "protocolVersion": "2.4",
         "steps": [
           {
             "ok": true,
@@ -481,13 +481,13 @@
     },
     {
       "id": "unknown-official-scenario-path-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/not-official.md",
         "scenarioMeta": {
           "pageId": "missing",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": []
       },
@@ -497,13 +497,13 @@
     },
     {
       "id": "official-scenario-metadata-mismatch-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/data-table.md",
         "scenarioMeta": {
           "pageId": "wrong-page",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": []
       },
@@ -513,13 +513,13 @@
     },
     {
       "id": "admin-lifecycle-list-row-navigate",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/admin-list-edit-lifecycle.md",
         "scenarioMeta": {
           "pageId": "order_list_lifecycle",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": [
           {
@@ -581,7 +581,7 @@
       },
       "expected": {
         "pageId": "order_list_lifecycle",
-        "protocolVersion": "2.3",
+        "protocolVersion": "2.4",
         "steps": [
           {
             "ok": true,
@@ -614,13 +614,13 @@
     },
     {
       "id": "admin-lifecycle-edit-load-submit",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/admin-list-edit-lifecycle.md",
         "scenarioMeta": {
           "pageId": "order_edit_lifecycle",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": [
           {
@@ -702,7 +702,7 @@
       },
       "expected": {
         "pageId": "order_edit_lifecycle",
-        "protocolVersion": "2.3",
+        "protocolVersion": "2.4",
         "steps": [
           {
             "ok": true,
@@ -749,14 +749,96 @@
       }
     },
     {
+      "id": "admin-lifecycle-detail-load",
+      "protocolVersion": "2.4",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/admin-list-detail-lifecycle.md",
+        "scenarioMeta": {
+          "pageId": "order_detail_lifecycle",
+          "protocolVersion": "2.4"
+        },
+        "steps": [
+          {
+            "kind": "request",
+            "input": {
+              "kind": "recordSource",
+              "recordSource": {
+                "method": "GET",
+                "url": "/api/orders/{orderId}",
+                "path": {
+                  "orderId": "$context.route.query.orderId"
+                },
+                "responseMapping": {
+                  "orderId": "orderId",
+                  "customerName": "customer.name",
+                  "status": "status",
+                  "amount": "amount"
+                }
+              },
+              "route": {
+                "query": {
+                  "orderId": "ORD-9"
+                },
+                "params": {}
+              }
+            }
+          },
+          {
+            "kind": "responseMapping",
+            "input": {
+              "component": "recordView",
+              "responseMapping": {
+                "orderId": "orderId",
+                "customerName": "customer.name",
+                "status": "status",
+                "amount": "amount"
+              },
+              "response": {
+                "orderId": "ORD-9",
+                "customer": {
+                  "name": "Ada"
+                },
+                "status": "paid",
+                "amount": 12800
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "order_detail_lifecycle",
+        "protocolVersion": "2.4",
+        "steps": [
+          {
+            "ok": true,
+            "request": {
+              "method": "GET",
+              "url": "/api/orders/ORD-9",
+              "body": null
+            }
+          },
+          {
+            "ok": true,
+            "values": {
+              "orderId": "ORD-9",
+              "customerName": "Ada",
+              "status": "paid",
+              "amount": 12800
+            }
+          }
+        ]
+      }
+    },
+    {
       "id": "admin-lifecycle-wrong-page-rejected",
-      "protocolVersion": "2.3",
+      "protocolVersion": "2.4",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/admin-list-edit-lifecycle.md",
         "scenarioMeta": {
           "pageId": "not_a_page",
-          "protocolVersion": "2.3"
+          "protocolVersion": "2.4"
         },
         "steps": []
       },
