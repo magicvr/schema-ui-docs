@@ -117,4 +117,11 @@ function buildTableQuery(input) {
   return result;
 }
 
-module.exports = { applyTableQueryEvent, applySelectionEvent, buildTableQuery, clearsSelection };
+module.exports = {
+  applyTableQueryEvent,
+  applySelectionEvent,
+  buildTableQuery,
+  clearsSelection,
+  normalizeKeys,
+  normalizeSelection,
+};

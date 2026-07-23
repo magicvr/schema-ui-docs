@@ -1318,10 +1318,15 @@ function validateRecordSource(formNode, nodePath, violations) {
     violations.push({ path: `${nodePath}.props.recordSource`, message: 'recordSource 必须是对象' });
     return;
   }
-  if (recordSource.method !== 'GET') {
+  if (recordSource.method === undefined) {
     violations.push({
       path: `${nodePath}.props.recordSource.method`,
-      message: 'recordSource.method 只允许 GET',
+      message: 'recordSource.method 必填（MISSING_RECORD_SOURCE_METHOD）',
+    });
+  } else if (recordSource.method !== 'GET') {
+    violations.push({
+      path: `${nodePath}.props.recordSource.method`,
+      message: 'recordSource.method 只允许 GET（RECORD_SOURCE_METHOD_NOT_GET）',
     });
   }
   if (typeof recordSource.url !== 'string') {

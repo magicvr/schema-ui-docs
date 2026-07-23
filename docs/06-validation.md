@@ -160,7 +160,7 @@ npm run validate -- "pages/**/*.yaml"
 - [ ] 表格类 Node 的 `columns[].field` 是否与后端响应体字段名一致？
 - [ ] 行级 `actionRef` → request 时是否声明 `actions.row.request` 与合法 `requestMapping`？→ navigate 时是否声明 `actions.row.navigate` 与合法 `navigateMapping`？
 - [ ] 使用 `actionButton` / `table.toolbar` 时是否声明 `actions.page.trigger`，且 Trigger 的 request 非 GET？
-- [ ] 使用 `form.recordSource` 时是否声明 `form.record.load`，且 `responseMapping` 非空、非 search 模式？
+- [ ] 使用 `form.recordSource` 时是否声明 `form.record.load`，且 `method: GET` **必填**（缺失与非法 method 分码）、`responseMapping` 非空、非 search 模式？
 - [ ] `form.props.submitAction` 是否引用了顶层 `actions` 中存在的动作 id，且 request action 不是 GET？
 - [ ] `upload.props.actionRef` 是否引用了顶层 `actions` 中 `type: upload` 的动作？
 - [ ] `data.source: ref` 时，`data.ref` 是否存在于顶层 `datasources`？

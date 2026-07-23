@@ -6,6 +6,20 @@
 
 ---
 
+## 0063 — 2026-07-23 — 协议 2.1/2.2 残留语义与发布就绪复审
+
+**主题：** formRecord 可观测值、batch selection 不变量、2.2 版本/迁移叙事及文档/诊断残留（V273–V281）。
+**性质：** 3 项 P1 + 6 项 P2 全部关闭；`2.2.0` 制品 tag 按 `13-v2.2-release-goals` 择机。
+
+| 文件 | 说明 |
+|---|---|
+| [0063-2026-07-23-review.md](./0063-2026-07-23-review.md) | 审计报告 — V273–V281（全部关闭） |
+| [0063-2026-07-23-checklist.md](./0063-2026-07-23-checklist.md) | 跟踪清单 — 整改与归档门禁 |
+
+**关闭证据：** 12 套 versioned suite、186 个 case、27 个 JS/Python conformance 入口；fixture digest `sha256:0775cc6f3a93646f3412d8c1f1ee7ca5f76552e5dfad8f56a2eadd825a016e98`；`release:check` / `validate:scenarios` / `check:links` 通过。
+
+---
+
 ## 0062 — 2026-07-23 — 协议 2.1/2.2 互操作性复审
 
 **主题：** 闭合 Admin 生命周期与 ADR-0022 批量能力的 reference/L2/L3a/fixtures 互操作缺口（V267–V272）。

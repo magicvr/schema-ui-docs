@@ -161,7 +161,8 @@ props:
 - 成功响应**仅**按显式 `responseMapping` 写入表单字段：mapping 目标为 form `field` 名，源为响应 JSON 点路径（纪律对齐 DataRef `responseMapping`）；  
 - **不做**缺省「扁平同名自动映射」，**不做**嵌套对象自动展开（裁决 OQ-21-1）；  
 - 映射目标 field 不在表单符号表中：忽略该键，开发环境可告警；  
-- 映射源路径缺失 / `undefined`：该字段写入 `undefined` 并采用与空初始值相同的后续规则（不中止整次回填），开发环境可告警；  
+- 映射源路径缺失 / 运行时 `undefined`：该字段的 **conformance 可观测值** 为 JSON **`null`**（审计 0063 / V273）；运行时语义等价于「空初始值」——**不中止整次回填**，其余已映射字段照常写入，并作为 reactions 新 baseline。受控表单实现须把该 `null` 当作与未填字段相同的空值处理，**不得**因单字段缺失中止提交投影中其它已映射字段；显式 JSON `null` 与路径缺失在 formRecord 映射结果中同为 `null`。开发环境可对缺失路径告警；  
+
 - 写入字段值作为 reactions 的 **新 baseline**（用户未改前的基线），对齐 ADR-0006：回填完成后触发一轮 Snapshot/Evaluate/Commit；  
 - `upload` 字段：若 mapping 结果为字符串（url/id），写入字段值；数组规则与既有 upload 字段值形状一致。
 
@@ -190,7 +191,8 @@ props:
 - 标准 `recordView` 详情组件（P2）；  
 - `type: hidden` 一等组件（裁决 OQ-21-3；可另开 PATCH/MINOR 小 ADR）；  
 - `recordSource` 引用页面 `datasources` ref（裁决 OQ-21-2）；  
-- 抽屉内嵌编辑的专用壳（**允许** `modal.content` 内使用 `recordSource`，但 Host 必须在打开时提供正确的 `$context.route` 快照或等价 query 注入，协议不定义抽屉路由库）；  
+- 抽屉内嵌编辑的专用壳；  
+- **`modal.content` 内 `recordSource` 的路由注入互操作（审计 0063 / V280）：** 允许在 modal 内容树中声明 `recordSource`，但 **modal 内 route 注入不是 2.1/2.2 互操作门禁**，无独立 conformance 形状。Host 若在 modal 中使用 `$context.route.*` 绑定，**应**提供与整页相同的只读快照形状（`path` / `query.*` / 可选 `params.*`，query 值一律字符串）；MVP **推荐** modal 内 `recordSource` 仅用字面量 path/query，避免依赖 Host 私有注入。协议不定义抽屉路由库；  
 - 多记录批量编辑、向导多步表单状态机；  
 - 客户端路由库绑定、浏览器 History API 细节；  
 - 自动生成「返回列表」按钮（可用 ADR-0020 `actionButton` + navigate）；  
@@ -203,7 +205,7 @@ props:
 # ----- 列表页 -----
 meta:
   pageId: order_list
-  protocolVersion: "2.0"
+  protocolVersion: "2.1"
   requiredCapabilities:
     - actions.page.trigger
     - actions.row.navigate
@@ -238,7 +240,7 @@ body:
 # ----- 编辑页 -----
 meta:
   pageId: order_edit
-  protocolVersion: "2.0"
+  protocolVersion: "2.1"
   requiredCapabilities:
     - form.record.load
 

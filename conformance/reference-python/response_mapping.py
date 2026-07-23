@@ -30,7 +30,8 @@ def map_form_record(input_value):
         if not isinstance(field, str) or not field or not isinstance(path_expr, str) or not path_expr:
             return failure("INVALID_RESPONSE_MAPPING", f"responseMapping.{field}")
         found, value = read_path(input_value["response"], path_expr)
-        # ADR-0021: missing path does not abort; JSON uses null for undefined.
+        # ADR-0021 D5a / V273: missing path does not abort whole fill.
+        # Conformance-observable value is JSON null (equivalent empty initial).
         values[field] = value if found else None
     return {"ok": True, "values": values}
 

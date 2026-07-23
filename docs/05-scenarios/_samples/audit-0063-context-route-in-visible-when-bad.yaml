@@ -1,0 +1,17 @@
+# L3a 负例：$context.route 出现在 visibleWhen（审计 0063 / V279）
+# 期望：FORBIDDEN_CONTEXT_NAMESPACE（已知根但本挂载点禁止），非 UNKNOWN_CONTEXT_NAMESPACE
+meta:
+  pageId: audit_0063_context_route_visible_when
+  title: bad route in visibleWhen
+  protocolVersion: "2.1"
+
+body:
+  type: section
+  props:
+    title: demo
+  visibleWhen:
+    when: "$context.route.query.orderId == '1'"
+  children:
+    - type: text
+      props:
+        content: should not validate

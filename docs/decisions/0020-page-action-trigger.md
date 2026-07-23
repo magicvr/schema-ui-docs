@@ -49,7 +49,7 @@ v2.0 已有三类标准动作挂载点：
 
 ```yaml
 meta:
-  protocolVersion: "2.0"   # 2.1 制品发布后可改为 "2.1"
+  protocolVersion: "2.1"
   requiredCapabilities:
     - actions.page.trigger
 ```

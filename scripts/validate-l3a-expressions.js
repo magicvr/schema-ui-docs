@@ -16,6 +16,7 @@
  *      - v0.2 静态拒绝 $parentRow.*（组件 DSL 尚无嵌套表格挂载结构）
  *      - permissions.* 不能出现 $deps.*（仅 $context.user.* / $context.features.*）
  *      - 非表单 visibleWhen 按 Node 树位置判定，仅允许 $context.user.* / $context.features.*
+ *      - $context.route 为已知根，但普通表达式挂载点拒绝（FORBIDDEN_CONTEXT_NAMESPACE；审计 0063 / V279）
  *      - table.toolbar Trigger 一律按非表单上下文校验（仅 $context.*；审计 0062 / V268）
  *      - 表格 actions 任意 scope 不能出现 $self
  *      - 表格列/操作 scope:form 使用 $deps.* 时要求表格位于 form 上下文
@@ -74,6 +75,9 @@ const ALLOWED_KEYWORDS = new Set(['contains', 'true', 'false', 'null']);
 // 变量命名空间前缀白名单
 const ALLOWED_NS_PREFIXES = ['$deps.', '$self', '$row.', '$parentRow.', '$context.'];
 const COMPARISON_OPERATORS = new Set(['==', '!=', '>', '>=', '<', '<=', 'contains']);
+// Known $context roots per 02 §11 / ADR-0003 / ADR-0021 (route is known but not for ordinary expressions).
+const KNOWN_CONTEXT_ROOTS = new Set(['user', 'features', 'route']);
+// Ordinary expression mounts (reactions / visibleWhen / permissions / toolbar) only allow user/features.
 const ALLOWED_CONTEXT_ROOTS = new Set(['user', 'features']);
 
 /**
@@ -400,11 +404,18 @@ function validateExpression(expr, exprPath, context) {
 
     if (variableName.startsWith('$context.')) {
       const contextRoot = variableName.slice('$context.'.length).split('.')[0];
-      if (!ALLOWED_CONTEXT_ROOTS.has(contextRoot)) {
+      if (!KNOWN_CONTEXT_ROOTS.has(contextRoot)) {
         violations.push({
           path: exprPath,
           rule: 'UNKNOWN_CONTEXT_NAMESPACE',
-          message: `未知 $context 根命名空间 "${contextRoot}"，只允许：${[...ALLOWED_CONTEXT_ROOTS].join(', ')}`,
+          message: `未知 $context 根命名空间 "${contextRoot}"，已知根：${[...KNOWN_CONTEXT_ROOTS].join(', ')}`,
+        });
+      } else if (!ALLOWED_CONTEXT_ROOTS.has(contextRoot)) {
+        // V279: route is a known root but forbidden on ordinary expression mounts.
+        violations.push({
+          path: exprPath,
+          rule: 'FORBIDDEN_CONTEXT_NAMESPACE',
+          message: `$context.${contextRoot} 不得用于本挂载点；MVP 仅允许 form.recordSource 的 path/query 绑定（02 §11.3）`,
         });
       }
     }

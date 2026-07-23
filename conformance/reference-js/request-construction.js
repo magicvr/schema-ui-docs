@@ -1,6 +1,7 @@
 'use strict';
 
 const { serializeQuery } = require('./query-serialization');
+const { normalizeSelection } = require('./table-query-state');
 
 const ROW_REFERENCE = /^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)$/;
 const ROUTE_REFERENCE = /^\$context\.route\.(query|params)\.([A-Za-z_][A-Za-z0-9_]*)$/;
@@ -426,10 +427,10 @@ function resolveBatchSection(mappingSection, selection, sectionName) {
 function buildBatchRequest(input) {
   const confirmError = applyConfirmGate(input);
   if (confirmError) return confirmError;
-  const keys = Array.isArray(input.selection?.keys) ? input.selection.keys : [];
-  const count = input.selection?.count !== undefined ? input.selection.count : keys.length;
-  const selection = { keys, count };
-  if (keys.length === 0 || count === 0) {
+  // ADR-0022 / V274 / V281: same selection normalization as table-query-state
+  // (filter non-scalars, dedupe preserve order, count === keys.length).
+  const selection = normalizeSelection(input.selection);
+  if (selection.keys.length === 0 || selection.count === 0) {
     return failure('EMPTY_SELECTION', 'selection');
   }
   const method = input.action.method;

@@ -205,7 +205,8 @@ batchMapping:
 - method：POST/PUT/PATCH/DELETE（含 DELETE+body）；禁止 GET。  
 - 一次点击 = 一次 HTTP；成功 `reload` 清空选中。  
 - 筛选/翻页/排序/reload 清空选中（ADR-0022 D2）。  
-- 选中键仅 string / finite number / boolean；去重保序；`count === keys.length`（V271）。
+- 选中键仅 string / finite number / boolean；去重保序；`count === keys.length`（V271）。  
+- **batch 构造入口**对 selection 再执行同一规范化并重算 `count`（V274 / V281）；规范化后为空 → `EMPTY_SELECTION`。
 
 完整规则见 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md)。
 

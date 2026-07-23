@@ -9,7 +9,17 @@ track: docs/11-next-admin-lifecycle-goals.md Phase C / P1
 
 ## 状态
 
-**Accepted（已接受）。** 字段与执行语义以本 ADR 及同步更新的 `03` / `07` / `08` / Schema / L2 / conformance 为准。使用时页面应声明 `meta.requiredCapabilities` 含 `table.selection` 与/或 `actions.batch.request`。制品打包目标为 **MINOR `2.2`**；在 `protocolVersion: "2.2"` 正式发布前，合法页面可继续声明 `protocolVersion: "2.1"` 并依赖 capability 协商。开放问题见文末裁决表，已并入 D2–D5。
+**Accepted（已接受）。** 字段与执行语义以本 ADR 及同步更新的 `03` / `07` / `08` / Schema / L2 / conformance 为准。使用时页面应声明 `meta.requiredCapabilities` 含 `table.selection` 与/或 `actions.batch.request`。制品打包目标为 **MINOR `2.2`**（门禁见 [`13-v2.2-release-goals.md`](../13-v2.2-release-goals.md)；迁移见 [`migrations/2.1-to-2.2.md`](../migrations/2.1-to-2.2.md)）。
+
+#### 版本与打包策略（审计 0063 / V275）
+
+| 阶段 | 页面 `protocolVersion` | 说明 |
+|---|---|---|
+| **2.2.0 制品 tag 之前（当前）** | 可声明 `"2.1"` + batch capabilities | capability 为互操作主门控；算法 fixtures 与扩展示例可暂停在 `"2.1"` |
+| **2.2.0 正式发布时** | 使用本 ADR 字段的官方样例、扩展示例与相关算法 fixtures **升至 `"2.2"`** | `package.json` / `protocol-manifest` / 制品 tar 对齐 `2.2.0`；`release:check` 按发布目标文档执行 |
+| **2.2.0 发布之后** | 使用 `table.selection` / `actions.batch.request` 字段的页面 **必须** 声明 `"2.2"` | 与 2.1 字段要求 `"2.1"` 的纪律一致；仅 2.1 字段集的页面可继续 `"2.1"`。Renderer 可在 `supportedVersions` 中同时列出 `2.1` 与 `2.2` |
+
+开放问题见文末裁决表，已并入 D2–D5。
 
 轨道依据：[11-next-admin-lifecycle-goals.md](../11-next-admin-lifecycle-goals.md)、[ADR-0019](./0019-v2-admin-scope.md)、[ADR-0020](./0020-page-action-trigger.md)、[ADR-0008](./0008-row-action-backend-request.md)。
 
@@ -102,7 +112,7 @@ props:
 - `count`：`keys.length`。  
 - 同一 `rowKey` 不得重复。
 
-页面配置 **不得** 用 `$selection` 写在普通 reactions 里（MVP）；仅 **batchMapping** 白名单位置可读选中集（D5）。
+**构造入口不变量（审计 0063 / V274 / V281）：** `batchRequest` 构造在应用 `batchMapping` 之前，必须对输入 selection 执行与 table-query-state **同一**规范化：仅保留 string / finite number / boolean 键、去重保序、**重算 `count = keys.length`**（忽略 Host 传入的不一致 `count`）。规范化后 `count === 0` → `EMPTY_SELECTION`，不得发出请求。页面配置 **不得** 用 `$selection` 写在普通 reactions 里（MVP）；仅 **batchMapping** 白名单位置可读选中集（D5）。
 
 ### D4. 扩展 ActionTrigger：`requiresSelection`
 
@@ -181,10 +191,11 @@ batchMapping:
 1. `permissions` / `visibleWhen`（toolbar：仅 `$context.*`，同 ADR-0020）；  
 2. `requiresSelection` / `disabled`；  
 3. `confirm`（若有）；  
-4. 若 `count === 0`（竞态）：拒绝执行，不发请求；  
-5. 构造 request（batchMapping）；  
-6. 发出请求；  
-7. `onSuccess` / `onError`；成功且 `reload` 时清空选中。
+4. **规范化 selection**（与 D3 不变量一致；审计 0063 / V274 / V281）；  
+5. 若规范化后 `count === 0`（空选或竞态）：拒绝执行（`EMPTY_SELECTION`），不发请求；  
+6. 构造 request（batchMapping；`$selection.keys` / `$selection.count` 读规范化结果）；  
+7. 发出请求；  
+8. `onSuccess` / `onError`；成功且 `reload` 时清空选中。
 
 #### D5e. 失败策略（MVP：整批）
 
@@ -289,7 +300,7 @@ body:
 | M3 | `08` capability：`table.selection`、`actions.batch.request` |
 | M4 | L2：mode 枚举、mapping 纪律、挂载点、capability |
 | M5 | fixtures：选中清空状态机、batch body keys、count=0 拒绝、reload 清空 |
-| M6 | 官方或扩展示例场景 + CHANGELOG + `2.1→2.2` 迁移短文 |
+| M6 | 官方或扩展示例场景 + CHANGELOG + `2.1→2.2` 迁移短文 + `13-v2.2-release-goals`（制品 tag 前可完成文档；`2.2.0` 打包按 V275 策略） |
 
 ## 开放问题裁决（已关闭）
 

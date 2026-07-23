@@ -1,0 +1,30 @@
+# L2 负例：recordSource.method 缺失（审计 0063 / V278）
+# 期望：path body.props.recordSource.method，文案含 MISSING_RECORD_SOURCE_METHOD
+meta:
+  pageId: audit_0063_record_source_missing_method
+  title: bad recordSource without method
+  protocolVersion: "2.1"
+  requiredCapabilities:
+    - form.record.load
+
+actions:
+  save:
+    type: request
+    method: PUT
+    url: /api/orders/update
+
+body:
+  type: form
+  props:
+    submitAction: save
+    recordSource:
+      url: /api/orders/{orderId}
+      path:
+        orderId: "1"
+      responseMapping:
+        orderId: orderId
+  children:
+    - type: input
+      props:
+        field: orderId
+        label: 单号

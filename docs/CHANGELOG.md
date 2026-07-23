@@ -7,6 +7,14 @@
 
 ## Unreleased
 
+- **审计 0063（V273–V281）：** 协议 2.1/2.2 残留语义与发布就绪复审（无 P0），全部关闭。报告见 [`audit/archived/0063-2026-07-23-review.md`](./audit/archived/0063-2026-07-23-review.md)。
+  - **V273：** formRecord 缺失路径 conformance 可观测值为 JSON `null`（等价空初始值、不中止回填）；同步 ADR-0021 D5a / `03` / 双端 reference。
+  - **V274 / V281：** batch 构造入口复用 selection 规范化（过滤非标量、去重保序、重算 `count`）；fixtures：`batch-request-count-keys-mismatch-normalized` 等。
+  - **V275 / V277：** ADR-0022 写死 2.2 版本/打包策略；新增 [`migrations/2.1-to-2.2.md`](./migrations/2.1-to-2.2.md)、[`13-v2.2-release-goals.md`](./13-v2.2-release-goals.md)、扩展示例 [`admin-list-batch.md`](./05-scenarios/admin-list-batch.md)。`2.2.0` 制品 tag 按发布目标择机。
+  - **V276：** ADR-0020/0021 示例升至 `"2.1"`；`admin-list-edit-lifecycle` / `11` §7 状态过期句修正。
+  - **V278：** L2 缺失 vs 非法 `recordSource.method` 分码文案。
+  - **V279：** L3a 将 `route` 列为已知根；expression 挂载点报 `FORBIDDEN_CONTEXT_NAMESPACE`。
+  - **V280：** ADR-0021 D7 明确 modal 内 recordSource route 注入非 2.2 互操作门禁。
 - **审计 0062（V267–V272）：** 协议 2.1/2.2 互操作性闭合。
   - **V267：** request-construction（JS/Python）路径应用 fail-closed：`MISSING_PATH_BINDING` / `EXTRA_PATH_BINDING`；覆盖 row navigate/request、recordSource、batch path。
   - **V268：** L3a 遍历 `table.props.toolbar` 的 `visibleWhen`/`permissions`（仅 `$context.*`）。

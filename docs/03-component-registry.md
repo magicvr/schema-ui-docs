@@ -275,7 +275,7 @@ actions:
 | `path` / `query` | object | 否 | 扁平 map；值 = 字面量或 `$context.route.query.*` / `$context.route.params.*` |
 | `responseMapping` | object | 是（非空） | form `field` → 响应 JSON 点路径；禁止缺省同名自动映射 |
 
-挂载后自动 GET 一次；成功后按 mapping 回填字段并重置 reactions baseline；失败进入错误态且不提交。提交仍走 `submitAction` + 提交投影；id/version 等须映射到**仍参与提交投影**的字段（推荐只读可见字段）。
+挂载后自动 GET 一次；成功后按 mapping 回填字段并重置 reactions baseline；失败进入错误态且不提交。映射源路径缺失时该字段可观测值为 JSON `null`（等价空初始值，不中止整次回填；ADR-0021 D5a / V273）。提交仍走 `submitAction` + 提交投影；id/version 等须映射到**仍参与提交投影**的字段（推荐只读可见字段）。
 
 ```yaml
 # 搜索表单示例（form + table 包裹在 section 中作为 body 的单一 Node）

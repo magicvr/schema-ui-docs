@@ -3,6 +3,7 @@ import re
 from urllib.parse import quote
 
 from query_serialization import jcs_number, serialize_query
+from table_query_state import normalize_selection
 
 
 ROW_REFERENCE = re.compile(r"^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)$")
@@ -417,10 +418,10 @@ def build_batch_request(input_value):
     confirm_error = apply_confirm_gate(input_value)
     if confirm_error:
         return confirm_error
-    keys = list((input_value.get("selection") or {}).get("keys") or [])
-    count = (input_value.get("selection") or {}).get("count", len(keys))
-    selection = {"keys": keys, "count": count}
-    if len(keys) == 0 or count == 0:
+    # ADR-0022 / V274 / V281: same selection normalization as table_query_state
+    # (filter non-scalars, dedupe preserve order, count === keys.length).
+    selection = normalize_selection(input_value.get("selection"))
+    if len(selection["keys"]) == 0 or selection["count"] == 0:
         return failure("EMPTY_SELECTION", "selection")
     action = input_value["action"]
     method = action.get("method")
