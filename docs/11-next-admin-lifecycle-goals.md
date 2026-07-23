@@ -114,7 +114,7 @@ P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-r
 - [x] ADR-0020 / 0021 开放问题已关闭；
 - [x] ADR-0020 / 0021 状态为 `accepted`；
 - [x] Schema / 组件 DSL / L2 与规范一致（capability 门控；可在 `protocolVersion: "2.0"` 页面使用）；
-- [ ] JS 与 Python reference 消费同一套 versioned fixtures（算法向量待补）；
+- [x] JS 与 Python reference 消费同一套 versioned fixtures（request-construction / response-mapping / version-negotiation 已扩展 P0 向量）；
 - [x] 扩展示例场景覆盖锚点 A+B+C（`05-scenarios/admin-list-edit-lifecycle.md`；尚未进六场景 release 清单）；
 - [x] `requiredCapabilities` 键写入 `08-renderer-spec` 预定义表；
 - [x] CHANGELOG 与迁移说明草稿 [`migrations/2.0-to-2.1-admin-lifecycle.md`](./migrations/2.0-to-2.1-admin-lifecycle.md) 已更新；
@@ -196,7 +196,7 @@ P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-r
 | 项 | 状态 |
 |---|---|
 | 协议制品 / 页面协议 | `2.0.0` / `2.0`（见 `protocol-manifest.json`） |
-| 本轨道 | **Phase B 语义已落地**（ADR accepted + Schema/L2/规范/示例）；fixtures 与 2.1 制品打包待补 |
+| 本轨道 | **Phase B 语义 + conformance 向量已落地**；2.1 制品打包与六场景正式清单待补 |
 | P0 ADR | [0020](./decisions/0020-page-action-trigger.md)、[0021](./decisions/0021-record-navigation-and-form-load.md)（**accepted**） |
 | 下一步具体动作 | 补 conformance fixtures；Phase C 批量 ADR 立项；择机打 `2.1.0` 制品 |
 

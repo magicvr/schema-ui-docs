@@ -6,9 +6,11 @@ from query_serialization import jcs_number, serialize_query
 
 
 ROW_REFERENCE = re.compile(r"^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)$")
+ROUTE_REFERENCE = re.compile(r"^\$context\.route\.(query|params)\.([A-Za-z_][A-Za-z0-9_]*)$")
 PROTOCOL_RELATIVE_URL = re.compile(r"^/(?!/)[^\s\\]*$")
 RESERVED_ROW_PATH_SEGMENTS = {"__proto__", "prototype", "constructor"}
 INVOCATION_ID = re.compile(r"^[\x21-\x7e]{1,200}$")
+PAGE_TRIGGER_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 _MISSING = object()
 
 
@@ -62,6 +64,18 @@ def resolve_row_value(value, row):
     return True, current
 
 
+def resolve_route_value(value, route):
+    if not isinstance(value, str):
+        return True, value
+    match = ROUTE_REFERENCE.fullmatch(value)
+    if match is None:
+        return True, value
+    bag = route.get(match.group(1)) if isinstance(route, dict) else None
+    if not isinstance(bag, dict) or match.group(2) not in bag:
+        return False, _MISSING
+    return True, bag[match.group(2)]
+
+
 def encode_path_value(value):
     if isinstance(value, str):
         text = value
@@ -76,19 +90,49 @@ def encode_path_value(value):
     return quote(text, safe="-._~")
 
 
-def resolve_mapping(mapping, row, section):
+def resolve_mapping(mapping, row, section, path_prefix="requestMapping"):
     output = []
     for key, configured_value in (mapping or {}).items():
+        field_path = f"{path_prefix}.{section}.{key}"
+        if isinstance(configured_value, str) and "$" in configured_value and ROW_REFERENCE.fullmatch(configured_value) is None:
+            return failure("INVALID_MAPPING_VALUE", field_path)
         row_reference = ROW_REFERENCE.fullmatch(configured_value) if isinstance(configured_value, str) else None
         if row_reference and any(segment in RESERVED_ROW_PATH_SEGMENTS for segment in row_reference.group(1).split(".")):
-            return failure("UNSAFE_ROW_PATH", f"requestMapping.{section}.{key}")
+            return failure("UNSAFE_ROW_PATH", field_path)
         found, value = resolve_row_value(configured_value, row)
         if not found or value is _MISSING:
-            return failure("UNRESOLVED_ROW_VALUE", f"requestMapping.{section}.{key}")
+            return failure("UNRESOLVED_ROW_VALUE", field_path)
         if not is_scalar(value):
-            return failure("INVALID_ROW_VALUE", f"requestMapping.{section}.{key}")
+            return failure("INVALID_ROW_VALUE", field_path)
         output.append([key, value])
     return {"ok": True, "entries": output}
+
+
+def resolve_route_mapping(mapping, route, section):
+    output = []
+    for key, configured_value in (mapping or {}).items():
+        field_path = f"recordSource.{section}.{key}"
+        if isinstance(configured_value, str) and "$" in configured_value and ROUTE_REFERENCE.fullmatch(configured_value) is None:
+            return failure("INVALID_MAPPING_VALUE", field_path)
+        found, value = resolve_route_value(configured_value, route)
+        if not found or value is _MISSING:
+            return failure("UNRESOLVED_ROUTE_VALUE", field_path)
+        if not is_scalar(value):
+            return failure("INVALID_ROUTE_VALUE", field_path)
+        output.append([key, value])
+    return {"ok": True, "entries": output}
+
+
+def apply_path_params(url, path_entries, path_prefix):
+    next_url = url
+    for key, value in path_entries:
+        if value is None:
+            return failure("NULL_PATH_VALUE", f"{path_prefix}.{key}")
+        encoded = encode_path_value(value)
+        if encoded is None:
+            return failure("INVALID_PATH_VALUE", f"{path_prefix}.{key}")
+        next_url = next_url.replace(f"{{{key}}}", encoded)
+    return {"ok": True, "url": next_url}
 
 
 def request_query(url):
@@ -152,16 +196,11 @@ def build_row_action_request(input_value):
     if not body_values["ok"]:
         return body_values
 
-    url = input_value["action"]["url"]
-    for key, value in path_values["entries"]:
-        if value is None:
-            return failure("NULL_PATH_VALUE", f"requestMapping.path.{key}")
-        encoded = encode_path_value(value)
-        if encoded is None:
-            return failure("INVALID_PATH_VALUE", f"requestMapping.path.{key}")
-        url = url.replace(f"{{{key}}}", encoded)
+    with_path = apply_path_params(input_value["action"]["url"], path_values["entries"], "requestMapping.path")
+    if not with_path["ok"]:
+        return with_path
 
-    serialized = serialize_query(url, [query_values["entries"]])
+    serialized = serialize_query(with_path["url"], [query_values["entries"]])
     if not serialized["ok"]:
         return serialized
     metadata = request_metadata(input_value["action"], input_value.get("invocationId"))
@@ -177,6 +216,95 @@ def build_row_action_request(input_value):
         "ok": True,
         "request": request,
     }
+
+
+def build_row_navigate(input_value):
+    action = input_value["action"]
+    url_error = validate_protocol_url(action["url"], "action.url")
+    if url_error:
+        return url_error
+    mapping = input_value.get("navigateMapping") or {}
+    if "body" in mapping:
+        return failure("NAVIGATE_BODY_NOT_ALLOWED", "navigateMapping.body")
+    has_path = isinstance(mapping.get("path"), dict) and len(mapping["path"]) > 0
+    has_query = isinstance(mapping.get("query"), dict) and len(mapping["query"]) > 0
+    if not has_path and not has_query:
+        return failure("EMPTY_NAVIGATE_MAPPING", "navigateMapping")
+    path_values = resolve_mapping(mapping.get("path"), input_value["row"], "path", "navigateMapping")
+    if not path_values["ok"]:
+        return path_values
+    query_values = resolve_mapping(mapping.get("query"), input_value["row"], "query", "navigateMapping")
+    if not query_values["ok"]:
+        return query_values
+    with_path = apply_path_params(action["url"], path_values["entries"], "navigateMapping.path")
+    if not with_path["ok"]:
+        return with_path
+    serialized = serialize_query(with_path["url"], [query_values["entries"]])
+    if not serialized["ok"]:
+        return serialized
+    return {"ok": True, "navigation": {"url": serialized["url"]}}
+
+
+def build_record_source_request(input_value):
+    record_source = input_value.get("recordSource") or {}
+    method = record_source.get("method", "GET")
+    if method != "GET":
+        return failure("RECORD_SOURCE_METHOD_NOT_GET", "recordSource.method")
+    url_error = validate_protocol_url(record_source.get("url"), "recordSource.url")
+    if url_error:
+        return url_error
+    if "ref" in record_source or "source" in record_source:
+        return failure("RECORD_SOURCE_REF_NOT_ALLOWED", "recordSource")
+    response_mapping = record_source.get("responseMapping")
+    if not isinstance(response_mapping, dict) or len(response_mapping) == 0:
+        return failure("EMPTY_RESPONSE_MAPPING", "recordSource.responseMapping")
+    for field, path_expr in response_mapping.items():
+        if not isinstance(field, str) or not field or not isinstance(path_expr, str) or not path_expr:
+            return failure("INVALID_RESPONSE_MAPPING", f"recordSource.responseMapping.{field}")
+    path_values = resolve_route_mapping(record_source.get("path"), input_value.get("route"), "path")
+    if not path_values["ok"]:
+        return path_values
+    query_values = resolve_route_mapping(record_source.get("query"), input_value.get("route"), "query")
+    if not query_values["ok"]:
+        return query_values
+    with_path = apply_path_params(record_source["url"], path_values["entries"], "recordSource.path")
+    if not with_path["ok"]:
+        return with_path
+    serialized = serialize_query(with_path["url"], [query_values["entries"]])
+    if not serialized["ok"]:
+        return serialized
+    return {
+        "ok": True,
+        "request": {
+            "method": "GET",
+            "url": serialized["url"],
+            "body": None,
+        },
+    }
+
+
+def build_page_trigger_request(input_value):
+    action = input_value["action"]
+    method = action.get("method")
+    url_error = validate_protocol_url(action["url"], "action.url")
+    if url_error:
+        return url_error
+    if method not in PAGE_TRIGGER_METHODS:
+        return failure("PAGE_TRIGGER_METHOD_NOT_ALLOWED", "action.method")
+    if "{" in action["url"] or "}" in action["url"]:
+        return failure("UNBOUND_URL_TEMPLATE", "action.url")
+    serialized = serialize_query(action["url"], [])
+    if not serialized["ok"]:
+        return serialized
+    metadata = request_metadata(action, input_value.get("invocationId"))
+    if not metadata["ok"]:
+        return metadata
+    request = add_request_metadata({
+        "method": method,
+        "url": serialized["url"],
+        "body": None,
+    }, metadata)
+    return {"ok": True, "request": request}
 
 
 def build_form_action_request(input_value):
@@ -233,6 +361,12 @@ def build_request(input_value):
         return build_data_ref_request(input_value["dataRef"])
     if input_value.get("kind") == "rowAction":
         return build_row_action_request(input_value)
+    if input_value.get("kind") == "rowNavigate":
+        return build_row_navigate(input_value)
+    if input_value.get("kind") == "recordSource":
+        return build_record_source_request(input_value)
+    if input_value.get("kind") == "pageTriggerRequest":
+        return build_page_trigger_request(input_value)
     if input_value.get("kind") == "formAction":
         return build_form_action_request(input_value)
     return failure("INVALID_REQUEST_KIND", "kind")

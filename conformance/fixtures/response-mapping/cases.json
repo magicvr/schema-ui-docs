@@ -284,8 +284,16 @@
       "category": "response-mapping",
       "input": {
         "component": "statCard",
-        "localMapping": { "list": "payload.items" },
-        "response": { "payload": { "items": [1] } }
+        "localMapping": {
+          "list": "payload.items"
+        },
+        "response": {
+          "payload": {
+            "items": [
+              1
+            ]
+          }
+        }
       },
       "expected": {
         "ok": false,
@@ -299,8 +307,16 @@
       "category": "response-mapping",
       "input": {
         "component": "text",
-        "datasourceMapping": { "list": "payload.items" },
-        "response": { "payload": { "items": ["x"] } }
+        "datasourceMapping": {
+          "list": "payload.items"
+        },
+        "response": {
+          "payload": {
+            "items": [
+              "x"
+            ]
+          }
+        }
       },
       "expected": {
         "ok": false,
@@ -315,12 +331,82 @@
       "input": {
         "component": "statCard",
         "localMapping": null,
-        "response": { "total": 1 }
+        "response": {
+          "total": 1
+        }
       },
       "expected": {
         "ok": false,
         "code": "INVALID_RESPONSE_MAPPING",
         "path": "localMapping"
+      }
+    },
+    {
+      "id": "form-record-explicit-mapping",
+      "protocolVersion": "2.0",
+      "category": "response-mapping",
+      "input": {
+        "component": "formRecord",
+        "responseMapping": {
+          "orderId": "orderId",
+          "customerName": "customer.name",
+          "version": "version"
+        },
+        "response": {
+          "orderId": "ORD-1",
+          "customer": {
+            "name": "Ada"
+          },
+          "version": 3,
+          "extra": "ignored"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "values": {
+          "orderId": "ORD-1",
+          "customerName": "Ada",
+          "version": 3
+        }
+      }
+    },
+    {
+      "id": "form-record-missing-path-becomes-null",
+      "protocolVersion": "2.0",
+      "category": "response-mapping",
+      "input": {
+        "component": "formRecord",
+        "responseMapping": {
+          "orderId": "orderId",
+          "missing": "not.there"
+        },
+        "response": {
+          "orderId": "ORD-2"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "values": {
+          "orderId": "ORD-2",
+          "missing": null
+        }
+      }
+    },
+    {
+      "id": "form-record-empty-mapping-rejected",
+      "protocolVersion": "2.0",
+      "category": "response-mapping",
+      "input": {
+        "component": "formRecord",
+        "responseMapping": {},
+        "response": {
+          "orderId": "1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_RESPONSE_MAPPING",
+        "path": "responseMapping"
       }
     }
   ]

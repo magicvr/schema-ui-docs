@@ -21,7 +21,29 @@ function resolveMappedValue(response, path) {
   return resolved.found ? resolved : failure('RESPONSE_MAPPING_PATH_MISSING', path);
 }
 
+function mapFormRecord(input) {
+  const mapping = input.responseMapping;
+  if (mapping === undefined || mapping === null || typeof mapping !== 'object'
+    || Array.isArray(mapping) || Object.keys(mapping).length === 0) {
+    return failure('INVALID_RESPONSE_MAPPING', 'responseMapping');
+  }
+  const values = {};
+  for (const [field, pathExpr] of Object.entries(mapping)) {
+    if (typeof field !== 'string' || field.length === 0
+      || typeof pathExpr !== 'string' || pathExpr.length === 0) {
+      return failure('INVALID_RESPONSE_MAPPING', `responseMapping.${field}`);
+    }
+    const resolved = readPath(input.response, pathExpr);
+    // ADR-0021: missing path does not abort the whole fill; JSON uses null for undefined.
+    values[field] = resolved.found ? resolved.value : null;
+  }
+  return { ok: true, values };
+}
+
 function mapResponse(input) {
+  if (input.component === 'formRecord') {
+    return mapFormRecord(input);
+  }
   const mapping = Object.hasOwn(input, 'localMapping')
     ? input.localMapping
     : input.datasourceMapping;

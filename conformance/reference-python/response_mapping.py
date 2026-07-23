@@ -21,7 +21,23 @@ def resolve_mapped_value(response, path):
     return {"found": True, "value": value}
 
 
+def map_form_record(input_value):
+    mapping = input_value.get("responseMapping")
+    if mapping is None or not isinstance(mapping, dict) or not mapping:
+        return failure("INVALID_RESPONSE_MAPPING", "responseMapping")
+    values = {}
+    for field, path_expr in mapping.items():
+        if not isinstance(field, str) or not field or not isinstance(path_expr, str) or not path_expr:
+            return failure("INVALID_RESPONSE_MAPPING", f"responseMapping.{field}")
+        found, value = read_path(input_value["response"], path_expr)
+        # ADR-0021: missing path does not abort; JSON uses null for undefined.
+        values[field] = value if found else None
+    return {"ok": True, "values": values}
+
+
 def map_response(input_value):
+    if input_value.get("component") == "formRecord":
+        return map_form_record(input_value)
     mapping_is_present = "localMapping" in input_value or "datasourceMapping" in input_value
     mapping = (
         input_value["localMapping"]

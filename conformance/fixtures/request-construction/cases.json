@@ -35,7 +35,9 @@
           "source": "api",
           "url": "/orders",
           "requestInterceptor": {
-            "body": { "token": "x" }
+            "body": {
+              "token": "x"
+            }
           }
         }
       },
@@ -470,10 +472,21 @@
           "upload": "partial"
         },
         "formProjection": {
-          "visible": { "value": "ok" },
-          "hidden": { "value": "old", "visible": false },
-          "disabled": { "value": "old", "disabled": true },
-          "upload": { "value": "partial", "uploadStatus": "error" }
+          "visible": {
+            "value": "ok"
+          },
+          "hidden": {
+            "value": "old",
+            "visible": false
+          },
+          "disabled": {
+            "value": "old",
+            "disabled": true
+          },
+          "upload": {
+            "value": "partial",
+            "uploadStatus": "error"
+          }
         }
       },
       "expected": {
@@ -496,8 +509,12 @@
         "dataRef": {
           "source": "api",
           "url": "/orders",
-          "params": { "page": 1 },
-          "requestInterceptor": { "url": "/orders?page=2" }
+          "params": {
+            "page": 1
+          },
+          "requestInterceptor": {
+            "url": "/orders?page=2"
+          }
         }
       },
       "expected": {
@@ -512,9 +529,18 @@
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
-        "action": { "method": "POST", "url": "/orders" },
-        "requestMapping": { "query": { "owner": "$row.missing" } },
-        "row": { "id": 42 }
+        "action": {
+          "method": "POST",
+          "url": "/orders"
+        },
+        "requestMapping": {
+          "query": {
+            "owner": "$row.missing"
+          }
+        },
+        "row": {
+          "id": 42
+        }
       },
       "expected": {
         "ok": false,
@@ -528,9 +554,18 @@
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
-        "action": { "method": "POST", "url": "/orders" },
-        "requestMapping": { "body": { "owner": "$row.missing" } },
-        "row": { "id": 42 }
+        "action": {
+          "method": "POST",
+          "url": "/orders"
+        },
+        "requestMapping": {
+          "body": {
+            "owner": "$row.missing"
+          }
+        },
+        "row": {
+          "id": 42
+        }
       },
       "expected": {
         "ok": false,
@@ -544,13 +579,26 @@
       "category": "request-construction",
       "input": {
         "kind": "rowAction",
-        "action": { "method": "POST", "url": "/orders?owner=old" },
-        "requestMapping": { "query": { "owner": "$row.owner" } },
-        "row": { "owner": null }
+        "action": {
+          "method": "POST",
+          "url": "/orders?owner=old"
+        },
+        "requestMapping": {
+          "query": {
+            "owner": "$row.owner"
+          }
+        },
+        "row": {
+          "owner": null
+        }
       },
       "expected": {
         "ok": true,
-        "request": { "method": "POST", "url": "/orders", "body": null }
+        "request": {
+          "method": "POST",
+          "url": "/orders",
+          "body": null
+        }
       }
     },
     {
@@ -562,9 +610,13 @@
         "action": {
           "method": "POST",
           "url": "/orders",
-          "bodyMapping": { "visible": "visible" }
+          "bodyMapping": {
+            "visible": "visible"
+          }
         },
-        "formProjection": { "visible": {} }
+        "formProjection": {
+          "visible": {}
+        }
       },
       "expected": {
         "ok": false,
@@ -578,9 +630,14 @@
       "category": "request-construction",
       "input": {
         "kind": "formAction",
-        "action": { "method": "POST", "url": "/orders" },
+        "action": {
+          "method": "POST",
+          "url": "/orders"
+        },
         "formProjection": {
-          "present": { "value": "ok" },
+          "present": {
+            "value": "ok"
+          },
           "missing": {}
         }
       },
@@ -589,8 +646,376 @@
         "request": {
           "method": "POST",
           "url": "/orders",
-          "body": { "present": "ok" }
+          "body": {
+            "present": "ok"
+          }
         }
+      }
+    },
+    {
+      "id": "row-navigate-query-from-row",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/edit"
+        },
+        "navigateMapping": {
+          "query": {
+            "orderId": "$row.orderId",
+            "from": "list"
+          }
+        },
+        "row": {
+          "orderId": "ORD-9"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "navigation": {
+          "url": "/orders/edit?from=list&orderId=ORD-9"
+        }
+      }
+    },
+    {
+      "id": "row-navigate-path-encoding",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/{orderId}/edit"
+        },
+        "navigateMapping": {
+          "path": {
+            "orderId": "$row.orderId"
+          }
+        },
+        "row": {
+          "orderId": "a/b c"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "navigation": {
+          "url": "/orders/a%2Fb%20c/edit"
+        }
+      }
+    },
+    {
+      "id": "row-navigate-null-path-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/{orderId}/edit"
+        },
+        "navigateMapping": {
+          "path": {
+            "orderId": "$row.orderId"
+          }
+        },
+        "row": {
+          "orderId": null
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "NULL_PATH_VALUE",
+        "path": "navigateMapping.path.orderId"
+      }
+    },
+    {
+      "id": "row-navigate-body-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/edit"
+        },
+        "navigateMapping": {
+          "query": {
+            "id": "$row.id"
+          },
+          "body": {
+            "x": 1
+          }
+        },
+        "row": {
+          "id": "1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "NAVIGATE_BODY_NOT_ALLOWED",
+        "path": "navigateMapping.body"
+      }
+    },
+    {
+      "id": "row-navigate-empty-mapping-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/edit"
+        },
+        "navigateMapping": {},
+        "row": {
+          "id": "1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EMPTY_NAVIGATE_MAPPING",
+        "path": "navigateMapping"
+      }
+    },
+    {
+      "id": "row-navigate-context-ref-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "rowNavigate",
+        "action": {
+          "url": "/orders/edit"
+        },
+        "navigateMapping": {
+          "query": {
+            "id": "$context.route.query.orderId"
+          }
+        },
+        "row": {
+          "orderId": "1"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_MAPPING_VALUE",
+        "path": "navigateMapping.query.id"
+      }
+    },
+    {
+      "id": "record-source-get-from-route-query",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "GET",
+          "url": "/api/orders/{orderId}",
+          "path": {
+            "orderId": "$context.route.query.orderId"
+          },
+          "query": {
+            "verbose": "true"
+          },
+          "responseMapping": {
+            "orderId": "orderId",
+            "customerName": "customer.name"
+          }
+        },
+        "route": {
+          "query": {
+            "orderId": "ORD-42"
+          },
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "GET",
+          "url": "/api/orders/ORD-42?verbose=true",
+          "body": null
+        }
+      }
+    },
+    {
+      "id": "record-source-from-route-params",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "GET",
+          "url": "/api/orders/{orderId}",
+          "path": {
+            "orderId": "$context.route.params.orderId"
+          },
+          "responseMapping": {
+            "orderId": "orderId"
+          }
+        },
+        "route": {
+          "query": {},
+          "params": {
+            "orderId": "P-1"
+          }
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "GET",
+          "url": "/api/orders/P-1",
+          "body": null
+        }
+      }
+    },
+    {
+      "id": "record-source-missing-route-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "GET",
+          "url": "/api/orders/{orderId}",
+          "path": {
+            "orderId": "$context.route.query.orderId"
+          },
+          "responseMapping": {
+            "orderId": "orderId"
+          }
+        },
+        "route": {
+          "query": {},
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNRESOLVED_ROUTE_VALUE",
+        "path": "recordSource.path.orderId"
+      }
+    },
+    {
+      "id": "record-source-empty-response-mapping-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "GET",
+          "url": "/api/orders/1",
+          "responseMapping": {}
+        },
+        "route": {
+          "query": {},
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "EMPTY_RESPONSE_MAPPING",
+        "path": "recordSource.responseMapping"
+      }
+    },
+    {
+      "id": "record-source-post-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "POST",
+          "url": "/api/orders/1",
+          "responseMapping": {
+            "id": "id"
+          }
+        },
+        "route": {
+          "query": {},
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "RECORD_SOURCE_METHOD_NOT_GET",
+        "path": "recordSource.method"
+      }
+    },
+    {
+      "id": "record-source-ref-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "recordSource": {
+          "method": "GET",
+          "url": "/api/orders/1",
+          "ref": "orderDs",
+          "responseMapping": {
+            "id": "id"
+          }
+        },
+        "route": {
+          "query": {},
+          "params": {}
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "RECORD_SOURCE_REF_NOT_ALLOWED",
+        "path": "recordSource"
+      }
+    },
+    {
+      "id": "page-trigger-post-ok",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/refresh"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "/api/orders/refresh",
+          "body": null
+        }
+      }
+    },
+    {
+      "id": "page-trigger-get-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerRequest",
+        "action": {
+          "method": "GET",
+          "url": "/api/orders"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "PAGE_TRIGGER_METHOD_NOT_ALLOWED",
+        "path": "action.method"
+      }
+    },
+    {
+      "id": "page-trigger-unbound-template-rejected",
+      "protocolVersion": "2.0",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerRequest",
+        "action": {
+          "method": "POST",
+          "url": "/api/orders/{id}/refresh"
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNBOUND_URL_TEMPLATE",
+        "path": "action.url"
       }
     }
   ]

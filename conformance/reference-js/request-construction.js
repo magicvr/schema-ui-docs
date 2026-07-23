@@ -3,9 +3,11 @@
 const { serializeQuery } = require('./query-serialization');
 
 const ROW_REFERENCE = /^\$row\.([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)$/;
+const ROUTE_REFERENCE = /^\$context\.route\.(query|params)\.([A-Za-z_][A-Za-z0-9_]*)$/;
 const PROTOCOL_RELATIVE_URL = /^\/(?!\/)[^\s\\]*$/;
 const RESERVED_ROW_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
 const INVOCATION_ID = /^[\x21-\x7e]{1,200}$/;
+const PAGE_TRIGGER_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 function failure(code, path) {
   return { ok: false, code, path };
@@ -55,6 +57,17 @@ function resolveRowValue(value, row) {
   return { found: true, value: current };
 }
 
+function resolveRouteValue(value, route) {
+  if (typeof value !== 'string') return { found: true, value };
+  const match = ROUTE_REFERENCE.exec(value);
+  if (!match) return { found: true, value };
+  const bag = route && typeof route === 'object' ? route[match[1]] : undefined;
+  if (bag === null || typeof bag !== 'object' || !Object.prototype.hasOwnProperty.call(bag, match[2])) {
+    return { found: false };
+  }
+  return { found: true, value: bag[match[2]] };
+}
+
 function encodePathValue(value) {
   if (typeof value === 'string') {
     return encodeURIComponent(value).replace(/[!'()*]/g, character =>
@@ -68,21 +81,55 @@ function encodePathValue(value) {
   return null;
 }
 
-function resolveMapping(mapping, row, section) {
+function resolveMapping(mapping, row, section, pathPrefix = 'requestMapping') {
   const output = [];
   for (const [key, configuredValue] of Object.entries(mapping || {})) {
+    const fieldPath = `${pathPrefix}.${section}.${key}`;
+    if (typeof configuredValue === 'string' && configuredValue.includes('$') && !ROW_REFERENCE.test(configuredValue)) {
+      return failure('INVALID_MAPPING_VALUE', fieldPath);
+    }
     const rowReference = typeof configuredValue === 'string' ? ROW_REFERENCE.exec(configuredValue) : null;
     if (rowReference && rowReference[1].split('.').some(segment => RESERVED_ROW_PATH_SEGMENTS.has(segment))) {
-      return failure('UNSAFE_ROW_PATH', `requestMapping.${section}.${key}`);
+      return failure('UNSAFE_ROW_PATH', fieldPath);
     }
     const resolved = resolveRowValue(configuredValue, row);
     if (!resolved.found || resolved.value === undefined) {
-      return failure('UNRESOLVED_ROW_VALUE', `requestMapping.${section}.${key}`);
+      return failure('UNRESOLVED_ROW_VALUE', fieldPath);
     }
-    if (!isScalar(resolved.value)) return failure('INVALID_ROW_VALUE', `requestMapping.${section}.${key}`);
+    if (!isScalar(resolved.value)) return failure('INVALID_ROW_VALUE', fieldPath);
     output.push([key, resolved.value]);
   }
   return { ok: true, entries: output };
+}
+
+function resolveRouteMapping(mapping, route, section) {
+  const output = [];
+  for (const [key, configuredValue] of Object.entries(mapping || {})) {
+    const fieldPath = `recordSource.${section}.${key}`;
+    if (typeof configuredValue === 'string' && configuredValue.includes('$') && !ROUTE_REFERENCE.test(configuredValue)) {
+      return failure('INVALID_MAPPING_VALUE', fieldPath);
+    }
+    const resolved = resolveRouteValue(configuredValue, route);
+    if (!resolved.found || resolved.value === undefined) {
+      return failure('UNRESOLVED_ROUTE_VALUE', fieldPath);
+    }
+    if (!isScalar(resolved.value)) return failure('INVALID_ROUTE_VALUE', fieldPath);
+    output.push([key, resolved.value]);
+  }
+  return { ok: true, entries: output };
+}
+
+function applyPathParams(url, pathEntries, pathPrefix) {
+  let nextUrl = url;
+  for (const [key, value] of pathEntries) {
+    if (value === null || value === undefined) {
+      return failure('NULL_PATH_VALUE', `${pathPrefix}.${key}`);
+    }
+    const encoded = encodePathValue(value);
+    if (encoded === null) return failure('INVALID_PATH_VALUE', `${pathPrefix}.${key}`);
+    nextUrl = nextUrl.replaceAll(`{${key}}`, encoded);
+  }
+  return { ok: true, url: nextUrl };
 }
 
 function requestQuery(url) {
@@ -137,17 +184,10 @@ function buildRowActionRequest(input) {
   const bodyValues = resolveMapping(mapping.body, input.row, 'body');
   if (!bodyValues.ok) return bodyValues;
 
-  let url = input.action.url;
-  for (const [key, value] of pathValues.entries) {
-    if (value === null || value === undefined) {
-      return failure('NULL_PATH_VALUE', `requestMapping.path.${key}`);
-    }
-    const encoded = encodePathValue(value);
-    if (encoded === null) return failure('INVALID_PATH_VALUE', `requestMapping.path.${key}`);
-    url = url.replaceAll(`{${key}}`, encoded);
-  }
+  const withPath = applyPathParams(input.action.url, pathValues.entries, 'requestMapping.path');
+  if (!withPath.ok) return withPath;
 
-  const serialized = serializeQuery(url, [queryValues.entries]);
+  const serialized = serializeQuery(withPath.url, [queryValues.entries]);
   if (!serialized.ok) return serialized;
   const metadata = requestMetadata(input.action, input.invocationId);
   if (!metadata.ok) return metadata;
@@ -157,6 +197,98 @@ function buildRowActionRequest(input) {
       method,
       url: serialized.url,
       body: bodyValues.entries.length === 0 ? null : Object.fromEntries(bodyValues.entries),
+    }, metadata),
+  };
+}
+
+function buildRowNavigate(input) {
+  const urlError = validateProtocolUrl(input.action.url, 'action.url');
+  if (urlError) return urlError;
+  const mapping = input.navigateMapping || {};
+  if (mapping.body !== undefined) {
+    return failure('NAVIGATE_BODY_NOT_ALLOWED', 'navigateMapping.body');
+  }
+  const hasPath = mapping.path && Object.keys(mapping.path).length > 0;
+  const hasQuery = mapping.query && Object.keys(mapping.query).length > 0;
+  if (!hasPath && !hasQuery) {
+    return failure('EMPTY_NAVIGATE_MAPPING', 'navigateMapping');
+  }
+  const pathValues = resolveMapping(mapping.path, input.row, 'path', 'navigateMapping');
+  if (!pathValues.ok) return pathValues;
+  const queryValues = resolveMapping(mapping.query, input.row, 'query', 'navigateMapping');
+  if (!queryValues.ok) return queryValues;
+  const withPath = applyPathParams(input.action.url, pathValues.entries, 'navigateMapping.path');
+  if (!withPath.ok) return withPath;
+  const serialized = serializeQuery(withPath.url, [queryValues.entries]);
+  if (!serialized.ok) return serialized;
+  return {
+    ok: true,
+    navigation: {
+      url: serialized.url,
+    },
+  };
+}
+
+function buildRecordSourceRequest(input) {
+  const recordSource = input.recordSource || {};
+  if (recordSource.method !== undefined && recordSource.method !== 'GET') {
+    return failure('RECORD_SOURCE_METHOD_NOT_GET', 'recordSource.method');
+  }
+  const urlError = validateProtocolUrl(recordSource.url, 'recordSource.url');
+  if (urlError) return urlError;
+  if (recordSource.ref !== undefined || recordSource.source !== undefined) {
+    return failure('RECORD_SOURCE_REF_NOT_ALLOWED', 'recordSource');
+  }
+  const responseMapping = recordSource.responseMapping;
+  if (responseMapping === undefined || responseMapping === null
+    || typeof responseMapping !== 'object' || Array.isArray(responseMapping)
+    || Object.keys(responseMapping).length === 0) {
+    return failure('EMPTY_RESPONSE_MAPPING', 'recordSource.responseMapping');
+  }
+  for (const [field, pathExpr] of Object.entries(responseMapping)) {
+    if (typeof field !== 'string' || field.length === 0
+      || typeof pathExpr !== 'string' || pathExpr.length === 0) {
+      return failure('INVALID_RESPONSE_MAPPING', `recordSource.responseMapping.${field}`);
+    }
+  }
+  const pathValues = resolveRouteMapping(recordSource.path, input.route, 'path');
+  if (!pathValues.ok) return pathValues;
+  const queryValues = resolveRouteMapping(recordSource.query, input.route, 'query');
+  if (!queryValues.ok) return queryValues;
+  const withPath = applyPathParams(recordSource.url, pathValues.entries, 'recordSource.path');
+  if (!withPath.ok) return withPath;
+  const serialized = serializeQuery(withPath.url, [queryValues.entries]);
+  if (!serialized.ok) return serialized;
+  return {
+    ok: true,
+    request: {
+      method: 'GET',
+      url: serialized.url,
+      body: null,
+    },
+  };
+}
+
+function buildPageTriggerRequest(input) {
+  const method = input.action.method;
+  const urlError = validateProtocolUrl(input.action.url, 'action.url');
+  if (urlError) return urlError;
+  if (!PAGE_TRIGGER_METHODS.has(method)) {
+    return failure('PAGE_TRIGGER_METHOD_NOT_ALLOWED', 'action.method');
+  }
+  if (/[{}]/.test(input.action.url || '')) {
+    return failure('UNBOUND_URL_TEMPLATE', 'action.url');
+  }
+  const serialized = serializeQuery(input.action.url, []);
+  if (!serialized.ok) return serialized;
+  const metadata = requestMetadata(input.action, input.invocationId);
+  if (!metadata.ok) return metadata;
+  return {
+    ok: true,
+    request: addRequestMetadata({
+      method,
+      url: serialized.url,
+      body: null,
     }, metadata),
   };
 }
@@ -205,6 +337,9 @@ function buildFormActionRequest(input) {
 function buildRequest(input) {
   if (input.kind === 'dataRef') return buildDataRefRequest(input.dataRef);
   if (input.kind === 'rowAction') return buildRowActionRequest(input);
+  if (input.kind === 'rowNavigate') return buildRowNavigate(input);
+  if (input.kind === 'recordSource') return buildRecordSourceRequest(input);
+  if (input.kind === 'pageTriggerRequest') return buildPageTriggerRequest(input);
   if (input.kind === 'formAction') return buildFormActionRequest(input);
   return failure('INVALID_REQUEST_KIND', 'kind');
 }

@@ -2,291 +2,495 @@
   "fixtureVersion": "1.0",
   "category": "version-negotiation",
   "cases": [
-  {
-    "id": "supported-version-without-capabilities",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "0.3" },
-      "rendererSupport": { "supportedVersions": ["0.3"] }
-    },
-    "expected": {
-      "accepted": true,
-      "code": "OK",
-      "pageVersion": "0.3",
-      "supportedVersions": ["0.3"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "supported-version-and-capabilities",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": {
-        "protocolVersion": "0.3",
-        "requiredCapabilities": ["actions.upload", "actions.row.request"]
+    {
+      "id": "supported-version-without-capabilities",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.3"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3"
+          ]
+        }
       },
-      "rendererSupport": {
-        "supportedVersions": ["0.2", "0.3"],
-        "supportedCapabilities": ["actions.row.request", "actions.upload"]
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "0.3",
+        "supportedVersions": [
+          "0.3"
+        ],
+        "missingCapabilities": []
       }
     },
-    "expected": {
-      "accepted": true,
-      "code": "OK",
-      "pageVersion": "0.3",
-      "supportedVersions": ["0.2", "0.3"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "supported-v1-version",
-    "protocolVersion": "1.0",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "1.0" },
-      "rendererSupport": { "supportedVersions": ["1.0"] }
-    },
-    "expected": {
-      "accepted": true,
-      "code": "OK",
-      "pageVersion": "1.0",
-      "supportedVersions": ["1.0"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "supported-v2-version",
-    "protocolVersion": "2.0",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "2.0" },
-      "rendererSupport": { "supportedVersions": ["2.0"] }
-    },
-    "expected": {
-      "accepted": true,
-      "code": "OK",
-      "pageVersion": "2.0",
-      "supportedVersions": ["2.0"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "unknown-minor",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "0.4" },
-      "rendererSupport": { "supportedVersions": ["0.3"] }
-    },
-    "expected": {
-      "accepted": false,
-      "code": "UNSUPPORTED_PROTOCOL_VERSION",
-      "pageVersion": "0.4",
-      "supportedVersions": ["0.3"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "unknown-major",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "1.0" },
-      "rendererSupport": { "supportedVersions": ["0.3"] }
-    },
-    "expected": {
-      "accepted": false,
-      "code": "UNSUPPORTED_PROTOCOL_VERSION",
-      "pageVersion": "1.0",
-      "supportedVersions": ["0.3"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "legacy-v1-page-rejected-by-v2-renderer",
-    "protocolVersion": "1.0",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "1.0" },
-      "rendererSupport": { "supportedVersions": ["2.0"] }
-    },
-    "expected": {
-      "accepted": false,
-      "code": "UNSUPPORTED_PROTOCOL_VERSION",
-      "pageVersion": "1.0",
-      "supportedVersions": ["2.0"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "missing-version",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": {},
-      "rendererSupport": { "supportedVersions": ["0.3"] }
-    },
-    "expected": {
-      "accepted": false,
-      "code": "MISSING_PROTOCOL_VERSION",
-      "pageVersion": null,
-      "supportedVersions": ["0.3"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "malformed-version",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "0.3.1" },
-      "rendererSupport": { "supportedVersions": ["0.3"] }
-    },
-    "expected": {
-      "accepted": false,
-      "code": "INVALID_PROTOCOL_VERSION",
-      "pageVersion": "0.3.1",
-      "supportedVersions": ["0.3"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "empty-renderer-version-list",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "0.3" },
-      "rendererSupport": { "supportedVersions": [] }
-    },
-    "expected": {
-      "accepted": false,
-      "code": "INVALID_RENDERER_SUPPORT",
-      "pageVersion": "0.3",
-      "supportedVersions": [],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "duplicate-renderer-version",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "0.3" },
-      "rendererSupport": { "supportedVersions": ["0.3", "0.3"] }
-    },
-    "expected": {
-      "accepted": false,
-      "code": "INVALID_RENDERER_SUPPORT",
-      "pageVersion": "0.3",
-      "supportedVersions": ["0.3", "0.3"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "invalid-renderer-version",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": { "protocolVersion": "0.3" },
-      "rendererSupport": { "supportedVersions": ["0.3.x"] }
-    },
-    "expected": {
-      "accepted": false,
-      "code": "INVALID_RENDERER_SUPPORT",
-      "pageVersion": "0.3",
-      "supportedVersions": ["0.3.x"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "invalid-required-capabilities",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": {
-        "protocolVersion": "0.3",
-        "requiredCapabilities": ["actions.upload", "actions.upload"]
+    {
+      "id": "supported-version-and-capabilities",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.3",
+          "requiredCapabilities": [
+            "actions.upload",
+            "actions.row.request"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.2",
+            "0.3"
+          ],
+          "supportedCapabilities": [
+            "actions.row.request",
+            "actions.upload"
+          ]
+        }
       },
-      "rendererSupport": {
-        "supportedVersions": ["0.3"],
-        "supportedCapabilities": ["actions.upload"]
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "0.3",
+        "supportedVersions": [
+          "0.2",
+          "0.3"
+        ],
+        "missingCapabilities": []
       }
     },
-    "expected": {
-      "accepted": false,
-      "code": "INVALID_REQUIRED_CAPABILITIES",
-      "pageVersion": "0.3",
-      "supportedVersions": ["0.3"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "invalid-required-capabilities-precede-invalid-renderer-capabilities",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": {
-        "protocolVersion": "0.3",
-        "requiredCapabilities": ["INVALID CAPABILITY"]
+    {
+      "id": "supported-v1-version",
+      "protocolVersion": "1.0",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "1.0"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "1.0"
+          ]
+        }
       },
-      "rendererSupport": {
-        "supportedVersions": ["0.3"],
-        "supportedCapabilities": ["INVALID CAPABILITY"]
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "1.0",
+        "supportedVersions": [
+          "1.0"
+        ],
+        "missingCapabilities": []
       }
     },
-    "expected": {
-      "accepted": false,
-      "code": "INVALID_REQUIRED_CAPABILITIES",
-      "pageVersion": "0.3",
-      "supportedVersions": ["0.3"],
-      "missingCapabilities": []
-    }
-  },
-  {
-    "id": "missing-required-capabilities-preserve-order",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": {
-        "protocolVersion": "0.3",
-        "requiredCapabilities": ["actions.upload", "vendor.audit", "actions.row.request"]
+    {
+      "id": "supported-v2-version",
+      "protocolVersion": "2.0",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.0"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.0"
+          ]
+        }
       },
-      "rendererSupport": {
-        "supportedVersions": ["0.3"],
-        "supportedCapabilities": ["actions.row.request"]
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.0",
+        "supportedVersions": [
+          "2.0"
+        ],
+        "missingCapabilities": []
       }
     },
-    "expected": {
-      "accepted": false,
-      "code": "MISSING_REQUIRED_CAPABILITY",
-      "pageVersion": "0.3",
-      "supportedVersions": ["0.3"],
-      "missingCapabilities": ["actions.upload", "vendor.audit"]
-    }
-  },
-  {
-    "id": "version-rejection-precedes-capability-rejection",
-    "protocolVersion": "0.3",
-    "category": "version-negotiation",
-    "input": {
-      "pageMeta": {
-        "protocolVersion": "1.0",
-        "requiredCapabilities": ["actions.upload"]
+    {
+      "id": "unknown-minor",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.4"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3"
+          ]
+        }
       },
-      "rendererSupport": {
-        "supportedVersions": ["0.3"],
-        "supportedCapabilities": ["INVALID CAPABILITY"]
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "0.4",
+        "supportedVersions": [
+          "0.3"
+        ],
+        "missingCapabilities": []
       }
     },
-    "expected": {
-      "accepted": false,
-      "code": "UNSUPPORTED_PROTOCOL_VERSION",
-      "pageVersion": "1.0",
-      "supportedVersions": ["0.3"],
-      "missingCapabilities": []
+    {
+      "id": "unknown-major",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "1.0"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "1.0",
+        "supportedVersions": [
+          "0.3"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "legacy-v1-page-rejected-by-v2-renderer",
+      "protocolVersion": "1.0",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "1.0"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.0"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "1.0",
+        "supportedVersions": [
+          "2.0"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "missing-version",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {},
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "MISSING_PROTOCOL_VERSION",
+        "pageVersion": null,
+        "supportedVersions": [
+          "0.3"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "malformed-version",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.3.1"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "INVALID_PROTOCOL_VERSION",
+        "pageVersion": "0.3.1",
+        "supportedVersions": [
+          "0.3"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "empty-renderer-version-list",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.3"
+        },
+        "rendererSupport": {
+          "supportedVersions": []
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "INVALID_RENDERER_SUPPORT",
+        "pageVersion": "0.3",
+        "supportedVersions": [],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "duplicate-renderer-version",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.3"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3",
+            "0.3"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "INVALID_RENDERER_SUPPORT",
+        "pageVersion": "0.3",
+        "supportedVersions": [
+          "0.3",
+          "0.3"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "invalid-renderer-version",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.3"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3.x"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "INVALID_RENDERER_SUPPORT",
+        "pageVersion": "0.3",
+        "supportedVersions": [
+          "0.3.x"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "invalid-required-capabilities",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.3",
+          "requiredCapabilities": [
+            "actions.upload",
+            "actions.upload"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3"
+          ],
+          "supportedCapabilities": [
+            "actions.upload"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "INVALID_REQUIRED_CAPABILITIES",
+        "pageVersion": "0.3",
+        "supportedVersions": [
+          "0.3"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "invalid-required-capabilities-precede-invalid-renderer-capabilities",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.3",
+          "requiredCapabilities": [
+            "INVALID CAPABILITY"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3"
+          ],
+          "supportedCapabilities": [
+            "INVALID CAPABILITY"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "INVALID_REQUIRED_CAPABILITIES",
+        "pageVersion": "0.3",
+        "supportedVersions": [
+          "0.3"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "missing-required-capabilities-preserve-order",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "0.3",
+          "requiredCapabilities": [
+            "actions.upload",
+            "vendor.audit",
+            "actions.row.request"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3"
+          ],
+          "supportedCapabilities": [
+            "actions.row.request"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "MISSING_REQUIRED_CAPABILITY",
+        "pageVersion": "0.3",
+        "supportedVersions": [
+          "0.3"
+        ],
+        "missingCapabilities": [
+          "actions.upload",
+          "vendor.audit"
+        ]
+      }
+    },
+    {
+      "id": "version-rejection-precedes-capability-rejection",
+      "protocolVersion": "0.3",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "1.0",
+          "requiredCapabilities": [
+            "actions.upload"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "0.3"
+          ],
+          "supportedCapabilities": [
+            "INVALID CAPABILITY"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "1.0",
+        "supportedVersions": [
+          "0.3"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "supported-admin-lifecycle-capabilities",
+      "protocolVersion": "2.0",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.0",
+          "requiredCapabilities": [
+            "actions.page.trigger",
+            "actions.row.navigate",
+            "form.record.load"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.0"
+          ],
+          "supportedCapabilities": [
+            "actions.page.trigger",
+            "actions.row.navigate",
+            "form.record.load",
+            "actions.row.request"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.0",
+        "supportedVersions": [
+          "2.0"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "missing-admin-lifecycle-capabilities-preserve-order",
+      "protocolVersion": "2.0",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.0",
+          "requiredCapabilities": [
+            "actions.page.trigger",
+            "form.record.load",
+            "actions.row.navigate"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.0"
+          ],
+          "supportedCapabilities": [
+            "actions.row.navigate"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "MISSING_REQUIRED_CAPABILITY",
+        "pageVersion": "2.0",
+        "supportedVersions": [
+          "2.0"
+        ],
+        "missingCapabilities": [
+          "actions.page.trigger",
+          "form.record.load"
+        ]
+      }
     }
-  }
   ]
 }
