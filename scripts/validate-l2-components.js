@@ -21,10 +21,13 @@
  *   7. 页面级 action 引用完整性校验：
  *      - form.props.submitAction 必须存在于 doc.actions
  *      - upload.props.actionRef 必须存在于 doc.actions 且 type 必须为 upload
- *      - ActionTrigger.actionRef 仅允许 request|navigate|modal；request 禁止 GET
+ *      - ActionTrigger.actionRef 仅允许 request|navigate|modal；request 禁止 GET；navigate/request url 不得含未绑定 {name}
  *   8. datasource / targetTable 引用存在性校验：
  *      - data.source: ref 时，data.ref 必须存在于 doc.datasources
  *      - form.mode: search 的 targetTable 必须在页面 Node 树中存在 id 匹配且 type: table 的节点
+ *  10. 字段集 → protocolVersion 下限（审计 0064 / V282）：
+ *      - 2.1 字段（actionButton / toolbar / navigateMapping / recordSource）要求 protocolVersion >= "2.1"
+ *      - 2.2 字段（selection / requiresSelection / batchMapping）在 ALLOW_22_FIELDS_ON_21 时 >= "2.1"，否则 >= "2.2"
  *
  * 用法：
  *   node scripts/validate-l2-components.js <file-or-glob> [--json]
@@ -48,6 +51,14 @@ const { protocolPath } = require('./protocol-paths');
 const REGISTRY_PATH = protocolPath('docs', 'schemas', 'component-registry.json');
 const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
 const components = registry.components; // { [type]: ComponentDef }
+
+/**
+ * V275 / V282: 2.2 字段在 2.2.0 制品 tag 前可挂在 protocolVersion "2.1" + capability。
+ * 打 schema-ui-protocol-2.2.0 tag 时必须改为 false，并同步升样例/fixtures（见 docs/13-v2.2-release-goals.md）。
+ */
+const ALLOW_22_FIELDS_ON_21 = true;
+const FLOOR_21 = '2.1';
+const FLOOR_22 = ALLOW_22_FIELDS_ON_21 ? '2.1' : '2.2';
 
 // ---------------------------------------------------------------------------
 // YAML / JSON 解析
@@ -1301,6 +1312,13 @@ function validateActionTrigger(trigger, triggerPath, actions, violations, option
   }
   if (actionDef.type === 'navigate' && actionDef.url !== undefined) {
     validateProtocolUrl(actionDef.url, `actions.${actionRef}.url`, violations);
+    // V283: symmetric with page Trigger request — no unbound {name} templates.
+    if (/[{}]/.test(actionDef.url || '')) {
+      violations.push({
+        path: `actions.${actionRef}.url`,
+        message: '页面级 ActionTrigger 引用的 navigate URL 不得包含未绑定的路径模板（ADR-0020 / V283）',
+      });
+    }
   }
 }
 
@@ -1820,6 +1838,121 @@ function validateDataRefsAndTargetTable(doc, violations) {
   }
 }
 
+/**
+ * Parse MAJOR.MINOR; return null if not a valid protocol version string.
+ * @param {unknown} value
+ * @returns {{ major: number, minor: number, raw: string } | null}
+ */
+function parseProtocolVersion(value) {
+  if (typeof value !== 'string' || !/^[0-9]+\.[0-9]+$/.test(value)) return null;
+  const [major, minor] = value.split('.').map(Number);
+  return { major, minor, raw: value };
+}
+
+/**
+ * @param {{ major: number, minor: number }} a
+ * @param {{ major: number, minor: number }} b
+ * @returns {number} negative if a < b
+ */
+function compareProtocolVersions(a, b) {
+  if (a.major !== b.major) return a.major - b.major;
+  return a.minor - b.minor;
+}
+
+/**
+ * Field-set → meta.protocolVersion floor (audit 0064 / V282).
+ * Does not replace capability checks; enforces migration discipline from 2.0-to-2.1 / 2.1-to-2.2.
+ */
+function validateProtocolVersionFloor(doc, violations) {
+  const pageVersion = parseProtocolVersion(doc?.meta?.protocolVersion);
+  if (!pageVersion) return; // L0/schema owns missing/invalid format
+
+  /** @type {{ path: string, reason: string, floor: string }[]} */
+  const requirements = [];
+
+  const requireFloor = (path, reason, floor) => {
+    requirements.push({ path, reason, floor });
+  };
+
+  const scanNode = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'actionButton') {
+      requireFloor(nodePath, 'actionButton', FLOOR_21);
+    }
+    if (node.type === 'form' && node.props && node.props.recordSource !== undefined) {
+      requireFloor(`${nodePath}.props.recordSource`, 'form.props.recordSource', FLOOR_21);
+    }
+    if (node.type === 'table' && node.props) {
+      if (node.props.selection !== undefined) {
+        requireFloor(`${nodePath}.props.selection`, 'table.props.selection', FLOOR_22);
+      }
+      if (Array.isArray(node.props.toolbar) && node.props.toolbar.length > 0) {
+        requireFloor(`${nodePath}.props.toolbar`, 'table.props.toolbar', FLOOR_21);
+        node.props.toolbar.forEach((trigger, index) => {
+          if (!trigger) return;
+          if (trigger.batchMapping !== undefined) {
+            requireFloor(
+              `${nodePath}.props.toolbar[${index}].batchMapping`,
+              'toolbar batchMapping',
+              FLOOR_22,
+            );
+          }
+          if (trigger.requiresSelection === true) {
+            requireFloor(
+              `${nodePath}.props.toolbar[${index}].requiresSelection`,
+              'toolbar requiresSelection',
+              FLOOR_22,
+            );
+          }
+        });
+      }
+      if (Array.isArray(node.props.actions)) {
+        node.props.actions.forEach((rowAction, rowActionIndex) => {
+          if (rowAction && rowAction.navigateMapping !== undefined) {
+            requireFloor(
+              `${nodePath}.props.actions[${rowActionIndex}].navigateMapping`,
+              'RowAction.navigateMapping',
+              FLOOR_21,
+            );
+          }
+        });
+      }
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, idx) => scanNode(child, `${nodePath}.children[${idx}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, idx) => {
+        if (item && item.content) {
+          scanNode(item.content, `${nodePath}.props.items[${idx}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+  if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
+    for (const [actionId, actionDef] of Object.entries(doc.actions)) {
+      if (actionDef && actionDef.type === 'modal' && actionDef.content) {
+        scanNode(actionDef.content, `actions.${actionId}.content`);
+      }
+    }
+  }
+
+  for (const req of requirements) {
+    const floor = parseProtocolVersion(req.floor);
+    if (!floor) continue;
+    if (compareProtocolVersions(pageVersion, floor) < 0) {
+      violations.push({
+        path: 'meta.protocolVersion',
+        message:
+          `${req.path} 使用 ${req.reason}，要求 meta.protocolVersion >= "${req.floor}"`
+          + `（当前 "${pageVersion.raw}"；PROTOCOL_VERSION_TOO_LOW / 审计 0064 V282）`,
+      });
+    }
+  }
+}
+
 function validateRequiredCapabilities(doc, violations) {
   const declared = new Set(
     Array.isArray(doc?.meta?.requiredCapabilities) ? doc.meta.requiredCapabilities : [],
@@ -2079,6 +2212,7 @@ function validatePage(doc, fileLabel) {
   validateDataRefsAndTargetTable(doc, violations);
   validateActionUrls(doc, violations);
   validateRequiredCapabilities(doc, violations);
+  validateProtocolVersionFloor(doc, violations);
   validateParamsResponseMappingBan(doc, violations);
   validateReservedTableQueryParams(doc, violations);
   return violations.map(v => ({ file: fileLabel, ...v }));

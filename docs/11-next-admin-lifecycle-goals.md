@@ -113,7 +113,7 @@ P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-r
 
 - [x] ADR-0020 / 0021 开放问题已关闭；
 - [x] ADR-0020 / 0021 状态为 `accepted`；
-- [x] Schema / 组件 DSL / L2 与规范一致（capability 门控；可在 `protocolVersion: "2.0"` 页面使用）；
+- [x] Schema / 组件 DSL / L2 与规范一致（capability 门控；使用 2.1 字段时页面须 `protocolVersion: "2.1"`，L2 V282 强制下限）；
 - [x] JS 与 Python reference 消费同一套 versioned fixtures（request-construction / response-mapping / version-negotiation 已扩展 P0 向量）；
 - [x] 扩展示例场景覆盖锚点 A+B+C（`05-scenarios/admin-list-edit-lifecycle.md`；尚未进六场景 release 清单）；
 - [x] scenarios conformance 步进（列表加载+行导航、编辑加载回填+提交+navigate 成功）；

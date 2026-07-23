@@ -6,6 +6,20 @@
 
 ---
 
+## 0064 — 2026-07-23 — 2.1/2.2 协议纪律补强
+
+**主题：** 字段集→`protocolVersion` 下限 L2 门禁、page Trigger navigate 模板对称、文档/清单/$selection/body 文案（V282–V286）。
+**性质：** 1 项 P1 + 4 项 P2 全部关闭；`ALLOW_22_FIELDS_ON_21` 在 `2.2.0` tag 时关闭。
+
+| 文件 | 说明 |
+|---|---|
+| [0064-2026-07-23-review.md](./0064-2026-07-23-review.md) | 审计报告 — V282–V286（全部关闭） |
+| [0064-2026-07-23-checklist.md](./0064-2026-07-23-checklist.md) | 跟踪清单 — 整改与归档门禁 |
+
+**关闭证据：** L2 负例按期望失败；正例样例通过；`validate:scenarios` / `check:links` / `test:conformance:all` / `release:check` 以关闭时工作区为准。
+
+---
+
 ## 0063 — 2026-07-23 — 协议 2.1/2.2 残留语义与发布就绪复审
 
 **主题：** formRecord 可观测值、batch selection 不变量、2.2 版本/迁移叙事及文档/诊断残留（V273–V281）。

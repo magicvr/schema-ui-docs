@@ -7,6 +7,12 @@
 
 ## Unreleased
 
+- **审计 0064（V282–V286）：** 2.1/2.2 协议纪律补强（无 P0），全部关闭。报告见 [`audit/archived/0064-2026-07-23-review.md`](./audit/archived/0064-2026-07-23-review.md)。
+  - **V282：** L2 强制字段集→`protocolVersion` 下限；2.1 字段不得挂 `"2.0"`；2.2 字段过渡期 `ALLOW_22_FIELDS_ON_21`（`2.2.0` tag 时关）。负例：`audit-0064-v21-fields-on-20-bad.yaml`。
+  - **V283：** page Trigger `navigate` 未绑定 `{name}` 与 request 对称 L2 拒绝。负例：`audit-0064-page-trigger-navigate-template-bad.yaml`。
+  - **V284：** `page.schema` / `01` / `00` / `11` 版本与 capability 叙事对齐 2.1 制品与 0022。
+  - **V285：** `02` 变量表收录 `$selection.keys` / `$selection.count`；`06` 检查清单补 selection/batch/版本下限。
+  - **V286：** ADR-0020 / `07` 明确 page Trigger request **body 恒 null**（无静态 body 字段）。
 - **审计 0063（V273–V281）：** 协议 2.1/2.2 残留语义与发布就绪复审（无 P0），全部关闭。报告见 [`audit/archived/0063-2026-07-23-review.md`](./audit/archived/0063-2026-07-23-review.md)。
   - **V273：** formRecord 缺失路径 conformance 可观测值为 JSON `null`（等价空初始值、不中止回填）；同步 ADR-0021 D5a / `03` / 双端 reference。
   - **V274 / V281：** batch 构造入口复用 selection 规范化（过滤非标量、去重保序、重算 `count`）；fixtures：`batch-request-count-keys-mismatch-normalized` 等。

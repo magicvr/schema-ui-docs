@@ -87,9 +87,9 @@ applies_to: schema-ui-protocol v2.1
 
 当前协议版本：`v2.1.0`，页面通过 `meta.protocolVersion: "2.1"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.1 发布门禁见 [12-v2.1-release-goals.md](./12-v2.1-release-goals.md)；从 2.0 升级见 [migrations/2.0-to-2.1.md](./migrations/2.0-to-2.1.md)。
 
-PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。
+PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。L2 另强制字段集→`protocolVersion` 下限（2.1 字段不得挂在 `"2.0"`；2.2 字段在 `2.2.0` 发布后须 `"2.2"`，见审计 0064 / V282）。
 
-**Admin 生命周期 P0**（页面工具栏、行级导航、编辑回填）已由 [ADR-0020](./decisions/0020-page-action-trigger.md) / [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 接受，并以 capability 门控方式进入规范；未使用新字段的页面行为不变。后续批量/权限继承等见 [11-next-admin-lifecycle-goals.md](./11-next-admin-lifecycle-goals.md)。
+**Admin 生命周期 P0**（页面工具栏、行级导航、编辑回填）已由 [ADR-0020](./decisions/0020-page-action-trigger.md) / [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 接受；**当前页多选与批量 request** 由 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md) 以 capability 门控进入规范（制品目标 2.2）。未使用新字段的页面行为不变。轨道见 [11-next-admin-lifecycle-goals.md](./11-next-admin-lifecycle-goals.md)。
 
 本协议场景示例覆盖：网格布局、数据表格、表单联动、表格行级后端动作、搜索表单筛选表格、文件上传、列表编辑闭环（扩展示例）。后续新增场景类型时，
 应遵循同一套 Node 结构（`type`/`props`/`data`/`children`/`reactions`），

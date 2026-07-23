@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-13
+last_updated: 2026-07-23
 applies_to: schema-ui-protocol v2.1
 ---
 
@@ -176,8 +176,8 @@ actions:
 `actionButton` 与 `table.props.toolbar[]` 通过 `actionRef` 引用顶层 `request` | `navigate` | `modal`（禁止 `upload`/`custom`）。使用时声明 `actions.page.trigger`。
 
 - 无行上下文，无 Trigger 级 `requestMapping`；
-- 引用 `request` 时 method 仅 `POST`/`PUT`/`PATCH`/`DELETE`（禁止 GET）；url 不得含未绑定 `{name}` 模板；
-- 引用 `navigate` 时 url 为静态相对路径（不得含未绑定 `{name}`）；引用 `modal` 时至少提供 `modalId` 或 `content`；
+- 引用 `request` 时 method 仅 `POST`/`PUT`/`PATCH`/`DELETE`（禁止 GET）；url 不得含未绑定 `{name}` 模板；**MVP 请求 body 恒为 `null`**（不跑 form 投影、不读 Action `bodyMapping`；RequestAction **无**静态 body 字段；审计 0064 / V286）；
+- 引用 `navigate` 时 url 为静态相对路径（不得含未绑定 `{name}`；L2 与 request 对称拒绝，V283）；引用 `modal` 时至少提供 `modalId` 或 `content`；
 - toolbar Trigger 的 `visibleWhen` / `permissions` 仅允许 `$context.*`（L3a 遍历 `table.props.toolbar[]`，见审计 0062 / V268）；
 - 执行序与行级类似：permissions / visibleWhen → disabled → confirm → 执行 Action → OutcomeBehavior。`confirm` 为非空字符串时，用户取消必须取消后续 request/navigate/modal，不得部分执行（conformance：`CONFIRM_REJECTED`）。
 

@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-13
+last_updated: 2026-07-23
 applies_to: schema-ui-protocol v2.1
 ---
 
@@ -33,6 +33,8 @@ applies_to: schema-ui-protocol v2.1
 | `$context.user.*` | 当前用户身份信息（只读快照，最小字段集见 §11.1） | 条件表达式挂载点：`reactions` / `visibleWhen` / `permissions` / 表格列与操作表达式；**不含** `data.params` / `optionsSource.params` / `datasources.*.params` 值替换（见附录 A / §10.7） | `$context.user.roles` |
 | `$context.features.*` | 功能开关映射表（只读快照，最小字段集见 §11.2） | 同上（条件表达式挂载点，不含 params 值替换） | `$context.features.newDashboard` |
 | `$context.route.*` | 当前页路由只读快照（§11.3，since 2.1 / ADR-0021） | **已知** `$context` 根；**禁止**出现在普通 `reactions` / `visibleWhen` / `permissions`（L3a：`FORBIDDEN_CONTEXT_NAMESPACE`，非「未知根」；审计 0063 / V279）。MVP 仅用于 `form.props.recordSource` 的 path/query 整值绑定 | `$context.route.query.orderId` |
+| `$selection.keys` | 当前页选中 rowKey 有序数组（since 2.2 / ADR-0022） | **仅** `table.toolbar[].batchMapping.body` 某字段的整值；**禁止** reactions / visibleWhen / permissions / params（L3a 视为未知变量；L2 另约束 batchMapping） | `$selection.keys` |
+| `$selection.count` | 规范化后选中个数（= `keys.length`） | **仅** `batchMapping.query` 或 `body` 的标量字段；禁止 path 与表达式挂载点 | `$selection.count` |
 | `$row.<字段名>` | 当前行的原始数据对象（未经格式化处理） | 表格 `columns`/`actions` 中 `scope: row` 表达式 | `$row.level` |
 | `$row.__index` | 当前行在数据集中的序号（从 0 开始） | 同上 | `$row.__index` |
 | `$row.__key` | 当前行的唯一标识（取表格 `rowKey` 字段值） | 同上 | `$row.__key` |
@@ -49,6 +51,7 @@ applies_to: schema-ui-protocol v2.1
 - ❌ 不允许在非表单节点的 `visibleWhen` 中访问 `$deps.*`（静态校验拒绝，见 §10.1）。
 - ❌ 不允许在表格 `actions` 的表达式（**任意** `scope`）中使用 `$self`（不适用，见 §10.3）。
 - ❌ 不允许使用 `$parentRow.*`；v0.2 静态拒绝（无嵌套表格挂载结构）。
+- ❌ 不允许在 `reactions` / `visibleWhen` / `permissions` 中使用 `$selection.*`；选中集仅经 `batchMapping` 读取（ADR-0022 / 审计 0064 / V285）。
 
 ## 3. 运算符白名单
 

@@ -15,9 +15,9 @@ track: docs/11-next-admin-lifecycle-goals.md Phase C / P1
 
 | 阶段 | 页面 `protocolVersion` | 说明 |
 |---|---|---|
-| **2.2.0 制品 tag 之前（当前）** | 可声明 `"2.1"` + batch capabilities | capability 为互操作主门控；算法 fixtures 与扩展示例可暂停在 `"2.1"` |
-| **2.2.0 正式发布时** | 使用本 ADR 字段的官方样例、扩展示例与相关算法 fixtures **升至 `"2.2"`** | `package.json` / `protocol-manifest` / 制品 tar 对齐 `2.2.0`；`release:check` 按发布目标文档执行 |
-| **2.2.0 发布之后** | 使用 `table.selection` / `actions.batch.request` 字段的页面 **必须** 声明 `"2.2"` | 与 2.1 字段要求 `"2.1"` 的纪律一致；仅 2.1 字段集的页面可继续 `"2.1"`。Renderer 可在 `supportedVersions` 中同时列出 `2.1` 与 `2.2` |
+| **2.2.0 制品 tag 之前（当前）** | 可声明 `"2.1"` + batch capabilities | capability 为互操作主门控；算法 fixtures 与扩展示例可暂停在 `"2.1"`。L2 `ALLOW_22_FIELDS_ON_21 === true`（审计 0064 / V282） |
+| **2.2.0 正式发布时** | 使用本 ADR 字段的官方样例、扩展示例与相关算法 fixtures **升至 `"2.2"`** | `package.json` / `protocol-manifest` / 制品 tar 对齐 `2.2.0`；**将 L2 `ALLOW_22_FIELDS_ON_21` 设为 `false`**；`release:check` 按发布目标文档执行 |
+| **2.2.0 发布之后** | 使用 `table.selection` / `actions.batch.request` 字段的页面 **必须** 声明 `"2.2"` | 与 2.1 字段要求 `"2.1"` 的纪律一致；L2 强制字段集→版本下限。仅 2.1 字段集的页面可继续 `"2.1"`。Renderer 可在 `supportedVersions` 中同时列出 `2.1` 与 `2.2` |
 
 开放问题见文末裁决表，已并入 D2–D5。
 

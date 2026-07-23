@@ -136,13 +136,13 @@ props:
 对 `type: request` 且无表单上下文的 Trigger：
 
 - 不跑 form 提交投影与 `bodyMapping`；  
-- 请求体以 Action 静态定义为准；MVP **不**新增 Trigger 级 body 映射；  
+- **MVP 请求 body 恒为 JSON `null`**（RequestAction **无**静态 body 字段；不得发明 `body: {...}` 私货字段）。需要固定载荷时使用后端固定接口契约，或后续 ADR 扩展；MVP **不**新增 Trigger 级 body 映射（审计 0064 / V286）；  
 - **method 只允许 `POST` / `PUT` / `PATCH` / `DELETE`**，**禁止 `GET`**（裁决 OQ-20-1）；无 body 的刷新类命令使用上述方法之一，或仅依赖既有 `onSuccess.behavior: reload` 触发列表重载而无需多余 request；  
 - 读数据继续用 DataRef / `form.recordSource`（ADR-0021），不把 GET 伪装成页面级 Action。
 
 对 `type: navigate`：
 
-- 使用 Action 的静态 `url`；行相关动态 URL 见 [ADR-0021](./0021-record-navigation-and-form-load.md) 的行级 navigate 映射，**不**在本 ADR 的 Trigger 上做。
+- 使用 Action 的静态 `url`（不得含未绑定 `{name}`；L2 与 request 对称静态拒绝，审计 0064 / V283）；行相关动态 URL 见 [ADR-0021](./0021-record-navigation-and-form-load.md) 的行级 navigate 映射，**不**在本 ADR 的 Trigger 上做。
 
 对 `type: modal`：
 
