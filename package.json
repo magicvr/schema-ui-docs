@@ -1,8 +1,8 @@
 {
   "name": "schema-ui-protocol-workspace",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "private": true,
-  "description": "Schema-UI v2.4.0 协议源码、制品构建与辅助验证工作区",
+  "description": "Schema-UI v2.4.1 协议源码、制品构建与辅助验证工作区",
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:scenarios": "node scripts/validate-scenarios.js",

@@ -4,7 +4,7 @@
   "private": true,
   "description": "Non-normative Schema-UI protocol validation helpers",
   "schemaUiProtocol": {
-    "artifactVersion": "2.4.0",
+    "artifactVersion": "2.4.1",
     "protocolVersion": "2.4"
   },
   "scripts": {

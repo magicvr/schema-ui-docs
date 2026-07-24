@@ -231,7 +231,7 @@ MVP 摘要（以 0022 正文为准）：
 
 | 项 | 状态 |
 |---|---|
-| 协议制品 / 页面协议 | `2.4.0` / `2.4`（见 `protocol-manifest.json`） |
+| 协议制品 / 页面协议 | `2.4.1` / `2.4`（见 `protocol-manifest.json`） |
 | 本轨道 | **Phase C / C.1 / D.0 已发布**（2.2 批量、2.3 权限继承、2.4 recordView） |
 | P0 ADR | [0020](./decisions/0020-page-action-trigger.md)、[0021](./decisions/0021-record-navigation-and-form-load.md)（**accepted**，v2.1） |
 | P1 批量 | [0022](./decisions/0022-table-selection-and-batch-request.md)（**accepted**，v2.2） |

@@ -52,8 +52,8 @@ ghcr.io/<github-owner-lowercase>/schema-ui-mcp
 当前版本示例（版本号以已发布 MCP tag 为准；应与协议线一致，例如协议 `2.4` → MCP `2.4.x`）：
 
 ```bash
-docker pull ghcr.io/<owner>/schema-ui-mcp:2.4.0
-docker run --rm -i ghcr.io/<owner>/schema-ui-mcp:2.4.0
+docker pull ghcr.io/<owner>/schema-ui-mcp:2.4.1
+docker run --rm -i ghcr.io/<owner>/schema-ui-mcp:2.4.1
 ```
 
 若包为 private，需先登录：
@@ -75,7 +75,7 @@ MCP 客户端配置示例（稳定接入请 pin **完整版本**，不要只用 
         "run",
         "--rm",
         "-i",
-        "ghcr.io/<owner>/schema-ui-mcp:2.4.0"
+        "ghcr.io/<owner>/schema-ui-mcp:2.4.1"
       ]
     }
   }
@@ -86,7 +86,7 @@ MCP 客户端配置示例（稳定接入请 pin **完整版本**，不要只用 
 
 | Tag | 用途 |
 |---|---|
-| `2.4.0` | 固定 PATCH 版本（稳定接入示例；MAJOR.MINOR = 协议线） |
+| `2.4.1` | 固定 PATCH 版本（稳定接入示例；MAJOR.MINOR = 协议线） |
 | `2.4` | 当前 `2.4.x` 最新稳定 PATCH（与协议 `2.4` 线对应） |
 | `latest` | 最新**稳定**发布；**不建议**写入生产接入配置 |
 | `<commit-sha>` | 精确追踪一次 CD 构建产物 |
@@ -104,19 +104,19 @@ MCP 使用 stdio transport，Docker 启动参数需要保留 `-i`，不需要 `-
 从仓库根目录构建镜像：
 
 ```bash
-docker build -f mcp/Dockerfile -t schema-ui-mcp:2.4.0 .
+docker build -f mcp/Dockerfile -t schema-ui-mcp:2.4.1 .
 ```
 
 作为 stdio MCP server 启动：
 
 ```bash
-docker run --rm -i schema-ui-mcp:2.4.0
+docker run --rm -i schema-ui-mcp:2.4.1
 ```
 
 Docker smoke test：
 
 ```bash
-npm --prefix mcp run smoke:docker -- schema-ui-mcp:2.4.0
+npm --prefix mcp run smoke:docker -- schema-ui-mcp:2.4.1
 ```
 
 镜像接入示例固定使用完整版本 tag，不使用 `latest`。`mcp/package.json` 中的 MCP SDK 依赖也应固定为明确版本，而不是使用 `latest` 作为包清单策略，避免后续刷新 lockfile 时无意引入 SDK 行为漂移。

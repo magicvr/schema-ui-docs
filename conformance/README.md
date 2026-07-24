@@ -45,7 +45,7 @@ Action suite 将 HTTP 错误、超时、网络异常、主动中断和认证 hoo
 
 权限继承 suite 使用已求值的 boolean permission 输入，隔离验证 ADR-0023 的结构边、祖先/本地 AND、columns 排除、form default/search、modal/navigate 新根、capability/version gate 和 `visibleWhen → permission → disabled → confirm → action` 的 fail-closed 时序；它不复制 L3a 表达式解析器。
 
-官方场景 suite 以组合步骤复用请求、映射、搜索、Action 和上传 reference。JavaScript 与 Python runner 都从白名单内的 Markdown 场景读取 metadata，校验 `scenarioPath`、`pageId` 与 `protocolVersion`，再执行相同后端可观测步骤。白名单见 `scripts/official-scenarios.js` 的 `CONFORMANCE_SCENARIO_PATHS`（含官方六场景与 `admin-list-edit-lifecycle` 扩展示例）；多 YAML fence 文档按 `scenarioMeta.pageId` 选页。
+官方场景 suite 以组合步骤复用请求、映射、搜索、Action 和上传 reference。JavaScript 与 Python runner 都从白名单内的 Markdown 场景读取 metadata，校验 `scenarioPath`、`pageId` 与 `protocolVersion`，再执行相同后端可观测步骤。白名单见 `scripts/official-scenarios.js` 的 `CONFORMANCE_SCENARIO_PATHS`（含官方六场景与 Admin 生命周期扩展示例 `admin-list-edit-lifecycle`、`admin-list-detail-lifecycle`）；多 YAML fence 文档按 `scenarioMeta.pageId` 选页。
 
 ## 目录约定
 
