@@ -6,6 +6,20 @@
 
 ---
 
+## 0068 — 2026-07-24 — v2.4 发布后 digest 身份与入口卫生
+
+**主题：** 同一 `2.4.0` 多 contentDigest（Release vs main/MCP）、README 迁移入口、conformance 白名单文案、CHANGELOG Unreleased 边界（V309–V312）。  
+**性质：** 1×P1 + 3×P2 全部关闭。V309 选定 **方案 A**：协议 PATCH `2.4.1` + MCP `2.4.1` 跟发；**未**改写 `v2.4.0` tag / Release。
+
+| 文件 | 说明 |
+|---|---|
+| [0068-2026-07-24-review.md](./0068-2026-07-24-review.md) | 审计报告 — V309–V312（全部关闭） |
+| [0068-2026-07-24-checklist.md](./0068-2026-07-24-checklist.md) | 跟踪清单 — 修复、发版与归档门禁 |
+
+**关闭证据：** PR [#22](https://github.com/magicvr/schema-ui-docs/pull/22) → `main` `6c5998d`；tag `v2.4.1` Protocol Release [run 30084558106](https://github.com/magicvr/schema-ui-docs/actions/runs/30084558106)；tag `mcp-v2.4.1` MCP Release [run 30084621748](https://github.com/magicvr/schema-ui-docs/actions/runs/30084621748)；正式 contentDigest `sha256:d6852ee6…` / artifact `sha256:c027fa6c…`；fixtureDigest 与 2.4.0 基线一致 `474a3c09…`（机器契约未变）。
+
+---
+
 ## 0067 — 2026-07-24 — v2.4 recordView 交付原子一致性
 
 **主题：** ADR-0024 `recordView` / `record.view.load` 双重门控与权威链一致性（V300–V308）。  
