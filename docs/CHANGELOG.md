@@ -7,7 +7,24 @@
 
 ## Unreleased
 
-- 发布纪律：MCP **MAJOR.MINOR** 与协议产品线对齐（如协议 `2.4` → MCP `2.4.x`），**PATCH 独立**；协议 MINOR/MAJOR 后须跟发 MCP 镜像（内置协议，不运行时拉取）。`release:check:mcp` 强制线对齐；MCP 升至 `2.4.0` 捆绑协议 `2.4.0`。见 [`RELEASE.md`](./RELEASE.md) §2。
+（无）
+
+## v2.4.1 — 2026-07-24（发布身份固化与入口卫生）
+
+> **版本说明：** PATCH 发布。`meta.protocolVersion` 仍为 `"2.4"`；schemas、versioned fixtures 与核心语义规范相对正式 `v2.4.0` **机器契约未变**。正式协议制品为 `schema-ui-protocol-2.4.1.tar.gz`。本 PATCH **不**改写 `v2.4.0` tag 或已上传 Release 资产。
+
+**发布身份（审计 0068 / V309 方案 A）：**
+- 正式 `v2.4.0` Release 指纹（不可变 pin）：contentDigest `sha256:7583cefe20608f66651dcac192edaf6e3ddcf15c370f3df10fe599d20f03e7ef`；artifact `sha256:343d6795c46f1596edac7843b820a00b0e8112bc0983945e03108708a8f4efdb`。
+- tag 之后对进入协议制品的 informative 文档（`CHANGELOG` / `RELEASE.md` 等）修订，使工作树与 MCP 镜像一度声明 `2.4.0` 却 contentDigest 为 `sha256:643ed9420a198480f9c3f95d21c5abed868229d034523f29684459716dff7c1f`、artifact `sha256:5631d4590a35a91c30e5139f31a33f3a8ada750885da9ff8d0f367643a6fecd6`。
+- 本版本将当前主线制品身份固化为 `2.4.1`；消费者 pin `v2.4.0` 仍以正式 Release tar 为准，需要本线 informative 修订请 pin `v2.4.1`。`2.4.1` contentDigest / artifactDigest 以 tag 后 GitHub Release 与制品内 `manifest.json` 为准（勿在 CHANGELOG 自引用以免二次漂移）。
+
+**MCP 与发布纪律（V312）：**
+- MCP **MAJOR.MINOR** 与协议产品线对齐（协议 `2.4` → MCP `2.4.x`），**PATCH 独立**；协议 MINOR/MAJOR 后须跟发 MCP 镜像（内置协议，不运行时拉取）。`release:check:mcp` 强制线对齐。
+- 历史：`mcp-v2.4.0` 捆绑协议 `2.4.0`；本 PATCH 跟发 MCP `2.4.1` 捆绑协议 `2.4.1`。见 [`RELEASE.md`](./RELEASE.md) §2。
+
+**入口与文档卫生（V310 / V311）：**
+- 根 README 升级路径补 [`migrations/2.3-to-2.4.md`](./migrations/2.3-to-2.4.md)。
+- `conformance/README` 白名单描述同步 `admin-list-edit-lifecycle` 与 `admin-list-detail-lifecycle`。
 
 ## v2.4.0 — 2026-07-24（标准只读详情 recordView）
 

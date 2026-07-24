@@ -1,11 +1,11 @@
 {
   "name": "schema-ui-mcp",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "private": true,
   "type": "module",
   "description": "Schema-UI protocol reader and validator MCP server",
   "schemaUiProtocol": {
-    "artifactVersion": "2.4.0",
+    "artifactVersion": "2.4.1",
     "protocolVersion": "2.4"
   },
   "schemaUiValidator": {
