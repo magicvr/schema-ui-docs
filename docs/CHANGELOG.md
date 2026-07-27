@@ -9,13 +9,22 @@
 
 （无）
 
+## v2.5.3 — 2026-07-28（审计 0073 文档重编号与发布身份）
+
+> **版本说明：** PATCH 发布准备。页面 `meta.protocolVersion` 继续为 `"2.5"`；schemas、versioned fixtures 与核心语义相对正式 `v2.5.2` **机器契约未变**（fixture digest 仍为 `712f6c42…`）。本版本将应用级规范路径重编号固化为独立制品身份（审计 0073 / V349）。**不**改写 `v2.5.2` / `mcp-v2.5.2` tag 或其 Release 资产。正式协议制品为 `schema-ui-protocol-2.5.3.tar.gz`（contentDigest / artifactDigest 以 tag 后 GitHub Release 与制品内 `manifest.json` 为准）。
+
+**审计 0073（V349）：**
+- **文档卫生：** 应用级规范正文由 `docs/17-app-manifest.md` 重编号为 [`docs/09-app-manifest.md`](./09-app-manifest.md)（与 `00`–`08` 连续；原 `09`–`16` 门禁文件已迁入 `release-goals/`）。同步 `protocol-manifest`、核心交叉引用、MCP `DOC_MAP` 与 release-check 路径。语义不变。
+- **发布身份：** 工作树不得再以 `2.5.2` 承载与正式 Release 不同的 contentDigest；以 **2.5.3** 固化。
+- **演进轨道：** [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md) 登记 v2.5 之后 **D.1 待增补一等公民 backlog**（表单控件面、子表、导入导出、异步任务、树表等）；仍为 informative，不升 `protocolVersion`、不立项 Schema。
+
 ## v2.5.2 — 2026-07-28（审计 0072 入口卫生与门禁观察面）
 
 > **版本说明：** PATCH 发布。页面 `meta.protocolVersion` 继续为 `"2.5"`；schemas、versioned fixtures 与核心语义相对正式 `v2.5.1` **机器契约未变**。本版本固化发布后入口文案、`release-check` 权威文档门禁与 Protocol CI 脚本观察面（审计 0072 / V345–V348）。**不**改写 `v2.5.1` / `mcp-v2.5.1` tag 或其 Release 资产。正式协议制品为 `schema-ui-protocol-2.5.2.tar.gz`（contentDigest / artifactDigest 以 tag 后 GitHub Release 与制品内 `manifest.json` 为准）。
 
 **审计 0072（V345–V348）：**
 - **V345：** MCP 文档去掉已发布后的「需等 `mcp-v2.5.1`」口径，示例与工作树对齐。
-- **V346：** `release-check` 的 `applies_to` 门禁扩展至 `docs/00-overview.md` 与 `docs/17-app-manifest.md`。
+- **V346：** `release-check` 的 `applies_to` 门禁扩展至 `docs/00-overview.md` 与 `docs/09-app-manifest.md`。
 - **V347：** Protocol CI `paths` 对 `scripts/**` 全量观察（含 L0–L4 校验脚本）。
 - **V348：** CHANGELOG 历史节措辞与 case 计数指针卫生（见下 v2.5.1 / v2.5.0 勘误）。
 
@@ -26,7 +35,7 @@
 **审计 0071 契约投影闭合（V336–V343）：**
 - **V336：** 应用清单 M1 拒绝 `protocolVersion < "2.5"`（`PROTOCOL_VERSION_TOO_LOW`）；页面 meta 仍可解耦为 2.4。
 - **V337：** 导航 M3a 静态表达式校验（仅 `$context.user.*` / `$context.features.*`）；非法表达式在 `validate` 结构化报告。
-- **V338：** 以 `17` D1b 统一 request→API `baseURL`、navigate→应用路由根；同步 `07` / Schema / request-construction 基址矩阵。
+- **V338：** 以应用级规范 D1b（现 `09`；发布时路径为 `17`）统一 request→API `baseURL`、navigate→应用路由根；同步 `07` / Schema / request-construction 基址矩阵。
 - **V339：** `page.schema.json` 版本说明与 capability 列表同步至 2.5（含 `app.manifest` / `app.navigation` / `table.sort`）。
 - **V340：** MCP `DOC_MAP` 增加 `app-manifest`；稳定 `v2-release-goals` 指向 v2.5 门禁。
 - **V341：** 生产 `NODE_ENV=production` 忽略外部协议/验证器根目录环境变量（需 `SCHEMA_UI_ALLOW_EXTERNAL_ROOTS=1` 才覆盖）。
@@ -39,7 +48,7 @@
 > **版本说明：** MINOR 发布。使用 `sortable` / `sortField` / `defaultSort` 的页面必须声明 `meta.protocolVersion: "2.5"` 与 `table.sort`。消费应用清单须声明 `app.manifest`（有 `navigation` 时另须 `app.navigation`）。合法 `2.4` 页面与无清单宿主行为不变。正式协议制品为 `schema-ui-protocol-2.5.0.tar.gz`。
 
 **协议变更：**
-- **ADR-0025** 应用级清单：well-known / 显式 manifest URL、页面注册表、`homePageRef`、D4a 路由匹配、API `baseURL` vs 应用路由根三分法；规范正文 [`17-app-manifest.md`](./17-app-manifest.md)；Schema `app-manifest.schema.json`（M0/M1/M3a）。
+- **ADR-0025** 应用级清单：well-known / 显式 manifest URL、页面注册表、`homePageRef`、D4a 路由匹配、API `baseURL` vs 应用路由根三分法；规范正文 [`09-app-manifest.md`](./09-app-manifest.md)；Schema `app-manifest.schema.json`（M0/M1/M3a）。
 - **ADR-0026** 应用导航：`navigation.top` / `sidebar` / `user`；过滤/空组剪枝/高亮；capability `app.navigation`。
 - **ADR-0027** 表格排序声明：`columns[].sortable` / `sortField`、`table.props.defaultSort`；三态点击；`TABLE_SORT_FIELD_UNKNOWN`；capability `table.sort`。
 - 预定义 capability 增加：`app.manifest`、`app.navigation`、`table.sort`。

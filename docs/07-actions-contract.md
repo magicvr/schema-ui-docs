@@ -43,7 +43,7 @@ actions:
 ```yaml
 type: request
 method: GET | POST | PUT | DELETE | PATCH
-url: string                  # API baseURL 下的单斜杠相对路径（HTTP 请求；非应用路由根；见 17 D1b / ADR-0025）
+url: string                  # API baseURL 下的单斜杠相对路径（HTTP 请求；非应用路由根；见 09 D1b / ADR-0025）
 bodyMapping:            # 【可选】表单字段名 → 请求体字段名的映射
   customerName: name
 retryPolicy: never | idempotent # 【可选，默认 never】逻辑调用的重试策略
@@ -226,7 +226,7 @@ batchMapping:
 
 ```yaml
 type: navigate
-url: string   # 应用路由根下的单斜杠相对路径（非 API baseURL；见 17 D1b）
+url: string   # 应用路由根下的单斜杠相对路径（非 API baseURL；见 09 D1b）
 ```
 
 ## 5. `modal` 类型

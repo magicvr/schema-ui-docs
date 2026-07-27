@@ -269,7 +269,7 @@ const coreSpecPaths = [
   'docs/06-validation.md',
   'docs/07-actions-contract.md',
   'docs/08-renderer-spec.md',
-  'docs/17-app-manifest.md',
+  'docs/09-app-manifest.md',
 ];
 const appliesToNeedle = `applies_to: schema-ui-protocol v${protocolVersion}`;
 for (const relativePath of coreSpecPaths) {

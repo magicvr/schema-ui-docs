@@ -37,7 +37,7 @@ applies_to: schema-ui-protocol v2.5
 | [06-validation.md](./06-validation.md) | 前后端开发者 / AI | 校验规则与工具链 |
 | [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
 | [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
-| [17-app-manifest.md](./17-app-manifest.md) | 前后端开发者 | 应用级清单与导航规范（ADR-0025/0026） |
+| [09-app-manifest.md](./09-app-manifest.md) | 前后端开发者 | 应用级清单与导航规范（ADR-0025/0026） |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
 | [migrations/](./migrations/) | 前后端开发者 | 版本间升级路径（informative） |
@@ -54,7 +54,7 @@ applies_to: schema-ui-protocol v2.5
 - 查阅历史审计证据 → 查看 `audit/`；它不是协议权威来源，也不进入协议制品。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`；升级步骤看 `migrations/`。
 - 维护或发布某 MINOR → 对照 [`release-goals/`](./release-goals/) 下对应 `vX.Y.md`（当前线：[`v2.5.md`](./release-goals/v2.5.md)，G0–G5 已闭合）。**门禁不是语义权威。**
-- 规划后续 Admin 能力 → 读 [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md)；P0/P1 见 ADR-0020 / 0021 / 0022 / 0023。
+- 规划后续 Admin 能力 / 待增补一等公民 → 读 [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md)（**informative** backlog；P0–D.0 已交付，D.1 待立项）。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
 
@@ -84,7 +84,7 @@ applies_to: schema-ui-protocol v2.5
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v2.5.2`，页面通过 `meta.protocolVersion: "2.5"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.5 发布门禁见 [release-goals/v2.5.md](./release-goals/v2.5.md)；从 2.4 升级见 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)；v2.4 见 [release-goals/v2.4.md](./release-goals/v2.4.md) 与 [migrations/2.3-to-2.4.md](./migrations/2.3-to-2.4.md)；从 2.2 升级见 [migrations/2.2-to-2.3.md](./migrations/2.2-to-2.3.md)。
+当前协议版本：`v2.5.3`，页面通过 `meta.protocolVersion: "2.5"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.5 发布门禁见 [release-goals/v2.5.md](./release-goals/v2.5.md)；从 2.4 升级见 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)；v2.4 见 [release-goals/v2.4.md](./release-goals/v2.4.md) 与 [migrations/2.3-to-2.4.md](./migrations/2.3-to-2.4.md)；从 2.2 升级见 [migrations/2.2-to-2.3.md](./migrations/2.2-to-2.3.md)。
 
 PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`、`record.view.load`、`table.sort`、`app.manifest`、`app.navigation`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。L2 另强制字段集→`protocolVersion` 下限（2.1 字段不得挂在 `"2.0"`；2.2 字段须 `"2.2"`；`permissionCascade` / `permissionIntent` 须 `"2.3"` 且声明 `permissions.inheritance`；`recordView` 须 `"2.4"` 且声明 `record.view.load`；`sortable` / `sortField` / `defaultSort` 须 `"2.5"` 且声明 `table.sort`）。
 
