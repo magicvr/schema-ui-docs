@@ -1,6 +1,6 @@
 ---
 status: stable
-applies_to: schema-ui-protocol v2.4
+applies_to: schema-ui-protocol v2.5
 ---
 
 # 扩展示例：编辑与删除权限继承

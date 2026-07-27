@@ -34,7 +34,7 @@ last_updated: 2026-07-24
 3. **协议 PATCH**：可选重建 MCP；若重建，可只升 MCP PATCH 并更新捆绑声明。
 4. **仅 MCP 程序变更**：只升 MCP PATCH（如 `2.4.0` → `2.4.1`），协议 tag 不动；捆绑协议版本可保持不变。
 5. **禁止** MCP `2.4.x` 捆绑 `2.3.*` 或 `2.5.*` 等跨线协议。
-6. **运行时不自动拉取**远程协议更新；镜像内置制品。需要更新则发新 MCP 镜像，或由运维设置 `SCHEMA_UI_PROTOCOL_ROOT` 指向自建制品。
+6. **运行时不自动拉取**远程协议更新；镜像内置制品。生产 Docker（`NODE_ENV=production`）忽略 `SCHEMA_UI_PROTOCOL_ROOT` / `SCHEMA_UI_VALIDATOR_ROOT`；需要换制品则发新 MCP 镜像。本地开发可用上述变量，或在生产进程上显式设置 `SCHEMA_UI_ALLOW_EXTERNAL_ROOTS=1` 后覆盖（见 ADR-0007 D9）。
 
 示例：
 

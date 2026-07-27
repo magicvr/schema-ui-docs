@@ -511,23 +511,62 @@ def build_form_action_request(input_value):
     }
 
 
+def join_base(base, relative_path):
+    normalized_base = re.sub(r"/+$", "", str(base or ""))
+    path_part = relative_path if relative_path.startswith("/") else f"/{relative_path}"
+    return f"{normalized_base}{path_part}"
+
+
+def apply_base_resolution(result, input_value):
+    """17 D1b: request/recordSource → API baseURL; navigate → app route root (V338)."""
+    if not result or result.get("ok") is not True:
+        return result
+    if "request" in result and isinstance(input_value.get("baseURL"), str):
+        request = dict(result["request"])
+        request["url"] = join_base(input_value["baseURL"], request["url"])
+        return {**result, "request": request, "resolvedBase": "api.baseURL"}
+    if "navigation" in result and isinstance(input_value.get("appRouteRoot"), str):
+        navigation = dict(result["navigation"])
+        navigation["url"] = join_base(input_value["appRouteRoot"], navigation["url"])
+        return {**result, "navigation": navigation, "resolvedBase": "app.routeRoot"}
+    return result
+
+
+def build_outcome_navigate(input_value):
+    url = input_value["url"] if "url" in input_value else (input_value.get("action") or {}).get("url")
+    url_error = validate_protocol_url(url, "url")
+    if url_error is not None:
+        return url_error
+    if re.search(r"[{}]", url or ""):
+        return failure("UNBOUND_URL_TEMPLATE", "url")
+    serialized = serialize_query(url, [])
+    if not serialized["ok"]:
+        return serialized
+    return {"ok": True, "navigation": {"url": serialized["url"]}}
+
+
 def build_request(input_value):
-    if input_value.get("kind") == "dataRef":
-        return build_data_ref_request(input_value["dataRef"])
-    if input_value.get("kind") == "rowAction":
-        return build_row_action_request(input_value)
-    if input_value.get("kind") == "rowNavigate":
-        return build_row_navigate(input_value)
-    if input_value.get("kind") == "recordSource":
-        return build_record_source_request(input_value)
-    if input_value.get("kind") == "pageTriggerRequest":
-        return build_page_trigger_request(input_value)
-    if input_value.get("kind") == "pageTriggerNavigate":
-        return build_page_trigger_navigate(input_value)
-    if input_value.get("kind") == "pageTriggerModal":
-        return build_page_trigger_modal(input_value)
-    if input_value.get("kind") == "batchRequest":
-        return build_batch_request(input_value)
-    if input_value.get("kind") == "formAction":
-        return build_form_action_request(input_value)
-    return failure("INVALID_REQUEST_KIND", "kind")
+    kind = input_value.get("kind")
+    if kind == "dataRef":
+        result = build_data_ref_request(input_value["dataRef"])
+    elif kind == "rowAction":
+        result = build_row_action_request(input_value)
+    elif kind == "rowNavigate":
+        result = build_row_navigate(input_value)
+    elif kind == "recordSource":
+        result = build_record_source_request(input_value)
+    elif kind == "pageTriggerRequest":
+        result = build_page_trigger_request(input_value)
+    elif kind == "pageTriggerNavigate":
+        result = build_page_trigger_navigate(input_value)
+    elif kind == "pageTriggerModal":
+        result = build_page_trigger_modal(input_value)
+    elif kind == "batchRequest":
+        result = build_batch_request(input_value)
+    elif kind == "formAction":
+        result = build_form_action_request(input_value)
+    elif kind == "outcomeNavigate":
+        result = build_outcome_navigate(input_value)
+    else:
+        return failure("INVALID_REQUEST_KIND", "kind")
+    return apply_base_resolution(result, input_value)

@@ -1,4 +1,10 @@
+import re
+
 from app_manifest import match_route
+
+
+VAR_RE = re.compile(r"\$[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
+ALLOWED_NAV_CONTEXT_ROOTS = {"user", "features"}
 
 
 def is_object(value):
@@ -13,7 +19,6 @@ def eval_simple_when(when, context):
     if not isinstance(when, str):
         return False
 
-    import re
     contains = re.fullmatch(r'\$context\.user\.roles\s+contains\s+"([^"]+)"', when.strip())
     if contains:
         roles = ((context or {}).get("user") or {}).get("roles")
@@ -30,6 +35,82 @@ def eval_simple_when(when, context):
         return ((context or {}).get("user") or {}).get("id") == id_match.group(1)
 
     return False
+
+
+def validate_nav_expression(expr, path):
+    """M3a static check: only $context.user.* / $context.features.* (V337)."""
+    if expr is None:
+        return None
+    if isinstance(expr, bool):
+        return None
+    if not isinstance(expr, str):
+        return {"code": "SYNTAX", "path": path}
+    trimmed = expr.strip()
+    if not trimmed:
+        return {"code": "SYNTAX", "path": path}
+
+    if trimmed.count('"') % 2 != 0:
+        return {"code": "SYNTAX", "path": path}
+    depth = 0
+    for ch in trimmed:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth < 0:
+                return {"code": "SYNTAX", "path": path}
+    if depth != 0:
+        return {"code": "SYNTAX", "path": path}
+    if re.search(r"(?:==|!=|<=|>=|<|>|&&|\|\||\bcontains\b)\s*$", trimmed):
+        return {"code": "SYNTAX", "path": path}
+    if re.match(r"\s*(?:==|!=|<=|>=|<|>|&&|\|\||\bcontains\b)", trimmed):
+        return {"code": "SYNTAX", "path": path}
+    if re.search(r"\$(?![A-Za-z_])", trimmed):
+        return {"code": "SYNTAX", "path": path}
+
+    for variable_name in VAR_RE.findall(trimmed):
+        if (
+            variable_name == "$self"
+            or variable_name.startswith("$self.")
+            or variable_name == "$deps"
+            or variable_name.startswith("$deps.")
+            or variable_name == "$row"
+            or variable_name.startswith("$row.")
+            or variable_name == "$parentRow"
+            or variable_name.startswith("$parentRow.")
+        ):
+            return {"code": "FORBIDDEN_VARIABLE", "path": path}
+        if variable_name.startswith("$context."):
+            root = variable_name[len("$context."):].split(".", 1)[0]
+            if root not in ALLOWED_NAV_CONTEXT_ROOTS:
+                return {"code": "FORBIDDEN_CONTEXT_NAMESPACE", "path": path}
+            continue
+        return {"code": "UNKNOWN_VARIABLE", "path": path}
+
+    return None
+
+
+def collect_nav_expression_errors(items, path_prefix, errors):
+    if not isinstance(items, list):
+        return
+    for index, item in enumerate(items):
+        if not is_object(item):
+            continue
+        item_path = f"{path_prefix}[{index}]"
+        if "visibleWhen" in item and item.get("visibleWhen") is not None:
+            visible_when = item.get("visibleWhen")
+            when = visible_when.get("when") if isinstance(visible_when, dict) else visible_when
+            err = validate_nav_expression(when, f"{item_path}.visibleWhen.when")
+            if err:
+                errors.append(err)
+        if "permissions" in item and item.get("permissions") is not None:
+            permissions = item.get("permissions")
+            if isinstance(permissions, dict) and "view" in permissions:
+                err = validate_nav_expression(permissions.get("view"), f"{item_path}.permissions.view")
+                if err:
+                    errors.append(err)
+        if isinstance(item.get("items"), list):
+            collect_nav_expression_errors(item.get("items"), f"{item_path}.items", errors)
 
 
 def eval_permissions_view(permissions, context):
@@ -141,6 +222,17 @@ def validate_navigation_structure(navigation):
     return {"ok": len(errors) == 0, "errors": errors}
 
 
+def validate_navigation_m3a(navigation):
+    """M3a static expression layer (not mixed into runtime filter)."""
+    errors = []
+    if not is_object(navigation):
+        return {"ok": False, "errors": [{"code": "INVALID_NAVIGATION"}]}
+    for slot in ("top", "sidebar", "user"):
+        if slot in navigation:
+            collect_nav_expression_errors(navigation.get(slot), f"navigation.{slot}", errors)
+    return {"ok": len(errors) == 0, "errors": errors}
+
+
 def evaluate_app_navigation(input_data):
     operation = input_data.get("operation") or "project"
     navigation = input_data.get("navigation") or {}
@@ -149,10 +241,14 @@ def evaluate_app_navigation(input_data):
     path = input_data.get("path") or "/"
 
     if operation == "validate":
-        result = validate_navigation_structure(navigation)
-        if not result["ok"]:
-            first = result["errors"][0]
-            return {"ok": False, "code": first["code"], "path": first.get("path"), "errors": result["errors"]}
+        struct = validate_navigation_structure(navigation)
+        if not struct["ok"]:
+            first = struct["errors"][0]
+            return {"ok": False, "code": first["code"], "path": first.get("path"), "errors": struct["errors"]}
+        m3a = validate_navigation_m3a(navigation)
+        if not m3a["ok"]:
+            first = m3a["errors"][0]
+            return {"ok": False, "code": first["code"], "path": first.get("path"), "errors": m3a["errors"]}
         return {"ok": True}
 
     struct = validate_navigation_structure(navigation)

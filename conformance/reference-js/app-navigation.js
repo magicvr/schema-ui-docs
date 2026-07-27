@@ -6,6 +6,9 @@ function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+const VAR_RE = /\$[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*/g;
+const ALLOWED_NAV_CONTEXT_ROOTS = new Set(['user', 'features']);
+
 /**
  * Minimal expression eval for navigation filter fixtures.
  * Supports:
@@ -47,6 +50,93 @@ function evalSimpleWhen(when, context) {
 
   // Unknown expression → fail-closed hide (M3a runtime stand-in)
   return false;
+}
+
+/**
+ * M3a static check for navigation visibleWhen / permissions (non-form L3a rules).
+ * Only $context.user.* / $context.features.* are allowed; illegal expressions are reported
+ * as structured errors and must not be silently treated as "permission denied".
+ */
+function validateNavExpression(expr, path) {
+  if (expr === undefined || expr === null) return null;
+  if (typeof expr === 'boolean') return null;
+  if (typeof expr !== 'string') {
+    return { code: 'SYNTAX', path };
+  }
+  const trimmed = expr.trim();
+  if (!trimmed) {
+    return { code: 'SYNTAX', path };
+  }
+
+  // Basic syntax: unbalanced quotes / parens, dangling operators.
+  if (((trimmed.match(/"/g) || []).length % 2) !== 0) {
+    return { code: 'SYNTAX', path };
+  }
+  let depth = 0;
+  for (const ch of trimmed) {
+    if (ch === '(') depth += 1;
+    if (ch === ')') depth -= 1;
+    if (depth < 0) return { code: 'SYNTAX', path };
+  }
+  if (depth !== 0) return { code: 'SYNTAX', path };
+  if (/(?:==|!=|<=|>=|<|>|&&|\|\||\bcontains\b)\s*$/.test(trimmed)) {
+    return { code: 'SYNTAX', path };
+  }
+  if (/^\s*(?:==|!=|<=|>=|<|>|&&|\|\||\bcontains\b)/.test(trimmed)) {
+    return { code: 'SYNTAX', path };
+  }
+  // Bare `$` or incomplete `$` tokens that are not full variables.
+  if (/\$(?![A-Za-z_])/.test(trimmed)) {
+    return { code: 'SYNTAX', path };
+  }
+
+  const vars = trimmed.match(VAR_RE) || [];
+  for (const variableName of vars) {
+    if (
+      variableName === '$self'
+      || variableName.startsWith('$self.')
+      || variableName === '$deps'
+      || variableName.startsWith('$deps.')
+      || variableName === '$row'
+      || variableName.startsWith('$row.')
+      || variableName === '$parentRow'
+      || variableName.startsWith('$parentRow.')
+    ) {
+      return { code: 'FORBIDDEN_VARIABLE', path };
+    }
+    if (variableName.startsWith('$context.')) {
+      const root = variableName.slice('$context.'.length).split('.')[0];
+      if (!ALLOWED_NAV_CONTEXT_ROOTS.has(root)) {
+        return { code: 'FORBIDDEN_CONTEXT_NAMESPACE', path };
+      }
+      continue;
+    }
+    return { code: 'UNKNOWN_VARIABLE', path };
+  }
+
+  return null;
+}
+
+function collectNavExpressionErrors(items, pathPrefix, errors) {
+  if (!Array.isArray(items)) return;
+  items.forEach((item, index) => {
+    if (!isObject(item)) return;
+    const itemPath = `${pathPrefix}[${index}]`;
+    if (item.visibleWhen !== undefined && item.visibleWhen !== null) {
+      const when = isObject(item.visibleWhen) ? item.visibleWhen.when : item.visibleWhen;
+      const err = validateNavExpression(when, `${itemPath}.visibleWhen.when`);
+      if (err) errors.push(err);
+    }
+    if (item.permissions !== undefined && item.permissions !== null) {
+      if (isObject(item.permissions) && Object.prototype.hasOwnProperty.call(item.permissions, 'view')) {
+        const err = validateNavExpression(item.permissions.view, `${itemPath}.permissions.view`);
+        if (err) errors.push(err);
+      }
+    }
+    if (Array.isArray(item.items)) {
+      collectNavExpressionErrors(item.items, `${itemPath}.items`, errors);
+    }
+  });
 }
 
 function evalPermissionsView(permissions, context) {
@@ -163,6 +253,19 @@ function validateNavigationStructure(navigation) {
   return { ok: errors.length === 0, errors };
 }
 
+/** M3a static expression layer (parallel to structure checks; not mixed into runtime filter). */
+function validateNavigationM3a(navigation) {
+  const errors = [];
+  if (!isObject(navigation)) {
+    return { ok: false, errors: [{ code: 'INVALID_NAVIGATION' }] };
+  }
+  for (const slot of ['top', 'sidebar', 'user']) {
+    if (!Object.prototype.hasOwnProperty.call(navigation, slot)) continue;
+    collectNavExpressionErrors(navigation[slot], `navigation.${slot}`, errors);
+  }
+  return { ok: errors.length === 0, errors };
+}
+
 /**
  * input:
  *   operation: "filter" | "highlight" | "validate" | "project" (filter+highlight)
@@ -177,9 +280,13 @@ function evaluateAppNavigation(input) {
   const path = input.path || '/';
 
   if (operation === 'validate') {
-    const result = validateNavigationStructure(navigation);
-    if (!result.ok) {
-      return { ok: false, code: result.errors[0].code, path: result.errors[0].path, errors: result.errors };
+    const struct = validateNavigationStructure(navigation);
+    if (!struct.ok) {
+      return { ok: false, code: struct.errors[0].code, path: struct.errors[0].path, errors: struct.errors };
+    }
+    const m3a = validateNavigationM3a(navigation);
+    if (!m3a.ok) {
+      return { ok: false, code: m3a.errors[0].code, path: m3a.errors[0].path, errors: m3a.errors };
     }
     return { ok: true };
   }
@@ -228,4 +335,5 @@ module.exports = {
   filterItems,
   highlightLink,
   evalSimpleWhen,
+  validateNavExpression,
 };

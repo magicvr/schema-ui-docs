@@ -1,0 +1,35 @@
+# Build-context isolation for mcp/Dockerfile (audit 0071 / V343).
+# Keep inputs the Dockerfile COPY needs; drop secrets, caches, audit process files.
+
+.git
+.github
+.grok
+.vscode
+.idea
+
+.env
+.env.*
+*.local
+
+**/node_modules
+**/dist
+**/coverage
+**/.turbo
+**/.cache
+**/*.log
+**/.DS_Store
+**/Thumbs.db
+
+# Process-only audit records never ship in protocol/MCP artifacts.
+docs/audit
+
+# Local scratch / editor debris that must not enter the builder context.
+*.swp
+*.swo
+*~
+tmp
+temp
+.tmp
+sentinel-*
+**/*secret*
+**/*credentials*

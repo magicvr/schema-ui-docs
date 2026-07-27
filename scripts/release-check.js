@@ -6,7 +6,12 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const yaml = require('js-yaml');
-const { OFFICIAL_SCENARIO_PATHS, readOfficialScenario } = require('./official-scenarios');
+const {
+  OFFICIAL_SCENARIO_PATHS,
+  CONFORMANCE_SCENARIO_PATHS,
+  extractAllYamlFences,
+  readOfficialScenario,
+} = require('./official-scenarios');
 const { buildProtocolArtifact } = require('./build-protocol-artifact');
 
 const root = path.resolve(__dirname, '..');
@@ -22,7 +27,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:26179a46712de6ccd4f655dc236a25164f0f55d25a563cfc6e5245435a560512';
+  'sha256:712f6c4293ccd7e7c0355d9fe9e4b264eecbd64fc5cac68251a4e8e8458ecf7e';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -239,8 +244,8 @@ const expectedVersionedCaseCountByProtocol = {
   '2.3': 206,
   // 2.4: base 213（0067 前）+1 record-view-empty-mapping-rejected = 214
   '2.4': 214,
-  // 2.5: 214 +7 VN +14 table-sort +36 app-manifest +11 app-navigation = 282
-  '2.5': 282,
+  // 2.5: 282 base (v2.5.0) +1 app-manifest floor +5 nav M3a +4 D1b base matrix = 292 (审计 0071)
+  '2.5': 292,
 };
 const expectedVersionedCaseCount = expectedVersionedCaseCountByProtocol[protocolVersion];
 assert.ok(
@@ -273,6 +278,45 @@ for (const relativePath of coreSpecPaths) {
   assert.ok(
     !/applies_to:\s*schema-ui-protocol\s+v0\.3\b/.test(text),
     `${relativePath}: stale applies_to v0.3`,
+  );
+}
+
+// Scenario frontmatter version must match YAML meta.protocolVersion (审计 0071 / V342).
+// Accept either `applies_to: schema-ui-protocol vX.Y` or `protocol_version: vX.Y`.
+const scenarioDocsForFrontmatter = [
+  ...new Set([
+    ...CONFORMANCE_SCENARIO_PATHS,
+    ...OFFICIAL_SCENARIO_PATHS,
+    'docs/05-scenarios/admin-list-batch.md',
+    'docs/05-scenarios/permission-inheritance.md',
+  ]),
+];
+for (const relativePath of scenarioDocsForFrontmatter) {
+  const text = readText(relativePath);
+  const appliesMatch = text.match(/^applies_to:\s*schema-ui-protocol\s+v([0-9]+\.[0-9]+)\s*$/m);
+  const protocolVersionMatch = text.match(/^protocol_version:\s*v([0-9]+\.[0-9]+)\s*$/m);
+  const frontmatterVersion = (appliesMatch && appliesMatch[1]) || (protocolVersionMatch && protocolVersionMatch[1]);
+  assert.ok(
+    frontmatterVersion,
+    `${relativePath}: missing frontmatter applies_to or protocol_version MAJOR.MINOR`,
+  );
+  const fences = extractAllYamlFences(text);
+  assert.ok(fences.length > 0, `${relativePath}: no yaml fence for version check`);
+  let sawPageMetaVersion = false;
+  for (const fence of fences) {
+    // Prefer regex over full YAML parse: some scenario fences are illustrative fragments.
+    const metaVersionMatch = fence.match(/^\s*protocolVersion:\s*["']?([0-9]+\.[0-9]+)["']?\s*$/m);
+    if (!metaVersionMatch) continue;
+    sawPageMetaVersion = true;
+    assert.equal(
+      metaVersionMatch[1],
+      frontmatterVersion,
+      `${relativePath}: frontmatter v${frontmatterVersion} != YAML meta.protocolVersion ${metaVersionMatch[1]}`,
+    );
+  }
+  assert.ok(
+    sawPageMetaVersion,
+    `${relativePath}: no YAML meta.protocolVersion found to compare with frontmatter`,
   );
 }
 

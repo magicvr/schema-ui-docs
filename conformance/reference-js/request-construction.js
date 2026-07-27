@@ -505,17 +505,76 @@ function buildFormActionRequest(input) {
   };
 }
 
-function buildRequest(input) {
-  if (input.kind === 'dataRef') return buildDataRefRequest(input.dataRef);
-  if (input.kind === 'rowAction') return buildRowActionRequest(input);
-  if (input.kind === 'rowNavigate') return buildRowNavigate(input);
-  if (input.kind === 'recordSource') return buildRecordSourceRequest(input);
-  if (input.kind === 'pageTriggerRequest') return buildPageTriggerRequest(input);
-  if (input.kind === 'pageTriggerNavigate') return buildPageTriggerNavigate(input);
-  if (input.kind === 'pageTriggerModal') return buildPageTriggerModal(input);
-  if (input.kind === 'batchRequest') return buildBatchRequest(input);
-  if (input.kind === 'formAction') return buildFormActionRequest(input);
-  return failure('INVALID_REQUEST_KIND', 'kind');
+/**
+ * 17 D1b base matrix:
+ * - HTTP request / recordSource / dataRef / upload → API baseURL
+ * - navigate / OutcomeBehavior navigate / nav url → application route root
+ * Relative protocol paths remain the stored form; absolute resolution is optional when
+ * fixtures supply baseURL / appRouteRoot (V338).
+ */
+function joinBase(base, relativePath) {
+  const normalizedBase = String(base || '').replace(/\/+$/, '');
+  const pathPart = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
+  return `${normalizedBase}${pathPart}`;
 }
 
-module.exports = { buildRequest };
+function applyBaseResolution(result, input) {
+  if (!result || result.ok !== true) return result;
+  if (result.request && typeof input.baseURL === 'string') {
+    return {
+      ...result,
+      request: {
+        ...result.request,
+        url: joinBase(input.baseURL, result.request.url),
+      },
+      resolvedBase: 'api.baseURL',
+    };
+  }
+  if (result.navigation && typeof input.appRouteRoot === 'string') {
+    return {
+      ...result,
+      navigation: {
+        ...result.navigation,
+        url: joinBase(input.appRouteRoot, result.navigation.url),
+      },
+      resolvedBase: 'app.routeRoot',
+    };
+  }
+  return result;
+}
+
+/** OutcomeBehavior navigate — application route root (not API baseURL). */
+function buildOutcomeNavigate(input) {
+  const url = input.url !== undefined ? input.url : input.action?.url;
+  const urlError = validateProtocolUrl(url, 'url');
+  if (urlError) return urlError;
+  if (/[{}]/.test(url || '')) {
+    return failure('UNBOUND_URL_TEMPLATE', 'url');
+  }
+  const serialized = serializeQuery(url, []);
+  if (!serialized.ok) return serialized;
+  return {
+    ok: true,
+    navigation: {
+      url: serialized.url,
+    },
+  };
+}
+
+function buildRequest(input) {
+  let result;
+  if (input.kind === 'dataRef') result = buildDataRefRequest(input.dataRef);
+  else if (input.kind === 'rowAction') result = buildRowActionRequest(input);
+  else if (input.kind === 'rowNavigate') result = buildRowNavigate(input);
+  else if (input.kind === 'recordSource') result = buildRecordSourceRequest(input);
+  else if (input.kind === 'pageTriggerRequest') result = buildPageTriggerRequest(input);
+  else if (input.kind === 'pageTriggerNavigate') result = buildPageTriggerNavigate(input);
+  else if (input.kind === 'pageTriggerModal') result = buildPageTriggerModal(input);
+  else if (input.kind === 'batchRequest') result = buildBatchRequest(input);
+  else if (input.kind === 'formAction') result = buildFormActionRequest(input);
+  else if (input.kind === 'outcomeNavigate') result = buildOutcomeNavigate(input);
+  else return failure('INVALID_REQUEST_KIND', 'kind');
+  return applyBaseResolution(result, input);
+}
+
+module.exports = { buildRequest, joinBase };

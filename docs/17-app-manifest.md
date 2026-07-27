@@ -22,6 +22,8 @@ applies_to: schema-ui-protocol v2.5
 
 合法：清单 `"2.5"`，注册页分别为 `"2.1"` / `"2.4"` / `"2.5"`。装载 2.5 清单**不**要求全站页面升级。页协商失败只拒该页。
 
+应用清单本身是 **v2.5 字段集**：顶层 `protocolVersion` 必须 `>= "2.5"`（M1 `PROTOCOL_VERSION_TOO_LOW`）。**不得**把「页面可继续为 2.4」误读为「清单也可声明 2.4」。
+
 未提供清单的后端：页面级对接与 v2.4 完全一致（应用级可选）。
 
 ### 1.1 Capability
@@ -209,8 +211,8 @@ navigation:
 | 层级 | 对应页面 | 内容 |
 |---|---|---|
 | **M0** 结构 | L0 | `app-manifest.schema.json`：顶层结构、类型、`additionalProperties: false`、`protocolVersion` 格式 |
-| **M1** 语义 | L2 | `pageId` 唯一、`appId` pattern、route 模板语法与唯一、占位符 ⊆、`homePageRef` 完整性与无参、空 pages 禁 home/`pageRef`、capability 门控、路径/logo 形态、`pageRef`/`url` 互斥、组不嵌组、`permissions` 仅 view |
-| **M3a** 表达式 | L3a | 导航 `visibleWhen` / `permissions`：复用 L3a **非表单**规则（仅 `$context.user.*` / `$context.features.*`），作用域为清单制品 |
+| **M1** 语义 | L2 | 清单 `protocolVersion >= "2.5"`（字段集下限；**不是**页面解耦）、`pageId` 唯一、`appId` pattern、route 模板语法与唯一、占位符 ⊆、`homePageRef` 完整性与无参、空 pages 禁 home/`pageRef`、capability 门控、路径/logo 形态、`pageRef`/`url` 互斥、组不嵌组、`permissions` 仅 view |
+| **M3a** 表达式 | L3a | 导航 `visibleWhen` / `permissions`：复用 L3a **非表单**规则（仅 `$context.user.*` / `$context.features.*`），作用域为清单制品；静态非法须结构化报告（不得仅靠运行时静默隐藏） |
 
 ---
 
@@ -235,7 +237,9 @@ navigation:
 | `MANIFEST_HOME_ROUTE_PARAMETRIC` | home 目标 route 含占位 |
 | `MISSING_PATH_BINDING` | `schemaUrl` 占位未解析 |
 | `MISSING_PROTOCOL_VERSION` | 清单缺 `protocolVersion` |
-| `UNSUPPORTED_PROTOCOL_VERSION` | 清单版本不在 Renderer 支持列表 |
+| `INVALID_PROTOCOL_VERSION` | 清单 `protocolVersion` 非 MAJOR.MINOR 形态 |
+| `PROTOCOL_VERSION_TOO_LOW` | 清单 `protocolVersion < "2.5"`（M1 字段集下限；与页面 meta 解耦无关） |
+| `UNSUPPORTED_PROTOCOL_VERSION` | 清单版本不在 Renderer 支持列表（协商阶段） |
 | `MISSING_REQUIRED_CAPABILITY` | 清单 requiredCapabilities 有缺失 |
 
 `MANIFEST_ROUTE_AMBIGUOUS` **不是**稳定互操作码。

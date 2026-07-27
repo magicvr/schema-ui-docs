@@ -1,6 +1,6 @@
 ---
 status: extended-example
-protocol_version: v2.4
+protocol_version: v2.5
 capabilities:
   - actions.row.navigate
   - record.view.load

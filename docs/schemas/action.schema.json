@@ -19,7 +19,7 @@
         "url": {
           "type": "string",
           "pattern": "^/(?!/)[^\\s\\\\]*$",
-          "description": "请求地址必须是 baseURL 下的单斜杠相对路径"
+          "description": "请求地址必须是 API baseURL 下的单斜杠相对路径（HTTP；非应用路由根；见 17 D1b）"
         },
         "bodyMapping": {
           "type": "object",
@@ -49,7 +49,7 @@
         "url": {
           "type": "string",
           "pattern": "^/(?!/)[^\\s\\\\]*$",
-          "description": "导航地址必须是 baseURL 下的单斜杠相对路径"
+          "description": "导航地址必须是应用路由根下的单斜杠相对路径（非 API baseURL；见 17 D1b）"
         }
       },
       "required": ["type", "url"],
@@ -143,7 +143,7 @@
         "url": {
           "type": "string",
           "pattern": "^/(?!/)[^\\s\\\\]*$",
-          "description": "behavior: navigate 时的 baseURL 下单斜杠相对目标地址"
+          "description": "behavior: navigate 时的应用路由根下单斜杠相对目标地址（非 API baseURL；见 17 D1b）"
         }
       },
       "required": ["behavior"],

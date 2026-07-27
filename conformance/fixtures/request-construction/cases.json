@@ -1723,6 +1723,109 @@
         "code": "UNBOUND_URL_TEMPLATE",
         "path": "action.url"
       }
+    },
+    {
+      "id": "d1b-form-request-joins-api-baseurl",
+      "protocolVersion": "2.5",
+      "category": "request-construction",
+      "input": {
+        "kind": "formAction",
+        "baseURL": "https://api.example.test/v1",
+        "appRouteRoot": "https://app.example.test",
+        "action": {
+          "type": "request",
+          "method": "POST",
+          "url": "/orders/1"
+        },
+        "formValues": {
+          "name": "A"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "POST",
+          "url": "https://api.example.test/v1/orders/1",
+          "body": {
+            "name": "A"
+          }
+        },
+        "resolvedBase": "api.baseURL"
+      }
+    },
+    {
+      "id": "d1b-record-source-joins-api-baseurl",
+      "protocolVersion": "2.5",
+      "category": "request-construction",
+      "input": {
+        "kind": "recordSource",
+        "baseURL": "https://api.example.test/v1",
+        "appRouteRoot": "https://app.example.test",
+        "recordSource": {
+          "method": "GET",
+          "url": "/orders/{id}",
+          "path": {
+            "id": "$context.route.params.id"
+          },
+          "responseMapping": {
+            "name": "name"
+          }
+        },
+        "route": {
+          "params": {
+            "id": "42"
+          },
+          "query": {}
+        }
+      },
+      "expected": {
+        "ok": true,
+        "request": {
+          "method": "GET",
+          "url": "https://api.example.test/v1/orders/42",
+          "body": null
+        },
+        "resolvedBase": "api.baseURL"
+      }
+    },
+    {
+      "id": "d1b-page-navigate-joins-app-route-root",
+      "protocolVersion": "2.5",
+      "category": "request-construction",
+      "input": {
+        "kind": "pageTriggerNavigate",
+        "baseURL": "https://api.example.test/v1",
+        "appRouteRoot": "https://app.example.test",
+        "action": {
+          "type": "navigate",
+          "url": "/orders/1"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "navigation": {
+          "url": "https://app.example.test/orders/1"
+        },
+        "resolvedBase": "app.routeRoot"
+      }
+    },
+    {
+      "id": "d1b-outcome-navigate-joins-app-route-root",
+      "protocolVersion": "2.5",
+      "category": "request-construction",
+      "input": {
+        "kind": "outcomeNavigate",
+        "baseURL": "https://api.example.test/v1",
+        "appRouteRoot": "https://app.example.test",
+        "url": "/orders/1"
+      },
+      "expected": {
+        "ok": true,
+        "navigation": {
+          "url": "https://app.example.test/orders/1"
+        },
+        "resolvedBase": "app.routeRoot"
+      }
     }
   ]
 }

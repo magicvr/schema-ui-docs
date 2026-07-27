@@ -9,6 +9,21 @@
 
 （无）
 
+## v2.5.1 — 2026-07-28（审计 0071 契约投影闭合）
+
+> **版本说明：** PATCH 发布准备。页面 `meta.protocolVersion` 继续为 `"2.5"`；本版本固化 v2.5.0 已发布制品中发现的实现/契约投影缺口，不改写 `v2.5.0` tag 或其 Release 资产。
+
+**审计 0071 契约投影闭合（V336–V343）：**
+- **V336：** 应用清单 M1 拒绝 `protocolVersion < "2.5"`（`PROTOCOL_VERSION_TOO_LOW`）；页面 meta 仍可解耦为 2.4。
+- **V337：** 导航 M3a 静态表达式校验（仅 `$context.user.*` / `$context.features.*`）；非法表达式在 `validate` 结构化报告。
+- **V338：** 以 `17` D1b 统一 request→API `baseURL`、navigate→应用路由根；同步 `07` / Schema / request-construction 基址矩阵。
+- **V339：** `page.schema.json` 版本说明与 capability 列表同步至 2.5（含 `app.manifest` / `app.navigation` / `table.sort`）。
+- **V340：** MCP `DOC_MAP` 增加 `app-manifest`；稳定 `v2-release-goals` 指向 v2.5 门禁。
+- **V341：** 生产 `NODE_ENV=production` 忽略外部协议/验证器根目录环境变量（需 `SCHEMA_UI_ALLOW_EXTERNAL_ROOTS=1` 才覆盖）。
+- **V342：** 场景 frontmatter `applies_to` 与 YAML `meta.protocolVersion` 一致性门禁。
+- **V343：** 根 `.dockerignore` 隔离 build context，并纳入 MCP CI paths。
+- 版本化 fixture 计数：282 → 292。
+
 ## v2.5.0 — 2026-07-28（应用级清单、导航与表格排序声明）
 
 > **版本说明：** MINOR 发布。使用 `sortable` / `sortField` / `defaultSort` 的页面必须声明 `meta.protocolVersion: "2.5"` 与 `table.sort`。消费应用清单须声明 `app.manifest`（有 `navigation` 时另须 `app.navigation`）。合法 `2.4` 页面与无清单宿主行为不变。正式协议制品为 `schema-ui-protocol-2.5.0.tar.gz`。
@@ -24,7 +39,7 @@
 **Conformance 与示例：**
 - 新 suite：`app-manifest`、`app-navigation`、`table-sort`（JS/Python dual-language）。
 - `version-negotiation`：`2.5` 接受/拒绝与 `table.sort` / `app.manifest` / `app.navigation`；页 2.4 在含 2.5 的 Renderer 上解耦正例。
-- 算法类 fixtures 与官方场景统一 `protocolVersion: "2.5"`；version-negotiation 保留历史页面版本输入。版本化 fixture 共 16 类、282 cases（含 D4a 声明序等长 tiebreak、route 长度消歧，以及 navigation M1：`NAV_LINK_MUTEX` / `NAV_GROUP_NESTED` / `NAV_PAGE_REF_UNKNOWN`）。
+- 算法类 fixtures 与官方场景统一 `protocolVersion: "2.5"`；version-negotiation 保留历史页面版本输入。版本化 fixture 共 16 类（v2.5.0 发布时 282 cases；审计 0071 投影闭合后见 Unreleased 292）。含 D4a 声明序等长 tiebreak、route 长度消歧，以及 navigation M1：`NAV_LINK_MUTEX` / `NAV_GROUP_NESTED` / `NAV_PAGE_REF_UNKNOWN`。
 - 既有 `search-table`（0011）回归保持通过。
 - 迁移 [`2.4-to-2.5.md`](./migrations/2.4-to-2.5.md)；发布门禁 [`release-goals/v2.5.md`](./release-goals/v2.5.md)。
 

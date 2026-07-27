@@ -5,9 +5,17 @@ const image = process.argv[2] ?? 'schema-ui-mcp:2.0.0';
 const dockerCommand = process.env.DOCKER_COMMAND ?? 'docker';
 
 const client = new Client({ name: 'schema-ui-mcp-docker-smoke', version: '0.0.0' });
+// V341: inject external-root env vars; production image must still use built-in roots.
 const transport = new StdioClientTransport({
   command: dockerCommand,
-  args: ['run', '--rm', '-i', image],
+  args: [
+    'run',
+    '--rm',
+    '-i',
+    '-e', 'SCHEMA_UI_PROTOCOL_ROOT=/tmp/schema-ui-does-not-exist',
+    '-e', 'SCHEMA_UI_VALIDATOR_ROOT=/tmp/schema-ui-does-not-exist',
+    image,
+  ],
   stderr: 'pipe',
 });
 
@@ -29,7 +37,21 @@ try {
     }
   }
 
-  console.log(JSON.stringify({ image, tools: names }, null, 2));
+  const appManifest = await client.callTool({
+    name: 'protocol.get_doc',
+    arguments: { docId: 'app-manifest' },
+  });
+  const appManifestText = appManifest.content?.[0]?.text ?? '';
+  if (!String(appManifestText).includes('应用级清单') && !String(appManifestText).includes('app-manifest')) {
+    throw new Error('protocol.get_doc(app-manifest) failed under injected external-root env (V340/V341)');
+  }
+
+  console.log(JSON.stringify({
+    image,
+    tools: names,
+    externalRootEnvIgnored: true,
+    appManifestDocOk: true,
+  }, null, 2));
 } finally {
   await client.close();
 }

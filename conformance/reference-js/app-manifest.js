@@ -14,6 +14,17 @@ function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+/** Manifest fieldset floor is 2.5 (M1). Page meta versions remain decoupled (D1a). */
+function versionAtLeast(version, floor) {
+  const parsed = /^([0-9]+)\.([0-9]+)$/.exec(version || '');
+  if (!parsed) return false;
+  const [major, minor] = parsed.slice(1).map(Number);
+  const [floorMajor, floorMinor] = floor.split('.').map(Number);
+  return major > floorMajor || (major === floorMajor && minor >= floorMinor);
+}
+
+const MANIFEST_MIN_PROTOCOL_VERSION = '2.5';
+
 function joinBaseUrl(baseURL, path) {
   const base = String(baseURL || '').replace(/\/+$/, '');
   const p = path.startsWith('/') ? path : `/${path}`;
@@ -175,6 +186,9 @@ function validateManifestM1(manifest) {
     } else {
       errors.push({ code: 'INVALID_PROTOCOL_VERSION', path: 'protocolVersion' });
     }
+  } else if (!versionAtLeast(manifest.protocolVersion, MANIFEST_MIN_PROTOCOL_VERSION)) {
+    // M1 fieldset floor: app manifest is a v2.5+ artifact (V336).
+    errors.push({ code: 'PROTOCOL_VERSION_TOO_LOW', path: 'protocolVersion' });
   }
 
   const caps = Array.isArray(manifest.requiredCapabilities) ? manifest.requiredCapabilities : [];
