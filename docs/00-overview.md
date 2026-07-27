@@ -43,6 +43,7 @@ applies_to: schema-ui-protocol v2.4
 | [13-v2.2-release-goals.md](./13-v2.2-release-goals.md) | 前后端开发者 / 维护者 | `v2.2.0` 历史 MINOR 发布目标与门禁 |
 | [14-v2.3-release-goals.md](./14-v2.3-release-goals.md) | 前后端开发者 / 维护者 | `v2.3.0` 历史 MINOR 发布目标与门禁 |
 | [15-v2.4-release-goals.md](./15-v2.4-release-goals.md) | 前后端开发者 / 维护者 | `v2.4` 线 MINOR 发布目标与门禁（制品当前 `2.4.1`） |
+| [16-v2.5-release-goals.md](./16-v2.5-release-goals.md) | 维护者 | **draft** `v2.5` accept / 发布门禁（ADR-0025/0026/0027；未发布前不升当前制品版本叙事） |
 | [RELEASE.md](./RELEASE.md) | 维护者 | 发布流程：main 只 CI、独立 tag、协议资产与 MCP GHCR |
 | [11-next-admin-lifecycle-goals.md](./11-next-admin-lifecycle-goals.md) | 前后端开发者 / 维护者 | Admin 生命周期后续轨道（P1+ 规划） |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
@@ -58,6 +59,7 @@ applies_to: schema-ui-protocol v2.4
 - 查阅历史审计证据 → 查看 `audit/`；它不是协议权威来源，也不进入协议制品。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`。
 - 维护或发布 `v2.4.x` → 对照 `15-v2.4-release-goals.md`；`14` / `13` / `12` / `10` / `09` 为历史发布证据。
+- 准备 `v2.5` accept / 投影 → 对照 `16-v2.5-release-goals.md`（draft；G0–G5 全绿前不发 2.5 制品）。
 - 规划后续 Admin 能力 → 读 `11-next-admin-lifecycle-goals.md`；P0/P1 见 ADR-0020 / 0021 / 0022 / 0023。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
