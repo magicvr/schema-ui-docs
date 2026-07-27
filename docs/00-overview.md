@@ -84,7 +84,7 @@ applies_to: schema-ui-protocol v2.5
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v2.5.2`，页面通过 `meta.protocolVersion: "2.5"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.5 发布门禁见 [release-goals/v2.5.md](./release-goals/v2.5.md)；从 2.4 升级见 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)；v2.4 见 [release-goals/v2.4.md](./release-goals/v2.4.md) 与 [migrations/2.3-to-2.4.md](./migrations/2.3-to-2.4.md)；从 2.2 升级见 [migrations/2.2-to-2.3.md](./migrations/2.2-to-2.3.md)。
+当前协议版本：`v2.5.3`，页面通过 `meta.protocolVersion: "2.5"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.5 发布门禁见 [release-goals/v2.5.md](./release-goals/v2.5.md)；从 2.4 升级见 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)；v2.4 见 [release-goals/v2.4.md](./release-goals/v2.4.md) 与 [migrations/2.3-to-2.4.md](./migrations/2.3-to-2.4.md)；从 2.2 升级见 [migrations/2.2-to-2.3.md](./migrations/2.2-to-2.3.md)。
 
 PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`、`record.view.load`、`table.sort`、`app.manifest`、`app.navigation`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。L2 另强制字段集→`protocolVersion` 下限（2.1 字段不得挂在 `"2.0"`；2.2 字段须 `"2.2"`；`permissionCascade` / `permissionIntent` 须 `"2.3"` 且声明 `permissions.inheritance`；`recordView` 须 `"2.4"` 且声明 `record.view.load`；`sortable` / `sortField` / `defaultSort` 须 `"2.5"` 且声明 `table.sort`）。
 

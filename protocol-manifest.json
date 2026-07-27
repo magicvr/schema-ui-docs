@@ -1,7 +1,7 @@
 {
   "manifestVersion": "1.0",
   "name": "schema-ui-protocol",
-  "artifactVersion": "2.5.2",
+  "artifactVersion": "2.5.3",
   "protocolVersion": "2.5",
   "authority": {
     "semanticSpecs": [

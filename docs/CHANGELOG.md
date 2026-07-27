@@ -7,7 +7,15 @@
 
 ## Unreleased
 
+（无）
+
+## v2.5.3 — 2026-07-28（审计 0073 文档重编号与发布身份）
+
+> **版本说明：** PATCH 发布准备。页面 `meta.protocolVersion` 继续为 `"2.5"`；schemas、versioned fixtures 与核心语义相对正式 `v2.5.2` **机器契约未变**（fixture digest 仍为 `712f6c42…`）。本版本将应用级规范路径重编号固化为独立制品身份（审计 0073 / V349）。**不**改写 `v2.5.2` / `mcp-v2.5.2` tag 或其 Release 资产。正式协议制品为 `schema-ui-protocol-2.5.3.tar.gz`（contentDigest / artifactDigest 以 tag 后 GitHub Release 与制品内 `manifest.json` 为准）。
+
+**审计 0073（V349）：**
 - **文档卫生：** 应用级规范正文由 `docs/17-app-manifest.md` 重编号为 [`docs/09-app-manifest.md`](./09-app-manifest.md)（与 `00`–`08` 连续；原 `09`–`16` 门禁文件已迁入 `release-goals/`）。同步 `protocol-manifest`、核心交叉引用、MCP `DOC_MAP` 与 release-check 路径。语义不变。
+- **发布身份：** 工作树不得再以 `2.5.2` 承载与正式 Release 不同的 contentDigest；以 **2.5.3** 固化。
 - **演进轨道：** [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md) 登记 v2.5 之后 **D.1 待增补一等公民 backlog**（表单控件面、子表、导入导出、异步任务、树表等）；仍为 informative，不升 `protocolVersion`、不立项 Schema。
 
 ## v2.5.2 — 2026-07-28（审计 0072 入口卫生与门禁观察面）
