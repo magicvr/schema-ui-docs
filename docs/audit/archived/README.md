@@ -6,6 +6,28 @@
 
 ---
 
+## 0071 — 2026-07-28 — v2.5 契约投影、清单门禁与 MCP 边界
+
+**主题：** v2.5 应用清单/导航/URL 投影、MCP 文档与运行边界、场景元数据、Docker context，以及修复后制品的 PATCH 发布身份（V336–V344）。
+**性质：** 4×P1 + 4×P2 + 1×P3 **全部关闭**。主类型=实现/契约漂移；次类型=发布完整性。
+
+| 文件 | 说明 |
+|---|---|
+| [0071-2026-07-28-review.md](./0071-2026-07-28-review.md) | 审计报告 — V336–V344（全部关闭） |
+| [0071-2026-07-28-checklist.md](./0071-2026-07-28-checklist.md) | 跟踪清单 — 修复、2.5.1 发布与归档门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| V336–V343 | 双语言 reference/fixtures、M3a、基址语义、Schema、MCP 文档/根目录、场景 release gate 与 Docker context 均闭合；292 cases、35 conformance 入口、134 MCP tests 通过 |
+| V344 | PR [#26](https://github.com/magicvr/schema-ui-docs/pull/26) → `main` `6191c14`；tag `v2.5.1` Protocol Release [30308927470](https://github.com/magicvr/schema-ui-docs/actions/runs/30308927470) success；tag `mcp-v2.5.1` MCP CD [30309020148](https://github.com/magicvr/schema-ui-docs/actions/runs/30309020148) success |
+| 正式资产 | protocol artifact `sha256:3524c527…`；fixture `712f6c42…`；content `3a20f417…`；MCP 镜像 `sha256:bc16dc34…`（`2.5.1` / SHA / `2.5` / `latest` 同 digest，label 协议 2.5.1） |
+
+**说明：** 未改写 `v2.5.0` / `mcp-v2.5.0`。生产消费者升级继续作为 out-of-repo 跟踪。
+
+---
+
 ## 0070 — 2026-07-28 — v2.5.0 落地后发布完整性与入口卫生
 
 **主题：** v2.5.0 工作树已落地但发布证据链与制品链接门禁未闭合（V331–V335）。  
