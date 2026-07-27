@@ -518,7 +518,7 @@ def join_base(base, relative_path):
 
 
 def apply_base_resolution(result, input_value):
-    """17 D1b: request/recordSource → API baseURL; navigate → app route root (V338)."""
+    """09 D1b: request/recordSource → API baseURL; navigate → app route root (V338)."""
     if not result or result.get("ok") is not True:
         return result
     if "request" in result and isinstance(input_value.get("baseURL"), str):

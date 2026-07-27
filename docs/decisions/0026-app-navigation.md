@@ -10,7 +10,7 @@ track: 应用级协议（依赖 ADR-0025 应用级清单）
 ## 状态
 
 **Accepted。** 自 `schema-ui-protocol v2.5` 起生效。依赖 [ADR-0025](./0025-app-manifest.md)（清单容器与页面注册表）；
-独立 capability，可与 `app.manifest` 分离实现（只发现不导航的嵌入式宿主合法）。规范投影见 [17-app-manifest.md](../17-app-manifest.md) 导航专节。
+独立 capability，可与 `app.manifest` 分离实现（只发现不导航的嵌入式宿主合法）。规范投影见 [09-app-manifest.md](../09-app-manifest.md) 导航专节。
 
 ## 背景
 
@@ -148,7 +148,7 @@ navigation:
 - conformance 新 suite `app-navigation`：三槽位解析、分组、权限/`visibleWhen` 过滤（含 roles contains
   正负例、**缺省未声明 → 可见**）、空组剪枝、数组序稳定性、未知槽位拒绝、图标降级、当前项匹配
   （`pageRef` 单项 D4a、`url` 精确相等、query 不参与、多 active 允许）、空 pages 仅 `url` 壳；
-- 规范正文 `docs/17-app-manifest.md` 附 **icon 语义名建议词表**（informative，非规范）：至少覆盖
+- 规范正文 `docs/09-app-manifest.md` 附 **icon 语义名建议词表**（informative，非规范）：至少覆盖
   `home`、`orders`、`users`、`settings`、`dashboard`、`report`、`help`、`logout` 等常见 Admin 入口；
   未在词表中的合法语义名仍须按 D4 降级规则处理，不得拒绝；
 - CHANGELOG + migration（additive，无迁移动作）。

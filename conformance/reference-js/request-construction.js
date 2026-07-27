@@ -506,7 +506,7 @@ function buildFormActionRequest(input) {
 }
 
 /**
- * 17 D1b base matrix:
+ * 09 D1b base matrix:
  * - HTTP request / recordSource / dataRef / upload → API baseURL
  * - navigate / OutcomeBehavior navigate / nav url → application route root
  * Relative protocol paths remain the stored form; absolute resolution is optional when

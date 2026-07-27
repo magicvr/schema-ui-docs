@@ -39,7 +39,7 @@ applies_to: schema-ui-protocol v2.5
 
 > **v2.5 / ADR-0027 表格排序声明：** 出现 `columns[].sortable` / `sortField` 或 `table.props.defaultSort` 时要求 `meta.protocolVersion >= "2.5"` 与 `table.sort`。L2：`sortField` 仅 `sortable: true`；可排序 sortKey 全表唯一；保留名 `page`/`pageSize`/`sort` 拒绝；`defaultSort.field` 命中可排序 sortKey；可排序交互与 `defaultSort` **仅** `pagination.mode: server`。运行时未知 sortKey → `TABLE_SORT_FIELD_UNKNOWN`（见 `03` / ADR-0027）。
 
-> **v2.5 / 应用级清单（M 系列，与页面 L 平行）：** 清单制品使用 **M0 / M1 / M3a**（有意无 M2），见 [17-app-manifest.md](./17-app-manifest.md) 与 ADR-0025/0026。M0 = `app-manifest.schema.json`；M1 = 引用完整性、route 模板、capability 门控等；M3a = 导航 `visibleWhen`/`permissions` 复用 L3a 非表单规则（仅清单作用域）。页面管线 L0–L4 定义零改动。
+> **v2.5 / 应用级清单（M 系列，与页面 L 平行）：** 清单制品使用 **M0 / M1 / M3a**（有意无 M2），见 [09-app-manifest.md](./09-app-manifest.md) 与 ADR-0025/0026。M0 = `app-manifest.schema.json`；M1 = 引用完整性、route 模板、capability 门控等；M3a = 导航 `visibleWhen`/`permissions` 复用 L3a 非表单规则（仅清单作用域）。页面管线 L0–L4 定义零改动。
 
 > **v0.2.8 变更（引用完整性 & 继承 responseMapping 校验 & params.responseMapping 禁令 & Node id 唯一性 & 行级 requestMapping 模板禁令）：** L2 校验器增加以下规则：
 > - `form.props.submitAction` 必须引用顶层 `actions` 中已声明的动作 id；引用 `type: request` 时不得使用 GET，普通表单字段只按 JSON 请求体提交。

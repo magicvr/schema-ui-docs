@@ -11,7 +11,7 @@ Schema-UI 是前端 Renderer 与后端页面生产方共同遵守的、框架和
 
 | 层级 | 内容 | 作用 |
 |---|---|---|
-| 核心规范 | `docs/00`–`08`、`docs/17`、协议 ADR | 定义字段语义、默认值和能力边界 |
+| 核心规范 | `docs/00`–`09`、协议 ADR | 定义字段语义、默认值和能力边界 |
 | 机器契约 | `docs/schemas/` | 定义 JSON/YAML 结构与组件字段 |
 | 行为契约 | `conformance/fixtures/` | 定义跨前后端实现的可观测结果 |
 | 协议制品 | `schema-ui-protocol-<version>.tar.gz` | 前后端共同固定和消费的不可变发布单元 |

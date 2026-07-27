@@ -14,7 +14,7 @@
       "docs/06-validation.md",
       "docs/07-actions-contract.md",
       "docs/08-renderer-spec.md",
-      "docs/17-app-manifest.md",
+      "docs/09-app-manifest.md",
       "docs/decisions/0001-why-single-node-tree.md",
       "docs/decisions/0002-why-not-two-schema-uischema.md",
       "docs/decisions/0003-context-namespace-and-visible-when.md",

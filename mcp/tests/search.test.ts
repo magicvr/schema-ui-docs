@@ -27,13 +27,13 @@ describe('protocol docs', () => {
 
   it('returns the app-manifest core doc by stable docId', () => {
     const doc = getDoc('app-manifest');
-    expect(doc.path).toBe('docs/17-app-manifest.md');
+    expect(doc.path).toBe('docs/09-app-manifest.md');
     expect(doc.content).toContain('应用级清单');
   });
 
   it('searches app-manifest content and never indexes audit process files', () => {
     const results = searchProtocol('三类路径解析基址', 10).results;
-    expect(results.some(item => item.path === 'docs/17-app-manifest.md')).toBe(true);
+    expect(results.some(item => item.path === 'docs/09-app-manifest.md')).toBe(true);
     expect(results.every(item => !item.path.includes('docs/audit'))).toBe(true);
   });
 

@@ -92,7 +92,7 @@
     "AppRelativePath": {
       "type": "string",
       "pattern": "^/(?!/)[^\\s\\\\]*$",
-      "description": "Site-relative path (^/(?!/)[^\\s\\\\]*$). Resolve base depends on field: schemaUrl → API baseURL; route / nav url → application route root (17 D1b)."
+      "description": "Site-relative path (^/(?!/)[^\\s\\\\]*$). Resolve base depends on field: schemaUrl → API baseURL; route / nav url → application route root (09 D1b)."
     },
     "PageEntry": {
       "type": "object",
@@ -104,11 +104,11 @@
         "titleKey": { "type": "string", "minLength": 1 },
         "schemaUrl": {
           "$ref": "#/definitions/AppRelativePath",
-          "description": "Page schema GET path under API baseURL; may contain {name} bound from route (17 D1b)"
+          "description": "Page schema GET path under API baseURL; may contain {name} bound from route (09 D1b)"
         },
         "route": {
           "$ref": "#/definitions/AppRelativePath",
-          "description": "Application-route-root path template; may contain {name}; never joined with API baseURL (17 D1b)"
+          "description": "Application-route-root path template; may contain {name}; never joined with API baseURL (09 D1b)"
         }
       },
       "anyOf": [
@@ -135,7 +135,7 @@
         "url": {
           "type": "string",
           "pattern": "^/(?!/)[^\\s\\\\{}]*$",
-          "description": "Application-route-root relative path (no placeholders); not joined with API baseURL (17 D1b)"
+          "description": "Application-route-root relative path (no placeholders); not joined with API baseURL (09 D1b)"
         },
         "label": { "type": "string", "minLength": 1 },
         "labelKey": { "type": "string", "minLength": 1 },

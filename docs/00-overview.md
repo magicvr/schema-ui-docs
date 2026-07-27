@@ -37,7 +37,7 @@ applies_to: schema-ui-protocol v2.5
 | [06-validation.md](./06-validation.md) | 前后端开发者 / AI | 校验规则与工具链 |
 | [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
 | [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
-| [17-app-manifest.md](./17-app-manifest.md) | 前后端开发者 | 应用级清单与导航规范（ADR-0025/0026） |
+| [09-app-manifest.md](./09-app-manifest.md) | 前后端开发者 | 应用级清单与导航规范（ADR-0025/0026） |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
 | [migrations/](./migrations/) | 前后端开发者 | 版本间升级路径（informative） |
@@ -54,7 +54,7 @@ applies_to: schema-ui-protocol v2.5
 - 查阅历史审计证据 → 查看 `audit/`；它不是协议权威来源，也不进入协议制品。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`；升级步骤看 `migrations/`。
 - 维护或发布某 MINOR → 对照 [`release-goals/`](./release-goals/) 下对应 `vX.Y.md`（当前线：[`v2.5.md`](./release-goals/v2.5.md)，G0–G5 已闭合）。**门禁不是语义权威。**
-- 规划后续 Admin 能力 → 读 [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md)；P0/P1 见 ADR-0020 / 0021 / 0022 / 0023。
+- 规划后续 Admin 能力 / 待增补一等公民 → 读 [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md)（**informative** backlog；P0–D.0 已交付，D.1 待立项）。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
 
