@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-23
-applies_to: schema-ui-protocol v2.4
+applies_to: schema-ui-protocol v2.5
 ---
 
 # Action 完整契约（since 0.2）
@@ -43,7 +43,7 @@ actions:
 ```yaml
 type: request
 method: GET | POST | PUT | DELETE | PATCH
-url: string                  # baseURL 下的单斜杠相对路径
+url: string                  # 应用路由根下的单斜杠相对路径（非 API baseURL；见 ADR-0025 D1b）
 bodyMapping:            # 【可选】表单字段名 → 请求体字段名的映射
   customerName: name
 retryPolicy: never | idempotent # 【可选，默认 never】逻辑调用的重试策略
@@ -343,13 +343,13 @@ Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fiel
 onSuccess:
   behavior: toast | navigate | reload | closeModal
   message: string     # behavior: toast 时的提示文案
-  url: string          # behavior: navigate 时的 baseURL 下单斜杠相对目标地址
+  url: string          # behavior: navigate 时的应用路由根下单斜杠相对目标地址（非 API baseURL）
 ```
 
 | behavior | 含义 | 必填附加字段 |
 |---|---|---|
 | `toast` | 展示轻提示 | `message` |
-| `navigate` | 跳转到 baseURL 下的单斜杠相对地址 | `url` |
+| `navigate` | 跳转到应用路由根下的单斜杠相对地址（非 API baseURL） | `url` |
 | `reload` | 重新加载当前数据（如刷新表格） | — |
 | `closeModal` | 关闭当前弹窗 | — |
 

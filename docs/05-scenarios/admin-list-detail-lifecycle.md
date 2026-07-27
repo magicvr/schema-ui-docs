@@ -8,12 +8,12 @@ capabilities:
 related:
   - ADR-0021
   - ADR-0024
-  - docs/11-next-admin-lifecycle-goals.md
+  - docs/release-goals/next-admin-lifecycle.md
 ---
 
 # 扩展示例：列表 → 只读详情（recordView）
 
-本示例覆盖 Phase D 首项：表格只展示部分列时，行进详情页用标准 `recordView` 查阅完整记录。使用前 Renderer 须支持相应 `requiredCapabilities`。页面声明 `meta.protocolVersion: "2.4"`。
+本示例覆盖 Phase D 首项：表格只展示部分列时，行进详情页用标准 `recordView` 查阅完整记录。使用前 Renderer 须支持相应 `requiredCapabilities`。页面声明 `meta.protocolVersion: "2.5"`。
 
 权威：[ADR-0024](../decisions/0024-record-view.md)。迁移见 [migrations/2.3-to-2.4.md](../migrations/2.3-to-2.4.md)。
 
@@ -23,7 +23,7 @@ related:
 meta:
   pageId: order_list_for_detail
   title: 订单列表
-  protocolVersion: "2.4"
+  protocolVersion: "2.5"
   requiredCapabilities:
     - actions.row.navigate
 
@@ -67,7 +67,7 @@ body:
 meta:
   pageId: order_detail_lifecycle
   title: 订单详情
-  protocolVersion: "2.4"
+  protocolVersion: "2.5"
   requiredCapabilities:
     - record.view.load
     - actions.page.trigger

@@ -3,7 +3,7 @@
 Schema-UI 是前端 Renderer 与后端页面生产方共同遵守的、框架和语言无关的配置驱动 UI 协议。
 协议本身是本仓库的核心交付物；验证器、reference、MCP 和 Docker 镜像都是非规范性辅助工具。
 
-当前协议版本为 `2.4.1`，页面声明使用 `meta.protocolVersion: "2.4"`。
+当前协议版本为 `2.5.0`，页面声明使用 `meta.protocolVersion: "2.5"`。
 
 开始阅读：[`PROJECT_CHARTER.md`](./PROJECT_CHARTER.md) → [`docs/00-overview.md`](./docs/00-overview.md)。
 
@@ -11,13 +11,14 @@ Schema-UI 是前端 Renderer 与后端页面生产方共同遵守的、框架和
 
 | 层级 | 内容 | 作用 |
 |---|---|---|
-| 核心规范 | `docs/00`–`08`、协议 ADR | 定义字段语义、默认值和能力边界 |
+| 核心规范 | `docs/00`–`08`、`docs/17`、协议 ADR | 定义字段语义、默认值和能力边界 |
 | 机器契约 | `docs/schemas/` | 定义 JSON/YAML 结构与组件字段 |
 | 行为契约 | `conformance/fixtures/` | 定义跨前后端实现的可观测结果 |
 | 协议制品 | `schema-ui-protocol-<version>.tar.gz` | 前后端共同固定和消费的不可变发布单元 |
 
 协议制品文件清单由 [`protocol-manifest.json`](./protocol-manifest.json) 定义。`scripts/`、`mcp/`、
 `validator/`、`docs/mcp/`、`docs/audit/` 和 reference 实现不进入协议制品，也不影响协议内容摘要。
+`docs/release-goals/` 与 `docs/migrations/` 进入制品，但仅为 **informative** 发布元数据，**不是** 核心协议语义。
 
 ## 权威规则
 
@@ -44,16 +45,17 @@ npm run verify:protocol-artifact
 输出：
 
 ```text
-dist/schema-ui-protocol-2.4.1.tar.gz
-dist/schema-ui-protocol-2.4.1.tar.gz.sha256
+dist/schema-ui-protocol-2.5.0.tar.gz
+dist/schema-ui-protocol-2.5.0.tar.gz.sha256
 dist/protocol/manifest.json
 ```
 
 独立前端和后端仓库应固定协议 tag 或制品 SHA-256，直接消费同一份 Schema 和 fixtures；不得复制后维护
 私有期望结果。JavaScript、Python、Java、.NET 等消费者使用同一个制品，不要求安装或运行 MCP。
 
-当前跨实现消费规则与 fixture 分类见 [`conformance/README.md`](./conformance/README.md)。从 `2.3` 升级到
-`2.4` 请按 [`docs/migrations/2.3-to-2.4.md`](./docs/migrations/2.3-to-2.4.md) 执行；从 `2.2` 请先按
+当前跨实现消费规则与 fixture 分类见 [`conformance/README.md`](./conformance/README.md)。从 `2.4` 升级到
+`2.5` 请按 [`docs/migrations/2.4-to-2.5.md`](./docs/migrations/2.4-to-2.5.md) 执行；从 `2.3` 请先按
+[`docs/migrations/2.3-to-2.4.md`](./docs/migrations/2.3-to-2.4.md) 执行；从 `2.2` 请先按
 [`docs/migrations/2.2-to-2.3.md`](./docs/migrations/2.2-to-2.3.md) 执行；从 `2.1` 请先按
 [`docs/migrations/2.1-to-2.2.md`](./docs/migrations/2.1-to-2.2.md) 执行；从 `2.0` 请先按
 [`docs/migrations/2.0-to-2.1.md`](./docs/migrations/2.0-to-2.1.md)。
@@ -88,9 +90,9 @@ npm run validate -- "pages/**/*.yaml"
 | 人工 tag `v*` | 协议 GitHub Release：`tar.gz` + `.sha256` |
 | 人工 tag `mcp-v*` | MCP 镜像推到 **GHCR**（`ghcr.io/<owner>/schema-ui-mcp`，含稳定版 `latest`） |
 
-- 协议 tag：`v<protocol-artifact-version>`，例如 `v2.4.1`；
+- 协议 tag：`v<protocol-artifact-version>`，例如 `v2.5.0`；
 - 页面协议版本：MAJOR.MINOR，例如 `2.4`；
-- MCP tag：`mcp-v<mcp-version>`，例如 `mcp-v2.4.1`（tag 独立推送；**MAJOR.MINOR 与协议线对齐**，PATCH 可独立）；
+- MCP tag：`mcp-v<mcp-version>`，例如 `mcp-v2.5.0`（tag 独立推送；**MAJOR.MINOR 与协议线对齐**，PATCH 可独立）；
 - 验证器独立 SemVer；MCP 镜像正式源为 GitHub Packages，不是 Docker Hub。
 
 `npm run release:check:tag` 只验证协议 tag。协议工作流生成 tar.gz 和 SHA-256；MCP 工作流不改变协议版本。
@@ -99,14 +101,14 @@ npm run validate -- "pages/**/*.yaml"
 
 ### 验证器
 
-`scripts/` 提供 L0/L1、L2、L3a、L4 校验实现。当前 validator 版本为 `1.0.0`，支持协议制品 `2.4.1`，
+`scripts/` 提供 L0/L1、L2、L3a、L4 校验实现。当前 validator 版本为 `1.0.0`，支持协议制品 `2.5.0`，
 兼容声明见 `validator/package.json`。根 CLI 和 MCP 共用同一个 Ajv 装配模块；L4 的禁止字段
 直接从 `node.schema.json` 派生，避免维护第二份规则。使用说明见 [`docs/06-validation.md`](./docs/06-validation.md)。
 
 ### MCP
 
 `mcp/` 提供协议只读查询与 `validate_content` 内容校验。它不读取宿主项目文件系统，不生成或修改页面，
-也不进入协议权威层。MCP 当前版本为 `2.4.1`，捆绑协议制品 `2.4.1`（MAJOR.MINOR 共线；MCP PATCH 可独立演进）。正式分发为
+也不进入协议权威层。MCP 当前版本为 `2.5.0`，捆绑协议制品 `2.5.0`（MAJOR.MINOR 共线；MCP PATCH 可独立演进）。正式分发为
 `ghcr.io/<owner>/schema-ui-mcp` 上的 stdio Docker 镜像（内置协议快照，运行时不远程刷新）。
 
 安装、Docker、工具接口见 [`docs/mcp/README.md`](./docs/mcp/README.md)；发布流程见
@@ -118,7 +120,9 @@ npm run validate -- "pages/**/*.yaml"
 .
 ├── PROJECT_CHARTER.md             # 项目使命、权威矩阵与防漂移门禁
 ├── protocol-manifest.json         # 协议制品来源清单与版本
-├── docs/                          # 规范、Schema、场景、ADR、迁移和过程记录
+├── docs/                          # 规范、Schema、场景、ADR、迁移、发布门禁与过程记录
+│   ├── release-goals/             # 非核心：版本 accept 门禁与演进轨道（informative）
+│   └── migrations/                # 非核心：版本升级路径（informative）
 ├── conformance/                   # 语言无关 fixtures 与非规范性 reference
 ├── scripts/                       # 辅助验证器与协议制品构建脚本
 ├── validator/                     # 辅助验证器的独立版本与兼容声明
@@ -126,9 +130,9 @@ npm run validate -- "pages/**/*.yaml"
 └── .github/workflows/             # Protocol 与 MCP 分离的 CI/CD
 ```
 
-协议范围与当前发布门禁见 [`docs/14-v2.3-release-goals.md`](./docs/14-v2.3-release-goals.md)；
+当前发布门禁见 [`docs/release-goals/v2.5.md`](./docs/release-goals/v2.5.md)（目录说明见
+[`docs/release-goals/README.md`](./docs/release-goals/README.md)）；
 发布流程见 [`docs/RELEASE.md`](./docs/RELEASE.md)；
-v2.1 历史门禁见 [`docs/12-v2.1-release-goals.md`](./docs/12-v2.1-release-goals.md)；
-v2.0 MAJOR 历史见 [`docs/10-v2-release-goals.md`](./docs/10-v2-release-goals.md)；
-Admin 后续轨道见 [`docs/11-next-admin-lifecycle-goals.md`](./docs/11-next-admin-lifecycle-goals.md)；
+历史版本门禁见 [`docs/release-goals/`](./docs/release-goals/)；
+Admin 后续轨道见 [`docs/release-goals/next-admin-lifecycle.md`](./docs/release-goals/next-admin-lifecycle.md)；
 历史版本记录见 [`docs/CHANGELOG.md`](./docs/CHANGELOG.md)。

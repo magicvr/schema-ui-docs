@@ -1,12 +1,12 @@
 {
   "name": "schema-ui-mcp",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "private": true,
   "type": "module",
   "description": "Schema-UI protocol reader and validator MCP server",
   "schemaUiProtocol": {
-    "artifactVersion": "2.4.1",
-    "protocolVersion": "2.4"
+    "artifactVersion": "2.5.0",
+    "protocolVersion": "2.5"
   },
   "schemaUiValidator": {
     "version": "1.0.0"
@@ -26,9 +26,10 @@
     "smoke:docker": "node tests/smoke-docker.mjs"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.29.0",
-    "glob": "^10.4.5",
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "glob": "^13.0.6",
     "js-yaml": "^4.1.0",
+    "schema-ui-protocol-workspace": "file:..",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -36,6 +37,11 @@
     "@types/node": "^20.14.10",
     "typescript": "^5.5.4",
     "vitest": "^3.2.7"
+  },
+  "overrides": {
+    "brace-expansion": "^5.0.8",
+    "minimatch": "^10.2.6",
+    "@hono/node-server": "^2.0.5"
   },
   "engines": {
     "node": ">=20.19.0"

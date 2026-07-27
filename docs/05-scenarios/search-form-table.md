@@ -18,7 +18,7 @@ last_updated: 2026-07-11
 meta:
   pageId: order_search
   title: 订单搜索
-  protocolVersion: "2.4"
+  protocolVersion: "2.5"
 
 body:
   type: section

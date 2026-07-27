@@ -2,7 +2,7 @@
 status: accepted
 date: 2026-07-23
 applies_to: schema-ui-protocol v2.3
-track: docs/11-next-admin-lifecycle-goals.md Phase C.1 / P1 complement
+track: docs/release-goals/next-admin-lifecycle.md Phase C.1 / P1 complement
 ---
 
 # ADR-0023: 容器权限继承与操作级联

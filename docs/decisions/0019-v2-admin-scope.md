@@ -20,7 +20,7 @@ v2.0 核心协议定义基础 Admin 页面共享契约：布局、展示、列�
 
 这些能力若需要跨项目互操作，必须新增协议字段、Schema、capability、ADR 和 versioned fixtures；在此之前它们是明确的后续协议范围，而不是当前 v2.0 页面契约的未实现部分。
 
-后续执行轨道（优先级、分阶段目标、版本策略与成功标准）见 [`11-next-admin-lifecycle-goals.md`](../11-next-admin-lifecycle-goals.md)。该文档不改变本 ADR 对 v2.0 范围的裁决。
+后续执行轨道（优先级、分阶段目标、版本策略与成功标准）见 [`release-goals/next-admin-lifecycle.md`](../release-goals/next-admin-lifecycle.md)。该文档不改变本 ADR 对 v2.0 范围的裁决。
 
 P0 已接受并随 **v2.1.0** 发布：
 

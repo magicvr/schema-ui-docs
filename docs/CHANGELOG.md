@@ -9,6 +9,25 @@
 
 （无）
 
+## v2.5.0 — 2026-07-28（应用级清单、导航与表格排序声明）
+
+> **版本说明：** MINOR 发布。使用 `sortable` / `sortField` / `defaultSort` 的页面必须声明 `meta.protocolVersion: "2.5"` 与 `table.sort`。消费应用清单须声明 `app.manifest`（有 `navigation` 时另须 `app.navigation`）。合法 `2.4` 页面与无清单宿主行为不变。正式协议制品为 `schema-ui-protocol-2.5.0.tar.gz`。
+
+**协议变更：**
+- **ADR-0025** 应用级清单：well-known / 显式 manifest URL、页面注册表、`homePageRef`、D4a 路由匹配、API `baseURL` vs 应用路由根三分法；规范正文 [`17-app-manifest.md`](./17-app-manifest.md)；Schema `app-manifest.schema.json`（M0/M1/M3a）。
+- **ADR-0026** 应用导航：`navigation.top` / `sidebar` / `user`；过滤/空组剪枝/高亮；capability `app.navigation`。
+- **ADR-0027** 表格排序声明：`columns[].sortable` / `sortField`、`table.props.defaultSort`；三态点击；`TABLE_SORT_FIELD_UNKNOWN`；capability `table.sort`。
+- 预定义 capability 增加：`app.manifest`、`app.navigation`、`table.sort`。
+- 章程使命覆盖页面协议 + 应用级清单；`07` / ADR-0021 navigate 与 `$context.route.path` 改为应用路由根口径。
+- ADR-0011 D3 声明面指针自 v2.5 生效（与 0027 同制品）。
+
+**Conformance 与示例：**
+- 新 suite：`app-manifest`、`app-navigation`、`table-sort`（JS/Python dual-language）。
+- `version-negotiation`：`2.5` 接受/拒绝与 `table.sort` / `app.manifest` / `app.navigation`；页 2.4 在含 2.5 的 Renderer 上解耦正例。
+- 算法类 fixtures 与官方场景统一 `protocolVersion: "2.5"`；version-negotiation 保留历史页面版本输入。版本化 fixture 共 16 类、282 cases（含 D4a 声明序等长 tiebreak、route 长度消歧，以及 navigation M1：`NAV_LINK_MUTEX` / `NAV_GROUP_NESTED` / `NAV_PAGE_REF_UNKNOWN`）。
+- 既有 `search-table`（0011）回归保持通过。
+- 迁移 [`2.4-to-2.5.md`](./migrations/2.4-to-2.5.md)；发布门禁 [`release-goals/v2.5.md`](./release-goals/v2.5.md)。
+
 ## v2.4.1 — 2026-07-24（发布身份固化与入口卫生）
 
 > **版本说明：** PATCH 发布。`meta.protocolVersion` 仍为 `"2.4"`；schemas、versioned fixtures 与核心语义规范相对正式 `v2.4.0` **机器契约未变**。正式协议制品为 `schema-ui-protocol-2.4.1.tar.gz`。本 PATCH **不**改写 `v2.4.0` tag 或已上传 Release 资产。
@@ -42,9 +61,9 @@
 - `version-negotiation`：`2.4` 接受/拒绝与 `record.view.load`。
 - `scenarios`：`admin-lifecycle-detail-load`；扩展示例 [`admin-list-detail-lifecycle.md`](./05-scenarios/admin-list-detail-lifecycle.md)。
 - 算法类 fixtures 与官方六场景统一 `protocolVersion: "2.4"`；version-negotiation 保留历史页面版本输入。版本化 fixture 共 13 类、214 cases（含 `record-view-empty-mapping-rejected` 对称负例）。
-- 迁移 [`2.3-to-2.4.md`](./migrations/2.3-to-2.4.md)；发布目标 [`15-v2.4-release-goals.md`](./15-v2.4-release-goals.md)。
+- 迁移 [`2.3-to-2.4.md`](./migrations/2.3-to-2.4.md)；发布目标 [`release-goals/v2.4.md`](./release-goals/v2.4.md)。
 
-**轨道：** Phase D 仅交付 `recordView`；导入导出、异步任务、树表、行内编辑、跨页全选等仍为后续一等公民候选，见 [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md)。
+**轨道：** Phase D 仅交付 `recordView`；导入导出、异步任务、树表、行内编辑、跨页全选等仍为后续一等公民候选，见 [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md)。
 
 ## v2.3.0 — 2026-07-23（容器权限继承与操作 intent）
 
@@ -59,7 +78,7 @@
 **Conformance 与示例：**
 - 新增 `permissions-inheritance` 的 17 个 JS/Python 共享向量，覆盖 children/tabs、跨根边界、columns 排除、default/search form、intent、版本/capability 与 fail-closed 执行时序。
 - 全部 12 个算法 suite 与六个官方场景统一声明 `protocolVersion: "2.3"`；`version-negotiation` 保留历史页面版本输入。版本化 fixture 共 13 类、206 cases。
-- 新增扩展示例 [`permission-inheritance.md`](./05-scenarios/permission-inheritance.md)、迁移指南 [`2.2-to-2.3.md`](./migrations/2.2-to-2.3.md) 与发布目标 [`14-v2.3-release-goals.md`](./14-v2.3-release-goals.md)。
+- 新增扩展示例 [`permission-inheritance.md`](./05-scenarios/permission-inheritance.md)、迁移指南 [`2.2-to-2.3.md`](./migrations/2.2-to-2.3.md) 与发布目标 [`release-goals/v2.3.md`](./release-goals/v2.3.md)。
 
 ## v2.2.0 — 2026-07-23（表格多选与批量 request）
 
@@ -69,7 +88,7 @@
 - 新增 `table.selection`：`table.props.selection.mode: multiple`（当前页多选；筛选/翻页/排序/reload 清空）（ADR-0022）。
 - 新增 `actions.batch.request`：toolbar `batchMapping` / `requiresSelection`；`$selection.keys` 仅 body、`$selection.count` 可 query/body（ADR-0022）。
 - L2 `ALLOW_22_FIELDS_ON_21=false`：2.2 字段必须 `protocolVersion >= "2.2"`（审计 0064 / V282 发布纪律）。
-- 同步核心规范 `applies_to`、Schema、官方/扩展示例、算法 fixtures 至 `"2.2"`；迁移 [`2.1-to-2.2.md`](./migrations/2.1-to-2.2.md)；发布目标 [`13-v2.2-release-goals.md`](./13-v2.2-release-goals.md)。
+- 同步核心规范 `applies_to`、Schema、官方/扩展示例、算法 fixtures 至 `"2.2"`；迁移 [`2.1-to-2.2.md`](./migrations/2.1-to-2.2.md)；发布目标 [`release-goals/v2.2.md`](./release-goals/v2.2.md)。
 
 **Conformance：**
 - `request-construction`：batch* 向量（含 path 绑定、规范化、`EMPTY_SELECTION`）。
@@ -95,7 +114,7 @@
 - 新增 `actions.row.navigate`：行级 `navigate` + `navigateMapping`（ADR-0021）。
 - 新增 `form.record.load`：`form.props.recordSource` 记录 GET 与必填 `responseMapping`（ADR-0021）。
 - 新增 `$context.route` 只读路由快照（MVP 用于 recordSource 绑定）。
-- 同步核心规范、Schema、L2；扩展示例 `admin-list-edit-lifecycle`；迁移 [`2.0-to-2.1.md`](./migrations/2.0-to-2.1.md)；发布目标 [`12-v2.1-release-goals.md`](./12-v2.1-release-goals.md)。
+- 同步核心规范、Schema、L2；扩展示例 `admin-list-edit-lifecycle`；迁移 [`2.0-to-2.1.md`](./migrations/2.0-to-2.1.md)；发布目标 [`release-goals/v2.1.md`](./release-goals/v2.1.md)。
 
 **Conformance：**
 - `request-construction`：`rowNavigate` / `recordSource` / `pageTriggerRequest`。
@@ -105,7 +124,7 @@
 - 算法类 fixtures `protocolVersion` 统一为 `"2.1"`（12 套 suite，153 cases）。
 
 **轨道文档：**
-- [`11-next-admin-lifecycle-goals.md`](./11-next-admin-lifecycle-goals.md) 记录 P1+ 后续（批量等）。
+- [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md) 记录 P1+ 后续（批量等）。
 
 ## v2.0.0 — 2026-07-16（协议升级候选）
 
@@ -138,12 +157,12 @@
 
 ## v0.3.0-rc.1 — 2026-07-11（前后端 MVP 候选契约）
 
-> **版本说明：** 本候选版本吸收此前尚未发布的 `0.2.x` 契约收敛修订，将页面 `meta.protocolVersion` 提升为 `"0.3"`，并冻结前后端 MVP 的组件与业务能力范围。到 `v1.0.0` 前只处理互操作歧义、契约错误、机器校验和一致性测试缺口；发布门禁见 [`09-v1-release-goals.md`](./09-v1-release-goals.md)。
+> **版本说明：** 本候选版本吸收此前尚未发布的 `0.2.x` 契约收敛修订，将页面 `meta.protocolVersion` 提升为 `"0.3"`，并冻结前后端 MVP 的组件与业务能力范围。到 `v1.0.0` 前只处理互操作歧义、契约错误、机器校验和一致性测试缺口；发布门禁见 [`release-goals/v1.0.md`](./release-goals/v1.0.md)。
 
 **候选版：**
 - 根协议包与 MCP 工作区包版本统一为 `0.3.0-rc.1`；已发布稳定 MCP 镜像仍为 `0.2.8`，候选镜像需单独构建和发布。
 - 核心规范、Renderer 示例与六个官方场景切换到 `meta.protocolVersion: "0.3"`。
-- 新增 `09-v1-release-goals.md`，跟踪严格版本协商、query 线级序列化、保留参数冲突、跨实现一致性套件及发布工程门禁。
+- 新增 `release-goals/v1.0.md`，跟踪严格版本协商、query 线级序列化、保留参数冲突、跨实现一致性套件及发布工程门禁。
 - CI 校验根包、MCP 包与两个 lockfile 的版本一致性；CD 仅从匹配包版本的 `v<version>` Git tag 发布，预发布版本不更新 minor 或 `latest` 镜像别名。
 
 **修复：**

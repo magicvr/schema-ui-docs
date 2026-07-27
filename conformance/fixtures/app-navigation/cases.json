@@ -1,0 +1,907 @@
+{
+  "fixtureVersion": "1.0",
+  "category": "app-navigation",
+  "cases": [
+    {
+      "id": "three-slots-project",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "top": [
+            {
+              "pageRef": "home",
+              "label": "Home",
+              "icon": "home"
+            }
+          ],
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders",
+              "icon": "orders"
+            },
+            {
+              "label": "Admin",
+              "icon": "settings",
+              "items": [
+                {
+                  "pageRef": "orders-new",
+                  "label": "Create",
+                  "permissions": {
+                    "view": "$context.user.roles contains \"admin\""
+                  }
+                }
+              ]
+            },
+            {
+              "pageRef": "orders-detail",
+              "label": "Hidden feature",
+              "visibleWhen": {
+                "when": "$context.features.beta == true"
+              }
+            }
+          ],
+          "user": [
+            {
+              "url": "/profile",
+              "label": "Profile"
+            },
+            {
+              "url": "/logout",
+              "label": "Logout",
+              "icon": "logout"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "name": "A",
+            "roles": [
+              "admin"
+            ]
+          },
+          "features": {
+            "beta": true
+          }
+        },
+        "path": "/orders",
+        "iconRegistry": [
+          "home",
+          "orders",
+          "settings",
+          "logout"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "top": [
+            {
+              "type": "link",
+              "pageRef": "home",
+              "label": "Home",
+              "icon": "home",
+              "iconOptional": true,
+              "active": false,
+              "iconRendered": true
+            }
+          ],
+          "sidebar": [
+            {
+              "type": "link",
+              "pageRef": "orders",
+              "label": "Orders",
+              "icon": "orders",
+              "iconOptional": true,
+              "active": true,
+              "iconRendered": true
+            },
+            {
+              "type": "group",
+              "items": [
+                {
+                  "type": "link",
+                  "pageRef": "orders-new",
+                  "label": "Create",
+                  "active": false
+                }
+              ],
+              "label": "Admin",
+              "icon": "settings",
+              "iconRendered": true
+            },
+            {
+              "type": "link",
+              "pageRef": "orders-detail",
+              "label": "Hidden feature",
+              "active": false
+            }
+          ],
+          "user": [
+            {
+              "type": "link",
+              "url": "/profile",
+              "label": "Profile",
+              "active": false
+            },
+            {
+              "type": "link",
+              "url": "/logout",
+              "label": "Logout",
+              "icon": "logout",
+              "iconOptional": true,
+              "active": false,
+              "iconRendered": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "unknown-slot-rejected",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "validate",
+        "navigation": {
+          "footer": [
+            {
+              "url": "/x",
+              "label": "X"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "UNKNOWN_NAV_SLOT",
+        "path": "navigation.footer",
+        "errors": [
+          {
+            "code": "UNKNOWN_NAV_SLOT",
+            "path": "navigation.footer"
+          }
+        ]
+      }
+    },
+    {
+      "id": "filter-default-visible",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "roles": []
+          },
+          "features": {}
+        },
+        "path": "/home"
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "sidebar": [
+            {
+              "type": "link",
+              "pageRef": "orders",
+              "label": "Orders",
+              "active": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "filter-permissions-hides-admin",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "top": [
+            {
+              "pageRef": "home",
+              "label": "Home",
+              "icon": "home"
+            }
+          ],
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders",
+              "icon": "orders"
+            },
+            {
+              "label": "Admin",
+              "icon": "settings",
+              "items": [
+                {
+                  "pageRef": "orders-new",
+                  "label": "Create",
+                  "permissions": {
+                    "view": "$context.user.roles contains \"admin\""
+                  }
+                }
+              ]
+            },
+            {
+              "pageRef": "orders-detail",
+              "label": "Hidden feature",
+              "visibleWhen": {
+                "when": "$context.features.beta == true"
+              }
+            }
+          ],
+          "user": [
+            {
+              "url": "/profile",
+              "label": "Profile"
+            },
+            {
+              "url": "/logout",
+              "label": "Logout",
+              "icon": "logout"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "roles": [
+              "viewer"
+            ]
+          },
+          "features": {}
+        },
+        "path": "/orders",
+        "iconRegistry": [
+          "home",
+          "orders",
+          "settings",
+          "logout"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "top": [
+            {
+              "type": "link",
+              "pageRef": "home",
+              "label": "Home",
+              "icon": "home",
+              "iconOptional": true,
+              "active": false,
+              "iconRendered": true
+            }
+          ],
+          "sidebar": [
+            {
+              "type": "link",
+              "pageRef": "orders",
+              "label": "Orders",
+              "icon": "orders",
+              "iconOptional": true,
+              "active": true,
+              "iconRendered": true
+            }
+          ],
+          "user": [
+            {
+              "type": "link",
+              "url": "/profile",
+              "label": "Profile",
+              "active": false
+            },
+            {
+              "type": "link",
+              "url": "/logout",
+              "label": "Logout",
+              "icon": "logout",
+              "iconOptional": true,
+              "active": false,
+              "iconRendered": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "empty-group-pruned",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "sidebar": [
+            {
+              "label": "Admin",
+              "items": [
+                {
+                  "pageRef": "orders-new",
+                  "label": "Create",
+                  "permissions": {
+                    "view": "$context.user.roles contains \"admin\""
+                  }
+                }
+              ]
+            },
+            {
+              "pageRef": "orders",
+              "label": "Orders"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "roles": [
+              "viewer"
+            ]
+          },
+          "features": {}
+        },
+        "path": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "sidebar": [
+            {
+              "type": "link",
+              "pageRef": "orders",
+              "label": "Orders",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "array-order-stable",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "top": [
+            {
+              "pageRef": "orders",
+              "label": "Orders"
+            },
+            {
+              "pageRef": "home",
+              "label": "Home"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "roles": []
+          },
+          "features": {}
+        },
+        "path": "/home"
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "top": [
+            {
+              "type": "link",
+              "pageRef": "orders",
+              "label": "Orders",
+              "active": false
+            },
+            {
+              "type": "link",
+              "pageRef": "home",
+              "label": "Home",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "icon-unmapped-still-renders-text",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders",
+              "icon": "custom-widget"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "roles": []
+          },
+          "features": {}
+        },
+        "path": "/orders",
+        "iconRegistry": [
+          "orders"
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "sidebar": [
+            {
+              "type": "link",
+              "pageRef": "orders",
+              "label": "Orders",
+              "icon": "custom-widget",
+              "iconOptional": true,
+              "active": true,
+              "iconRendered": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "highlight-page-ref-d4a",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders"
+            },
+            {
+              "pageRef": "orders-detail",
+              "label": "Detail"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "roles": []
+          },
+          "features": {}
+        },
+        "path": "/orders/42"
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "sidebar": [
+            {
+              "type": "link",
+              "pageRef": "orders",
+              "label": "Orders",
+              "active": false
+            },
+            {
+              "type": "link",
+              "pageRef": "orders-detail",
+              "label": "Detail",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "highlight-url-exact",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "user": [
+            {
+              "url": "/profile",
+              "label": "Profile"
+            },
+            {
+              "url": "/profile/settings",
+              "label": "Settings"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "roles": []
+          },
+          "features": {}
+        },
+        "path": "/profile"
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "user": [
+            {
+              "type": "link",
+              "url": "/profile",
+              "label": "Profile",
+              "active": true
+            },
+            {
+              "type": "link",
+              "url": "/profile/settings",
+              "label": "Settings",
+              "active": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "highlight-ignores-query",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "roles": []
+          },
+          "features": {}
+        },
+        "path": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "sidebar": [
+            {
+              "type": "link",
+              "pageRef": "orders",
+              "label": "Orders",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "multi-active-allowed",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "project",
+        "navigation": {
+          "top": [
+            {
+              "pageRef": "home",
+              "label": "Home Top"
+            }
+          ],
+          "sidebar": [
+            {
+              "pageRef": "home",
+              "label": "Home Side"
+            }
+          ]
+        },
+        "pages": [
+          {
+            "pageId": "home",
+            "title": "Home",
+            "schemaUrl": "/api/schema/home",
+            "route": "/home"
+          },
+          {
+            "pageId": "orders",
+            "title": "Orders",
+            "schemaUrl": "/api/schema/orders",
+            "route": "/orders"
+          },
+          {
+            "pageId": "orders-new",
+            "title": "New Order",
+            "schemaUrl": "/api/schema/orders-new",
+            "route": "/orders/new"
+          },
+          {
+            "pageId": "orders-detail",
+            "title": "Order Detail",
+            "schemaUrl": "/api/schema/orders/{id}",
+            "route": "/orders/{id}"
+          }
+        ],
+        "context": {
+          "user": {
+            "id": "1",
+            "roles": []
+          },
+          "features": {}
+        },
+        "path": "/home"
+      },
+      "expected": {
+        "ok": true,
+        "slots": {
+          "top": [
+            {
+              "type": "link",
+              "pageRef": "home",
+              "label": "Home Top",
+              "active": true
+            }
+          ],
+          "sidebar": [
+            {
+              "type": "link",
+              "pageRef": "home",
+              "label": "Home Side",
+              "active": true
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

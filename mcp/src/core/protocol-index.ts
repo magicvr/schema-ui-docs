@@ -27,8 +27,8 @@ export const DOC_MAP: DocEntry[] = [
   ['validation', 'docs/06-validation.md'],
   ['actions-contract', 'docs/07-actions-contract.md'],
   ['renderer-spec', 'docs/08-renderer-spec.md'],
-  ['v1-release-goals', 'docs/09-v1-release-goals.md'],
-  ['v2-release-goals', 'docs/10-v2-release-goals.md'],
+  ['v1-release-goals', 'docs/release-goals/v1.0.md'],
+  ['v2-release-goals', 'docs/release-goals/v2.0.md'],
   ['changelog', 'docs/CHANGELOG.md'],
 ].map(([docId, relativePath], order) => {
   const absolutePath = protocolPath(relativePath);

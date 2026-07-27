@@ -23,7 +23,10 @@
         "actions",
         "uploads",
         "scenarios",
-        "permissions-inheritance"
+        "permissions-inheritance",
+        "table-sort",
+        "app-manifest",
+        "app-navigation"
       ]
     },
     "cases": {

@@ -2,14 +2,14 @@
 status: accepted
 date: 2026-07-23
 applies_to: schema-ui-protocol v2.2
-track: docs/11-next-admin-lifecycle-goals.md Phase C / P1
+track: docs/release-goals/next-admin-lifecycle.md Phase C / P1
 ---
 
 # ADR-0022: 表格当前页多选与批量 request
 
 ## 状态
 
-**Accepted（已接受，随 v2.2.0 发布）。** 字段与执行语义以本 ADR 及同步更新的 `03` / `07` / `08` / Schema / L2 / conformance 为准。使用时页面必须声明 `meta.protocolVersion: "2.2"`，并声明 `meta.requiredCapabilities` 含 `table.selection` 与/或 `actions.batch.request`。门禁见 [`13-v2.2-release-goals.md`](../13-v2.2-release-goals.md)；迁移见 [`migrations/2.1-to-2.2.md`](../migrations/2.1-to-2.2.md)。
+**Accepted（已接受，随 v2.2.0 发布）。** 字段与执行语义以本 ADR 及同步更新的 `03` / `07` / `08` / Schema / L2 / conformance 为准。使用时页面必须声明 `meta.protocolVersion: "2.2"`，并声明 `meta.requiredCapabilities` 含 `table.selection` 与/或 `actions.batch.request`。门禁见 [`release-goals/v2.2.md`](../release-goals/v2.2.md)；迁移见 [`migrations/2.1-to-2.2.md`](../migrations/2.1-to-2.2.md)。
 
 #### 版本与打包策略（审计 0063 / V275；2.2.0 已发布）
 
@@ -21,7 +21,7 @@ track: docs/11-next-admin-lifecycle-goals.md Phase C / P1
 
 开放问题见文末裁决表，已并入 D2–D5。
 
-轨道依据：[11-next-admin-lifecycle-goals.md](../11-next-admin-lifecycle-goals.md)、[ADR-0019](./0019-v2-admin-scope.md)、[ADR-0020](./0020-page-action-trigger.md)、[ADR-0008](./0008-row-action-backend-request.md)。
+轨道依据：[release-goals/next-admin-lifecycle.md](../release-goals/next-admin-lifecycle.md)、[ADR-0019](./0019-v2-admin-scope.md)、[ADR-0020](./0020-page-action-trigger.md)、[ADR-0008](./0008-row-action-backend-request.md)。
 
 **本 ADR 不包含**容器权限继承（另开 ADR）；**不包含**跨页全选、筛选结果全集、批量部分成功。
 
@@ -300,7 +300,7 @@ body:
 | M3 | `08` capability：`table.selection`、`actions.batch.request` |
 | M4 | L2：mode 枚举、mapping 纪律、挂载点、capability |
 | M5 | fixtures：选中清空状态机、batch body keys、count=0 拒绝、reload 清空 |
-| M6 | 官方或扩展示例场景 + CHANGELOG + `2.1→2.2` 迁移短文 + `13-v2.2-release-goals`（制品 tag 前可完成文档；`2.2.0` 打包按 V275 策略） |
+| M6 | 官方或扩展示例场景 + CHANGELOG + `2.1→2.2` 迁移短文 + `release-goals/v2.2`（制品 tag 前可完成文档；`2.2.0` 打包按 V275 策略） |
 
 ## 开放问题裁决（已关闭）
 

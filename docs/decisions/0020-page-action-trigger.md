@@ -2,7 +2,7 @@
 status: accepted
 date: 2026-07-23
 applies_to: schema-ui-protocol v2.1
-track: docs/11-next-admin-lifecycle-goals.md Phase B / P0
+track: docs/release-goals/next-admin-lifecycle.md Phase B / P0
 ---
 
 # ADR-0020: 页面级动作入口（ActionTrigger）
@@ -11,7 +11,7 @@ track: docs/11-next-admin-lifecycle-goals.md Phase B / P0
 
 **Accepted（已接受，随 v2.1.0 发布）。** 字段与执行语义以本 ADR 及 `03` / `07` / `08` / Schema / L2 为准。使用本能力的页面必须声明 `meta.protocolVersion: "2.1"` 与 `meta.requiredCapabilities: [actions.page.trigger]`。开放问题裁决见文末，已并入 D2–D4。
 
-轨道依据：[11-next-admin-lifecycle-goals.md](../11-next-admin-lifecycle-goals.md)、[ADR-0019](./0019-v2-admin-scope.md)。
+轨道依据：[release-goals/next-admin-lifecycle.md](../release-goals/next-admin-lifecycle.md)、[ADR-0019](./0019-v2-admin-scope.md)。
 
 ## 背景
 

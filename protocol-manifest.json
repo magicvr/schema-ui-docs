@@ -1,8 +1,8 @@
 {
   "manifestVersion": "1.0",
   "name": "schema-ui-protocol",
-  "artifactVersion": "2.4.1",
-  "protocolVersion": "2.4",
+  "artifactVersion": "2.5.0",
+  "protocolVersion": "2.5",
   "authority": {
     "semanticSpecs": [
       "PROJECT_CHARTER.md",
@@ -14,6 +14,7 @@
       "docs/06-validation.md",
       "docs/07-actions-contract.md",
       "docs/08-renderer-spec.md",
+      "docs/17-app-manifest.md",
       "docs/decisions/0001-why-single-node-tree.md",
       "docs/decisions/0002-why-not-two-schema-uischema.md",
       "docs/decisions/0003-context-namespace-and-visible-when.md",
@@ -36,7 +37,10 @@
       "docs/decisions/0021-record-navigation-and-form-load.md",
       "docs/decisions/0022-table-selection-and-batch-request.md",
       "docs/decisions/0023-container-permission-inheritance.md",
-      "docs/decisions/0024-record-view.md"
+      "docs/decisions/0024-record-view.md",
+      "docs/decisions/0025-app-manifest.md",
+      "docs/decisions/0026-app-navigation.md",
+      "docs/decisions/0027-table-sort-declaration.md"
     ],
     "structuralContracts": [
       "docs/schemas/*.json"
@@ -54,17 +58,11 @@
     ],
     "releaseMetadata": [
       "protocol-manifest.json",
-      "docs/09-v1-release-goals.md",
-      "docs/10-v2-release-goals.md",
-      "docs/12-v2.1-release-goals.md",
-      "docs/13-v2.2-release-goals.md",
-      "docs/14-v2.3-release-goals.md",
-      "docs/11-next-admin-lifecycle-goals.md",
       "docs/RELEASE.md",
-      "docs/migrations/*.md",
       "docs/CHANGELOG.md",
-      "conformance/README.md",
-      "docs/15-v2.4-release-goals.md"
+      "docs/release-goals/*.md",
+      "docs/migrations/*.md",
+      "conformance/README.md"
     ]
   },
   "excluded": [

@@ -2,7 +2,7 @@
 status: accepted
 date: 2026-07-23
 applies_to: schema-ui-protocol v2.1
-track: docs/11-next-admin-lifecycle-goals.md Phase B / P0
+track: docs/release-goals/next-admin-lifecycle.md Phase B / P0
 ---
 
 # ADR-0021: 记录导航与编辑表单加载回填
@@ -11,7 +11,7 @@ track: docs/11-next-admin-lifecycle-goals.md Phase B / P0
 
 **Accepted（已接受，随 v2.1.0 发布）。** 字段与执行语义以本 ADR 及 `02` / `03` / `07` / `08` / Schema / L2 为准。使用时声明 `meta.protocolVersion: "2.1"`，并分别声明 `actions.row.navigate` 与/或 `form.record.load`。开放问题裁决见文末，已并入 D1 / D4–D7。
 
-轨道依据：[11-next-admin-lifecycle-goals.md](../11-next-admin-lifecycle-goals.md)、[ADR-0019](./0019-v2-admin-scope.md)。
+轨道依据：[release-goals/next-admin-lifecycle.md](../release-goals/next-admin-lifecycle.md)、[ADR-0019](./0019-v2-admin-scope.md)。
 
 ## 背景
 
@@ -60,7 +60,7 @@ v2.0 已具备碎片能力，但**未串成可互操作闭环**：
 
 ```yaml
 $context.route:
-  path: string              # 当前页 path（baseURL 之后的应用路径，是否含 query 由宿主定义时写清；提案：path 不含 query）
+  path: string              # 当前页 path（应用路由根下的应用内路径，非 API baseURL；是否含 query 由宿主定义时写清；提案：path 不含 query；见 ADR-0025 D1b）
   query: map<string, string>  # 当前页 query；值一律字符串；缺失键为 undefined
   params: map<string, string> # 可选；宿主路由 path 参数（如 /orders/:orderId）
 ```
@@ -145,7 +145,7 @@ props:
 
 1. 使用 `recordSource` 时必须声明 `form.record.load`；  
 2. **`method` 必填且只允许 `GET`**（与 ADR-0013 DataRef 只读一致）；参考实现与 Renderer **不得**对缺失 method 默认 `GET`（审计 0062 / V270 → `MISSING_RECORD_SOURCE_METHOD`）；  
-3. `url` 为 baseURL 下单斜杠相对路径；**MVP 仅允许内联 url**，不得 `source: ref` 引用页面 `datasources`（裁决 OQ-21-2）；  
+3. `url` 为应用路由根下单斜杠相对路径（非 API baseURL；ADR-0025 D1b）；**MVP 仅允许内联 url**，不得 `source: ref` 引用页面 `datasources`（裁决 OQ-21-2）；  
 4. `path` / `query` 映射值只允许：字面量，或单个 `$context.route.query.*` / `$context.route.params.*` 点路径（MVP 不开放 `$context.user`）；  
 5. **`responseMapping` 必填**且为非空对象（裁决 OQ-21-1）；L2 对缺省或 `{}` 拒绝；  
 6. **`path` 与 url `{name}` 双向对齐**，运行时 fail-closed：`MISSING_PATH_BINDING` / `EXTRA_PATH_BINDING`，不得请求未解析模板 URL（审计 0062 / V267）；  

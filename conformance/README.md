@@ -12,6 +12,9 @@
 | DataRef / formRecord / recordView 响应映射 | `fixtures/response-mapping/cases.json` | `reference-js/response-mapping.js`、`reference-python/response_mapping.py` | `npm run test:conformance:response`、`npm run test:conformance:response:python` |
 | 组件格式输入类型 | `fixtures/component-format/cases.json` | `reference-js/component-format.js`、`reference-python/component_format.py` | `npm run test:conformance:component-format`、`npm run test:conformance:component-format:python` |
 | 搜索/分页/排序状态 | `fixtures/search-table/cases.json`（权威源） | `reference-js/table-query-state.js`、`reference-python/table_query_state.py` | `npm run test:conformance:search-table`、`npm run test:conformance:search-table:python`；兼容别名 `npm run test:conformance:table-state`（thin wrapper） |
+| 表格排序声明（ADR-0027） | `fixtures/table-sort/cases.json` | `reference-js/table-sort.js`、`reference-python/table_sort.py` | `npm run test:conformance:table-sort`、`npm run test:conformance:table-sort:python` |
+| 应用级清单（ADR-0025） | `fixtures/app-manifest/cases.json` | `reference-js/app-manifest.js`、`reference-python/app_manifest.py` | `npm run test:conformance:app-manifest`、`npm run test:conformance:app-manifest:python` |
+| 应用导航（ADR-0026） | `fixtures/app-navigation/cases.json` | `reference-js/app-navigation.js`、`reference-python/app_navigation.py` | `npm run test:conformance:app-navigation`、`npm run test:conformance:app-navigation:python` |
 | Reaction 快照与调度 | `fixtures/reactions/cases.json` | `reference-js/reaction-scheduler.js`、`reference-python/reaction_scheduler.py` | `npm run test:conformance:reactions`、`npm run test:conformance:reactions:python` |
 | 请求 generation / latest-wins | `fixtures/request-lifecycle/cases.json` | `reference-js/request-lifecycle.js`、`reference-python/request_lifecycle.py` | `npm run test:conformance:request-lifecycle`、`npm run test:conformance:request-lifecycle:python` |
 | 运行时默认值与组件 fallback | `fixtures/runtime-defaults/cases.json` | `reference-js/runtime-defaults.js`、`reference-python/runtime_defaults.py` | `npm run test:conformance:runtime-defaults`、`npm run test:conformance:runtime-defaults:python` |
@@ -23,9 +26,9 @@
 
 ### `cases[].protocolVersion` 语义（V227）
 
-- **算法类 suite**（request / response / component-format / search-table / reactions / request-lifecycle / runtime-defaults / static-data / actions / permissions-inheritance / uploads / scenarios）：`protocolVersion` 表示**该 case 适用的协议算法版本**（当前版本为 `"2.4"`），不是历史包版本号。消费者可按 `"2.4"` 过滤跑全量互操作向量。
+- **算法类 suite**（request / response / component-format / search-table / reactions / request-lifecycle / runtime-defaults / static-data / actions / permissions-inheritance / uploads / scenarios）：`protocolVersion` 表示**该 case 适用的协议算法版本**（当前版本为 `"2.5"`），不是历史包版本号。消费者可按 `"2.4"` 过滤跑全量互操作向量。
 - **version-negotiation suite**：`protocolVersion` 与 `input.pageMeta.protocolVersion` 对齐，表示**被测页面声明的协议版本**；其中大量 `0.3` / `2.0` / 非法版本 case 为协商拒绝与能力检查的历史对照，**故意保留**，不得批量改为当前 MINOR。
-- `release:check` 与 `validate:conformance` 对非 version-negotiation suite 强制 case.`protocolVersion` 等于当前制品 MAJOR.MINOR（现为 `"2.4"`）。
+- `release:check` 与 `validate:conformance` 对非 version-negotiation suite 强制 case.`protocolVersion` 等于当前制品 MAJOR.MINOR（现为 `"2.5"`）。
 
 版本化 G4 suite 使用 `schemas/fixture-suite.schema.json`，统一以 `fixtureVersion: "1.0"`、suite `category` 和 `cases[]` 封装。运行 `npm run validate:conformance` 会校验全部 versioned suite，并对**白名单**数组 fixtures（当前仅 `query-serialization`）检查 id 唯一与非空。已删除与 `search-table` 重复的 `table-query-state` 目录；`test:conformance:table-state` 仅转发到 search-table runner。
 

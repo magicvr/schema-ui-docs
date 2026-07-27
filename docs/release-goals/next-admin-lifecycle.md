@@ -7,9 +7,9 @@ applies_to: schema-ui-protocol v2.4 (post-v2.3 track; Phase D partial)
 
 # 下一步目标：Admin 生命周期协议轨道
 
-本文档确立 **v2.0 之后** 的协议演进方向，把 [ADR-0019](./decisions/0019-v2-admin-scope.md) 已明确排除的「完整 Admin 生命周期」落成可执行的目标与优先级。
+本文档确立 **v2.0 之后** 的协议演进方向，把 [ADR-0019](../decisions/0019-v2-admin-scope.md) 已明确排除的「完整 Admin 生命周期」落成可执行的目标与优先级。
 
-它**不是**当前 `2.0` 的发布门禁，也不改变 v2.0 合法页面语义。v2.0 的完成定义仍以 [`10-v2-release-goals.md`](./10-v2-release-goals.md) 为准。在对应 capability、ADR、Schema 与 versioned fixtures 原子落地之前，下列能力**不得**被描述为协议已支持，也不得要求标准 Renderer 通过私有 handler 猜测实现。
+它**不是**当前 `2.0` 的发布门禁，也不改变 v2.0 合法页面语义。v2.0 的完成定义仍以 [`v2.0.md`](./v2.0.md) 为准。在对应 capability、ADR、Schema 与 versioned fixtures 原子落地之前，下列能力**不得**被描述为协议已支持，也不得要求标准 Renderer 通过私有 handler 猜测实现。
 
 ## 1. 背景与动机
 
@@ -31,7 +31,7 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 1. **底座不回退：** 不削弱 v2.0 的版本协商、query 序列化、DataRef 只读、Action 重试与行级 request 语义。
 2. **优先 MINOR + capability：** 新增字段与执行能力通过 `meta.requiredCapabilities` / Renderer `supportedCapabilities` 协商；默认不强制所有 v2.0 Renderer 同日支持。
 3. **禁止伪装支持：** Host Extension 可以继续服务单项目，但不得写入核心规范示例，也不得进入跨实现 conformance 正例。
-4. **原子交付：** 每项能力包必须同时更新 ADR、核心规范、Schema/DSL、L2/L3a、JS/Python fixtures、官方场景与 CHANGELOG；见根 [`PROJECT_CHARTER.md`](../PROJECT_CHARTER.md)。
+4. **原子交付：** 每项能力包必须同时更新 ADR、核心规范、Schema/DSL、L2/L3a、JS/Python fixtures、官方场景与 CHANGELOG；见根 [`PROJECT_CHARTER.md`](../../PROJECT_CHARTER.md)。
 5. **先定边界再写字段：** 每个 capability 的 ADR 必须写清 MVP 范围、明确非目标、失败策略与迁移影响，再进入 Schema。
 6. **MAJOR 仅用于破坏：** 仅当必须改变 v2.0 合法输入、默认值或可观测结果时，才评估下一 MAJOR。
 
@@ -51,11 +51,11 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 
 | 优先级 | 能力包（工作名） | 业务问题 | 候选 ADR / capability |
 |---|---|---|---|
-| **P0** | 页面级动作入口 | 新建、导入、页面工具栏按钮如何声明式触发 Action | [ADR-0020](./decisions/0020-page-action-trigger.md) · `actions.page.trigger` |
-| **P0** | 记录导航与编辑回填 | 列表进详情/编辑；加载记录并回填表单 | [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) · `actions.row.navigate`、`form.record.load` |
-| **P1** | 表格选择与批量操作 | 多选、批量确认、批量 request、成功刷新 | [ADR-0022](./decisions/0022-table-selection-and-batch-request.md)（**accepted**）· `table.selection`、`actions.batch.request` |
-| **P1** | 权限继承补齐 | 容器级 edit/delete 等与子节点/操作级联 | [ADR-0023](./decisions/0023-container-permission-inheritance.md)（**accepted**，`permissions.inheritance`，v2.3） |
-| **P2** | 标准详情组件 | 只读 record view / details，非 table 非 form | [ADR-0024](./decisions/0024-record-view.md)（**accepted**，v2.4）· `record.view.load` |
+| **P0** | 页面级动作入口 | 新建、导入、页面工具栏按钮如何声明式触发 Action | [ADR-0020](../decisions/0020-page-action-trigger.md) · `actions.page.trigger` |
+| **P0** | 记录导航与编辑回填 | 列表进详情/编辑；加载记录并回填表单 | [ADR-0021](../decisions/0021-record-navigation-and-form-load.md) · `actions.row.navigate`、`form.record.load` |
+| **P1** | 表格选择与批量操作 | 多选、批量确认、批量 request、成功刷新 | [ADR-0022](../decisions/0022-table-selection-and-batch-request.md)（**accepted**）· `table.selection`、`actions.batch.request` |
+| **P1** | 权限继承补齐 | 容器级 edit/delete 等与子节点/操作级联 | [ADR-0023](../decisions/0023-container-permission-inheritance.md)（**accepted**，`permissions.inheritance`，v2.3） |
+| **P2** | 标准详情组件 | 只读 record view / details，非 table 非 form | [ADR-0024](../decisions/0024-record-view.md)（**accepted**，v2.4）· `record.view.load` |
 | **P2** | 运营增强（其余） | 导入导出向导、异步任务结果、树表、行内编辑、跨页全选、批量部分成功等 | **列举保留，按真实需求单独立项**（见 §4 Phase D） |
 
 P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-renderer-spec` 预定义表与 Schema。
@@ -74,7 +74,7 @@ P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-r
 - [x] 以 ADR-0019 确认完整 Admin 生命周期不属于 v2.0 核心。
 - [x] 本文档确立下一步目标、优先级与版本策略。
 - [x] 选定第一包 MVP 业务锚点（见 §4.1）。
-- [x] 为 P0 起草候选 ADR：[0020](./decisions/0020-page-action-trigger.md)、[0021](./decisions/0021-record-navigation-and-form-load.md)。
+- [x] 为 P0 起草候选 ADR：[0020](../decisions/0020-page-action-trigger.md)、[0021](../decisions/0021-record-navigation-and-form-load.md)。
 
 ### 4.1 已锁定的 MVP 业务锚点
 
@@ -96,11 +96,11 @@ P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-r
 
 范围以候选 ADR 为准（可在接受前收窄，不可无 ADR 扩张）：
 
-1. **页面级 Action 入口** — [ADR-0020](./decisions/0020-page-action-trigger.md)  
+1. **页面级 Action 入口** — [ADR-0020](../decisions/0020-page-action-trigger.md)  
    - `ActionTrigger`、`actionButton`、`table.props.toolbar`；  
    - capability `actions.page.trigger`；  
    - 与 `form.submitAction`、`RowAction` 职责划分。
-2. **记录导航** — [ADR-0021](./decisions/0021-record-navigation-and-form-load.md)  
+2. **记录导航** — [ADR-0021](../decisions/0021-record-navigation-and-form-load.md)  
    - 行级 `navigate` + `navigateMapping`；  
    - `$context.route.query|params`；  
    - capability `actions.row.navigate`。
@@ -118,24 +118,24 @@ P0 capability 键以候选 ADR 正文为准；**Accepted 之前不进入** `08-r
 - [x] 扩展示例场景覆盖锚点 A+B+C（`05-scenarios/admin-list-edit-lifecycle.md`；尚未进六场景 release 清单）；
 - [x] scenarios conformance 步进（列表加载+行导航、编辑加载回填+提交+navigate 成功）；
 - [x] `requiredCapabilities` 键写入 `08-renderer-spec` 预定义表；
-- [x] CHANGELOG 与迁移说明草稿 [`migrations/2.0-to-2.1-admin-lifecycle.md`](./migrations/2.0-to-2.1-admin-lifecycle.md) 已更新；
-- [x] 协议制品版本升至 `2.1.0` / 页面 `protocolVersion: "2.1"` 与 release 门禁（见 `12-v2.1-release-goals.md`）。
+- [x] CHANGELOG 与迁移说明草稿 [`migrations/2.0-to-2.1-admin-lifecycle.md`](../migrations/2.0-to-2.1-admin-lifecycle.md) 已更新；
+- [x] 协议制品版本升至 `2.1.0` / 页面 `protocolVersion: "2.1"` 与 release 门禁（见 `v2.1.md`）。
 
 ### Phase C — P1：选择与批量（已发布）
 
 目标：列表页可声明「**当前页**多选 + 批量 request」。
 
-- [x] 候选 ADR：[0022](./decisions/0022-table-selection-and-batch-request.md)。
+- [x] 候选 ADR：[0022](../decisions/0022-table-selection-and-batch-request.md)。
 - [x] 关闭 0022 开放问题并 `accepted`。
 - [x] Schema / L2 / `08` capability / fixtures / reference。
-- [x] 官方扩展示例场景（`admin-list-batch.md` + `_samples/order-list-batch.yaml`）+ [`2.1-to-2.2`](./migrations/2.1-to-2.2.md) 迁移短文。
-- [x] `2.2.0` 制品打包（按 [13-v2.2-release-goals.md](./13-v2.2-release-goals.md) / V275：`ALLOW_22_FIELDS_ON_21=false`，样例/fixtures 升 `"2.2"`）。
+- [x] 官方扩展示例场景（`admin-list-batch.md` + `_samples/order-list-batch.yaml`）+ [`2.1-to-2.2`](../migrations/2.1-to-2.2.md) 迁移短文。
+- [x] `2.2.0` 制品打包（按 [v2.2.md](./v2.2.md) / V275：`ALLOW_22_FIELDS_ON_21=false`，样例/fixtures 升 `"2.2"`）。
 
 MVP 摘要（以 0022 正文为准）：
 
 1. **选择模型** — `table.props.selection.mode: multiple`；键 = `rowKey` 标量；仅当前页；筛选/翻页/排序/reload **清空**选中。  
 2. **批量 request** — toolbar Trigger：`requiresSelection` + `batchMapping`（`$selection.keys` 仅 body）；整批一次 HTTP；成功 reload 并清空选中。  
-3. **权限继承** — **不在 0022**；由独立 [ADR-0023](./decisions/0023-container-permission-inheritance.md) 随 v2.3 作为 `permissions.inheritance` 交付。
+3. **权限继承** — **不在 0022**；由独立 [ADR-0023](../decisions/0023-container-permission-inheritance.md) 随 v2.3 作为 `permissions.inheritance` 交付。
 
 门禁额外要求：
 
@@ -151,7 +151,7 @@ MVP 摘要（以 0022 正文为准）：
 - [x] ADR-0023 的 OQ-23-1–7 均已关闭，ADR 状态为 `accepted` 并进入 `protocol-manifest.json` 的 `authority.semanticSpecs`。
 - [x] 用户确认 OQ-23-1 的范围：`table.props.columns[]` 不参与权限级联，仅 `table.props.actions[]` / `table.props.toolbar[]` 参与；列仍只适用本地 `permissions`。
 - [x] 用户接受 ADR-0023，并授权以 `2.3.0` / `2.3` 的新 MINOR 原子同步 Schema/DSL、L2/L3a、fixtures、场景、迁移、CHANGELOG 与发布目标（M1–M6）。
-- [x] v2.3 发布门禁见 [`14-v2.3-release-goals.md`](./14-v2.3-release-goals.md)；迁移见 [`migrations/2.2-to-2.3.md`](./migrations/2.2-to-2.3.md)。
+- [x] v2.3 发布门禁见 [`v2.3.md`](./v2.3.md)；迁移见 [`migrations/2.2-to-2.3.md`](../migrations/2.2-to-2.3.md)。
 
 ### Phase D — P2 与运营增强
 
@@ -159,7 +159,7 @@ MVP 摘要（以 0022 正文为准）：
 
 #### D.0 标准只读详情（已随 v2.4 发布）
 
-- [x] 候选 ADR：[0024](./decisions/0024-record-view.md) · capability `record.view.load`。
+- [x] 候选 ADR：[0024](../decisions/0024-record-view.md) · capability `record.view.load`。
 - [x] Schema / L2 / `08` capability / fixtures / reference / 扩展示例 / 迁移 / `2.4.0` 制品。
 - 业务锚点：列表列不全时行进详情页查阅完整记录（非编辑 form 伪装）。
 
@@ -185,7 +185,7 @@ MVP 摘要（以 0022 正文为准）：
 |---|---|---|
 | 文档轨道、ADR 草案、本文件修订 | 不升协议 `protocolVersion` | 不改变合法页面 |
 | 新增兼容字段 + capability，旧页面仍合法 | **MINOR**（如 `2.1`、`2.2`） | 页面按需声明 `requiredCapabilities` |
-| 文档勘误、示例、fixtures 补齐且不改结果 | **PATCH** | 遵循 `10-v2-release-goals.md` §4 |
+| 文档勘误、示例、fixtures 补齐且不改结果 | **PATCH** | 遵循 `v2.0.md` §4 |
 | 破坏 v2.0 合法输入、默认值或可观测结果 | **下一 MAJOR** | 需独立发布目标文档与迁移指南 |
 
 推荐节奏（可按业务压力调整，但勿合并为单次「大爆炸」）：
@@ -213,18 +213,18 @@ MVP 摘要（以 0022 正文为准）：
 
 | 文档 | 关系 |
 |---|---|
-| [`10-v2-release-goals.md`](./10-v2-release-goals.md) | v2.0 **当前**发布门禁；本文件不替代它 |
-| [`decisions/0019-v2-admin-scope.md`](./decisions/0019-v2-admin-scope.md) | 界定 v2.0 不含完整 Admin；本文件是其后续执行轨道 |
-| [`decisions/0020-page-action-trigger.md`](./decisions/0020-page-action-trigger.md) | P0：页面级 ActionTrigger（**accepted**，v2.1） |
-| [`decisions/0021-record-navigation-and-form-load.md`](./decisions/0021-record-navigation-and-form-load.md) | P0：记录导航与 form 加载回填（**accepted**，v2.1） |
-| [`decisions/0022-table-selection-and-batch-request.md`](./decisions/0022-table-selection-and-batch-request.md) | P1：表格选择与批量 request（**accepted**，v2.2） |
-| [`decisions/0023-container-permission-inheritance.md`](./decisions/0023-container-permission-inheritance.md) | P1：容器权限继承与显式操作 intent（**accepted**，v2.3） |
-| [`decisions/0024-record-view.md`](./decisions/0024-record-view.md) | P2：标准只读详情 recordView（**accepted**，v2.4） |
-| [`13-v2.2-release-goals.md`](./13-v2.2-release-goals.md) | 2.2 历史发布门禁与 V275 版本策略 |
-| [`14-v2.3-release-goals.md`](./14-v2.3-release-goals.md) | 2.3 历史发布门禁与 ADR-0023 交付证据 |
-| [`15-v2.4-release-goals.md`](./15-v2.4-release-goals.md) | 2.4 发布门禁与 ADR-0024 交付证据 |
-| [`decisions/0008-row-action-backend-request.md`](./decisions/0008-row-action-backend-request.md) | 已覆盖单行 request；批量由其「后果」中 defer，在本轨道 Phase C 接续 |
-| [`PROJECT_CHARTER.md`](../PROJECT_CHARTER.md) | 变更门禁与权威层级；本轨道交付必须遵守 |
+| [`v2.0.md`](./v2.0.md) | v2.0 **当前**发布门禁；本文件不替代它 |
+| [`decisions/0019-v2-admin-scope.md`](../decisions/0019-v2-admin-scope.md) | 界定 v2.0 不含完整 Admin；本文件是其后续执行轨道 |
+| [`decisions/0020-page-action-trigger.md`](../decisions/0020-page-action-trigger.md) | P0：页面级 ActionTrigger（**accepted**，v2.1） |
+| [`decisions/0021-record-navigation-and-form-load.md`](../decisions/0021-record-navigation-and-form-load.md) | P0：记录导航与 form 加载回填（**accepted**，v2.1） |
+| [`decisions/0022-table-selection-and-batch-request.md`](../decisions/0022-table-selection-and-batch-request.md) | P1：表格选择与批量 request（**accepted**，v2.2） |
+| [`decisions/0023-container-permission-inheritance.md`](../decisions/0023-container-permission-inheritance.md) | P1：容器权限继承与显式操作 intent（**accepted**，v2.3） |
+| [`decisions/0024-record-view.md`](../decisions/0024-record-view.md) | P2：标准只读详情 recordView（**accepted**，v2.4） |
+| [`v2.2.md`](./v2.2.md) | 2.2 历史发布门禁与 V275 版本策略 |
+| [`v2.3.md`](./v2.3.md) | 2.3 历史发布门禁与 ADR-0023 交付证据 |
+| [`v2.4.md`](./v2.4.md) | 2.4 发布门禁与 ADR-0024 交付证据 |
+| [`decisions/0008-row-action-backend-request.md`](../decisions/0008-row-action-backend-request.md) | 已覆盖单行 request；批量由其「后果」中 defer，在本轨道 Phase C 接续 |
+| [`PROJECT_CHARTER.md`](../../PROJECT_CHARTER.md) | 变更门禁与权威层级；本轨道交付必须遵守 |
 | `docs/audit/` | 过程记录；轨道结论应沉淀回规范/ADR/本文件/CHANGELOG，审计本身不是协议权威 |
 
 ## 8. 当前状态
@@ -233,12 +233,12 @@ MVP 摘要（以 0022 正文为准）：
 |---|---|
 | 协议制品 / 页面协议 | `2.4.1` / `2.4`（见 `protocol-manifest.json`） |
 | 本轨道 | **Phase C / C.1 / D.0 已发布**（2.2 批量、2.3 权限继承、2.4 recordView） |
-| P0 ADR | [0020](./decisions/0020-page-action-trigger.md)、[0021](./decisions/0021-record-navigation-and-form-load.md)（**accepted**，v2.1） |
-| P1 批量 | [0022](./decisions/0022-table-selection-and-batch-request.md)（**accepted**，v2.2） |
-| 权限继承 | [ADR-0023](./decisions/0023-container-permission-inheritance.md)（**accepted**，v2.3） |
-| 只读详情 | [ADR-0024](./decisions/0024-record-view.md)（**accepted**，v2.4） |
+| P0 ADR | [0020](../decisions/0020-page-action-trigger.md)、[0021](../decisions/0021-record-navigation-and-form-load.md)（**accepted**，v2.1） |
+| P1 批量 | [0022](../decisions/0022-table-selection-and-batch-request.md)（**accepted**，v2.2） |
+| 权限继承 | [ADR-0023](../decisions/0023-container-permission-inheritance.md)（**accepted**，v2.3） |
+| 只读详情 | [ADR-0024](../decisions/0024-record-view.md)（**accepted**，v2.4） |
 | 下一步具体动作 | Phase D.1 其余一等公民（导入导出、异步任务、树表、行内编辑、跨页全选等）**按真实痛点单独立项**；不得以 Host 私有约定扩张已交付边界 |
 
 ---
 
-**维护说明：** 当某一 Phase 的 capability 合入协议时，应把对应门禁勾选为完成，并在 `CHANGELOG` 与（如需要）新的 `1x-*-release-goals.md` 中留下该 MINOR 的发布门禁；本文件保留轨道级视图，避免与单一版本门禁文档混淆。未来 proposed ADR 在 `accepted` 前不得进入 `protocol-manifest.json` 的 `authority.semanticSpecs`。
+**维护说明：** 当某一 Phase 的 capability 合入协议时，应把对应门禁勾选为完成，并在 `CHANGELOG` 与（如需要）新的 `docs/release-goals/vX.Y.md` 中留下该 MINOR 的发布门禁；本文件保留轨道级视图，避免与单一版本门禁文档混淆。未来 proposed ADR 在 `accepted` 前不得进入 `protocol-manifest.json` 的 `authority.semanticSpecs`。

@@ -2,7 +2,7 @@
 status: accepted
 date: 2026-07-24
 applies_to: schema-ui-protocol v2.4
-track: docs/11-next-admin-lifecycle-goals.md Phase D / P2 (recordView only)
+track: docs/release-goals/next-admin-lifecycle.md Phase D / P2 (recordView only)
 ---
 
 # ADR-0024: 标准只读详情组件（recordView）
@@ -11,7 +11,7 @@ track: docs/11-next-admin-lifecycle-goals.md Phase D / P2 (recordView only)
 
 **Accepted（已接受，随 v2.4.0 发布）。** 字段与执行语义以本 ADR 及 `02` / `03` / `08` / Schema / L2 为准。使用时声明 `meta.protocolVersion: "2.4"` 与 `record.view.load`。
 
-轨道依据：[11-next-admin-lifecycle-goals.md](../11-next-admin-lifecycle-goals.md)、[ADR-0019](./0019-v2-admin-scope.md)、[ADR-0021](./0021-record-navigation-and-form-load.md)。
+轨道依据：[release-goals/next-admin-lifecycle.md](../release-goals/next-admin-lifecycle.md)、[ADR-0019](./0019-v2-admin-scope.md)、[ADR-0021](./0021-record-navigation-and-form-load.md)。
 
 ## 背景
 
