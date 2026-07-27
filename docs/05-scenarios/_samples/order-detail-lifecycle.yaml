@@ -1,7 +1,7 @@
 meta:
   pageId: order_detail_lifecycle
   title: 订单详情
-  protocolVersion: "2.4"
+  protocolVersion: "2.5"
   requiredCapabilities:
     - record.view.load
     - actions.page.trigger

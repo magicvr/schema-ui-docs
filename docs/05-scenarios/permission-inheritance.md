@@ -11,7 +11,7 @@ applies_to: schema-ui-protocol v2.4
 meta:
   pageId: order_permission_boundary
   title: 订单权限边界
-  protocolVersion: "2.4"
+  protocolVersion: "2.5"
   requiredCapabilities:
     - permissions.inheritance
     - actions.page.trigger

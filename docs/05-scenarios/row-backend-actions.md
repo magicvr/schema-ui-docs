@@ -19,7 +19,7 @@ last_updated: 2026-07-09
 meta:
   pageId: order_operations
   title: 订单操作台
-  protocolVersion: "2.4"
+  protocolVersion: "2.5"
   requiredCapabilities:
     - actions.row.request
 

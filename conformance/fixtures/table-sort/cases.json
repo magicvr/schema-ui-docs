@@ -1,0 +1,818 @@
+{
+  "fixtureVersion": "1.0",
+  "category": "table-sort",
+  "cases": [
+    {
+      "id": "v24-compat-no-sort-fields-click-ignored",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.4"
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "name",
+              "label": "Name"
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          }
+        },
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "event": {
+          "type": "clickSort",
+          "field": "name"
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "protocolSortInteraction": false,
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/orders?page=1&pageSize=20"
+      }
+    },
+    {
+      "id": "l2-missing-capability",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "operation": "validate",
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": []
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "CAPABILITY_REQUIRED",
+        "path": "meta.requiredCapabilities",
+        "errors": [
+          {
+            "code": "CAPABILITY_REQUIRED",
+            "path": "meta.requiredCapabilities"
+          }
+        ]
+      }
+    },
+    {
+      "id": "l2-version-too-low",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "operation": "validate",
+        "meta": {
+          "protocolVersion": "2.4",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "amount",
+              "label": "A",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 10
+          }
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "PROTOCOL_VERSION_TOO_LOW",
+        "path": "meta.protocolVersion",
+        "errors": [
+          {
+            "code": "PROTOCOL_VERSION_TOO_LOW",
+            "path": "meta.protocolVersion"
+          }
+        ]
+      }
+    },
+    {
+      "id": "l2-sort-key-duplicate",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "operation": "validate",
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "a",
+              "label": "A",
+              "sortable": true,
+              "sortField": "x"
+            },
+            {
+              "field": "b",
+              "label": "B",
+              "sortable": true,
+              "sortField": "x"
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          }
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "SORT_KEY_DUPLICATE",
+        "path": "columns[1]",
+        "errors": [
+          {
+            "code": "SORT_KEY_DUPLICATE",
+            "path": "columns[1]"
+          }
+        ]
+      }
+    },
+    {
+      "id": "default-sort-init-request",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "event": {
+          "type": "init"
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "requestEmitted": true,
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "created_at:desc"
+        },
+        "url": "/orders?page=1&pageSize=20&sort=created_at%3Adesc"
+      }
+    },
+    {
+      "id": "default-sort-desc-first-click-clears",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "created_at:desc"
+        },
+        "event": {
+          "type": "clickSort",
+          "field": "createdAt"
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "requestEmitted": true,
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/orders?page=1&pageSize=20"
+      }
+    },
+    {
+      "id": "three-state-null-to-asc",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "state": {
+          "filters": {
+            "status": "paid"
+          },
+          "page": 3,
+          "pageSize": 20,
+          "sort": null
+        },
+        "event": {
+          "type": "clickSort",
+          "field": "amount"
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "requestEmitted": true,
+        "state": {
+          "filters": {
+            "status": "paid"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": "amount:asc"
+        },
+        "url": "/orders?page=1&pageSize=20&sort=amount%3Aasc&status=paid"
+      }
+    },
+    {
+      "id": "three-state-asc-to-desc",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "amount:asc"
+        },
+        "event": {
+          "type": "clickSort",
+          "field": "amount"
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "requestEmitted": true,
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "amount:desc"
+        },
+        "url": "/orders?page=1&pageSize=20&sort=amount%3Adesc"
+      }
+    },
+    {
+      "id": "three-state-desc-to-clear",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "state": {
+          "filters": {},
+          "page": 2,
+          "pageSize": 20,
+          "sort": "amount:desc"
+        },
+        "event": {
+          "type": "clickSort",
+          "field": "amount"
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "requestEmitted": true,
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "url": "/orders?page=1&pageSize=20"
+      }
+    },
+    {
+      "id": "sort-field-maps-to-backend-key",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "event": {
+          "type": "clickSort",
+          "field": "createdAt"
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "requestEmitted": true,
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "created_at:asc"
+        },
+        "url": "/orders?page=1&pageSize=20&sort=created_at%3Aasc"
+      }
+    },
+    {
+      "id": "non-sortable-column-no-change",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "amount:asc"
+        },
+        "event": {
+          "type": "clickSort",
+          "field": "id"
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "requestEmitted": true,
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "amount:asc"
+        },
+        "url": "/orders?page=1&pageSize=20&sort=amount%3Aasc"
+      }
+    },
+    {
+      "id": "unknown-sort-key-no-request",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "secret:asc"
+        },
+        "event": null,
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": false,
+        "code": "TABLE_SORT_FIELD_UNKNOWN",
+        "requestEmitted": false,
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "secret:asc"
+        }
+      }
+    },
+    {
+      "id": "search-keeps-sort-resets-page",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "state": {
+          "filters": {
+            "q": "old"
+          },
+          "page": 4,
+          "pageSize": 20,
+          "sort": "amount:desc"
+        },
+        "event": {
+          "type": "submitSearch",
+          "filters": {
+            "q": "new"
+          }
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "requestEmitted": true,
+        "state": {
+          "filters": {
+            "q": "new"
+          },
+          "page": 1,
+          "pageSize": 20,
+          "sort": "amount:desc"
+        },
+        "url": "/orders?page=1&pageSize=20&q=new&sort=amount%3Adesc"
+      }
+    },
+    {
+      "id": "selection-cleared-on-sort-click",
+      "protocolVersion": "2.5",
+      "category": "table-sort",
+      "input": {
+        "meta": {
+          "protocolVersion": "2.5",
+          "requiredCapabilities": [
+            "table.sort"
+          ]
+        },
+        "table": {
+          "columns": [
+            {
+              "field": "id",
+              "label": "ID"
+            },
+            {
+              "field": "createdAt",
+              "label": "Created",
+              "sortable": true,
+              "sortField": "created_at"
+            },
+            {
+              "field": "amount",
+              "label": "Amount",
+              "sortable": true
+            }
+          ],
+          "pagination": {
+            "mode": "server",
+            "pageSize": 20
+          },
+          "defaultSort": {
+            "field": "created_at",
+            "order": "desc"
+          }
+        },
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": null
+        },
+        "selection": {
+          "keys": [
+            "A",
+            "B"
+          ],
+          "count": 2
+        },
+        "event": {
+          "type": "clickSort",
+          "field": "amount"
+        },
+        "baseUrl": "/orders"
+      },
+      "expected": {
+        "ok": true,
+        "requestEmitted": true,
+        "state": {
+          "filters": {},
+          "page": 1,
+          "pageSize": 20,
+          "sort": "amount:asc"
+        },
+        "url": "/orders?page=1&pageSize=20&sort=amount%3Aasc",
+        "selection": {
+          "keys": [],
+          "count": 0
+        }
+      }
+    }
+  ]
+}

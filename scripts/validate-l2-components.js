@@ -64,8 +64,11 @@ const FLOOR_21 = '2.1';
 const FLOOR_22 = ALLOW_22_FIELDS_ON_21 ? '2.1' : '2.2';
 const FLOOR_23 = '2.3';
 const FLOOR_24 = '2.4';
+const FLOOR_25 = '2.5';
 const PERMISSION_INHERITANCE_CAPABILITY = 'permissions.inheritance';
 const RECORD_VIEW_LOAD_CAPABILITY = 'record.view.load';
+const TABLE_SORT_CAPABILITY = 'table.sort';
+const RESERVED_TABLE_QUERY_KEYS = new Set(['page', 'pageSize', 'sort']);
 const PERMISSION_CASCADE_NODE_TYPES = new Set(['section', 'grid', 'form', 'tabs', 'table']);
 const PERMISSION_CASCADE_KEYS = new Set(['edit', 'delete']);
 
@@ -762,6 +765,10 @@ function validateNode(node, nodePath, violations, doc, parentIsForm = false) {
         path: `${nodePath}.props.pagination.pageSize`,
         message: 'server 分页的 pageSize 必须是正整数',
       });
+    }
+
+    if (type === 'table') {
+      validateTableSortProps(props, nodePath, violations);
     }
 
     if (type === 'grid' && (typeof props.columns !== 'number' || !Number.isInteger(props.columns) || props.columns < 1)) {
@@ -2140,6 +2147,21 @@ function validateProtocolVersionFloor(doc, violations) {
       if (node.props.selection !== undefined) {
         requireFloor(`${nodePath}.props.selection`, 'table.props.selection', FLOOR_22);
       }
+      if (node.props.defaultSort !== undefined) {
+        requireFloor(`${nodePath}.props.defaultSort`, 'table.props.defaultSort', FLOOR_25);
+      }
+      if (Array.isArray(node.props.columns)) {
+        node.props.columns.forEach((col, colIndex) => {
+          if (!col || typeof col !== 'object') return;
+          if (col.sortable !== undefined || col.sortField !== undefined) {
+            requireFloor(
+              `${nodePath}.props.columns[${colIndex}]`,
+              'table.sort column fields',
+              FLOOR_25,
+            );
+          }
+        });
+      }
       if (Array.isArray(node.props.toolbar) && node.props.toolbar.length > 0) {
         requireFloor(`${nodePath}.props.toolbar`, 'table.props.toolbar', FLOOR_21);
         node.props.toolbar.forEach((trigger, index) => {
@@ -2265,6 +2287,15 @@ function validateRequiredCapabilities(doc, violations) {
     if (node.type === 'table' && node.props) {
       if (node.props.selection !== undefined) {
         requireCapability('table.selection', `${nodePath}.props.selection`, 'table.props.selection');
+      }
+      const usesTableSort = node.props.defaultSort !== undefined
+        || (Array.isArray(node.props.columns) && node.props.columns.some(
+          col => col && (col.sortable === true || col.sortable === false || col.sortField !== undefined),
+        ));
+      // Only gate when sortable true, sortField present, or defaultSort — bare sortable:false is inert
+      // but still a 2.5 field; ADR says any of these fields requires table.sort.
+      if (usesTableSort) {
+        requireCapability(TABLE_SORT_CAPABILITY, `${nodePath}`, 'table.sort fields');
       }
       if (Array.isArray(node.props.toolbar) && node.props.toolbar.length > 0) {
         requireCapability('actions.page.trigger', `${nodePath}.props.toolbar`, 'table.props.toolbar');
@@ -2481,6 +2512,92 @@ function validateReservedTableQueryParams(doc, violations) {
         scanNode(action.content, `actions.${actionId}.content`);
       }
     }
+  }
+}
+
+/**
+ * ADR-0027 L2: table.sort declaration surface.
+ * - sortField only when sortable:true
+ * - sortKey unique across sortable columns
+ * - reserved names rejected for sortField/field when sortable
+ * - defaultSort.field must hit a sortable sortKey; server pagination only
+ */
+function validateTableSortProps(props, nodePath, violations) {
+  if (!props || typeof props !== 'object') return;
+  const columns = Array.isArray(props.columns) ? props.columns : [];
+  const sortKeys = new Map(); // sortKey -> first column index
+
+  columns.forEach((col, index) => {
+    if (!col || typeof col !== 'object') return;
+    const colPath = `${nodePath}.props.columns[${index}]`;
+    if (col.sortField !== undefined && col.sortable !== true) {
+      violations.push({
+        path: `${colPath}.sortField`,
+        message: 'sortField 仅当 sortable: true 时允许（ADR-0027）',
+      });
+    }
+    if (col.sortable === true) {
+      const sortKey = typeof col.sortField === 'string' && col.sortField.length > 0
+        ? col.sortField
+        : col.field;
+      if (typeof sortKey !== 'string' || sortKey.length === 0) {
+        violations.push({
+          path: `${colPath}.field`,
+          message: '可排序列必须有有效 field / sortField 作为 sortKey',
+        });
+        return;
+      }
+      if (RESERVED_TABLE_QUERY_KEYS.has(sortKey) || RESERVED_TABLE_QUERY_KEYS.has(col.field)) {
+        violations.push({
+          path: colPath,
+          message: `可排序列 field/sortField 不得为保留名 page/pageSize/sort（当前 sortKey="${sortKey}"）`,
+        });
+      }
+      if (sortKeys.has(sortKey)) {
+        violations.push({
+          path: `${colPath}`,
+          message: `可排序 sortKey "${sortKey}" 与 columns[${sortKeys.get(sortKey)}] 冲突（须全表唯一）`,
+        });
+      } else {
+        sortKeys.set(sortKey, index);
+      }
+    }
+  });
+
+  if (props.defaultSort !== undefined) {
+    const ds = props.defaultSort;
+    const dsPath = `${nodePath}.props.defaultSort`;
+    if (props.pagination?.mode !== 'server') {
+      violations.push({
+        path: dsPath,
+        message: 'defaultSort 仅允许 pagination.mode: server（ADR-0027）',
+      });
+    }
+    if (!ds || typeof ds !== 'object' || Array.isArray(ds)) {
+      violations.push({ path: dsPath, message: 'defaultSort 必须为 { field, order } 对象' });
+      return;
+    }
+    if (typeof ds.field !== 'string' || !sortKeys.has(ds.field)) {
+      violations.push({
+        path: `${dsPath}.field`,
+        message: 'defaultSort.field 必须等于某 sortable:true 列的 sortKey（sortField ?? field）',
+      });
+    }
+    if (ds.order !== 'asc' && ds.order !== 'desc') {
+      violations.push({
+        path: `${dsPath}.order`,
+        message: 'defaultSort.order 仅允许 "asc" | "desc"',
+      });
+    }
+  }
+
+  // sortable:true / defaultSort require server mode for producing sort query
+  const hasSortable = columns.some(col => col && col.sortable === true);
+  if (hasSortable && props.pagination?.mode !== 'server') {
+    violations.push({
+      path: `${nodePath}.props.pagination.mode`,
+      message: '可排序列交互仅允许 pagination.mode: server（ADR-0027）',
+    });
   }
 }
 

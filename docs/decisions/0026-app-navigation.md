@@ -1,7 +1,7 @@
 ---
-status: proposed
+status: accepted
 date: 2026-07-27
-applies_to: schema-ui-protocol v2.5 (draft)
+applies_to: schema-ui-protocol v2.5
 track: 应用级协议（依赖 ADR-0025 应用级清单）
 ---
 
@@ -9,8 +9,8 @@ track: 应用级协议（依赖 ADR-0025 应用级清单）
 
 ## 状态
 
-**Proposed（草案，待评审）。** 依赖 [ADR-0025](./0025-app-manifest.md)（清单容器与页面注册表）；
-独立 capability，可与 `app.manifest` 分离实现（只发现不导航的嵌入式宿主合法）。
+**Accepted。** 自 `schema-ui-protocol v2.5` 起生效。依赖 [ADR-0025](./0025-app-manifest.md)（清单容器与页面注册表）；
+独立 capability，可与 `app.manifest` 分离实现（只发现不导航的嵌入式宿主合法）。规范投影见 [17-app-manifest.md](../17-app-manifest.md) 导航专节。
 
 ## 背景
 
@@ -141,14 +141,14 @@ navigation:
 
 - schema：并入 `app-manifest.schema.json`（`navigation` definitions）；
 - **`docs/08` §3.4 预定义 capability 表**增加 `app.navigation`（权威 ADR 指向本 ADR；审计 0069 / V318）；
-- `proposed` 阶段不入 `protocol-manifest.json`；**accept 后**与 0025 一并纳入 authority；
+- 本 ADR 已 accept，与 0025 一并纳入 `protocol-manifest.json` authority；
 - M1 语义校验：槽位封闭、`pageRef` 引用完整性、`pageRef`/`url` 互斥、组不嵌组、`permissions` 仅 `view`、
   label/labelKey 至少一、`url` 路径正则、capability 门控（有 `navigation` ⇒ `app.navigation`）、
   空 `pages` 时禁止 `pageRef`；
 - conformance 新 suite `app-navigation`：三槽位解析、分组、权限/`visibleWhen` 过滤（含 roles contains
   正负例、**缺省未声明 → 可见**）、空组剪枝、数组序稳定性、未知槽位拒绝、图标降级、当前项匹配
   （`pageRef` 单项 D4a、`url` 精确相等、query 不参与、多 active 允许）、空 pages 仅 `url` 壳；
-- 规范正文 `docs/16`（或专节）附 **icon 语义名建议词表**（informative，非规范）：至少覆盖
+- 规范正文 `docs/17-app-manifest.md` 附 **icon 语义名建议词表**（informative，非规范）：至少覆盖
   `home`、`orders`、`users`、`settings`、`dashboard`、`report`、`help`、`logout` 等常见 Admin 入口；
   未在词表中的合法语义名仍须按 D4 降级规则处理，不得拒绝；
 - CHANGELOG + migration（additive，无迁移动作）。

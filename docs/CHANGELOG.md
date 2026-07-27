@@ -9,6 +9,25 @@
 
 （无）
 
+## v2.5.0 — 2026-07-28（应用级清单、导航与表格排序声明）
+
+> **版本说明：** MINOR 发布。使用 `sortable` / `sortField` / `defaultSort` 的页面必须声明 `meta.protocolVersion: "2.5"` 与 `table.sort`。消费应用清单须声明 `app.manifest`（有 `navigation` 时另须 `app.navigation`）。合法 `2.4` 页面与无清单宿主行为不变。正式协议制品为 `schema-ui-protocol-2.5.0.tar.gz`。
+
+**协议变更：**
+- **ADR-0025** 应用级清单：well-known / 显式 manifest URL、页面注册表、`homePageRef`、D4a 路由匹配、API `baseURL` vs 应用路由根三分法；规范正文 [`17-app-manifest.md`](./17-app-manifest.md)；Schema `app-manifest.schema.json`（M0/M1/M3a）。
+- **ADR-0026** 应用导航：`navigation.top` / `sidebar` / `user`；过滤/空组剪枝/高亮；capability `app.navigation`。
+- **ADR-0027** 表格排序声明：`columns[].sortable` / `sortField`、`table.props.defaultSort`；三态点击；`TABLE_SORT_FIELD_UNKNOWN`；capability `table.sort`。
+- 预定义 capability 增加：`app.manifest`、`app.navigation`、`table.sort`。
+- 章程使命覆盖页面协议 + 应用级清单；`07` / ADR-0021 navigate 与 `$context.route.path` 改为应用路由根口径。
+- ADR-0011 D3 声明面指针自 v2.5 生效（与 0027 同制品）。
+
+**Conformance 与示例：**
+- 新 suite：`app-manifest`、`app-navigation`、`table-sort`（JS/Python dual-language）。
+- `version-negotiation`：`2.5` 接受/拒绝与 `table.sort` / `app.manifest` / `app.navigation`；页 2.4 在含 2.5 的 Renderer 上解耦正例。
+- 算法类 fixtures 与官方场景统一 `protocolVersion: "2.5"`；version-negotiation 保留历史页面版本输入。版本化 fixture 共 16 类、282 cases（含 D4a 声明序等长 tiebreak、route 长度消歧，以及 navigation M1：`NAV_LINK_MUTEX` / `NAV_GROUP_NESTED` / `NAV_PAGE_REF_UNKNOWN`）。
+- 既有 `search-table`（0011）回归保持通过。
+- 迁移 [`2.4-to-2.5.md`](./migrations/2.4-to-2.5.md)；发布门禁 [`16-v2.5-release-goals.md`](./16-v2.5-release-goals.md)。
+
 ## v2.4.1 — 2026-07-24（发布身份固化与入口卫生）
 
 > **版本说明：** PATCH 发布。`meta.protocolVersion` 仍为 `"2.4"`；schemas、versioned fixtures 与核心语义规范相对正式 `v2.4.0` **机器契约未变**。正式协议制品为 `schema-ui-protocol-2.4.1.tar.gz`。本 PATCH **不**改写 `v2.4.0` tag 或已上传 Release 资产。

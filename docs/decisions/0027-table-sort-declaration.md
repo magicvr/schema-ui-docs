@@ -1,7 +1,7 @@
 ---
-status: proposed
+status: accepted
 date: 2026-07-27
-applies_to: schema-ui-protocol v2.5 (draft)
+applies_to: schema-ui-protocol v2.5
 track: 页面级 Admin 补齐（列表排序声明面；wire 形态沿 ADR-0011）
 ---
 
@@ -9,7 +9,7 @@ track: 页面级 Admin 补齐（列表排序声明面；wire 形态沿 ADR-0011�
 
 ## 状态
 
-**Proposed（草案，待评审）。** 补齐 ADR-0011 刻意留下的「可排序字段」声明面；**不**改动
+**Accepted。** 自 `schema-ui-protocol v2.5` 起生效。补齐 ADR-0011 刻意留下的「可排序字段」声明面；**不**改动
 `sort` 保留 query 的格式与搜索/翻页状态机。与应用级清单（ADR-0025/0026）独立：本 ADR 是
 **页面 table 协议**，不依赖 manifest。
 
@@ -129,9 +129,8 @@ ADR-0011 D3 原文：「**可排序字段能力不在本 ADR 扩展**；Renderer
   未知 sortKey → `TABLE_SORT_FIELD_UNKNOWN` 且不发请求、与 search 保留 sort / 重置 page 交叉向量、
   与 `table.selection` 排序清空选中；
 - CHANGELOG + migration（v2.4 → v2.5 additive：旧页无字段则无排序 UI 义务）；
-- **与 ADR-0011 原子性（审计 0069 / V324）**：本 ADR **accept** 与 0011 D3 中指向本 ADR 的声明面
-  句子必须同一协议 tag 落地；若本 ADR 被拒绝或无限期搁置，须回滚 0011 D3 该前置引用，避免
-  accepted 正文依赖 proposed 语义。`proposed` 阶段不入 `protocol-manifest.json`。
+- **与 ADR-0011 原子性（审计 0069 / V324）**：本 ADR 与 0011 D3 声明面指针同一 `v2.5` 制品落地；
+  已纳入 `protocol-manifest.json` authority。
 
 ## 对消费者的影响
 

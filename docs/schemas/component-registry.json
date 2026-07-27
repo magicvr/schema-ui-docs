@@ -250,6 +250,18 @@
                 }
               },
               "labelKey": { "type": "string", "description": "列标题 i18n key（since 0.2）" },
+              "sortable": {
+                "type": "boolean",
+                "required": false,
+                "since": "2.5",
+                "description": "【ADR-0027】是否可点击排序；缺省 false（fail-closed）。使用时声明 table.sort 且 protocolVersion >= 2.5"
+              },
+              "sortField": {
+                "type": "string",
+                "required": false,
+                "since": "2.5",
+                "description": "【ADR-0027】写入 sort 左半段的后端字段名；仅当 sortable:true 时允许；缺省等于 field"
+              },
               "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "列级条件渲染（since 0.2.1）" },
               "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "列级联动规则（since 0.2.1）" },
               "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "列级权限控制（since 0.2.1）；ADR-0023 中 columns[] 不参与 permissionCascade，且不允许 permissionIntent" }
@@ -261,6 +273,18 @@
             ],
             "additionalProperties": false
           }
+        },
+        "defaultSort": {
+          "type": "object",
+          "required": false,
+          "since": "2.5",
+          "description": "【ADR-0027】表级默认排序（仅初始状态）；field 为可排序列 sortKey（sortField??field）；仅 pagination.mode:server；使用时声明 table.sort",
+          "properties": {
+            "field": { "type": "string", "required": true },
+            "order": { "type": "string", "enum": ["asc", "desc"], "required": true }
+          },
+          "required": ["field", "order"],
+          "additionalProperties": false
         },
         "actions": {
           "type": "array",

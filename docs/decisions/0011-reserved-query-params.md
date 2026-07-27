@@ -44,12 +44,8 @@ date: 2026-07-11
 
 `sort` 的非空格式为 `field:asc` 或 `field:desc`。可排序字段的**声明面**（`columns[].sortable` /
 `sortField`、`table.props.defaultSort`）与排序点击三态由 [ADR-0027](./0027-table-sort-declaration.md)
-定义；本 ADR 仍是保留参数、合并序与搜索/翻页/排序状态转换的权威。未声明 `table.sort` 时，
-Renderer 不得凭猜测为列启用协议级排序交互。
-
-> **发布原子性（审计 0069 / V324）：** 上段对 ADR-0027 的引用随 0027 同 tag 接受而生效；若 0027
-> 被拒绝或搁置，必须回滚本段声明面指针，避免 accepted 正文依赖未接受语义。在 0027 仍为
-> `proposed` 期间，实现不得把 0027 字段当作已发布协议义务。
+定义，**自 `schema-ui-protocol v2.5` 起生效**；本 ADR 仍是保留参数、合并序与搜索/翻页/排序状态转换的权威。
+未声明 `table.sort` 时，Renderer 不得凭猜测为列启用协议级排序交互（v2.4 及更早页面无协议级排序 UI 义务）。
 
 ### D4. 状态转换
 

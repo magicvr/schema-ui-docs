@@ -22,7 +22,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:474a3c091bbac3d1f0a9737e27bfa790d2cf25846706d67afdf3fc45fe8e754e';
+  'sha256:26179a46712de6ccd4f655dc236a25164f0f55d25a563cfc6e5245435a560512';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -136,6 +136,23 @@ const releaseTargets = {
       'actions.upload',
     ],
   },
+  '2.5': {
+    releaseGoalsPath: 'docs/16-v2.5-release-goals.md',
+    migrationPath: 'docs/migrations/2.4-to-2.5.md',
+    migrationRequiredTopics: [
+      'protocolVersion',
+      'legacy adapter',
+      'query',
+      'pageSize',
+      'requestMapping',
+      'actions.upload',
+      'app.manifest',
+      'app.navigation',
+      'table.sort',
+      'sortable',
+      'defaultSort',
+    ],
+  },
 };
 const releaseTarget = releaseTargets[protocolVersion];
 assert.ok(releaseTarget, `Missing release target definition for protocolVersion ${protocolVersion}`);
@@ -190,6 +207,9 @@ const expectedCategories = new Set([
   'uploads',
   'scenarios',
   'permissions-inheritance',
+  'table-sort',
+  'app-manifest',
+  'app-navigation',
 ]);
 let versionedCaseCount = 0;
 for (const category of expectedCategories) {
@@ -219,6 +239,8 @@ const expectedVersionedCaseCountByProtocol = {
   '2.3': 206,
   // 2.4: base 213（0067 前）+1 record-view-empty-mapping-rejected = 214
   '2.4': 214,
+  // 2.5: 214 +7 VN +14 table-sort +36 app-manifest +11 app-navigation = 282
+  '2.5': 282,
 };
 const expectedVersionedCaseCount = expectedVersionedCaseCountByProtocol[protocolVersion];
 assert.ok(

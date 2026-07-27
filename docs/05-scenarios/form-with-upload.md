@@ -18,7 +18,7 @@ last_updated: 2026-07-11
 meta:
   pageId: contract_upload
   title: 合同附件上传
-  protocolVersion: "2.4"
+  protocolVersion: "2.5"
   requiredCapabilities:
     - actions.upload
 

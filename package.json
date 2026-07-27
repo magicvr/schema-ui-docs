@@ -1,8 +1,8 @@
 {
   "name": "schema-ui-protocol-workspace",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "private": true,
-  "description": "Schema-UI v2.4.1 协议源码、制品构建与辅助验证工作区",
+  "description": "Schema-UI v2.5.0 协议源码、制品构建与辅助验证工作区",
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:scenarios": "node scripts/validate-scenarios.js",
@@ -38,6 +38,12 @@
     "test:conformance:runtime-defaults:python": "python conformance/runner/run-runtime-defaults-python.py",
     "test:conformance:search-table": "node conformance/runner/run-search-table.js",
     "test:conformance:search-table:python": "python conformance/runner/run-search-table-python.py",
+    "test:conformance:table-sort": "node conformance/runner/run-table-sort.js",
+    "test:conformance:table-sort:python": "python conformance/runner/run-table-sort-python.py",
+    "test:conformance:app-manifest": "node conformance/runner/run-app-manifest.js",
+    "test:conformance:app-manifest:python": "python conformance/runner/run-app-manifest-python.py",
+    "test:conformance:app-navigation": "node conformance/runner/run-app-navigation.js",
+    "test:conformance:app-navigation:python": "python conformance/runner/run-app-navigation-python.py",
     "test:conformance:scenarios": "node conformance/runner/run-scenarios.js",
     "test:conformance:scenarios:python": "python conformance/runner/run-scenarios-python.py",
     "test:conformance:table-state": "node conformance/runner/run-table-query-state.js",

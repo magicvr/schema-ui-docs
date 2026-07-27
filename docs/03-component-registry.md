@@ -1,8 +1,8 @@
 ---
 status: living-document
 owner: 前端组件库团队
-last_updated: 2026-07-24
-applies_to: schema-ui-protocol v2.4
+last_updated: 2026-07-28
+applies_to: schema-ui-protocol v2.5
 ---
 
 # 组件类型（type）注册表
@@ -214,6 +214,7 @@ props:
 | `columns` | array\<ColumnDef\> | 是 | 列定义，见下 |
 | `actions` | array\<RowAction\> | 否 | 行内操作，见下 |
 | `selection` | object | 否（since 2.2 / ADR-0022） | 多选；`mode: multiple`（MVP 唯一值）；使用时声明 `table.selection`；当前页选中，筛选/翻页/排序/reload 清空 |
+| `defaultSort` | object | 否（since 2.5 / ADR-0027） | 表级默认排序（仅初始）；`{ field, order: asc\|desc }`；`field` 须等于某可排序列的 sortKey（`sortField ?? field`）；**仅** `pagination.mode: server`；使用时声明 `table.sort` 且 `protocolVersion >= "2.5"` |
 | `toolbar` | array\<ActionTrigger\> | 否（since 2.1 / ADR-0020） | 表格工具栏入口；使用时声明 `actions.page.trigger`；可含 `requiresSelection` / `batchMapping`（ADR-0022） |
 | `span` | number | 否（since 0.2） | 在父级 grid 中占几栏 |
 
@@ -225,9 +226,13 @@ props:
 | `label` / `labelKey` | string | 列标题（i18n：`labelKey` 可替代 `label`） |
 | `format` | enum: `plain`\|`currency`\|`datetime`\|`tag` | 展示格式（默认 `plain`）；currency 要求 finite JSON number，datetime 要求 string，类型不匹配返回 `COMPONENT_DATA_TYPE_MISMATCH` |
 | `tagMap` | map | `format: tag` 时，值 → `{text, tone}` 的映射。`tone` 可选值：`warning`\|`success`\|`neutral`\|`info`\|`danger` |
+| `sortable` | boolean | 可选（since 2.5 / ADR-0027）。缺省 **`false`**（fail-closed：未声明不可点）。`true` 时表头可触发排序交互；使用时声明 `table.sort` 且 `protocolVersion >= "2.5"` |
+| `sortField` | string | 可选（since 2.5 / ADR-0027）。写入保留 query `sort` 左半段的后端字段名；**仅当 `sortable: true` 时允许**；缺省 = 该列 `field`。同一 sortKey 全表唯一；不得为保留名 `page`/`pageSize`/`sort` |
 | `visibleWhen` | object | 可选（since 0.2.1）。列条件渲染；读取 `$row.*` 时必须 `scope: row`；仅 `$context.*`（或表格位于 `form` 内时的 `$deps.*`）可用默认 `scope: form`。语法见 [02-reaction-expression.md](./02-reaction-expression.md) |
 | `reactions` | array | 可选（since 0.2.1）。列联动规则；读取 `$row.*` 或列级 `$self` 时必须 `scope: row`；`fulfill`/`otherwise` **无论 scope 仅允许** `visible`/`disabled` |
 | `permissions` | map | 可选（since 0.2.1）。列级权限控制，表达式仅允许 `$context.*`；**不参与** `permissionCascade`，也不允许 `permissionIntent` |
+
+> **表格排序（ADR-0027）：** 声明面 `sortable` / `sortField` / `defaultSort` 与点击三态（无序→asc→desc→清）见 [ADR-0027](./decisions/0027-table-sort-declaration.md)；wire 与搜索/翻页状态机仍权威于 [ADR-0011](./decisions/0011-reserved-query-params.md)。运行时若当前 `sort` 非 null 且 sortKey 不是任一可排序列的 sortKey，构造表格 API 请求前必须失败，错误码 **`TABLE_SORT_FIELD_UNKNOWN`**（不得发请求、不得静默改写为 null）。
 
 **RowAction（since 0.2.1 重构）：**
 

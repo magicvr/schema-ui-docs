@@ -15,7 +15,7 @@ last_updated: 2026-07-09
 meta:
   pageId: order_list
   title: 订单列表
-  protocolVersion: "2.4"
+  protocolVersion: "2.5"
 
 body:
   type: table

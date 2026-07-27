@@ -2,7 +2,7 @@
 status: stable
 owner: 后端架构组
 last_updated: 2026-07-23
-applies_to: schema-ui-protocol v2.4
+applies_to: schema-ui-protocol v2.5
 ---
 
 # 数据源 / API 契约规范
@@ -57,6 +57,8 @@ data:
 | `sort` | 排序字段，格式 `field:asc` / `field:desc` |
 
 `page`、`pageSize`、`sort` 由 Renderer 表格状态独占。`data.params`、`datasources.*.params` 与搜索表单导出的字段名不得使用这些名称，L2 静态拒绝冲突配置。表格请求的唯一合并顺序为：已有 URL query < 有效 API 数据源静态 params < 搜索字段 < Renderer 分页/排序状态。搜索提交与清空筛选将 `page` 重置为 `1`；翻页保留筛选和排序；排序变化保留筛选并将 `page` 重置为 `1`。完整状态转换见 [ADR-0011](./decisions/0011-reserved-query-params.md)。
+
+**可排序字段声明面（since 2.5 / ADR-0027）：** 哪些列可点、默认排序与展示 field 到 sort key 的映射由 `columns[].sortable` / `sortField` 与 `table.props.defaultSort` 声明（见 [03](./03-component-registry.md) 与 [ADR-0027](./decisions/0027-table-sort-declaration.md)）。未声明 `table.sort` 的页面无协议级排序 UI 义务；`sort` 保留 query 的 wire 格式与 0011 状态机不变。若状态中的 `sort` sortKey 无法命中任一可排序列，请求前失败码为 **`TABLE_SORT_FIELD_UNKNOWN`**。
 
 ### 3.1 `data.params` / `optionsSource.params` / `datasources.*.params` 中 `$deps.*` 的空值省略规则
 
