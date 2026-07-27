@@ -259,7 +259,9 @@ assert.equal(
 );
 
 // Core specs must declare applies_to for the current major.minor (V231).
+// Include overview + app-manifest (v2.5 authority) so semanticSpecs stay gated (审计 0072 / V346).
 const coreSpecPaths = [
+  'docs/00-overview.md',
   'docs/01-node-protocol.md',
   'docs/02-reaction-expression.md',
   'docs/03-component-registry.md',
@@ -267,6 +269,7 @@ const coreSpecPaths = [
   'docs/06-validation.md',
   'docs/07-actions-contract.md',
   'docs/08-renderer-spec.md',
+  'docs/17-app-manifest.md',
 ];
 const appliesToNeedle = `applies_to: schema-ui-protocol v${protocolVersion}`;
 for (const relativePath of coreSpecPaths) {
