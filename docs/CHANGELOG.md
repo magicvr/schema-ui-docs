@@ -9,9 +9,19 @@
 
 （无）
 
+## v2.5.2 — 2026-07-28（审计 0072 入口卫生与门禁观察面）
+
+> **版本说明：** PATCH 发布。页面 `meta.protocolVersion` 继续为 `"2.5"`；schemas、versioned fixtures 与核心语义相对正式 `v2.5.1` **机器契约未变**。本版本固化发布后入口文案、`release-check` 权威文档门禁与 Protocol CI 脚本观察面（审计 0072 / V345–V348）。**不**改写 `v2.5.1` / `mcp-v2.5.1` tag 或其 Release 资产。正式协议制品为 `schema-ui-protocol-2.5.2.tar.gz`（contentDigest / artifactDigest 以 tag 后 GitHub Release 与制品内 `manifest.json` 为准）。
+
+**审计 0072（V345–V348）：**
+- **V345：** MCP 文档去掉已发布后的「需等 `mcp-v2.5.1`」口径，示例与工作树对齐。
+- **V346：** `release-check` 的 `applies_to` 门禁扩展至 `docs/00-overview.md` 与 `docs/17-app-manifest.md`。
+- **V347：** Protocol CI `paths` 对 `scripts/**` 全量观察（含 L0–L4 校验脚本）。
+- **V348：** CHANGELOG 历史节措辞与 case 计数指针卫生（见下 v2.5.1 / v2.5.0 勘误）。
+
 ## v2.5.1 — 2026-07-28（审计 0071 契约投影闭合）
 
-> **版本说明：** PATCH 发布准备。页面 `meta.protocolVersion` 继续为 `"2.5"`；本版本固化 v2.5.0 已发布制品中发现的实现/契约投影缺口，不改写 `v2.5.0` tag 或其 Release 资产。
+> **版本说明：** PATCH 已发布。页面 `meta.protocolVersion` 继续为 `"2.5"`；本版本固化 v2.5.0 已发布制品中发现的实现/契约投影缺口，不改写 `v2.5.0` tag 或其 Release 资产。正式协议制品为 `schema-ui-protocol-2.5.1.tar.gz`。
 
 **审计 0071 契约投影闭合（V336–V343）：**
 - **V336：** 应用清单 M1 拒绝 `protocolVersion < "2.5"`（`PROTOCOL_VERSION_TOO_LOW`）；页面 meta 仍可解耦为 2.4。
@@ -39,7 +49,7 @@
 **Conformance 与示例：**
 - 新 suite：`app-manifest`、`app-navigation`、`table-sort`（JS/Python dual-language）。
 - `version-negotiation`：`2.5` 接受/拒绝与 `table.sort` / `app.manifest` / `app.navigation`；页 2.4 在含 2.5 的 Renderer 上解耦正例。
-- 算法类 fixtures 与官方场景统一 `protocolVersion: "2.5"`；version-negotiation 保留历史页面版本输入。版本化 fixture 共 16 类（v2.5.0 发布时 282 cases；审计 0071 投影闭合后见 Unreleased 292）。含 D4a 声明序等长 tiebreak、route 长度消歧，以及 navigation M1：`NAV_LINK_MUTEX` / `NAV_GROUP_NESTED` / `NAV_PAGE_REF_UNKNOWN`。
+- 算法类 fixtures 与官方场景统一 `protocolVersion: "2.5"`；version-negotiation 保留历史页面版本输入。版本化 fixture 共 16 类（v2.5.0 发布时 282 cases；审计 0071 投影闭合后见 **v2.5.1** 的 292 cases）。含 D4a 声明序等长 tiebreak、route 长度消歧，以及 navigation M1：`NAV_LINK_MUTEX` / `NAV_GROUP_NESTED` / `NAV_PAGE_REF_UNKNOWN`。
 - 既有 `search-table`（0011）回归保持通过。
 - 迁移 [`2.4-to-2.5.md`](./migrations/2.4-to-2.5.md)；发布门禁 [`release-goals/v2.5.md`](./release-goals/v2.5.md)。
 
