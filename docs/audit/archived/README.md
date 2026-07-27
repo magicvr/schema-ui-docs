@@ -6,6 +6,28 @@
 
 ---
 
+## 0073 — 2026-07-28 — v2.5.2 后 Unreleased 重编号与发布身份
+
+**主题：** 17→09 app-manifest 路径重编号后工作树仍声明 **2.5.2** 导致 content/artifact digest 分叉，以 **2.5.3** PATCH 固化（V349）。
+**性质：** 1×P1 **全部关闭**。主类型=发布完整性。
+
+| 文件 | 说明 |
+|---|---|
+| [0073-2026-07-28-review.md](./0073-2026-07-28-review.md) | 审计报告 — V349（全部关闭） |
+| [0073-2026-07-28-checklist.md](./0073-2026-07-28-checklist.md) | 跟踪清单 — 修复、2.5.3 发布与归档门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| V349 in-repo | 升 2.5.3；CHANGELOG / 入口对齐；本地全量门禁与 PR CI 绿 |
+| V349 发布 | PR [#28](https://github.com/magicvr/schema-ui-docs/pull/28) → `main` `2e81c54`；tag `v2.5.3` Protocol Release [30314251145](https://github.com/magicvr/schema-ui-docs/actions/runs/30314251145) success；tag `mcp-v2.5.3` MCP CD [30314251247](https://github.com/magicvr/schema-ui-docs/actions/runs/30314251247) success |
+| 正式资产 | protocol artifact `sha256:93e6e144…`；content `eae31dc4…`；fixture `712f6c42…`（与 2.5.2 同）；MCP 镜像 index `sha256:9afa4a03…`（`2.5.3` / `2.5` / `latest` 同 digest） |
+
+**说明：** 未改写 `v2.5.2` / `mcp-v2.5.2`。生产消费者升级继续作为 out-of-repo 跟踪。
+
+---
+
 ## 0072 — 2026-07-28 — v2.5.1 发布后入口卫生与门禁观察面
 
 **主题：** MCP 发布后文案、`release-check` 对权威 `17`/`00` 的 `applies_to` 门禁、Protocol CI `scripts/**` 观察面、CHANGELOG 卫生与 **2.5.2** PATCH 身份（V345–V348）。
