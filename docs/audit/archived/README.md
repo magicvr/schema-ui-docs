@@ -6,6 +6,29 @@
 
 ---
 
+## 0070 — 2026-07-28 — v2.5.0 落地后发布完整性与入口卫生
+
+**主题：** v2.5.0 工作树已落地但发布证据链与制品链接门禁未闭合（V331–V335）。  
+**性质：** 2×P1 + 3×P2 **全部关闭**。主类型=发布完整性。
+
+| 文件 | 说明 |
+|---|---|
+| [0070-2026-07-28-review.md](./0070-2026-07-28-review.md) | 审计报告 — V331–V335（全部关闭） |
+| [0070-2026-07-28-checklist.md](./0070-2026-07-28-checklist.md) | 跟踪清单 — 修复、发版与归档门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| V331 | `release-goals/v2.5.md` 去掉 `docs/audit/**` 制品断链；`check:protocol-artifact-links` 绿 |
+| V333–V335 | README 2.4→2.5 迁移、MCP 文档示例 2.5.0、场景索引 protocolVersion |
+| V332 | PR [#24](https://github.com/magicvr/schema-ui-docs/pull/24) → `main` `55a2004`；tag `v2.5.0` Protocol Release [run 30300193605](https://github.com/magicvr/schema-ui-docs/actions/runs/30300193605)；tag `mcp-v2.5.0` MCP CD [run 30300273320](https://github.com/magicvr/schema-ui-docs/actions/runs/30300273320) |
+| 正式 digests | artifact `sha256:81bc11fc…`；fixture `26179a46…`；content `d8d81a19…`；MCP 镜像 `sha256:7286a17a…`（label 协议 2.5.0） |
+
+**说明：** 合入前另修 CI `npm audit high`（glob 13 / MCP SDK 1.30.0），属依赖卫生，非协议语义。消费者 pin 升级为 out-of-repo 跟踪。
+
+---
+
 ## 0069 — 2026-07-27 — ADR-0025 / 0026 / 0027 交叉可接受性
 
 **主题：** 应用级清单（0025）、导航（0026）、表格排序声明面（0027）proposed 交叉审计；与章程 / 0003 / 0009 / 0011 / 0021 / 0022 等接缝（V313–V330）。  
