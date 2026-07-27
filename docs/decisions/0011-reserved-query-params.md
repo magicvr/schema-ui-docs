@@ -42,7 +42,10 @@ date: 2026-07-11
 
 服务端分页表格初始 `page` 为 `1`。`pageSize` 必须取 `table.props.pagination.pageSize`，且该字段在 `mode: server` 时必须声明为正整数；Renderer 不得使用未声明的产品默认值替代协议字段。未选择排序时 `sort` 为 `null` tombstone，不发送该 key。
 
-`sort` 的非空格式为 `field:asc` 或 `field:desc`。可排序字段能力不在本 ADR 扩展；Renderer 只能从表格已允许的排序交互产生该值。
+`sort` 的非空格式为 `field:asc` 或 `field:desc`。可排序字段的**声明面**（`columns[].sortable` /
+`sortField`、`table.props.defaultSort`）与排序点击三态由 [ADR-0027](./0027-table-sort-declaration.md)
+定义；本 ADR 仍是保留参数、合并序与搜索/翻页/排序状态转换的权威。未声明 `table.sort` 时，
+Renderer 不得凭猜测为列启用协议级排序交互。
 
 ### D4. 状态转换
 

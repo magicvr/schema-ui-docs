@@ -9,7 +9,7 @@ track: 应用级协议（新轨道；本 ADR D0 含章程范围声明修正）
 
 ## 状态
 
-**Proposed（草案，待评审）。** 本 ADR 是「应用级协议」新轨道的第一篇；导航结构（菜单槽位/分组）拆分在 [ADR-0026](./0026-app-navigation.md)，依赖本 ADR 的页面注册表。
+**Proposed（草案，待评审）。** 本 ADR 是「应用级协议」新轨道的第一篇；导航结构（菜单槽位/分组）拆分在 [ADR-0026](./0026-app-navigation.md)，依赖本 ADR 的页面注册表。同版本页面级补齐见 [ADR-0027](./0027-table-sort-declaration.md)（表格排序声明，**不**依赖本 ADR）。
 
 ## 背景
 
@@ -44,8 +44,9 @@ track: 应用级协议（新轨道；本 ADR D0 含章程范围声明修正）
 | A. 应用引导 | 前端仅凭 API `baseURL`（或显式 manifest URL）启动 → 获知应用身份与页面清单 | D1 清单获取 + D3 应用元信息 |
 | B. 页面发现 | 前端按清单懒取任意页 schema 并渲染 | D4 页面注册表 |
 | C. 深链接 | 用户直开 `/orders/detail?orderId=1001` → 前端定位注册页并按既有 `$context.route` 语义注入参数 | D4 route 模板 + ADR-0021 |
+| D. 默认落地 | 用户打开应用根（无 path / 宿主「进入应用」）→ 进入约定首页，而非前端硬编码第一项菜单 | D3 `homePageRef` |
 
-验收叙事：一个从未见过该后端的合规 Renderer，配置 API `baseURL` 后即可列出全部页面、逐页渲染、支持深链接——
+验收叙事：一个从未见过该后端的合规 Renderer，配置 API `baseURL` 后即可列出全部页面、打开默认首页、逐页渲染、支持深链接——
 零硬编码页面知识。
 
 ## 决策
@@ -124,12 +125,29 @@ navigation: { ... }                    # ADR-0026（可选；出现则须声明 
 |---|---|---|---|
 | `appId` | string | ✅ | 应用稳定标识；pattern `^[a-z][a-z0-9_-]*$`（清单侧独立约束——现行页面协议对 `meta.pageId` 无命名约束，本 ADR 不反向收紧页面协议） |
 | `name` / `nameKey` | string | 至少一 | 应用显示名（i18n 双轨；清单侧规则见交付清单，语义对齐 `docs/01` §6） |
+| `homePageRef` | string | ✅（`pages` 非空时） | 默认落地页：须等于某 `pages[].pageId`（M1 引用完整性）；见 D3a |
 | `logo` | object | — | `{ light: url, dark: url }`，`dark` 可缺省回退 `light`；url 为站内相对 path **或** `https:` 绝对 URL，解析见 D1b |
 | `description` / `descriptionKey` | string | — | 说明文案 |
 
 - `logo` 是**资源引用元数据**，不是样式：不触碰 node props 的 CSS 禁令（该禁令针对 Node，本表不在 Node 树中）。
 - 允许 `https:` 是为 CDN / 对象存储品牌资源；**不**因此开放跨系统 navigate 或其它绝对 URL 字段。
 - 明确不做：favicon、多主题多尺寸 logo 矩阵、内联 `data:` / base64、`http:` logo（皆列非目标）。
+
+### D3a. 默认落地页（`homePageRef`）
+
+无 path / 宿主「进入应用」时的唯一默认目标，消除「取菜单第一项 / 前端写死 dashboard」类私约。
+
+| 规则 | 说明 |
+|---|---|
+| 引用 | `homePageRef` === 某 `pages[].pageId`；未知 id → M1 `MANIFEST_HOME_PAGE_UNKNOWN` |
+| 无参路由 | 目标页的 `route` **不得**含任何 `{name}` 占位（否则无法在无上下文时构造 path）→ M1 `MANIFEST_HOME_ROUTE_PARAMETRIC` |
+| 解析结果 | 落地 path = 该页 `route` 字面量（无 query）；打开后按 D4/D4a 与 ADR-0021 填充 `$context.route`（`params` 为空对象） |
+| 与深链接 | 用户打开的具体 path 能按 D4a 命中注册表时，**以深链接为准**，不强制改写为 home |
+| 与导航 | `homePageRef` **不必**出现在任何导航槽位（允许「可落地、不进菜单」的欢迎页） |
+| 权限 | 首页仍走页面权限与后端鉴权；清单指向 ≠ 当前用户可访问。不可访问时宿主按自身策略处理（登录页/403/其它页），协议不规定兜底 UI |
+| 空注册表 | `pages` 为空数组时不得声明 `homePageRef`（M1）；此类清单仅元信息合法，宿主不得假装有可渲染页 |
+
+不设并行的 `defaultPath` 字符串字段（避免与注册表 `route` 双源漂移）；落地唯一权威是 `homePageRef` → 注册表 `route`。
 
 ### D4. 页面注册表（`pages[]`）
 
@@ -202,6 +220,7 @@ ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**�
 - 清单或页 schema 获取遇 `401/403`：处理序对齐 `docs/07` §8.1（认证失败优先、吞掉其余 outcome）；
   Renderer 不得渲染部分应用骨架后悬挂。
 - 错误码新增：`MANIFEST_LOAD_FAILED`、`MANIFEST_PAGE_ID_MISMATCH`、`UNKNOWN_MANIFEST_FIELD`、
+  `MANIFEST_HOME_PAGE_UNKNOWN`、`MANIFEST_HOME_ROUTE_PARAMETRIC`、
   `MANIFEST_ROUTE_AMBIGUOUS`（仅当实现未按 D4a 消歧而检测到无法决断时的防御码；合规实现按 D4a
   消歧后不应在正常路径抛出）、`MISSING_PATH_BINDING`（schemaUrl 占位未解析，对齐 `docs/07`）。
 - `UNKNOWN_MANIFEST_FIELD` 与 D2 的 `additionalProperties: false` 是**两道防线，不重复定义**：
@@ -226,12 +245,13 @@ ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**�
   （含上表 M 系列层级定义、D1b 基址表、D4a 匹配算法正式入档）；
 - M1 语义校验：`pageId` 唯一、`appId` pattern、`schemaUrl`/`route` 路径正则、
   `logo.*` 相对 path 或 `https:` 形态、route 模板语法、`route` 模板字符串唯一、
-  占位符集合包含关系、`title`/`titleKey` 至少一、`requiredCapabilities` 含 `app.manifest`、
-  有 `navigation` 则含 `app.navigation`、顶层未知字段拒绝；
+  占位符集合包含关系、`title`/`titleKey` 至少一、`homePageRef` 引用完整性与目标 route 无占位、
+  `requiredCapabilities` 含 `app.manifest`、有 `navigation` 则含 `app.navigation`、顶层未知字段拒绝；
 - `docs/16` 须**显式定义**清单字段的 i18n 双轨（词典查询 + fallback 规则，语义同 `docs/01` §6）——
   §6 现文自限于 Node `props`，对清单字段不能仅以引用带过；
 - conformance 新 suite `app-manifest`：版本协商正负例、清单/页面版本解耦、注册表解析、
-  pageId 不匹配、D4a 深链接匹配（字面量、命名参数、最长优先、声明序并列、尾 `/` 不自动归一）、
+  pageId 不匹配、`homePageRef` 落地与深链接优先、home 指向含参 route 拒绝、
+  D4a 深链接匹配（字面量、命名参数、最长优先、声明序并列、尾 `/` 不自动归一）、
   schemaUrl 基址与占位绑定、logo 相对 path 拼接与 `https:` 原样加载、`http:`/`data:` logo 拒绝、
   获取失败 fail-closed；
 - CHANGELOG + migration（v2.4 → v2.5 additive，无迁移动作）+ 章程使命节修正（D0）。
@@ -241,10 +261,11 @@ ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**�
 - 页面 schema 内嵌于清单（仅懒取）、schema 缓存/ETag 策略、清单增量更新与运行时推送；
 - 多应用聚合/工作台、租户切换、favicon、logo 资产分发与尺寸矩阵、`http:` / `data:` logo；
 - 后端鉴权协议（token 获取/刷新）、登录页规范；
+- 并行 `defaultPath` 字符串（落地只认 `homePageRef`）；应用级 404 页注册（未命中仍归宿主）；
 - `navigate` url 强制命中注册表（兼容性保留）；
 - route 可选段 / 通配 / 正则 / 尾斜杠自动归一；
 - route 可重叠模板的 M1 静态互斥（运行时按 D4a 消歧）；
-- 面包屑（见 ADR-0026 非目标）。
+- 面包屑、菜单 badge（见 ADR-0026 非目标，本轨道明确不做）。
 
 ## 对消费者的影响
 
@@ -264,3 +285,4 @@ ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**�
 | 三类路径解析基址 | 见 D1b；`logo` 允许相对 path 或 `https:` |
 | `logo` 是否允许绝对 URL | **允许 `https:`**；禁 `http:` / `data:`（D1b / D3） |
 | route 多候选消歧 | **最长模板优先，并列取 `pages[]` 声明序**；不做 M1 静态互斥；宜避免重叠（D4a） |
+| 默认落地 | **`app.homePageRef`**（必填当 `pages` 非空）；目标 route 无占位；深链接优先（D3a） |
