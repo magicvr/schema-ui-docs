@@ -73,14 +73,16 @@ navigation:
 | `url` | string | 与 `pageRef` 二选一 | **逃逸口**：应用内 path（正则沿 navigate url；**不**经 API `baseURL` 拼 HTTP，口径同 ADR-0025 D1b 的 `route`）；用于未注册的宿主页（如宿主自有设置页、登出落地 path） |
 | `label` / `labelKey` | string | `pageRef` 缺省取注册表 title；`url` 项至少一 | i18n 双轨 |
 | `icon` | string | — | **语义名**（`^[a-z][a-z0-9-]*$`，如 `orders`、`settings`），非资源 URL |
-| `visibleWhen` | VisibleWhen | — | 复用 `node.schema.json#/definitions/VisibleWhen`；非表单上下文——仅 `$context.user.*` / `$context.features.*`（既有规则原样适用） |
-| `permissions` | object | — | 仅允许 `view` 键（M1 校验），值语义沿 ADR-0003 / ADR-0023 的 view 可见性（只收紧） |
+| `visibleWhen` | VisibleWhen | — | 复用 `node.schema.json#/definitions/VisibleWhen`；非表单上下文——仅 `$context.user.*` / `$context.features.*`（既有规则原样适用；读取应用实例 boot 快照，见 D4） |
+| `permissions` | object | — | 仅允许 `view` 键（M1 校验）；值语义沿 **ADR-0003** 的 `permissions.view` 可见性（只收紧）。ADR-0023 容器继承**不**扩展到菜单项，菜单无 `edit`/`delete`/`permissionCascade` |
 
 约束与口径：
 
 - **`pageRef` 是发现面主路径**：可互操作的业务页应先注册于 `pages[]`，再用 `pageRef` 挂菜单；
   `url` 不得成为「绕过注册表挂业务页」的常规做法（规范正文须写清；M1 不禁止 `url`，conformance
   以 `pageRef` 用例为主向量）。
+- **空 `pages` 壳（沿 ADR-0025 D4 / 审计 0069 V321）**：若清单 `pages` 为空，本 `navigation` 内
+  link 项**仅允许** `url`（任何 `pageRef` → M1 失败）。
 - **`url` 不做协议级动作语义**：例如「退出登录」若需出现在 `user` 槽位，用 `url` 指向宿主约定
   path（或由宿主在该 path 上执行登出）；协议**不**定义 logout 动作类型、不解析特殊 url scheme。
 - **不设 `disabled`**：不可用入口应通过 `visibleWhen` / `permissions.view` 过滤掉；灰置是主题层
@@ -97,17 +99,28 @@ navigation:
 
 ### D4. 确定性呈现算法（conformance 向量化）
 
+**`$context` 快照（审计 0069 / V323）：** 导航过滤与（若表达式用到）可见性读取**应用实例 boot**
+时注入的 `$context.user` / `$context.features` 只读快照，与清单快照**同生命周期**（ADR-0025 D1 / D5）。
+页内 navigate **不**隐式重取 user/features；宿主更新身份或功能开关必须**重建应用实例**后菜单才变化。
+
 1. **顺序**：数组序即呈现序，无 `order` 字段（少一个可漂移的自由度）；
-2. **过滤**：对每项求 `permissions.view AND visibleWhen`（沿 `docs/01` §3.10 只收紧公式）；
-   表达式静态非法 → 该项 fail-closed 隐藏并按 **M3a** 报告（规则原样复用 L3a 非表单上下文规则，
-   仅作用域为清单制品，见 ADR-0025「校验层级命名」），不得整树崩溃；
+2. **过滤（审计 0069 / V322）**：菜单项**不是** Node，无 `reactions.visible`。最终是否展示：
+   ```
+   可见 =
+     (未声明 permissions.view → true，否则求值 permissions.view)
+     AND
+     (未声明 visibleWhen → true，否则求值 visibleWhen.when)
+   ```
+   只收紧、不放宽（精神同 `docs/01` §3.10，但**不含** reactions 项）。组级与组内 link 的过滤
+   结果再 **AND**。表达式静态非法 → 该项 fail-closed 隐藏并按 **M3a** 报告（规则原样复用 L3a
+   非表单上下文规则，仅作用域为清单制品，见 ADR-0025「校验层级命名」），不得整树崩溃；
 3. **空组剪枝**：过滤后 `items` 为空的组必须整组不渲染；
 4. **图标降级**：`icon` 语义名在前端图标注册表无映射 → **省略图标、正常渲染文本**（图标是呈现提示，
    非语义，此处显式偏离 fail-closed 并以本条为准）；
 5. **当前项高亮**（匹配权威在 ADR-0025 D4a，本条只定义如何落到 link 项）：
-   - 输入：当前应用内 path `P`（不含 query，同 `$context.route.path`）；
+   - 输入：当前应用内 path `P`（满足 D4a 前置条件；不含 query，同 `$context.route.path`）；
    - `pageRef` 项：取注册表对应 `route` 模板，用 D4a 判断是否命中该模板（**单项匹配**——不把其他
-     `pages[]` 模板纳入候选；即高亮问的是「当前 path 是否匹配本 link 指向的页」，不是「全局谁最长」）；
+     `pages[]` 模板纳入候选；即高亮问的是「当前 path 是否匹配本 link 指向的页」，不是「全局消歧谁胜」）；
    - `url` 项：**整 path 精确相等**（与 `P` 全等），**禁止**前缀匹配（避免 `/orders` 高亮误伤
      `/orders/detail`）；
    - 同一槽位多个 link 同时为真时：全部可标为 active（允许）；样式归主题层；
@@ -116,21 +129,25 @@ navigation:
 ### D5. 菜单可见 ≠ 访问控制
 
 菜单过滤是**呈现裁剪**：隐藏入口不构成权限边界，页面自身 `permissions` 与后端鉴权照常独立生效
-（分层 fail-closed，与 ADR-0023 精神一致）。规范正文必须显式写明，防止消费方以菜单过滤替代鉴权。
+（分层 fail-closed；精神同 ADR-0003「`$context` 不是安全边界」）。规范正文必须显式写明，防止消费方
+以菜单过滤替代鉴权。ADR-0023 的容器 `permissionCascade` **不**作用于菜单项。
 
 ### D6. 与清单基址 / 版本的关系（引用）
 
 - `pageRef` 导航目标的 schema 获取、route 深链接，全部沿 ADR-0025 D1b / D4 / D4a；本 ADR 不重复定义。
-- `url` 项只表达应用内 path，解析口径同 `pages[].route`（应用路由根），**不是** API 资源 URL。
+- `url` 项只表达应用内 path，解析口径同 `pages[].route`（**应用路由根**，不是 API `baseURL`）。
 
 ## 校验与 conformance（原子交付清单）
 
 - schema：并入 `app-manifest.schema.json`（`navigation` definitions）；
+- **`docs/08` §3.4 预定义 capability 表**增加 `app.navigation`（权威 ADR 指向本 ADR；审计 0069 / V318）；
+- `proposed` 阶段不入 `protocol-manifest.json`；**accept 后**与 0025 一并纳入 authority；
 - M1 语义校验：槽位封闭、`pageRef` 引用完整性、`pageRef`/`url` 互斥、组不嵌组、`permissions` 仅 `view`、
-  label/labelKey 至少一、`url` 路径正则、capability 门控（有 `navigation` ⇒ `app.navigation`）；
-- conformance 新 suite `app-navigation`：三槽位解析、分组、权限/`visibleWhen` 过滤（含 roles contains 正负例）、
-  空组剪枝、数组序稳定性、未知槽位拒绝、图标降级、当前项匹配（`pageRef` 单项 D4a、`url` 精确相等、
-  query 不参与、多 active 允许）；
+  label/labelKey 至少一、`url` 路径正则、capability 门控（有 `navigation` ⇒ `app.navigation`）、
+  空 `pages` 时禁止 `pageRef`；
+- conformance 新 suite `app-navigation`：三槽位解析、分组、权限/`visibleWhen` 过滤（含 roles contains
+  正负例、**缺省未声明 → 可见**）、空组剪枝、数组序稳定性、未知槽位拒绝、图标降级、当前项匹配
+  （`pageRef` 单项 D4a、`url` 精确相等、query 不参与、多 active 允许）、空 pages 仅 `url` 壳；
 - 规范正文 `docs/16`（或专节）附 **icon 语义名建议词表**（informative，非规范）：至少覆盖
   `home`、`orders`、`users`、`settings`、`dashboard`、`report`、`help`、`logout` 等常见 Admin 入口；
   未在词表中的合法语义名仍须按 D4 降级规则处理，不得拒绝；
@@ -157,10 +174,13 @@ navigation:
 
 ## 开放问题（评审裁决点）
 
-无。下列原开放问题已在本修订中裁决并写入正文：
+无。下列原开放问题已在本修订（含审计 **0069**）中裁决并写入正文：
 
 | 原问题 | 裁决 |
 |---|---|
 | `user` 槽位是否需要协议级「退出登录」语义项 | **否**——登出属宿主鉴权域；可用 `url` 指向宿主 path（D3） |
 | link 项是否允许 `disabled` | **否**——不可用入口直接过滤；灰置归主题（D3） |
 | icon 语义名是否给建议词表 | **是**——informative 附录，非规范（交付清单） |
+| 菜单可见性公式 | **独立 AND**（缺省 true；无 reactions）（D4；0069/V322） |
+| 菜单 `$context` 生命周期 | **应用 boot 快照**，与清单同生命周期（D4；0069/V323） |
+| `permissions` 仅 view 的权威 | **ADR-0003**；0023 不扩展菜单（D3；0069/V328） |

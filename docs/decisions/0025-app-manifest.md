@@ -66,6 +66,9 @@ track: 应用级协议（新轨道；本 ADR D0 含章程范围声明修正）
 - **well-known 路径说明**：默认路径使用 RFC 8615 风格的 `/.well-known/...` 前缀，但
   `schema-ui/app-manifest.json` **不是** IANA 注册的 well-known URI。本协议将其定为**约定默认入口**，
   不是互联网通用发现标准；生产环境可通过显式 manifest URL 完全绕过该路径。
+  （informative）默认入口拼在 API `baseURL` 之后（可为带路径前缀的 API 根，如 `/v1`），**不是**
+  强制 origin 根；多前缀 / 多租户 API 部署宜改用显式 manifest URL，避免与运维对 well-known 的
+  origin 根预期混淆。
 
 ### D1a. 清单版本与页面版本解耦
 
@@ -91,13 +94,23 @@ track: 应用级协议（新轨道；本 ADR D0 含章程范围声明修正）
 | `pages[].route` | 站内相对 path 模板，可含 `{name}` | **应用路由根**（前端路由 path，**不**经 API `baseURL` 拼 HTTP） | 不得用于构造 schema/API 请求 |
 | `app.logo.light` / `dark` | **二选一**（无占位符）：① 站内相对 path；② `https:` 绝对 URL | ① 拼 **API `baseURL`** 后加载；② **原样**作为图片 URL 加载（CDN / 对象存储） | `http:`、`data:`、其它 scheme；相对 path 不得含 `{name}` |
 
-补充：
+补充（**规范性术语，审计 0069 / V315**）：
 
-- **API `baseURL`**：即既有 Renderer 初始化参数 `baseURL`（`docs/08` §6.1），本 ADR 不新增第二套 API 基址字段。
-- **应用路由根**：由宿主路由系统解释；协议只规定 `route` 模板与当前 path 的匹配算法（D4a），不规定 history 模式、hash 模式或部署子路径如何剥离——宿主须保证交给匹配算法的 path 已是「应用内 path」（与 ADR-0021 `$context.route.path` 口径一致：baseURL 之后的应用路径）。
-- **API 与前端不同源**是合法部署：清单与 `schemaUrl`、以及相对形态的 `logo` 走 API 域；`https:` logo 可指向 CDN；`route` 只参与前端路由，从不拼到 API host。
+- **`RendererConfig.baseURL`（API `baseURL`）**：即既有 Renderer 初始化参数 `baseURL`（`docs/08` §6.1）。
+  **仅**用于构造 HTTP 请求：清单默认入口、`schemaUrl`、相对形态 `logo`、以及既有 DataRef / Action
+  `request` 等。本 ADR 不新增第二套 API 基址字段。
+- **应用路由根**：前端路由 path 的解释基准。`pages[].route`、ADR-0026 link.`url`、`type:navigate`
+  的 `url`、以及 `$context.route.path` **一律相对应用路由根**，**禁止**经 API `baseURL` 拼 host。
+  协议只规定 `route` 模板与当前 path 的匹配算法（D4a），不规定 history / hash 模式；宿主须保证
+  交给 D4a 的 path 已是「应用内 path」（已剥离部署 basename，见 D4a 输入前置条件）。
+- **与历史措辞**：既有 `07` / ADR-0021 中 navigate 与 `$context.route.path` 若写「baseURL 下 /
+  baseURL 之后」，在本轨道语义中均指**应用路由根**，**不是** API `baseURL`。接受本 ADR 时必须
+  原子修订 `07` navigate 行与 ADR-0021 D2 措辞，消除双源（交付清单）。
+- **API 与前端不同源**是合法部署：清单与 `schemaUrl`、以及相对形态的 `logo` 走 API 域；`https:` logo
+  可指向 CDN；`route` / navigate url 只参与前端路由，从不拼到 API host。
 - 站内相对路径正则沿 navigate / DataRef 纪律：`^/(?!/)[^\s\\]*$`（`route`/`schemaUrl` 在占位符形态下允许 `{name}` 段，见 D4）。
 - **`logo` URL 形态（M0）**：相对 path 同上（且无 `{` `}`）；绝对 URL 须匹配 `^https://[^\s\\]+$`（字面 `https://` 前缀；不在协议层做 DNS/证书校验）。
+
 ### D2. 清单顶层结构
 
 ```yaml
@@ -145,7 +158,8 @@ navigation: { ... }                    # ADR-0026（可选；出现则须声明 
 | 与深链接 | 用户打开的具体 path 能按 D4a 命中注册表时，**以深链接为准**，不强制改写为 home |
 | 与导航 | `homePageRef` **不必**出现在任何导航槽位（允许「可落地、不进菜单」的欢迎页） |
 | 权限 | 首页仍走页面权限与后端鉴权；清单指向 ≠ 当前用户可访问。不可访问时宿主按自身策略处理（登录页/403/其它页），协议不规定兜底 UI |
-| 空注册表 | `pages` 为空数组时不得声明 `homePageRef`（M1）；此类清单仅元信息合法，宿主不得假装有可渲染页 |
+| 空注册表 | `pages` 为空数组时不得声明 `homePageRef`（M1）；不得假装有可渲染的协议页。允许「仅元信息」或「元信息 + 仅 `url` 导航壳」（见 D4 / ADR-0026）；有 `pageRef` 则 `pages` 必须非空且引用可解析 |
+| home 的 `$context.route.path` | 落地后必须**等于**目标页 `route` 字面量（无 query）；`params` 为空对象 |
 
 不设并行的 `defaultPath` 字符串字段（避免与注册表 `route` 双源漂移）；落地唯一权威是 `homePageRef` → 注册表 `route`。
 
@@ -169,17 +183,30 @@ navigation: { ... }                    # ADR-0026（可选；出现则须声明 
   `{name}` 片段发请求。多余绑定不可能出现——实参仅来自 route 匹配结果，故不涉及 `EXTRA_PATH_BINDING`）。
 - **无 `hidden` 字段（决策）**：注册表项不进入任何导航槽位即自然「只可发现、不进菜单」——导航（ADR-0026）
   只引用要展示的页，`hidden` 是冗余自由度，不设。
-- **navigate 接缝**：既有 `type:navigate` 的 `url` **不强制**命中注册表（保持 v2.x 兼容）；若 url 的 path
-  部分能按 D4a 命中某注册 `route`，宿主**宜**按注册表打开并填充 `$context.route`（conformance 覆盖
-  「命中则注入」正例，但不把「未命中则拒绝 navigate」列为错误）。是否升级为强制命中留待后续 MAJOR
-  评估（非目标）。
+- **空 `pages` 与导航壳（审计 0069 / V321）**：`pages: []` 合法；此时不得 `homePageRef`。若同时存在
+  `navigation`，其中 link 项**仅允许** `url`（任何 `pageRef` → M1 失败）。用于嵌入式「无协议页、
+  仅宿主 path 菜单」壳；有可互操作业务页时仍应先注册再 `pageRef`。
+- **navigate 接缝（审计 0069 / V314）**：既有 `type:navigate` 的 `url` **不强制**命中注册表（保持 v2.x
+  兼容；强制命中列非目标，留待后续 MAJOR）。但当 navigate 解析后的**应用内 path**（去除 query /
+  fragment 后）能按 D4a 命中恰好一个注册 `route` 时，宿主**必须**以该命中填充 `$context.route`
+ （`path` / `params` / `query`），与深链接同源——不得只改 location 而留下空 `params`。
+  未命中注册表时：允许导航；`$context.route` 按 ADR-0021 最小形状由宿主填充（`params` 可为空对象），
+  **不**因此拒绝 navigate。conformance 将「命中则注入」列为门禁正例。
 - 注册表是**发现面不是权限面**：清单列出某页 ≠ 当前用户可访问；页面自身权限与后端鉴权照常生效（fail-closed 分层）。
 
 ### D4a. 路由模板匹配算法（MVP 确定性规则）
 
-本算法是深链接定位、`$context.route.params` 注入、以及 ADR-0026 当前菜单项高亮的**唯一权威**。
-输入：应用内 path 字符串 `P`（不含 query；与 `$context.route.path` 同口径）与注册表
-`pages[].route` 模板集合。输出：至多一个命中项 + params 映射，或未命中。
+本算法是深链接定位、`$context.route.params` 注入、navigate 命中注入、以及 ADR-0026 当前菜单项高亮的
+**唯一权威**。输入：应用内 path 字符串 `P` 与注册表 `pages[].route` 模板集合。输出：至多一个命中项
++ params 映射，或未命中。
+
+**输入 `P` 前置条件（审计 0069 / V319；宿主义务，conformance 用纯字符串输入、不模拟具体 Router）：**
+
+1. 必须以 `/` 开头（应用根 path 表示为 `/`，**不得**为空字符串）。
+2. **不得**含 query 或 fragment（query 另行进入 `$context.route.query`）。
+3. 必须已剥离宿主部署 basename / 应用挂载前缀，为「应用内 path」。
+4. 比较前不对 `P` 做 Unicode 折叠或 NFC/NFKC；**不**自动去尾 `/`
+  （`/orders` 与 `/orders/` 是不同 path——生产方应统一形态，或显式注册需要的两种）。
 
 **模板语法（M1 强制）：**
 
@@ -191,38 +218,54 @@ navigation: { ... }                    # ADR-0026（可选；出现则须声明 
 
 **匹配步骤：**
 
-1. 将 `P` 按 `/` 分段（同样禁止因规范化产生的空段；比较前不对 `P` 做 Unicode 折叠；**不**自动去尾 `/`，
-   故 `/orders` 与 `/orders/` 是不同 path——生产方应统一不生成尾 `/`，或显式注册需要的形态）。
+1. 将 `P` 按 `/` 分段（同样禁止空段）。
 2. 候选 = 所有「段数与 `P` 相同」的 `route` 模板。
-3. 对每个候选逐段比较：字面量段必须全等；`{name}` 段消费 `P` 对应段（解码后的 path 段字符串，
-   作为 `params[name]`；空字符串段不合法，该候选失败）。
-4. 多候选同时成功时：**最长模板优先**——以模板字符串长度（字符数）降序；仍并列则取
-   `pages[]` **声明序更靠前**者。conformance 必须覆盖并列与声明序。
-   **不**在 M1 做「可重叠模板对」静态互斥（配置灵活优先；消歧规则短且可测）。
-5. query **不参与** path 匹配；query 原样进入 `$context.route.query`（值一律字符串，沿 ADR-0021）。
+3. 对每个候选逐段比较：
+   - 字面量段必须与 `P` 对应段**全等**（比较用解码后的段字符串，见下）。
+   - `{name}` 段：取 `P` 对应段，按下列规则解码后写入 `params[name]`；空字符串段不合法，该候选失败。
+4. **段解码（审计 0069 / V316）**：对每一 path 段独立做 UTF-8 percent-decoding（RFC 3986）：
+   - 仅解码合法 `%HH` 转义；
+   - `+` **保持字面** `+`（不做 application/x-www-form-urlencoded 的 `+`→空格）；
+   - 非法 `%` 序列 → **该候选失败**（不抛实现定义异常、不把非法序列原样当字面成功匹配）；
+   - 不对段做 NFC/NFKC 或其它 Unicode 规范化；
+   - `params[name]` 为解码后的 Unicode 字符串。
+5. 多候选同时成功时，按以下键**全序**取唯一胜者（审计 0069 / V313）：
+   1. **字面量段数量**降序（`{name}` 段不计为字面量）；
+   2. 仍并列 → 模板字符串**字符数**降序；
+   3. 仍并列 → `pages[]` **声明序**更靠前者。
+   因此同时注册 `/orders/new` 与 `/orders/{id}` 且 `P=/orders/new` 时，字面量段更多的
+   `/orders/new` 胜出（`params` 为空）。**不**在 M1 做可重叠模板静态互斥（配置灵活优先；
+   消歧规则短且可测）。conformance 必须覆盖：该字面量优先对、两纯参数模板仅靠声明序、字符长度并列。
+6. query **不参与** path 匹配；query 原样进入 `$context.route.query`（值一律字符串，沿 ADR-0021）。
 
-**生产方宜避免可重叠模板**（informative，非 M1 错误）：例如同时注册 `/orders/{id}` 与
-`/orders/new` 时，应依赖「最长优先」得到确定性结果，或改写为不重叠的字面量路径。重叠时
-行为以本算法为准，不得由各 Renderer 自行选择。
+**生产方宜避免可重叠模板**（informative，非 M1 错误）：重叠时行为以本算法为准，不得由各 Renderer
+自行选择；更清晰的配置是改写为不重叠的字面量路径。
 
 **未命中：** 深链接无法定位注册页 → 宿主按自身 404/兜底策略处理；协议不规定 404 UI。
-不得回退猜测「最接近」模板（与 ADR-0009 不做最近版本推断同纪律）。
+不得回退猜测「最接近」模板（与 ADR-0009 不做最近版本推断同纪律）。合规实现按本算法要么唯一命中、
+要么未命中——**不**定义「路由歧义」稳定错误码（见 D6）。
 
 ### D5. `$context` 衔接（引用，非新增）
 
 `$context.user` 最小字段集（`id`/`name`/`roles`）、`$context.features`、`$context.route` 均已由
-ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**；仅补一条生产方义务：
-清单驱动的页面被打开时，宿主必须按 D4 / D4a 路由语义填充 `$context.route`
-（`path` / `params` / `query`）。
+ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**；仅补生产方/宿主义务：
+
+1. 清单驱动的页面被打开时（含 home、深链接、**以及 D4 navigate 命中注册表**），宿主必须按 D4 / D4a
+   填充 `$context.route`（`path` / `params` / `query`）；`path` 在 home 落地时等于注册 `route` 字面量。
+2. 应用实例 boot 时注入的 `$context.user` / `$context.features` 与清单快照**同生命周期**（供
+   ADR-0026 菜单过滤）；页内 navigate **不**隐式重取 user/features。宿主更新身份或功能开关须
+   **重建应用实例**（沿 ADR-0003 整实例重挂载纪律）。
 
 ### D6. 鉴权与错误语义（清单级）
 
 - 清单或页 schema 获取遇 `401/403`：处理序对齐 `docs/07` §8.1（认证失败优先、吞掉其余 outcome）；
   Renderer 不得渲染部分应用骨架后悬挂。
-- 错误码新增：`MANIFEST_LOAD_FAILED`、`MANIFEST_PAGE_ID_MISMATCH`、`UNKNOWN_MANIFEST_FIELD`、
+- **稳定互操作错误码**（须登记于 `docs/16` 错误码表，并与实现一致；审计 0069 / V318 · V320）：
+  `MANIFEST_LOAD_FAILED`、`MANIFEST_PAGE_ID_MISMATCH`、`UNKNOWN_MANIFEST_FIELD`、
   `MANIFEST_HOME_PAGE_UNKNOWN`、`MANIFEST_HOME_ROUTE_PARAMETRIC`、
-  `MANIFEST_ROUTE_AMBIGUOUS`（仅当实现未按 D4a 消歧而检测到无法决断时的防御码；合规实现按 D4a
-  消歧后不应在正常路径抛出）、`MISSING_PATH_BINDING`（schemaUrl 占位未解析，对齐 `docs/07`）。
+  `MISSING_PATH_BINDING`（schemaUrl 占位未解析，对齐 `docs/07`）。
+- **不**将 `MANIFEST_ROUTE_AMBIGUOUS` 列为稳定互操作错误码：D4a 已全序消歧，合规路径只有
+  「唯一命中」或「未命中」；实现内部诊断码不得进入跨实现门禁。
 - `UNKNOWN_MANIFEST_FIELD` 与 D2 的 `additionalProperties: false` 是**两道防线，不重复定义**：
   CI/生产方侧由 M0 结构校验拒绝；未前置校验的 Renderer 在运行时解析清单遇未知顶层字段时以该码
   fail-closed 兜底（与页面管线 L0 + Renderer 兜底的分层一致）。
@@ -231,29 +274,40 @@ ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**�
 ## 校验层级命名（M 系列，本轨道权威定义）
 
 清单是独立于页面文档的制品，其校验管线以 **M 系列**命名，与页面管线 L0–L4（`docs/06` §1）平行、
-互不混用；页面管线定义零改动：
+互不混用；页面管线定义零改动。
+
+> **命名说明（审计 0069 / V327）：** 有意仅定义 M0 / M1 / M3a，**无 M2**——对齐页面管线「结构 L0、
+> 语义 L2、表达式 L3a」的历史分层，不引入空号语义层。
 
 | 层级 | 对应页面管线 | 工具 | 校验内容 |
 |---|---|---|---|
 | M0 清单结构校验 | L0 | `schemas/app-manifest.schema.json`（AJV） | 顶层结构、字段类型、`additionalProperties: false`、`protocolVersion` 格式 |
-| M1 清单语义校验 | L2 | 辅助实现（脚本） | 唯一性、引用完整性、url 正则、占位符集合关系、route 模板语法、字段集→版本下限、capability 门控等跨字段规则 |
+| M1 清单语义校验 | L2 | 辅助实现（脚本） | 唯一性、引用完整性、url 正则、占位符集合关系、route 模板语法、字段集→版本下限、capability 门控、空 pages 与 `pageRef`/`homePageRef` 约束等跨字段规则 |
 | M3a 清单表达式静态校验 | L3a | 复用 L3a 规则实现 | `navigation` 各项 `visibleWhen` / `permissions` 的静态合法性（ADR-0026；**规则原样复用 L3a 非表单上下文规则**，仅作用域改为清单制品） |
 
 ## 校验与 conformance（原子交付清单）
 
 - 新 `docs/schemas/app-manifest.schema.json`（M0）+ 规范正文 `docs/16-app-manifest.md`
-  （含上表 M 系列层级定义、D1b 基址表、D4a 匹配算法正式入档）；
+  （含上表 M 系列层级定义、D1b 基址表、D4a 匹配算法、清单级稳定错误码表正式入档）；
+- **`docs/08` §3.4 预定义 capability 表**增加 `app.manifest`（权威 ADR 指向本 ADR）；
+- **稳定错误码**写入 `docs/16`（及若项目已有统一错误码索引则交叉引用）；`proposed` 阶段
+  **不**写入 `protocol-manifest.json`；**accept 后**将本 ADR 纳入 `authority.semanticSpecs`；
+- **术语对齐（accept 时原子）**：修订 `docs/07` navigate 与 ADR-0021 D2，使「应用路由根」与
+  API `baseURL` 不再混称（见 D1b）；
 - M1 语义校验：`pageId` 唯一、`appId` pattern、`schemaUrl`/`route` 路径正则、
   `logo.*` 相对 path 或 `https:` 形态、route 模板语法、`route` 模板字符串唯一、
   占位符集合包含关系、`title`/`titleKey` 至少一、`homePageRef` 引用完整性与目标 route 无占位、
+  空 `pages` 不得 `homePageRef`、有 `pageRef` 则引用可解析、
   `requiredCapabilities` 含 `app.manifest`、有 `navigation` 则含 `app.navigation`、顶层未知字段拒绝；
 - `docs/16` 须**显式定义**清单字段的 i18n 双轨（词典查询 + fallback 规则，语义同 `docs/01` §6）——
   §6 现文自限于 Node `props`，对清单字段不能仅以引用带过；
 - conformance 新 suite `app-manifest`：版本协商正负例、清单/页面版本解耦、注册表解析、
   pageId 不匹配、`homePageRef` 落地与深链接优先、home 指向含参 route 拒绝、
-  D4a 深链接匹配（字面量、命名参数、最长优先、声明序并列、尾 `/` 不自动归一）、
+  D4a 深链接匹配（字面量、命名参数、**字面量段优先**消歧、`/orders/new` vs `/orders/{id}`、
+  声明序并列、尾 `/` 不自动归一、段 percent-decode / 非法 `%` / 字面 `+`）、
+  navigate 命中注册表必须注入 `$context.route`、未命中不拒绝、
   schemaUrl 基址与占位绑定、logo 相对 path 拼接与 `https:` 原样加载、`http:`/`data:` logo 拒绝、
-  获取失败 fail-closed；
+  获取失败 fail-closed、空 pages 导航壳（仅 `url`）；
 - CHANGELOG + migration（v2.4 → v2.5 additive，无迁移动作）+ 章程使命节修正（D0）。
 
 ## 明确非目标（MVP）
@@ -262,9 +316,10 @@ ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**�
 - 多应用聚合/工作台、租户切换、favicon、logo 资产分发与尺寸矩阵、`http:` / `data:` logo；
 - 后端鉴权协议（token 获取/刷新）、登录页规范；
 - 并行 `defaultPath` 字符串（落地只认 `homePageRef`）；应用级 404 页注册（未命中仍归宿主）；
-- `navigate` url 强制命中注册表（兼容性保留）；
+- `navigate` url **强制命中**注册表（兼容性保留未命中可导航；**命中则必须**注入 `$context.route`，见 D4）；
 - route 可选段 / 通配 / 正则 / 尾斜杠自动归一；
-- route 可重叠模板的 M1 静态互斥（运行时按 D4a 消歧）；
+- route 可重叠模板的 M1 静态互斥（运行时按 D4a 全序消歧）；
+- 稳定错误码 `MANIFEST_ROUTE_AMBIGUOUS`（D4a 已消歧，不需要）；
 - 面包屑、菜单 badge（见 ADR-0026 非目标，本轨道明确不做）。
 
 ## 对消费者的影响
@@ -274,15 +329,18 @@ ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**�
 
 ## 开放问题（评审裁决点）
 
-无。下列问题已在评审中裁决并写入正文：
+无。下列问题已在评审（含审计 **0069**）中裁决并写入正文：
 
 | 问题 | 裁决 |
 |---|---|
-| well-known 默认路径 | **采用** `/.well-known/schema-ui/app-manifest.json`，并注明非 IANA 注册约定（D1） |
+| well-known 默认路径 | **采用** `/.well-known/schema-ui/app-manifest.json`，并注明非 IANA 注册约定；可显式 URL 覆盖（D1） |
 | `pages[]` 是否设 `hidden` | **否**——注册不进导航是自然状态（D4） |
 | 是否预留 `extensions` | **否**——未知顶层字段 fail-closed（D2） |
 | 清单版本与页面版本 | **解耦**（D1a） |
-| 三类路径解析基址 | 见 D1b；`logo` 允许相对 path 或 `https:` |
+| 三类路径解析基址 | 见 D1b；API `baseURL` ≠ 应用路由根；`logo` 允许相对 path 或 `https:` |
 | `logo` 是否允许绝对 URL | **允许 `https:`**；禁 `http:` / `data:`（D1b / D3） |
-| route 多候选消歧 | **最长模板优先，并列取 `pages[]` 声明序**；不做 M1 静态互斥；宜避免重叠（D4a） |
+| route 多候选消歧 | **字面量段数降序 → 字符长度降序 → `pages[]` 声明序**；不做 M1 静态互斥（D4a；0069/V313 方案 A） |
+| path 段解码 | RFC 3986 按段 percent-decode；`+` 字面；非法 `%` → 候选失败（D4a；0069/V316） |
+| navigate 命中注册表 | **不强制命中**；**命中则必须**注入 `$context.route`（D4；0069/V314 方案 A） |
+| 空 `pages` + 导航 | **允许**壳；仅 `url` 项，禁 `pageRef` / `homePageRef`（D3a/D4；0069/V321） |
 | 默认落地 | **`app.homePageRef`**（必填当 `pages` 非空）；目标 route 无占位；深链接优先（D3a） |

@@ -6,6 +6,29 @@
 
 ---
 
+## 0069 — 2026-07-27 — ADR-0025 / 0026 / 0027 交叉可接受性
+
+**主题：** 应用级清单（0025）、导航（0026）、表格排序声明面（0027）proposed 交叉审计；与章程 / 0003 / 0009 / 0011 / 0021 / 0022 等接缝（V313–V330）。  
+**性质：** 初审有条件接受；维护者接受推荐 **Q1=A / Q2=A / Q3=A** 后，6×P1 + 6×P2 + 6×P3 **提案层全部关闭**。三 ADR **仍为 `proposed`**；Schema / fixtures / `08` capability 表 / 07·0021 术语修订列为 accept 原子交付，不在本审计实现。
+
+| 文件 | 说明 |
+|---|---|
+| [0069-2026-07-27-review.md](./0069-2026-07-27-review.md) | 审计报告 — V313–V330（全部关闭） |
+| [0069-2026-07-27-checklist.md](./0069-2026-07-27-checklist.md) | 跟踪清单 — 裁决写回 ADR 与归档门禁 |
+
+**关闭证据：** ADR-0025/0026/0027 正文已吸收 0069 裁决（D4a 字面量段优先、navigate 命中必须注入、`TABLE_SORT_FIELD_UNKNOWN` 触发集等）；ADR-0011 D3 增加与 0027 的发布原子性注记；conformance fixture 实现显式推迟至 accept / v2.5 发布审计。
+
+**关键裁决摘要：**
+
+| ID | 裁决 |
+|---|---|
+| V313 | D4a：字面量段数 → 字符长度 → 声明序 |
+| V314 | navigate 命中注册表 → **必须** 注入 `$context.route` |
+| V317 | 保留 `TABLE_SORT_FIELD_UNKNOWN`，收紧触发集 |
+| V320 | 删除稳定码 `MANIFEST_ROUTE_AMBIGUOUS` |
+
+---
+
 ## 0068 — 2026-07-24 — v2.4 发布后 digest 身份与入口卫生
 
 **主题：** 同一 `2.4.0` 多 contentDigest（Release vs main/MCP）、README 迁移入口、conformance 白名单文案、CHANGELOG Unreleased 边界（V309–V312）。  

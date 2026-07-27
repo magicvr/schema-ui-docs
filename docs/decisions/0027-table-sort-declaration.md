@@ -83,17 +83,25 @@ ADR-0011 D3 原文：「**可排序字段能力不在本 ADR 扩展**；Renderer
 
 ### D4. 与 ADR-0011 状态机的接缝
 
-不改 D4 事件表，只钉死「排序交互」如何改 `sort` 值：
+不改 D4 事件表，只钉死「排序交互」如何改 `sort` 值。
+
+**三态以当前 `sort` 状态为输入**（不是「用户点击次数」；审计 0069 / V326）：若
+`defaultSort: { field, order: desc }` 使初始为 `{sortKey}:desc`，则用户**首次**点击该列 → `null`
+（走「已是 desc → 清除」），而非切到 asc。
 
 | 用户动作 | 结果 `sort` | `page` |
 |---|---|---|
-| 点击当前未排序列（或其它列） | `{sortKey}:asc`（MVP 首次方向固定 **asc**；若产品要默认 desc，用 `defaultSort` 表达初始，不引入 per-column initialOrder） | 重置 `1` |
-| 再次点击同一列（已是 asc） | `{sortKey}:desc` | 重置 `1` |
-| 再次点击同一列（已是 desc） | `null`（清除排序，三态：asc → desc → 无） | 重置 `1` |
+| 点击当前未排序列（或其它列）（当前 `sort` 为 null，或 sortKey 不同） | `{sortKey}:asc`（MVP 从无序切入固定 **asc**；若产品要默认 desc，用 `defaultSort` 表达**初始**，不引入 per-column initialOrder） | 重置 `1` |
+| 再次点击同一列（当前已是该 sortKey 的 asc） | `{sortKey}:desc` | 重置 `1` |
+| 再次点击同一列（当前已是该 sortKey 的 desc） | `null`（清除排序） | 重置 `1` |
 | 搜索提交 / 清空筛选 / 翻页 | 沿 ADR-0011 D4（保留或重置 page；**不**改 sort 语义） | 同 0011 |
 
 - 非空 `sort` 格式仍严格为 `field:asc` 或 `field:desc`（唯一 `:`，order 仅两枚举）。
-- 非法/未知 sortKey（例如被篡改的状态）：下一次构造请求前 fail-closed，不得静默丢弃后乱序请求；错误码 `TABLE_SORT_FIELD_UNKNOWN`。
+- **`TABLE_SORT_FIELD_UNKNOWN`（审计 0069 / V317 方案 A）**：仅当当前表格状态 `sort` **非 null**，
+  且其 `sortKey`（`:` 左侧）**不是**任一 `sortable: true` 列的 `sortField ?? field` 时，在
+  **构造表格 API 请求之前**必须失败，错误码 `TABLE_SORT_FIELD_UNKNOWN`——**不得**发出请求，
+  **不得**静默改写为 `null` 后继续。合法状态来源仅：用户点击可排序列，或实例创建时的
+  `defaultSort`（已由 L2 保证 sortKey 可命中）。L2 已拒绝的配置不在运行时再报此码。
 - 与选择清空：排序变化仍清空当前页选中（沿 ADR-0022 / 0011 交互，已有 fixtures 口径）。
 
 ### D5. 明确非目标（MVP）
@@ -101,7 +109,9 @@ ADR-0011 D3 原文：「**可排序字段能力不在本 ADR 扩展**；Renderer
 - 多列排序（`sort` 数组或 `field1:asc,field2:desc`）；
 - `client` / `none` 分页下的协议级本地排序；
 - 列 `initialOrder` / 每列默认方向（只用表级 `defaultSort`）；
-- 排序状态写入 URL 路由 query 与浏览器前进后退（属宿主路由同步，非本 ADR；表格 API query 仍发 `sort`）；
+- 将排序状态写入**浏览器路由** query 或依赖前进/后退恢复表格 sort（属宿主路由同步，非本 ADR）。
+  **注意：** 这与 ADR-0011 表格 **API** 请求上的保留 query `sort` **不是同一件事**——声明了排序时，
+  表格数据请求仍按 0011 发送 `sort`（审计 0069 / V329）；
 - 后端 sort 白名单协商、排序与权限联动。
 
 ## 校验与 conformance（原子交付清单）
@@ -110,10 +120,18 @@ ADR-0011 D3 原文：「**可排序字段能力不在本 ADR 扩展**；Renderer
   `additionalProperties: false` 保持；
 - L2：`table.sort` capability 门控；`sortField` 仅 sortable；sortKey 唯一；`defaultSort.field` 命中可排序
   sortKey；server-only；保留名拒绝；版本下限 `"2.5"`；
-- 规范：`03` ColumnDef / table props、`04` 引用本 ADR、`08` 预定义 capability 表、`01`/`00` capability 列表；
-- conformance：扩展 `search-table`（或新 suite `table-sort`）——defaultSort 初始 URL、三态点击、
-  sortField 映射、不可排序列不产生 sort、未知 sortKey 拒绝、与 search 保留 sort / 重置 page 交叉向量；
-- CHANGELOG + migration（v2.4 → v2.5 additive：旧页无字段则无排序 UI 义务）。
+- 规范：`03` ColumnDef / table props、`04` 引用本 ADR、**`08` §3.4** 预定义 capability 表增加
+  `table.sort`、`01`/`00` capability 列表；
+- **稳定错误码** `TABLE_SORT_FIELD_UNKNOWN` 登记于 `docs/03` 或 `docs/04` 表格错误码表（与实现一致；
+  审计 0069 / V318）；
+- conformance：扩展 `search-table`（或新 suite `table-sort`）——defaultSort 初始 URL、三态点击
+  （含 defaultSort desc 时首次点击该列 → 清除）、sortField 映射、不可排序列不产生 sort、
+  未知 sortKey → `TABLE_SORT_FIELD_UNKNOWN` 且不发请求、与 search 保留 sort / 重置 page 交叉向量、
+  与 `table.selection` 排序清空选中；
+- CHANGELOG + migration（v2.4 → v2.5 additive：旧页无字段则无排序 UI 义务）；
+- **与 ADR-0011 原子性（审计 0069 / V324）**：本 ADR **accept** 与 0011 D3 中指向本 ADR 的声明面
+  句子必须同一协议 tag 落地；若本 ADR 被拒绝或无限期搁置，须回滚 0011 D3 该前置引用，避免
+  accepted 正文依赖 proposed 语义。`proposed` 阶段不入 `protocol-manifest.json`。
 
 ## 对消费者的影响
 
@@ -127,10 +145,11 @@ ADR-0011 D3 原文：「**可排序字段能力不在本 ADR 扩展**；Renderer
 
 | ADR | 关系 |
 |---|---|
-| [0011](./0011-reserved-query-params.md) | wire + 状态机权威；本 ADR 补声明面与排序点击语义 |
+| [0011](./0011-reserved-query-params.md) | wire + 状态机权威；本 ADR 补声明面与排序点击语义；accept 原子性见交付清单 |
 | [0022](./0022-table-selection-and-batch-request.md) | 排序变化清空选中——沿既有交互，不新开规则 |
 | [0025](./0025-app-manifest.md) / [0026](./0026-app-navigation.md) | 无依赖；应用级轨道不包含本能力 |
 
 ## 开放问题（评审裁决点）
 
-无。MVP 已固定：缺省不可排序、三态 asc→desc→清、首次点击 asc、仅 server 分页、单 sort key。
+无。MVP 已固定（含审计 **0069**）：缺省不可排序、三态以当前状态为输入、从无序切入固定 asc、
+仅 server 分页、单 sort key、`TABLE_SORT_FIELD_UNKNOWN` 触发集收紧（V317 方案 A）。
