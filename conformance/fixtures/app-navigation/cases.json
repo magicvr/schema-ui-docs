@@ -902,6 +902,151 @@
           ]
         }
       }
+    },
+    {
+      "id": "m3a-deps-expression-rejected",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "validate",
+        "navigation": {
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders",
+              "visibleWhen": {
+                "when": "$deps.admin == true"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "FORBIDDEN_VARIABLE",
+        "path": "navigation.sidebar[0].visibleWhen.when",
+        "errors": [
+          {
+            "code": "FORBIDDEN_VARIABLE",
+            "path": "navigation.sidebar[0].visibleWhen.when"
+          }
+        ]
+      }
+    },
+    {
+      "id": "m3a-row-expression-rejected",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "validate",
+        "navigation": {
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders",
+              "permissions": {
+                "view": "$row.status == \"open\""
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "FORBIDDEN_VARIABLE",
+        "path": "navigation.sidebar[0].permissions.view",
+        "errors": [
+          {
+            "code": "FORBIDDEN_VARIABLE",
+            "path": "navigation.sidebar[0].permissions.view"
+          }
+        ]
+      }
+    },
+    {
+      "id": "m3a-self-expression-rejected",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "validate",
+        "navigation": {
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders",
+              "visibleWhen": {
+                "when": "$self == true"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "FORBIDDEN_VARIABLE",
+        "path": "navigation.sidebar[0].visibleWhen.when",
+        "errors": [
+          {
+            "code": "FORBIDDEN_VARIABLE",
+            "path": "navigation.sidebar[0].visibleWhen.when"
+          }
+        ]
+      }
+    },
+    {
+      "id": "m3a-illegal-syntax-rejected",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "validate",
+        "navigation": {
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders",
+              "visibleWhen": {
+                "when": "$context.features.beta =="
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "SYNTAX",
+        "path": "navigation.sidebar[0].visibleWhen.when",
+        "errors": [
+          {
+            "code": "SYNTAX",
+            "path": "navigation.sidebar[0].visibleWhen.when"
+          }
+        ]
+      }
+    },
+    {
+      "id": "m3a-legal-context-expressions-ok",
+      "protocolVersion": "2.5",
+      "category": "app-navigation",
+      "input": {
+        "operation": "validate",
+        "navigation": {
+          "sidebar": [
+            {
+              "pageRef": "orders",
+              "label": "Orders",
+              "permissions": {
+                "view": "$context.user.roles contains \"admin\""
+              },
+              "visibleWhen": {
+                "when": "$context.features.beta == true"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": true
+      }
     }
   ]
 }

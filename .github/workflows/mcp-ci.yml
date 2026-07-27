@@ -13,6 +13,8 @@ on:
       - 'conformance/schemas/**'
       - 'package.json'
       - 'package-lock.json'
+      - '.dockerignore'
+      - 'mcp/Dockerfile'
       - '.github/workflows/mcp-ci.yml'
   push:
     branches: [main, master]
@@ -27,6 +29,8 @@ on:
       - 'conformance/schemas/**'
       - 'package.json'
       - 'package-lock.json'
+      - '.dockerignore'
+      - 'mcp/Dockerfile'
       - '.github/workflows/mcp-ci.yml'
   workflow_dispatch:
 

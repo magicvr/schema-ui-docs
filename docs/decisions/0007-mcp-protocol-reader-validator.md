@@ -197,6 +197,12 @@ MCP v1 的安全边界如下：
 - 不上传日志或遥测；
 - 只执行内置协议查询和固定校验逻辑。
 
+**协议 / 验证器根目录（审计 0071 / V341）：**
+
+- 生产路径（`NODE_ENV=production`，含官方 Docker 镜像）**仅**使用镜像/安装内置的协议制品与固定 validator 脚本，**忽略** `SCHEMA_UI_PROTOCOL_ROOT` 与 `SCHEMA_UI_VALIDATOR_ROOT`。
+- 本地开发可用上述环境变量指向工作区或自建制品；若需在 `NODE_ENV=production` 下显式覆盖，必须同时设置 `SCHEMA_UI_ALLOW_EXTERNAL_ROOTS=1`（development-only 逃生阀，不得作为默认生产配置）。
+- `protocol.validate_content` 仍只接受调用方传入的内容字符串，不根据 `filename` 或任何路径读取宿主业务文件。
+
 若未来远程部署 MCP 服务，也必须延续 `validate_content` 的内容传入模型；服务端不得要求访问调用者本地路径。远程部署若需要鉴权、租户隔离、请求审计或日志采集，必须另开 ADR。
 
 ### D10. 查询返回粒度

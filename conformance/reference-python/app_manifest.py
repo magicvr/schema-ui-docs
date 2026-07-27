@@ -16,6 +16,19 @@ def is_object(value):
     return isinstance(value, dict)
 
 
+MANIFEST_MIN_PROTOCOL_VERSION = "2.5"
+
+
+def version_at_least(version, floor):
+    """Manifest fieldset floor is 2.5 (M1). Page meta versions remain decoupled (D1a)."""
+    match = re.fullmatch(r"([0-9]+)\.([0-9]+)", version or "")
+    if not match:
+        return False
+    major, minor = int(match.group(1)), int(match.group(2))
+    floor_major, floor_minor = (int(part) for part in floor.split("."))
+    return major > floor_major or (major == floor_major and minor >= floor_minor)
+
+
 def join_base_url(base_url, path):
     base = re.sub(r"/+$", "", str(base_url or ""))
     p = path if path.startswith("/") else f"/{path}"
@@ -144,6 +157,9 @@ def validate_manifest_m1(manifest):
             errors.append({"code": "MISSING_PROTOCOL_VERSION", "path": "protocolVersion"})
         else:
             errors.append({"code": "INVALID_PROTOCOL_VERSION", "path": "protocolVersion"})
+    elif not version_at_least(pv, MANIFEST_MIN_PROTOCOL_VERSION):
+        # M1 fieldset floor: app manifest is a v2.5+ artifact (V336).
+        errors.append({"code": "PROTOCOL_VERSION_TOO_LOW", "path": "protocolVersion"})
 
     caps = manifest.get("requiredCapabilities") if isinstance(manifest.get("requiredCapabilities"), list) else []
     if "app.manifest" not in caps:

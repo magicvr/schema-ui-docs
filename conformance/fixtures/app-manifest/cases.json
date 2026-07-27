@@ -1337,6 +1337,44 @@
           }
         ]
       }
+    },
+    {
+      "id": "m1-protocol-version-below-2-5-rejected",
+      "protocolVersion": "2.5",
+      "category": "app-manifest",
+      "input": {
+        "operation": "validate",
+        "manifest": {
+          "protocolVersion": "2.4",
+          "requiredCapabilities": [
+            "app.manifest"
+          ],
+          "app": {
+            "appId": "demo-app",
+            "name": "Demo",
+            "homePageRef": "home"
+          },
+          "pages": [
+            {
+              "pageId": "home",
+              "title": "Home",
+              "schemaUrl": "/api/schema/home",
+              "route": "/home"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "PROTOCOL_VERSION_TOO_LOW",
+        "path": "protocolVersion",
+        "errors": [
+          {
+            "code": "PROTOCOL_VERSION_TOO_LOW",
+            "path": "protocolVersion"
+          }
+        ]
+      }
     }
   ]
 }

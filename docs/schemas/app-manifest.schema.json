@@ -10,7 +10,7 @@
     "protocolVersion": {
       "type": "string",
       "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
-      "description": "Manifest protocol MAJOR.MINOR; negotiates app-level capabilities only (D1a)."
+      "description": "Manifest protocol MAJOR.MINOR; negotiates app-level capabilities only (D1a). App-manifest fieldset requires >= 2.5 (M1 PROTOCOL_VERSION_TOO_LOW); page meta.protocolVersion remains decoupled."
     },
     "requiredCapabilities": {
       "type": "array",
@@ -92,7 +92,7 @@
     "AppRelativePath": {
       "type": "string",
       "pattern": "^/(?!/)[^\\s\\\\]*$",
-      "description": "Application-route-root relative path; may contain {name} placeholders in page route/schemaUrl"
+      "description": "Site-relative path (^/(?!/)[^\\s\\\\]*$). Resolve base depends on field: schemaUrl → API baseURL; route / nav url → application route root (17 D1b)."
     },
     "PageEntry": {
       "type": "object",
@@ -102,8 +102,14 @@
         "pageId": { "type": "string", "minLength": 1 },
         "title": { "type": "string", "minLength": 1 },
         "titleKey": { "type": "string", "minLength": 1 },
-        "schemaUrl": { "$ref": "#/definitions/AppRelativePath" },
-        "route": { "$ref": "#/definitions/AppRelativePath" }
+        "schemaUrl": {
+          "$ref": "#/definitions/AppRelativePath",
+          "description": "Page schema GET path under API baseURL; may contain {name} bound from route (17 D1b)"
+        },
+        "route": {
+          "$ref": "#/definitions/AppRelativePath",
+          "description": "Application-route-root path template; may contain {name}; never joined with API baseURL (17 D1b)"
+        }
       },
       "anyOf": [
         { "required": ["title"] },
@@ -128,7 +134,8 @@
         "pageRef": { "type": "string", "minLength": 1 },
         "url": {
           "type": "string",
-          "pattern": "^/(?!/)[^\\s\\\\{}]*$"
+          "pattern": "^/(?!/)[^\\s\\\\{}]*$",
+          "description": "Application-route-root relative path (no placeholders); not joined with API baseURL (17 D1b)"
         },
         "label": { "type": "string", "minLength": 1 },
         "labelKey": { "type": "string", "minLength": 1 },

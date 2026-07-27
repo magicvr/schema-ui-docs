@@ -1,6 +1,6 @@
 ---
 status: example
-protocol_version: v2.4
+protocol_version: v2.5
 last_updated: 2026-07-10
 ---
 

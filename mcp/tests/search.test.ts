@@ -21,8 +21,20 @@ describe('protocol docs', () => {
 
   it('returns the current v2 release goals by stable docId', () => {
     const doc = getDoc('v2-release-goals');
-    expect(doc.path).toBe('docs/release-goals/v2.0.md');
-    expect(doc.content).toContain('v2.0 发布目标与门禁');
+    expect(doc.path).toBe('docs/release-goals/v2.5.md');
+    expect(doc.content).toContain('v2.5');
+  });
+
+  it('returns the app-manifest core doc by stable docId', () => {
+    const doc = getDoc('app-manifest');
+    expect(doc.path).toBe('docs/17-app-manifest.md');
+    expect(doc.content).toContain('应用级清单');
+  });
+
+  it('searches app-manifest content and never indexes audit process files', () => {
+    const results = searchProtocol('三类路径解析基址', 10).results;
+    expect(results.some(item => item.path === 'docs/17-app-manifest.md')).toBe(true);
+    expect(results.every(item => !item.path.includes('docs/audit'))).toBe(true);
   });
 
   it('returns available sections when a large doc is truncated', () => {
