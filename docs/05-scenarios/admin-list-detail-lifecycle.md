@@ -8,7 +8,7 @@ capabilities:
 related:
   - ADR-0021
   - ADR-0024
-  - docs/11-next-admin-lifecycle-goals.md
+  - docs/release-goals/next-admin-lifecycle.md
 ---
 
 # 扩展示例：列表 → 只读详情（recordView）

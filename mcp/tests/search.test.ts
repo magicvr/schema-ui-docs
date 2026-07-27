@@ -15,13 +15,13 @@ describe('protocol docs', () => {
 
   it('returns the v1 release goals by stable docId', () => {
     const doc = getDoc('v1-release-goals');
-    expect(doc.path).toBe('docs/09-v1-release-goals.md');
+    expect(doc.path).toBe('docs/release-goals/v1.0.md');
     expect(doc.content).toContain('v1.0 发布目标与门禁');
   });
 
   it('returns the current v2 release goals by stable docId', () => {
     const doc = getDoc('v2-release-goals');
-    expect(doc.path).toBe('docs/10-v2-release-goals.md');
+    expect(doc.path).toBe('docs/release-goals/v2.0.md');
     expect(doc.content).toContain('v2.0 发布目标与门禁');
   });
 

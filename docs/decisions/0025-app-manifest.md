@@ -288,7 +288,7 @@ ADR-0003 / ADR-0021 / `docs/02` §11 定义，本 ADR **零新增、零修改**�
 ## 校验与 conformance（原子交付清单）
 
 - 新 `docs/schemas/app-manifest.schema.json`（M0）+ 规范正文 `docs/17-app-manifest.md`
-  （含上表 M 系列层级定义、D1b 基址表、D4a 匹配算法、清单级稳定错误码表正式入档；编号与门禁 `16-v2.5-release-goals` 错开）；
+  （含上表 M 系列层级定义、D1b 基址表、D4a 匹配算法、清单级稳定错误码表正式入档；编号与门禁 `release-goals/v2.5` 错开）；
 - **`docs/08` §3.4 预定义 capability 表**增加 `app.manifest`（权威 ADR 指向本 ADR）；
 - **稳定错误码**写入 `docs/17`（及若项目已有统一错误码索引则交叉引用）；本 ADR 已 accept，纳入 `protocol-manifest.json` `authority.semanticSpecs`；
 - **术语对齐（accept 时原子）**：修订 `docs/07` navigate 与 ADR-0021 D2，使「应用路由根」与

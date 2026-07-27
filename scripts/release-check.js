@@ -78,17 +78,17 @@ const minorVersion = Number(semverMatch[2]);
 const protocolVersion = `${semverMatch[1]}.${semverMatch[2]}`;
 const releaseTargets = {
   '1.0': {
-    releaseGoalsPath: 'docs/09-v1-release-goals.md',
+    releaseGoalsPath: 'docs/release-goals/v1.0.md',
     migrationPath: 'docs/migrations/0.2-0.3-to-1.0.md',
     migrationRequiredTopics: ['protocolVersion', 'legacy adapter', 'query', 'pageSize', 'requestMapping', 'actions.upload'],
   },
   '2.0': {
-    releaseGoalsPath: 'docs/10-v2-release-goals.md',
+    releaseGoalsPath: 'docs/release-goals/v2.0.md',
     migrationPath: 'docs/migrations/1.0-to-2.0.md',
     migrationRequiredTopics: ['protocolVersion', 'legacy adapter', 'query', 'pageSize', 'requestMapping', 'actions.upload'],
   },
   '2.1': {
-    releaseGoalsPath: 'docs/12-v2.1-release-goals.md',
+    releaseGoalsPath: 'docs/release-goals/v2.1.md',
     migrationPath: 'docs/migrations/2.0-to-2.1.md',
     migrationRequiredTopics: [
       'protocolVersion',
@@ -102,7 +102,7 @@ const releaseTargets = {
     ],
   },
   '2.2': {
-    releaseGoalsPath: 'docs/13-v2.2-release-goals.md',
+    releaseGoalsPath: 'docs/release-goals/v2.2.md',
     migrationPath: 'docs/migrations/2.1-to-2.2.md',
     migrationRequiredTopics: [
       'protocolVersion',
@@ -113,7 +113,7 @@ const releaseTargets = {
     ],
   },
   '2.3': {
-    releaseGoalsPath: 'docs/14-v2.3-release-goals.md',
+    releaseGoalsPath: 'docs/release-goals/v2.3.md',
     migrationPath: 'docs/migrations/2.2-to-2.3.md',
     migrationRequiredTopics: [
       'protocolVersion',
@@ -123,7 +123,7 @@ const releaseTargets = {
     ],
   },
   '2.4': {
-    releaseGoalsPath: 'docs/15-v2.4-release-goals.md',
+    releaseGoalsPath: 'docs/release-goals/v2.4.md',
     migrationPath: 'docs/migrations/2.3-to-2.4.md',
     migrationRequiredTopics: [
       'protocolVersion',
@@ -137,7 +137,7 @@ const releaseTargets = {
     ],
   },
   '2.5': {
-    releaseGoalsPath: 'docs/16-v2.5-release-goals.md',
+    releaseGoalsPath: 'docs/release-goals/v2.5.md',
     migrationPath: 'docs/migrations/2.4-to-2.5.md',
     migrationRequiredTopics: [
       'protocolVersion',

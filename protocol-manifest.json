@@ -58,19 +58,11 @@
     ],
     "releaseMetadata": [
       "protocol-manifest.json",
-      "docs/09-v1-release-goals.md",
-      "docs/10-v2-release-goals.md",
-      "docs/12-v2.1-release-goals.md",
-      "docs/13-v2.2-release-goals.md",
-      "docs/14-v2.3-release-goals.md",
-      "docs/11-next-admin-lifecycle-goals.md",
       "docs/RELEASE.md",
-      "docs/migrations/*.md",
       "docs/CHANGELOG.md",
-      "conformance/README.md",
-      "docs/15-v2.4-release-goals.md",
-      "docs/16-v2.5-release-goals.md",
-      "docs/migrations/2.4-to-2.5.md"
+      "docs/release-goals/*.md",
+      "docs/migrations/*.md",
+      "conformance/README.md"
     ]
   },
   "excluded": [

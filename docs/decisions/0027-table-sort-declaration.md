@@ -27,7 +27,7 @@ ADR-0011 D3 原文：「**可排序字段能力不在本 ADR 扩展**；Renderer
 结果是：请求长什么样协议有，**哪些列可点、默认按谁排、展示 field 与 sort key 是否同名**只能私约
 或 Renderer 猜测——与「任意前端 × 任意后端」冲突，且与分页/筛选声明完整度不对称。
 
-`11-next-admin-lifecycle-goals.md` 将「列表分页排序」记为 v2.0 已覆盖，指的是 **wire + 状态机**；
+`release-goals/next-admin-lifecycle.md` 将「列表分页排序」记为 v2.0 已覆盖，指的是 **wire + 状态机**；
 本 ADR 补的是遗漏的 **声明面**，不否定 0011。
 
 ## 业务锚点（MVP）

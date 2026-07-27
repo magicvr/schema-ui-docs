@@ -11,13 +11,14 @@ Schema-UI 是前端 Renderer 与后端页面生产方共同遵守的、框架和
 
 | 层级 | 内容 | 作用 |
 |---|---|---|
-| 核心规范 | `docs/00`–`08`、协议 ADR | 定义字段语义、默认值和能力边界 |
+| 核心规范 | `docs/00`–`08`、`docs/17`、协议 ADR | 定义字段语义、默认值和能力边界 |
 | 机器契约 | `docs/schemas/` | 定义 JSON/YAML 结构与组件字段 |
 | 行为契约 | `conformance/fixtures/` | 定义跨前后端实现的可观测结果 |
 | 协议制品 | `schema-ui-protocol-<version>.tar.gz` | 前后端共同固定和消费的不可变发布单元 |
 
 协议制品文件清单由 [`protocol-manifest.json`](./protocol-manifest.json) 定义。`scripts/`、`mcp/`、
 `validator/`、`docs/mcp/`、`docs/audit/` 和 reference 实现不进入协议制品，也不影响协议内容摘要。
+`docs/release-goals/` 与 `docs/migrations/` 进入制品，但仅为 **informative** 发布元数据，**不是** 核心协议语义。
 
 ## 权威规则
 
@@ -118,7 +119,9 @@ npm run validate -- "pages/**/*.yaml"
 .
 ├── PROJECT_CHARTER.md             # 项目使命、权威矩阵与防漂移门禁
 ├── protocol-manifest.json         # 协议制品来源清单与版本
-├── docs/                          # 规范、Schema、场景、ADR、迁移和过程记录
+├── docs/                          # 规范、Schema、场景、ADR、迁移、发布门禁与过程记录
+│   ├── release-goals/             # 非核心：版本 accept 门禁与演进轨道（informative）
+│   └── migrations/                # 非核心：版本升级路径（informative）
 ├── conformance/                   # 语言无关 fixtures 与非规范性 reference
 ├── scripts/                       # 辅助验证器与协议制品构建脚本
 ├── validator/                     # 辅助验证器的独立版本与兼容声明
@@ -126,9 +129,9 @@ npm run validate -- "pages/**/*.yaml"
 └── .github/workflows/             # Protocol 与 MCP 分离的 CI/CD
 ```
 
-协议范围与当前发布门禁见 [`docs/14-v2.3-release-goals.md`](./docs/14-v2.3-release-goals.md)；
+当前发布门禁见 [`docs/release-goals/v2.5.md`](./docs/release-goals/v2.5.md)（目录说明见
+[`docs/release-goals/README.md`](./docs/release-goals/README.md)）；
 发布流程见 [`docs/RELEASE.md`](./docs/RELEASE.md)；
-v2.1 历史门禁见 [`docs/12-v2.1-release-goals.md`](./docs/12-v2.1-release-goals.md)；
-v2.0 MAJOR 历史见 [`docs/10-v2-release-goals.md`](./docs/10-v2-release-goals.md)；
-Admin 后续轨道见 [`docs/11-next-admin-lifecycle-goals.md`](./docs/11-next-admin-lifecycle-goals.md)；
+历史版本门禁见 [`docs/release-goals/`](./docs/release-goals/)；
+Admin 后续轨道见 [`docs/release-goals/next-admin-lifecycle.md`](./docs/release-goals/next-admin-lifecycle.md)；
 历史版本记录见 [`docs/CHANGELOG.md`](./docs/CHANGELOG.md)。

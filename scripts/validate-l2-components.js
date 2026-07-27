@@ -57,7 +57,7 @@ const components = registry.components; // { [type]: ComponentDef }
 
 /**
  * V275 / V282: 2.2.0 正式制品后，2.2 字段要求 protocolVersion >= "2.2"。
- * 过渡期曾为 true（允许挂在 "2.1" + capability）；见 docs/13-v2.2-release-goals.md。
+ * 过渡期曾为 true（允许挂在 "2.1" + capability）；见 docs/release-goals/v2.2.md。
  */
 const ALLOW_22_FIELDS_ON_21 = false;
 const FLOOR_21 = '2.1';

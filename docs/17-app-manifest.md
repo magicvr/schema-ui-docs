@@ -248,4 +248,4 @@ navigation:
 - 不强制 navigate 命中注册表；命中则必须注入 `$context.route`。
 - 主题/CSS/侧栏左右归呈现层。
 
-发布门禁见 [16-v2.5-release-goals.md](./16-v2.5-release-goals.md)。迁移见 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)。
+发布门禁见 [release-goals/v2.5.md](./release-goals/v2.5.md)。迁移见 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)。
