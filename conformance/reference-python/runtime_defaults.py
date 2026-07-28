@@ -1,3 +1,43 @@
+def _empty_for_wire(wire):
+    if wire == "boolean":
+        return False
+    if wire == "array":
+        return []
+    if wire == "number":
+        return None
+    return ""
+
+
+def _init_form_field_values(input_value):
+    """ADR-0033: S0 empty → S1 defaultValue → S2 recordValues → S3 reactionWrites."""
+    fields = input_value.get("fields")
+    if not isinstance(fields, list):
+        return {"ok": False, "code": "INVALID_RUNTIME_DEFAULT_INPUT"}
+    values = {}
+    for field_def in fields:
+        if not isinstance(field_def, dict) or not isinstance(field_def.get("field"), str) or len(field_def["field"]) == 0:
+            return {"ok": False, "code": "INVALID_RUNTIME_DEFAULT_INPUT"}
+        wire = field_def.get("wire") or "string"
+        name = field_def["field"]
+        values[name] = _empty_for_wire(wire)
+        if "defaultValue" in field_def:
+            values[name] = field_def["defaultValue"]
+    record_values = input_value.get("recordValues")
+    if isinstance(record_values, dict):
+        for key, value in record_values.items():
+            if key in values:
+                values[key] = value
+    reaction_writes = input_value.get("reactionWrites")
+    if isinstance(reaction_writes, list):
+        for write in reaction_writes:
+            if not isinstance(write, dict):
+                continue
+            field = write.get("field")
+            if isinstance(field, str) and field in values:
+                values[field] = write.get("value")
+    return {"ok": True, "values": values}
+
+
 def validate_runtime_defaults(input_value):
     kind = input_value["kind"]
     if kind == "requestConfig":
@@ -25,4 +65,6 @@ def validate_runtime_defaults(input_value):
             value.setdefault("fieldName", "file")
             value.setdefault("multiple", False)
             return {"ok": True, "value": value}
+    if kind == "formFieldInit":
+        return _init_form_field_values(input_value)
     return {"ok": False, "code": "INVALID_RUNTIME_DEFAULT_INPUT"}

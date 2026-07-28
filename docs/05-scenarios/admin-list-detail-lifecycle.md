@@ -1,6 +1,6 @@
 ---
 status: extended-example
-protocol_version: v2.6
+protocol_version: v2.7
 capabilities:
   - actions.row.navigate
   - record.view.load
@@ -13,7 +13,7 @@ related:
 
 # 扩展示例：列表 → 只读详情（recordView）
 
-本示例覆盖 Phase D 首项：表格只展示部分列时，行进详情页用标准 `recordView` 查阅完整记录。使用前 Renderer 须支持相应 `requiredCapabilities`。页面声明 `meta.protocolVersion: "2.6"`。
+本示例覆盖 Phase D 首项：表格只展示部分列时，行进详情页用标准 `recordView` 查阅完整记录。使用前 Renderer 须支持相应 `requiredCapabilities`。页面声明 `meta.protocolVersion: "2.7"`。
 
 权威：[ADR-0024](../decisions/0024-record-view.md)。迁移见 [migrations/2.3-to-2.4.md](../migrations/2.3-to-2.4.md)。
 
@@ -23,7 +23,7 @@ related:
 meta:
   pageId: order_list_for_detail
   title: 订单列表
-  protocolVersion: "2.6"
+  protocolVersion: "2.7"
   requiredCapabilities:
     - actions.row.navigate
 
@@ -67,7 +67,7 @@ body:
 meta:
   pageId: order_detail_lifecycle
   title: 订单详情
-  protocolVersion: "2.6"
+  protocolVersion: "2.7"
   requiredCapabilities:
     - record.view.load
     - actions.page.trigger

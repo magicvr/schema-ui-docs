@@ -1,0 +1,77 @@
+meta:
+  pageId: user_profile_advanced
+  title: 进阶用户资料
+  protocolVersion: "2.7"
+  requiredCapabilities:
+    - form.controls.advanced
+    - form.record.load
+
+actions:
+  saveAdvanced:
+    type: request
+    method: PUT
+    url: /api/users/advanced
+    bodyMapping:
+      regionPath: region
+      perms: permissions
+      about: aboutMd
+      newPassword: password
+      displayName: name
+    onSuccess:
+      behavior: toast
+      message: 已保存
+    onError:
+      behavior: toast
+      message: 保存失败
+
+body:
+  type: form
+  props:
+    title: 进阶资料
+    submitAction: saveAdvanced
+    recordSource:
+      method: GET
+      url: /api/users/{userId}
+      path:
+        userId: $context.route.query.userId
+      responseMapping:
+        regionPath: region.path
+        perms: permissions
+        about: aboutMd
+        displayName: name
+  children:
+    - type: input
+      props:
+        field: displayName
+        label: 显示名
+        defaultValue: 新用户
+    - type: cascader
+      props:
+        field: regionPath
+        label: 地区
+        options:
+          - label: 华东
+            value: east
+            children:
+              - label: 上海
+                value: shanghai
+                children:
+                  - { label: 浦东, value: pudong }
+    - type: checkboxGroup
+      props:
+        field: perms
+        label: 权限
+        defaultValue: [read]
+        options:
+          - { label: 读, value: read }
+          - { label: 写, value: write }
+          - { label: 管理, value: admin }
+    - type: richText
+      props:
+        field: about
+        label: 简介
+        defaultValue: "## 简介\n\n请填写。"
+    - type: password
+      props:
+        field: newPassword
+        label: 新密码

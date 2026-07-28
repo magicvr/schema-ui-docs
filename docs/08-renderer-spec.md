@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.6
+applies_to: schema-ui-protocol v2.7
 ---
 
 # Renderer（前端渲染器）实现规范
@@ -335,6 +335,7 @@ Renderer 不自动发现、选择或串联 adapter。本协议只定义 adapter 
 | `app.navigation` | 清单 `navigation` 槽位/分组/过滤/高亮 | ADR-0026 / [09](./09-app-manifest.md) |
 | `table.sort` | 表格列 `sortable` / `sortField` 与 `defaultSort` | ADR-0027 |
 | `form.controls.extended` | `textarea` / `switch` / `checkbox` / `radio` / `select.mode: multiple` | ADR-0028 |
+| `form.controls.advanced` | `cascader` / `checkboxGroup` / `richText` / `password` / `defaultValue` | ADR-0029–0033 |
 
 ### 3.5 协商结果与错误信息格式
 

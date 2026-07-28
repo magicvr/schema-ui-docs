@@ -232,3 +232,18 @@ ADR-0010 规定 query 最终值 **只允许标量**，且每个 key 最多一次
 - [x] JS/Python conformance 覆盖 textarea/boolean 提交、multiple 数组投影、wire mismatch skip、版本/capability 协商。
 - [x] 扩展示例 `form-controls-extended`。
 - [x] 合法无本包字段的 v2.5 页行为不变（opt-in）。
+
+
+## Supersession（v2.7）
+
+下列 **D9 非目标** 在 **v2.7** 由独立 ADR **接受为协议表面**（不改写本 ADR 对 v2.6.0 制品的历史结论）：
+
+| 项 | v2.7 ADR |
+|---|---|
+| `cascader` / F1e | [0029](./0029-cascader.md) |
+| checkbox 组 | [0030](./0030-checkbox-group.md) |
+| 富文本 | [0031](./0031-rich-text.md) |
+| password 专用 type | [0032](./0032-password.md) |
+| 静态 `defaultValue` | [0033](./0033-form-default-value.md) |
+
+v2.6 页面与制品仍不含上述字段；使用须升至 `"2.7"` + `form.controls.advanced`。

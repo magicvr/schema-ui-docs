@@ -11,8 +11,17 @@
       "supportsReactions": false,
       "supportsStates": false,
       "props": {
-        "columns": { "type": "integer", "minimum": 1, "required": true },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "required": true
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
         "additionalProperties": false
       }
     },
@@ -23,9 +32,19 @@
       "supportsReactions": false,
       "supportsStates": false,
       "props": {
-        "title": { "type": "string", "required": false },
-        "titleKey": { "type": "string", "required": false },
-        "span": { "type": "integer", "minimum": 1, "required": false },
+        "title": {
+          "type": "string",
+          "required": false
+        },
+        "titleKey": {
+          "type": "string",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
         "additionalProperties": false
       }
     },
@@ -43,20 +62,46 @@
           "items": {
             "type": "object",
             "properties": {
-              "key": { "type": "string", "required": true },
-              "label": { "type": "string" },
-              "labelKey": { "type": "string" },
-              "content": { "$ref": "node.schema.json", "description": "完整 Node" }
+              "key": {
+                "type": "string",
+                "required": true
+              },
+              "label": {
+                "type": "string"
+              },
+              "labelKey": {
+                "type": "string"
+              },
+              "content": {
+                "$ref": "node.schema.json",
+                "description": "完整 Node"
+              }
             },
-            "required": ["key", "content"],
+            "required": [
+              "key",
+              "content"
+            ],
             "anyOf": [
-              { "required": ["label"] },
-              { "required": ["labelKey"] }
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "labelKey"
+                ]
+              }
             ],
             "additionalProperties": false
           }
         },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
         "additionalProperties": false
       }
     },
@@ -67,22 +112,53 @@
       "supportsReactions": false,
       "supportsStates": true,
       "props": {
-        "label": { "type": "string", "required": false, "description": "卡片标题，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
-        "unit": { "type": "string", "required": false },
-        "format": { "type": "string", "enum": ["plain", "currency", "percent"], "required": false },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "卡片标题，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "unit": {
+          "type": "string",
+          "required": false
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "plain",
+            "currency",
+            "percent"
+          ],
+          "required": false
+        },
         "valueField": {
           "type": "string",
           "required": true,
           "since": "0.2",
           "description": "since 0.2：指定从 API 响应中取哪个字段作为展示值"
         },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ]
     },
     "chart": {
@@ -92,10 +168,29 @@
       "supportsReactions": false,
       "supportsStates": true,
       "props": {
-        "chartType": { "type": "string", "enum": ["line", "bar", "pie"], "required": true },
-        "xField": { "type": "string", "required": true },
-        "yField": { "type": "string", "required": true },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "chartType": {
+          "type": "string",
+          "enum": [
+            "line",
+            "bar",
+            "pie"
+          ],
+          "required": true
+        },
+        "xField": {
+          "type": "string",
+          "required": true
+        },
+        "yField": {
+          "type": "string",
+          "required": true
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
         "additionalProperties": false
       }
     },
@@ -106,20 +201,40 @@
       "supportsReactions": false,
       "supportsStates": true,
       "props": {
-        "content": { "type": "string", "required": false, "description": "静态文本内容；声明 data 时作为加载前/无数据时的兜底文案" },
-        "contentKey": { "type": "string", "required": false },
+        "content": {
+          "type": "string",
+          "required": false,
+          "description": "静态文本内容；声明 data 时作为加载前/无数据时的兜底文案"
+        },
+        "contentKey": {
+          "type": "string",
+          "required": false
+        },
         "valueField": {
           "type": "string",
           "required": false,
           "since": "0.2",
           "description": "since 0.2：data.source 为 api 时，指定取哪个字段作为展示文本。未指定时 Renderer 默认取响应体第一个字段值（与 statCard 保持一致的取值方式，但 statCard 的 valueField 为必填，text 为可选）"
         },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["content"] },
-        { "required": ["contentKey"] }
+        {
+          "required": [
+            "content"
+          ]
+        },
+        {
+          "required": [
+            "contentKey"
+          ]
+        }
       ]
     },
     "recordView": {
@@ -129,24 +244,50 @@
       "supportsReactions": false,
       "supportsStates": true,
       "props": {
-        "title": { "type": "string", "required": false, "since": "2.4", "description": "详情区块标题" },
-        "titleKey": { "type": "string", "required": false, "since": "2.4" },
+        "title": {
+          "type": "string",
+          "required": false,
+          "since": "2.4",
+          "description": "详情区块标题"
+        },
+        "titleKey": {
+          "type": "string",
+          "required": false,
+          "since": "2.4"
+        },
         "recordSource": {
           "type": "object",
           "required": true,
           "since": "2.4",
           "description": "【ADR-0024】只读详情记录 GET 加载；使用时声明 record.view.load；形状与 form.recordSource 同构；responseMapping 必填非空。字段级 required 仅允许布尔（本字段 true=必填）；嵌套键 method/url/responseMapping 的必填由各自 properties.*.required 布尔表达，禁止在本对象上再写 required 数组以免覆盖字段级布尔（审计 0067 V302）",
           "properties": {
-            "method": { "type": "string", "enum": ["GET"], "required": true },
-            "url": { "type": "string", "required": true },
-            "path": { "type": "object", "required": false },
-            "query": { "type": "object", "required": false },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET"
+              ],
+              "required": true
+            },
+            "url": {
+              "type": "string",
+              "required": true
+            },
+            "path": {
+              "type": "object",
+              "required": false
+            },
+            "query": {
+              "type": "object",
+              "required": false
+            },
             "responseMapping": {
               "type": "object",
               "required": true,
               "description": "展示键 → 响应点路径；必填非空；fields[].key 必须是本对象的键",
               "minProperties": 1,
-              "additionalProperties": { "type": "string" }
+              "additionalProperties": {
+                "type": "string"
+              }
             }
           },
           "additionalProperties": false
@@ -160,12 +301,26 @@
           "items": {
             "type": "object",
             "properties": {
-              "key": { "type": "string", "minLength": 1, "required": true, "description": "展示键；对应 responseMapping 的键" },
-              "label": { "type": "string" },
-              "labelKey": { "type": "string" },
+              "key": {
+                "type": "string",
+                "minLength": 1,
+                "required": true,
+                "description": "展示键；对应 responseMapping 的键"
+              },
+              "label": {
+                "type": "string"
+              },
+              "labelKey": {
+                "type": "string"
+              },
               "format": {
                 "type": "string",
-                "enum": ["plain", "currency", "datetime", "tag"],
+                "enum": [
+                  "plain",
+                  "currency",
+                  "datetime",
+                  "tag"
+                ],
                 "required": false,
                 "description": "展示格式；默认 plain；tag 时 tagMap 必填"
               },
@@ -176,23 +331,50 @@
                 "additionalProperties": {
                   "type": "object",
                   "properties": {
-                    "text": { "type": "string" },
-                    "tone": { "type": "string", "enum": ["warning", "success", "neutral", "info", "danger"] }
+                    "text": {
+                      "type": "string"
+                    },
+                    "tone": {
+                      "type": "string",
+                      "enum": [
+                        "warning",
+                        "success",
+                        "neutral",
+                        "info",
+                        "danger"
+                      ]
+                    }
                   },
-                  "required": ["text"],
+                  "required": [
+                    "text"
+                  ],
                   "additionalProperties": false
                 }
               }
             },
-            "required": ["key"],
+            "required": [
+              "key"
+            ],
             "anyOf": [
-              { "required": ["label"] },
-              { "required": ["labelKey"] }
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "labelKey"
+                ]
+              }
             ],
             "additionalProperties": false
           }
         },
-        "span": { "type": "integer", "minimum": 1, "required": false },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
         "additionalProperties": false
       }
     },
@@ -203,9 +385,19 @@
       "supportsReactions": false,
       "supportsStates": true,
       "props": {
-        "title": { "type": "string", "required": false },
-        "titleKey": { "type": "string", "required": false, "description": "表格标题 i18n key，可替代 title" },
-        "rowKey": { "type": "string", "required": true },
+        "title": {
+          "type": "string",
+          "required": false
+        },
+        "titleKey": {
+          "type": "string",
+          "required": false,
+          "description": "表格标题 i18n key，可替代 title"
+        },
+        "rowKey": {
+          "type": "string",
+          "required": true
+        },
         "pagination": {
           "type": "object",
           "required": true,
@@ -213,7 +405,11 @@
           "properties": {
             "mode": {
               "type": "string",
-              "enum": ["server", "client", "none"],
+              "enum": [
+                "server",
+                "client",
+                "none"
+              ],
               "required": true,
               "description": "分页模式：server（服务端分页）/ client（客户端分页）/ none（不分页）"
             },
@@ -233,23 +429,54 @@
           "items": {
             "type": "object",
             "properties": {
-              "field": { "type": "string", "description": "对应数据字段名" },
-              "label": { "type": "string", "description": "列标题" },
-              "format": { "type": "string", "enum": ["plain", "currency", "datetime", "tag"], "description": "展示格式" },
+              "field": {
+                "type": "string",
+                "description": "对应数据字段名"
+              },
+              "label": {
+                "type": "string",
+                "description": "列标题"
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "plain",
+                  "currency",
+                  "datetime",
+                  "tag"
+                ],
+                "description": "展示格式"
+              },
               "tagMap": {
                 "type": "object",
                 "description": "format: tag 时，值 → {text, tone} 的映射",
                 "additionalProperties": {
                   "type": "object",
                   "properties": {
-                    "text": { "type": "string" },
-                    "tone": { "type": "string", "enum": ["warning", "success", "neutral", "info", "danger"] }
+                    "text": {
+                      "type": "string"
+                    },
+                    "tone": {
+                      "type": "string",
+                      "enum": [
+                        "warning",
+                        "success",
+                        "neutral",
+                        "info",
+                        "danger"
+                      ]
+                    }
                   },
-                  "required": ["text"],
+                  "required": [
+                    "text"
+                  ],
                   "additionalProperties": false
                 }
               },
-              "labelKey": { "type": "string", "description": "列标题 i18n key（since 0.2）" },
+              "labelKey": {
+                "type": "string",
+                "description": "列标题 i18n key（since 0.2）"
+              },
               "sortable": {
                 "type": "boolean",
                 "required": false,
@@ -262,28 +489,62 @@
                 "since": "2.5",
                 "description": "【ADR-0027】写入 sort 左半段的后端字段名；仅当 sortable:true 时允许；缺省等于 field"
               },
-              "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "列级条件渲染（since 0.2.1）" },
-              "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "列级联动规则（since 0.2.1）" },
-              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "列级权限控制（since 0.2.1）；ADR-0023 中 columns[] 不参与 permissionCascade，且不允许 permissionIntent" }
+              "visibleWhen": {
+                "$ref": "node.schema.json#/definitions/VisibleWhen",
+                "description": "列级条件渲染（since 0.2.1）"
+              },
+              "reactions": {
+                "type": "array",
+                "items": {
+                  "$ref": "reaction.schema.json"
+                },
+                "description": "列级联动规则（since 0.2.1）"
+              },
+              "permissions": {
+                "$ref": "node.schema.json#/definitions/Permissions",
+                "description": "列级权限控制（since 0.2.1）；ADR-0023 中 columns[] 不参与 permissionCascade，且不允许 permissionIntent"
+              }
             },
-            "required": ["field"],
+            "required": [
+              "field"
+            ],
             "anyOf": [
-              { "required": ["label"] },
-              { "required": ["labelKey"] }
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "labelKey"
+                ]
+              }
             ],
             "additionalProperties": false
           }
         },
         "defaultSort": {
           "type": "object",
-          "required": false,
+          "required": [
+            "field",
+            "order"
+          ],
           "since": "2.5",
           "description": "【ADR-0027】表级默认排序（仅初始状态）；field 为可排序列 sortKey（sortField??field）；仅 pagination.mode:server；使用时声明 table.sort",
           "properties": {
-            "field": { "type": "string", "required": true },
-            "order": { "type": "string", "enum": ["asc", "desc"], "required": true }
+            "field": {
+              "type": "string",
+              "required": true
+            },
+            "order": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "required": true
+            }
           },
-          "required": ["field", "order"],
           "additionalProperties": false
         },
         "actions": {
@@ -293,15 +554,27 @@
           "items": {
             "type": "object",
             "properties": {
-              "key": { "type": "string", "required": true },
-              "actionRef": { "type": "string", "description": "【可选，since 0.2.7】引用顶层 actions 中 type:request 或 type:navigate 的 action；request 须声明 actions.row.request，navigate 须声明 actions.row.navigate（ADR-0021）" },
+              "key": {
+                "type": "string",
+                "required": true
+              },
+              "actionRef": {
+                "type": "string",
+                "description": "【可选，since 0.2.7】引用顶层 actions 中 type:request 或 type:navigate 的 action；request 须声明 actions.row.request，navigate 须声明 actions.row.navigate（ADR-0021）"
+              },
               "requestMapping": {
                 "type": "object",
                 "description": "【可选，since 0.2.7】RowAction 引用 type:request 时的参数绑定；path/query/body 均为非空 key 的扁平 map；值仅允许 string/finite number/boolean/null 或单个 $row.* 点路径；不得与 navigateMapping 同时出现",
                 "properties": {
-                  "path": { "type": "object" },
-                  "query": { "type": "object" },
-                  "body": { "type": "object" }
+                  "path": {
+                    "type": "object"
+                  },
+                  "query": {
+                    "type": "object"
+                  },
+                  "body": {
+                    "type": "object"
+                  }
                 },
                 "additionalProperties": false
               },
@@ -309,46 +582,91 @@
                 "type": "object",
                 "description": "【可选，since 2.1 / ADR-0021】RowAction 引用 type:navigate 时的 path/query 绑定；值仅允许字面量或单个 $row.*；不得声明 body；不得与 requestMapping 同时出现",
                 "properties": {
-                  "path": { "type": "object" },
-                  "query": { "type": "object" }
+                  "path": {
+                    "type": "object"
+                  },
+                  "query": {
+                    "type": "object"
+                  }
                 },
                 "additionalProperties": false
               },
-              "label": { "type": "string", "description": "操作文案，与 labelKey 至少提供一个" },
-              "labelKey": { "type": "string", "description": "操作文案 i18n key，与 label 至少提供一个" },
-              "confirm": { "type": "string" },
+              "label": {
+                "type": "string",
+                "description": "操作文案，与 labelKey 至少提供一个"
+              },
+              "labelKey": {
+                "type": "string",
+                "description": "操作文案 i18n key，与 label 至少提供一个"
+              },
+              "confirm": {
+                "type": "string"
+              },
               "visibleField": {
                 "type": "string",
                 "since": "0.2",
                 "description": "scope: row 的 visibleWhen 语法糖（since 0.2.1），解析阶段等价展开为 visibleWhen: { scope: row, dependencies: [<field>], when: \"$row.<field> == true\" }。与显式 visibleWhen 同时声明时以显式 visibleWhen 为准"
               },
-              "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen", "description": "行级操作条件渲染（since 0.2.1）" },
-              "reactions": { "type": "array", "items": { "$ref": "reaction.schema.json" }, "description": "行级操作联动规则（since 0.2.1）" },
-              "permissions": { "$ref": "node.schema.json#/definitions/Permissions", "description": "行级操作权限控制（since 0.2.1）" },
-              "permissionIntent": { "type": "string", "enum": ["edit", "delete"], "since": "2.3", "description": "【ADR-0023】操作意图；声明后才参与祖先 permissionCascade 的同名 edit/delete 求值" }
+              "visibleWhen": {
+                "$ref": "node.schema.json#/definitions/VisibleWhen",
+                "description": "行级操作条件渲染（since 0.2.1）"
+              },
+              "reactions": {
+                "type": "array",
+                "items": {
+                  "$ref": "reaction.schema.json"
+                },
+                "description": "行级操作联动规则（since 0.2.1）"
+              },
+              "permissions": {
+                "$ref": "node.schema.json#/definitions/Permissions",
+                "description": "行级操作权限控制（since 0.2.1）"
+              },
+              "permissionIntent": {
+                "type": "string",
+                "enum": [
+                  "edit",
+                  "delete"
+                ],
+                "since": "2.3",
+                "description": "【ADR-0023】操作意图；声明后才参与祖先 permissionCascade 的同名 edit/delete 求值"
+              }
             },
-            "required": ["key"],
+            "required": [
+              "key"
+            ],
             "anyOf": [
-              { "required": ["label"] },
-              { "required": ["labelKey"] }
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "labelKey"
+                ]
+              }
             ],
             "additionalProperties": false
           }
         },
         "selection": {
           "type": "object",
-          "required": false,
+          "required": [
+            "mode"
+          ],
           "since": "2.2",
           "description": "【ADR-0022】表格多选；使用时声明 table.selection。MVP 仅 mode:multiple，当前页选中，筛选/翻页/排序/reload 清空",
           "properties": {
             "mode": {
               "type": "string",
-              "enum": ["multiple"],
+              "enum": [
+                "multiple"
+              ],
               "required": true,
               "description": "MVP 仅 multiple"
             }
           },
-          "required": ["mode"],
           "additionalProperties": false
         },
         "toolbar": {
@@ -359,12 +677,27 @@
           "items": {
             "type": "object",
             "properties": {
-              "key": { "type": "string", "required": true },
-              "label": { "type": "string" },
-              "labelKey": { "type": "string" },
-              "actionRef": { "type": "string", "required": true, "description": "引用顶层 request|navigate|modal action" },
-              "confirm": { "type": "string" },
-              "disabled": { "type": "boolean" },
+              "key": {
+                "type": "string",
+                "required": true
+              },
+              "label": {
+                "type": "string"
+              },
+              "labelKey": {
+                "type": "string"
+              },
+              "actionRef": {
+                "type": "string",
+                "required": true,
+                "description": "引用顶层 request|navigate|modal action"
+              },
+              "confirm": {
+                "type": "string"
+              },
+              "disabled": {
+                "type": "boolean"
+              },
               "requiresSelection": {
                 "type": "boolean",
                 "required": false,
@@ -377,25 +710,59 @@
                 "since": "2.2",
                 "description": "【ADR-0022】批量 request 绑定；body 值可为 $selection.keys；query 可为 $selection.count 或字面量；使用时声明 actions.batch.request",
                 "properties": {
-                  "path": { "type": "object" },
-                  "query": { "type": "object" },
-                  "body": { "type": "object" }
+                  "path": {
+                    "type": "object"
+                  },
+                  "query": {
+                    "type": "object"
+                  },
+                  "body": {
+                    "type": "object"
+                  }
                 },
                 "additionalProperties": false
               },
-              "visibleWhen": { "$ref": "node.schema.json#/definitions/VisibleWhen" },
-              "permissions": { "$ref": "node.schema.json#/definitions/Permissions" },
-              "permissionIntent": { "type": "string", "enum": ["edit", "delete"], "since": "2.3", "description": "【ADR-0023】操作意图；声明后才参与祖先 permissionCascade 的同名 edit/delete 求值" }
+              "visibleWhen": {
+                "$ref": "node.schema.json#/definitions/VisibleWhen"
+              },
+              "permissions": {
+                "$ref": "node.schema.json#/definitions/Permissions"
+              },
+              "permissionIntent": {
+                "type": "string",
+                "enum": [
+                  "edit",
+                  "delete"
+                ],
+                "since": "2.3",
+                "description": "【ADR-0023】操作意图；声明后才参与祖先 permissionCascade 的同名 edit/delete 求值"
+              }
             },
-            "required": ["key", "actionRef"],
+            "required": [
+              "key",
+              "actionRef"
+            ],
             "anyOf": [
-              { "required": ["label"] },
-              { "required": ["labelKey"] }
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "labelKey"
+                ]
+              }
             ],
             "additionalProperties": false
           }
         },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
         "additionalProperties": false
       }
     },
@@ -406,18 +773,59 @@
       "supportsReactions": false,
       "supportsStates": false,
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ],
       "props": {
-        "key": { "type": "string", "required": true, "since": "2.1", "description": "入口标识；不引用顶层 actions" },
-        "label": { "type": "string" },
-        "labelKey": { "type": "string" },
-        "actionRef": { "type": "string", "required": true, "since": "2.1", "description": "引用顶层 request|navigate|modal；使用时声明 actions.page.trigger" },
-        "confirm": { "type": "string", "required": false },
-        "disabled": { "type": "boolean", "required": false },
-        "permissionIntent": { "type": "string", "enum": ["edit", "delete"], "required": false, "since": "2.3", "description": "【ADR-0023】操作意图；actionButton 的 Node 级 permissions 仍在 props 外声明" },
-        "span": { "type": "integer", "minimum": 1, "required": false },
+        "key": {
+          "type": "string",
+          "required": true,
+          "since": "2.1",
+          "description": "入口标识；不引用顶层 actions"
+        },
+        "label": {
+          "type": "string"
+        },
+        "labelKey": {
+          "type": "string"
+        },
+        "actionRef": {
+          "type": "string",
+          "required": true,
+          "since": "2.1",
+          "description": "引用顶层 request|navigate|modal；使用时声明 actions.page.trigger"
+        },
+        "confirm": {
+          "type": "string",
+          "required": false
+        },
+        "disabled": {
+          "type": "boolean",
+          "required": false
+        },
+        "permissionIntent": {
+          "type": "string",
+          "enum": [
+            "edit",
+            "delete"
+          ],
+          "required": false,
+          "since": "2.3",
+          "description": "【ADR-0023】操作意图；actionButton 的 Node 级 permissions 仍在 props 外声明"
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
         "additionalProperties": false
       }
     },
@@ -428,12 +836,25 @@
       "supportsReactions": false,
       "supportsStates": false,
       "props": {
-        "title": { "type": "string", "required": false },
-        "titleKey": { "type": "string", "required": false },
-        "submitAction": { "type": "string", "required": false, "description": "默认模式（mode=default）下必填，引用顶层 actions 中的动作 id；mode=search 时忽略此字段" },
+        "title": {
+          "type": "string",
+          "required": false
+        },
+        "titleKey": {
+          "type": "string",
+          "required": false
+        },
+        "submitAction": {
+          "type": "string",
+          "required": false,
+          "description": "默认模式（mode=default）下必填，引用顶层 actions 中的动作 id；mode=search 时忽略此字段"
+        },
         "mode": {
           "type": "string",
-          "enum": ["default", "search"],
+          "enum": [
+            "default",
+            "search"
+          ],
           "required": false,
           "since": "0.2.1",
           "description": "表单模式：default（提交动作）/ search（筛选表格）"
@@ -450,35 +871,65 @@
           "since": "2.1",
           "description": "【ADR-0021】编辑表单记录 GET 加载；使用时声明 form.record.load；responseMapping 必填非空；search 模式禁止。字段级 required 仅允许布尔（本字段 false=可选）；嵌套键 method/url/responseMapping 的必填由各自 properties.*.required 布尔表达，禁止在本对象上再写 required 数组以免覆盖字段级布尔（审计 0067 V302）",
           "properties": {
-            "method": { "type": "string", "enum": ["GET"], "required": true },
-            "url": { "type": "string", "required": true },
-            "path": { "type": "object", "required": false },
-            "query": { "type": "object", "required": false },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET"
+              ],
+              "required": true
+            },
+            "url": {
+              "type": "string",
+              "required": true
+            },
+            "path": {
+              "type": "object",
+              "required": false
+            },
+            "query": {
+              "type": "object",
+              "required": false
+            },
             "responseMapping": {
               "type": "object",
               "required": true,
               "description": "form field → 响应点路径；必填非空",
               "minProperties": 1,
-              "additionalProperties": { "type": "string" }
+              "additionalProperties": {
+                "type": "string"
+              }
             }
           },
           "additionalProperties": false
         },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
         "additionalProperties": false,
         "allOf": [
           {
             "if": {
               "properties": {
-                "mode": { "const": "search" }
+                "mode": {
+                  "const": "search"
+                }
               },
-              "required": ["mode"]
+              "required": [
+                "mode"
+              ]
             },
             "then": {
-              "required": ["targetTable"]
+              "required": [
+                "targetTable"
+              ]
             },
             "else": {
-              "required": ["submitAction"]
+              "required": [
+                "submitAction"
+              ]
             }
           }
         ]
@@ -491,20 +942,74 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
-        "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "placeholder": { "type": "string", "required": false, "since": "0.2" },
-        "description": { "type": "string", "required": false, "since": "0.2" },
-        "tooltip": { "type": "string", "required": false, "since": "0.2" },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "description": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ]
     },
     "textarea": {
@@ -516,20 +1021,70 @@
       "since": "2.6",
       "description": "【ADR-0028】长文本；wire 为 string；使用时声明 form.controls.extended 且 protocolVersion >= 2.6",
       "props": {
-        "field": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
-        "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "placeholder": { "type": "string", "required": false },
-        "description": { "type": "string", "required": false },
-        "tooltip": { "type": "string", "required": false },
-        "span": { "type": "integer", "minimum": 1, "required": false },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ]
     },
     "switch": {
@@ -541,19 +1096,67 @@
       "since": "2.6",
       "description": "【ADR-0028】布尔开关；wire 仅 boolean；缺省未交互 false；required:true 要求值为 true",
       "props": {
-        "field": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
-        "required": { "type": "boolean", "required": false, "description": "true 时提交值必须为 true" },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "description": { "type": "string", "required": false },
-        "tooltip": { "type": "string", "required": false },
-        "span": { "type": "integer", "minimum": 1, "required": false },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "required": {
+          "type": "boolean",
+          "required": false,
+          "description": "true 时提交值必须为 true"
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ]
     },
     "checkbox": {
@@ -565,19 +1168,67 @@
       "since": "2.6",
       "description": "【ADR-0028】布尔勾选；wire 与 switch 同为 boolean",
       "props": {
-        "field": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
-        "required": { "type": "boolean", "required": false, "description": "true 时提交值必须为 true" },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "description": { "type": "string", "required": false },
-        "tooltip": { "type": "string", "required": false },
-        "span": { "type": "integer", "minimum": 1, "required": false },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "required": {
+          "type": "boolean",
+          "required": false,
+          "description": "true 时提交值必须为 true"
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ]
     },
     "radio": {
@@ -589,9 +1240,20 @@
       "since": "2.6",
       "description": "【ADR-0028】单选按钮组；wire 为单个选项 value 标量；MVP 仅静态 options",
       "props": {
-        "field": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
         "options": {
           "type": "array",
           "required": true,
@@ -600,33 +1262,89 @@
           "items": {
             "type": "object",
             "properties": {
-              "label": { "type": "string" },
-              "labelKey": { "type": "string" },
-              "value": { "description": "选项值" }
+              "label": {
+                "type": "string"
+              },
+              "labelKey": {
+                "type": "string"
+              },
+              "value": {
+                "description": "选项值"
+              }
             },
-            "required": ["value"],
+            "required": [
+              "value"
+            ],
             "anyOf": [
-              { "required": ["label"] },
-              { "required": ["labelKey"] }
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "labelKey"
+                ]
+              }
             ],
             "additionalProperties": false
           }
         },
-        "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "description": { "type": "string", "required": false },
-        "tooltip": { "type": "string", "required": false },
-        "span": { "type": "integer", "minimum": 1, "required": false },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
         "additionalProperties": false
       },
       "allOf": [
         {
           "anyOf": [
-            { "required": ["label"] },
-            { "required": ["labelKey"] }
+            {
+              "required": [
+                "label"
+              ]
+            },
+            {
+              "required": [
+                "labelKey"
+              ]
+            }
           ]
         },
-        { "required": ["options"] }
+        {
+          "required": [
+            "options"
+          ]
+        }
       ]
     },
     "inputNumber": {
@@ -636,24 +1354,98 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
-        "min": { "type": "number", "required": false, "since": "0.2.1", "description": "最小值" },
-        "max": { "type": "number", "required": false, "since": "0.2.1", "description": "最大值" },
-        "step": { "type": "number", "required": false, "since": "0.2.1", "description": "步长" },
-        "precision": { "type": "number", "required": false, "since": "0.2.1", "description": "保留小数位数" },
-        "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "placeholder": { "type": "string", "required": false, "since": "0.2" },
-        "description": { "type": "string", "required": false, "since": "0.2" },
-        "tooltip": { "type": "string", "required": false, "since": "0.2" },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "min": {
+          "type": "number",
+          "required": false,
+          "since": "0.2.1",
+          "description": "最小值"
+        },
+        "max": {
+          "type": "number",
+          "required": false,
+          "since": "0.2.1",
+          "description": "最大值"
+        },
+        "step": {
+          "type": "number",
+          "required": false,
+          "since": "0.2.1",
+          "description": "步长"
+        },
+        "precision": {
+          "type": "number",
+          "required": false,
+          "since": "0.2.1",
+          "description": "保留小数位数"
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "description": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ]
     },
     "datePicker": {
@@ -663,23 +1455,91 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
-        "placeholder": { "type": "string", "required": false, "since": "0.2" },
-        "description": { "type": "string", "required": false, "since": "0.2", "description": "字段说明文案" },
-        "tooltip": { "type": "string", "required": false, "since": "0.2", "description": "悬浮提示文案" },
-        "format": { "type": "string", "required": false, "description": "日期展示格式，仅控制前端展示；数据格式统一 ISO 8601" },
-        "min": { "type": "string", "required": false, "description": "可选最小日期 ISO 8601" },
-        "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
-        "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "description": {
+          "type": "string",
+          "required": false,
+          "since": "0.2",
+          "description": "字段说明文案"
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false,
+          "since": "0.2",
+          "description": "悬浮提示文案"
+        },
+        "format": {
+          "type": "string",
+          "required": false,
+          "description": "日期展示格式，仅控制前端展示；数据格式统一 ISO 8601"
+        },
+        "min": {
+          "type": "string",
+          "required": false,
+          "description": "可选最小日期 ISO 8601"
+        },
+        "max": {
+          "type": "string",
+          "required": false,
+          "description": "可选最大日期 ISO 8601"
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ]
     },
     "dateRangePicker": {
@@ -689,23 +1549,79 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "startField": { "type": "string", "minLength": 1, "required": true },
-        "endField": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
-        "placeholder": { "type": "string", "required": false, "since": "0.2" },
-        "description": { "type": "string", "required": false, "since": "0.2", "description": "字段说明文案" },
-        "tooltip": { "type": "string", "required": false, "since": "0.2", "description": "悬浮提示文案" },
-        "min": { "type": "string", "required": false, "description": "可选最小日期 ISO 8601" },
-        "max": { "type": "string", "required": false, "description": "可选最大日期 ISO 8601" },
-        "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "startField": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "endField": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "description": {
+          "type": "string",
+          "required": false,
+          "since": "0.2",
+          "description": "字段说明文案"
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false,
+          "since": "0.2",
+          "description": "悬浮提示文案"
+        },
+        "min": {
+          "type": "string",
+          "required": false,
+          "description": "可选最小日期 ISO 8601"
+        },
+        "max": {
+          "type": "string",
+          "required": false,
+          "description": "可选最大日期 ISO 8601"
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ]
     },
     "upload": {
@@ -715,29 +1631,116 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
-        "accept": { "type": "string", "required": false, "description": "接受的文件 MIME 类型；仅 props.action 直接 URL 模式使用，actionRef 模式由 UploadAction 提供" },
-        "maxSize": { "type": "number", "minimum": 0, "required": false, "description": "最大文件大小（字节，必须大于等于 0）；仅 props.action 直接 URL 模式使用，actionRef 模式由 UploadAction 提供" },
-        "multiple": { "type": "boolean", "required": false, "description": "是否支持多文件上传；仅 props.action 直接 URL 模式使用，actionRef 模式由 UploadAction 提供" },
-        "action": { "type": "string", "required": false, "description": "上传接口地址（相对路径）" },
-        "actionRef": { "type": "string", "required": false, "since": "0.2.5", "description": "引用顶层 actions 中 type=upload 的动作 id；使用时页面必须声明 meta.requiredCapabilities: [actions.upload]" },
-        "placeholder": { "type": "string", "required": false, "since": "0.2", "description": "占位提示文案" },
-        "description": { "type": "string", "required": false, "since": "0.2", "description": "字段说明文案" },
-        "tooltip": { "type": "string", "required": false, "since": "0.2", "description": "悬浮提示文案" },
-        "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "accept": {
+          "type": "string",
+          "required": false,
+          "description": "接受的文件 MIME 类型；仅 props.action 直接 URL 模式使用，actionRef 模式由 UploadAction 提供"
+        },
+        "maxSize": {
+          "type": "number",
+          "minimum": 0,
+          "required": false,
+          "description": "最大文件大小（字节，必须大于等于 0）；仅 props.action 直接 URL 模式使用，actionRef 模式由 UploadAction 提供"
+        },
+        "multiple": {
+          "type": "boolean",
+          "required": false,
+          "description": "是否支持多文件上传；仅 props.action 直接 URL 模式使用，actionRef 模式由 UploadAction 提供"
+        },
+        "action": {
+          "type": "string",
+          "required": false,
+          "description": "上传接口地址（相对路径）"
+        },
+        "actionRef": {
+          "type": "string",
+          "required": false,
+          "since": "0.2.5",
+          "description": "引用顶层 actions 中 type=upload 的动作 id；使用时页面必须声明 meta.requiredCapabilities: [actions.upload]"
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false,
+          "since": "0.2",
+          "description": "占位提示文案"
+        },
+        "description": {
+          "type": "string",
+          "required": false,
+          "since": "0.2",
+          "description": "字段说明文案"
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false,
+          "since": "0.2",
+          "description": "悬浮提示文案"
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
         "additionalProperties": false
       },
       "anyOf": [
-        { "required": ["label"] },
-        { "required": ["labelKey"] }
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
       ],
       "oneOf": [
-        { "required": ["action"] },
-        { "required": ["actionRef"] }
+        {
+          "required": [
+            "action"
+          ]
+        },
+        {
+          "required": [
+            "actionRef"
+          ]
+        }
       ]
     },
     "select": {
@@ -747,9 +1750,20 @@
       "supportsReactions": true,
       "supportsStates": false,
       "props": {
-        "field": { "type": "string", "minLength": 1, "required": true },
-        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
-        "labelKey": { "type": "string", "required": false },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
         "options": {
           "type": "array",
           "required": false,
@@ -757,14 +1771,32 @@
           "items": {
             "type": "object",
             "properties": {
-              "label": { "type": "string", "description": "选项文案，与 labelKey 至少提供一个" },
-              "labelKey": { "type": "string", "description": "选项文案 i18n key，与 label 至少提供一个" },
-              "value": { "description": "选项值" }
+              "label": {
+                "type": "string",
+                "description": "选项文案，与 labelKey 至少提供一个"
+              },
+              "labelKey": {
+                "type": "string",
+                "description": "选项文案 i18n key，与 label 至少提供一个"
+              },
+              "value": {
+                "description": "选项值"
+              }
             },
-            "required": ["value"],
+            "required": [
+              "value"
+            ],
             "anyOf": [
-              { "required": ["label"] },
-              { "required": ["labelKey"] }
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "labelKey"
+                ]
+              }
             ],
             "additionalProperties": false
           }
@@ -774,41 +1806,507 @@
           "since": "0.2",
           "description": "与 options 二选一，远程动态选项。params key 必须非空，值仅允许 string/finite number/boolean/null 或完整单个 $deps.<path> 整值替换（禁止对象、数组和模板拼接）；值为 null/undefined 时删除该参数，见 ADR-0010 与 docs/04-datasource-contract.md §3.1",
           "properties": {
-            "url": { "type": "string" },
-            "params": { "type": "object" },
-            "labelField": { "type": "string" },
-            "valueField": { "type": "string" },
-            "searchable": { "type": "boolean" }
+            "url": {
+              "type": "string"
+            },
+            "params": {
+              "type": "object"
+            },
+            "labelField": {
+              "type": "string"
+            },
+            "valueField": {
+              "type": "string"
+            },
+            "searchable": {
+              "type": "boolean"
+            }
           },
-          "required": ["url", "labelField", "valueField"],
+          "required": [
+            "url",
+            "labelField",
+            "valueField"
+          ],
           "additionalProperties": false
         },
         "mode": {
           "type": "string",
-          "enum": ["single", "multiple"],
+          "enum": [
+            "single",
+            "multiple"
+          ],
           "required": false,
           "since": "2.6",
           "description": "【ADR-0028】缺省 single；multiple 时 wire 为选项 value 的 JSON 数组；禁止用于 form.mode:search；使用 multiple 须 form.controls.extended 且 protocolVersion >= 2.6"
         },
-        "required": { "type": "boolean", "required": false },
-        "defaultVisible": { "type": "boolean", "required": false },
-        "placeholder": { "type": "string", "required": false, "since": "0.2" },
-        "description": { "type": "string", "required": false, "since": "0.2" },
-        "tooltip": { "type": "string", "required": false, "since": "0.2" },
-        "span": { "type": "integer", "minimum": 1, "required": false, "since": "0.2" },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "description": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false,
+          "since": "0.2"
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "since": "0.2"
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
         "additionalProperties": false
       },
       "allOf": [
         {
           "anyOf": [
-            { "required": ["label"] },
-            { "required": ["labelKey"] }
+            {
+              "required": [
+                "label"
+              ]
+            },
+            {
+              "required": [
+                "labelKey"
+              ]
+            }
           ]
         },
         {
           "oneOf": [
-            { "required": ["options"] },
-            { "required": ["optionsSource"] }
+            {
+              "required": [
+                "options"
+              ]
+            },
+            {
+              "required": [
+                "optionsSource"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "cascader": {
+      "category": "表单",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "supportsStates": false,
+      "since": "2.7",
+      "description": "【ADR-0029】级联；wire 为根到叶 path 数组；form.controls.advanced + protocolVersion >= 2.7；禁止 search",
+      "props": {
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
+        "options": {
+          "type": "array",
+          "required": true,
+          "minItems": 1,
+          "description": "静态树选项；MVP 无 optionsSource",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "labelKey": {
+                "type": "string"
+              },
+              "value": {
+                "description": "路径节点值"
+              },
+              "children": {
+                "type": "array",
+                "required": false,
+                "description": "子节点；同构",
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "labelKey"
+                ]
+              }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "label"
+              ]
+            },
+            {
+              "required": [
+                "labelKey"
+              ]
+            }
+          ]
+        },
+        {
+          "required": [
+            "options"
+          ]
+        }
+      ]
+    },
+    "checkboxGroup": {
+      "category": "表单",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "supportsStates": false,
+      "since": "2.7",
+      "description": "【ADR-0030】多选框组；wire 为选项 value 数组（与 select.mode:multiple 同构）；form.controls.advanced；禁止 search",
+      "props": {
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
+        "options": {
+          "type": "array",
+          "required": true,
+          "minItems": 1,
+          "description": "静态选项；MVP 无 optionsSource",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "labelKey": {
+                "type": "string"
+              },
+              "value": {
+                "description": "选项值"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "label"
+                ]
+              },
+              {
+                "required": [
+                  "labelKey"
+                ]
+              }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "label"
+              ]
+            },
+            {
+              "required": [
+                "labelKey"
+              ]
+            }
+          ]
+        },
+        {
+          "required": [
+            "options"
+          ]
+        }
+      ]
+    },
+    "richText": {
+      "category": "表单",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "supportsStates": false,
+      "since": "2.7",
+      "description": "【ADR-0031】富文本；wire 为 Markdown string；消毒为 Host 责任；form.controls.advanced",
+      "props": {
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
+        "additionalProperties": false
+      },
+      "anyOf": [
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
+          ]
+        }
+      ]
+    },
+    "password": {
+      "category": "表单",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "supportsStates": false,
+      "since": "2.7",
+      "description": "【ADR-0032】密码；wire 为 string；Host 须遮罩；form.controls.advanced",
+      "props": {
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "required": true
+        },
+        "label": {
+          "type": "string",
+          "required": false,
+          "description": "字段标签，与 labelKey 至少提供一个"
+        },
+        "labelKey": {
+          "type": "string",
+          "required": false
+        },
+        "required": {
+          "type": "boolean",
+          "required": false
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "required": false
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        },
+        "tooltip": {
+          "type": "string",
+          "required": false
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false
+        },
+        "defaultValue": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "null"
+          ],
+          "required": false,
+          "since": "2.7",
+          "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
+        "additionalProperties": false
+      },
+      "anyOf": [
+        {
+          "required": [
+            "label"
+          ]
+        },
+        {
+          "required": [
+            "labelKey"
           ]
         }
       ]
