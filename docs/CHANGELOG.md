@@ -31,7 +31,7 @@
 **审计 0073（V349）：**
 - **文档卫生：** 应用级规范正文由 `docs/17-app-manifest.md` 重编号为 [`docs/09-app-manifest.md`](./09-app-manifest.md)（与 `00`–`08` 连续；原 `09`–`16` 门禁文件已迁入 `release-goals/`）。同步 `protocol-manifest`、核心交叉引用、MCP `DOC_MAP` 与 release-check 路径。语义不变。
 - **发布身份：** 工作树不得再以 `2.5.2` 承载与正式 Release 不同的 contentDigest；以 **2.5.3** 固化。
-- **演进轨道：** 当时登记 v2.5 之后 D.1 backlog；**其后** F1 已单独立项为 v2.6（见 Unreleased），不回溯改变本 PATCH 制品语义。
+- **演进轨道：** 当时登记 v2.5 之后 D.1 backlog；**其后** F1 已单独立项并随 **v2.6.0** 正式发布（见上文 `## v2.6.0` 节），不回溯改变本 PATCH 制品语义。
 
 ## v2.5.2 — 2026-07-28（审计 0072 入口卫生与门禁观察面）
 

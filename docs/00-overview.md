@@ -1,7 +1,7 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-23
+last_updated: 2026-07-28
 applies_to: schema-ui-protocol v2.6
 ---
 
@@ -88,8 +88,8 @@ applies_to: schema-ui-protocol v2.6
 
 PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`、`record.view.load`、`table.sort`、`app.manifest`、`app.navigation`、`form.controls.extended`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。L2 另强制字段集→`protocolVersion` 下限（2.1 字段不得挂在 `"2.0"`；2.2 字段须 `"2.2"`；`permissionCascade` / `permissionIntent` 须 `"2.3"` 且声明 `permissions.inheritance`；`recordView` 须 `"2.4"` 且声明 `record.view.load`；`sortable` / `sortField` / `defaultSort` 须 `"2.5"` 且声明 `table.sort`；`textarea` / `switch` / `checkbox` / `radio` / `select.mode: multiple` 须 `"2.6"` 且声明 `form.controls.extended`）。
 
-**Admin 生命周期 P0**（页面工具栏、行级导航、编辑回填）已由 [ADR-0020](./decisions/0020-page-action-trigger.md) / [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 接受；**当前页多选与批量 request** 由 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md) 随 `2.2.0` 制品正式发布；**容器权限继承与操作 intent** 由 [ADR-0023](./decisions/0023-container-permission-inheritance.md) 随 `2.3.0` 制品正式发布；**标准只读详情 `recordView`** 由 [ADR-0024](./decisions/0024-record-view.md) 随 `2.4.0` 制品正式发布；**应用级清单 / 导航 / 表格排序声明** 由 [ADR-0025](./decisions/0025-app-manifest.md) / [0026](./decisions/0026-app-navigation.md) / [0027](./decisions/0027-table-sort-declaration.md) 随 `2.5.0` 制品正式发布。未使用对应字段的合法旧 MINOR 页面行为不变。演进轨道见 [release-goals/next-admin-lifecycle.md](./release-goals/next-admin-lifecycle.md)（非语义权威）。
+**Admin 生命周期 P0**（页面工具栏、行级导航、编辑回填）已由 [ADR-0020](./decisions/0020-page-action-trigger.md) / [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 接受；**当前页多选与批量 request** 由 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md) 随 `2.2.0` 制品正式发布；**容器权限继承与操作 intent** 由 [ADR-0023](./decisions/0023-container-permission-inheritance.md) 随 `2.3.0` 制品正式发布；**标准只读详情 `recordView`** 由 [ADR-0024](./decisions/0024-record-view.md) 随 `2.4.0` 制品正式发布；**应用级清单 / 导航 / 表格排序声明** 由 [ADR-0025](./decisions/0025-app-manifest.md) / [0026](./decisions/0026-app-navigation.md) / [0027](./decisions/0027-table-sort-declaration.md) 随 `2.5.0` 制品正式发布；**表单控件面扩展（F1 A+B）** 由 [ADR-0028](./decisions/0028-form-control-surface.md)（`textarea` / `switch` / `checkbox` / `radio` / `select.mode: multiple`，capability `form.controls.extended`）随 `2.6.0` 制品正式发布。未使用对应字段的合法旧 MINOR 页面行为不变。演进轨道见 [release-goals/next-admin-lifecycle.md](./release-goals/next-admin-lifecycle.md)（非语义权威）。
 
-本协议场景示例覆盖：网格布局、数据表格、表单联动、表格行级后端动作、搜索表单筛选表格、文件上传、列表编辑闭环与批量多选（扩展示例）。后续新增场景类型时，
+本协议场景示例覆盖：网格布局、数据表格、表单联动、表格行级后端动作、搜索表单筛选表格、文件上传、列表编辑闭环与批量多选、扩展表单控件面（扩展示例）。后续新增场景类型时，
 应遵循同一套 Node 结构（`type`/`props`/`data`/`children`/`reactions`），
 不应引入平行的、结构不一致的新概念。如需引入新概念，请先在 `decisions/` 下补充 ADR。

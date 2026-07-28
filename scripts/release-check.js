@@ -310,6 +310,8 @@ const scenarioDocsForFrontmatter = [
     ...OFFICIAL_SCENARIO_PATHS,
     'docs/05-scenarios/admin-list-batch.md',
     'docs/05-scenarios/permission-inheritance.md',
+    // 审计 0075 / V360：v2.6 F1 扩展示例与 batch/permission 同级 frontmatter 门禁
+    'docs/05-scenarios/form-controls-extended.md',
   ]),
 ];
 for (const relativePath of scenarioDocsForFrontmatter) {
