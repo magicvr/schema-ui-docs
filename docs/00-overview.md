@@ -54,7 +54,7 @@ applies_to: schema-ui-protocol v2.7
 - 查阅历史审计证据 → 查看 `audit/`；它不是协议权威来源，也不进入协议制品。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`；升级步骤看 `migrations/`。
 - 维护或发布某 MINOR → 对照 [`release-goals/`](./release-goals/) 下对应 `vX.Y.md`（当前线：[`v2.7.md`](./release-goals/v2.7.md)，G0–G4 已闭合；前序 [`v2.6.md`](./release-goals/v2.6.md)）。**门禁不是语义权威。**
-- 规划后续 Admin 能力 / 待增补一等公民 → 读 [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md)（**informative** backlog；P0–D.0 已交付，D.1 待立项）。
+- 规划后续 Admin 能力 / 待增补一等公民 → 读 [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md)（**informative** backlog；P0–D.0 与 D.1 中 F1/进阶已随 v2.6/v2.7 交付，残留 F2+ 等见该文 §4 / §8）。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
 
