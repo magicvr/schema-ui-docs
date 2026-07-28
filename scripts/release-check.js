@@ -27,7 +27,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:3a9cd233e4cf70a312551b99ca051c4c0b9b4756f055046ba536cf2cd9284ec0';
+  'sha256:f9589dc0ef09d3f29b4b3af8fb34f5bbc1a7239d64b46fa556f9006d6d2fab29';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -174,6 +174,24 @@ const releaseTargets = {
       'multiple',
     ],
   },
+  '2.7': {
+    releaseGoalsPath: 'docs/release-goals/v2.7.md',
+    migrationPath: 'docs/migrations/2.6-to-2.7.md',
+    migrationRequiredTopics: [
+      'protocolVersion',
+      'legacy adapter',
+      'query',
+      'pageSize',
+      'requestMapping',
+      'actions.upload',
+      'form.controls.advanced',
+      'cascader',
+      'checkboxGroup',
+      'richText',
+      'password',
+      'defaultValue',
+    ],
+  },
 };
 const releaseTarget = releaseTargets[protocolVersion];
 assert.ok(releaseTarget, `Missing release target definition for protocolVersion ${protocolVersion}`);
@@ -264,6 +282,8 @@ const expectedVersionedCaseCountByProtocol = {
   '2.5': 292,
   // 2.6: 292 +3 request-construction +2 response-mapping +4 version-negotiation +2 reactions = 303
   '2.6': 303,
+  // 2.7: 303 +3 request-construction +2 response-mapping +3 runtime-defaults +1 reactions +4 version-negotiation = 316
+  '2.7': 316,
 };
 const expectedVersionedCaseCount = expectedVersionedCaseCountByProtocol[protocolVersion];
 assert.ok(
@@ -310,6 +330,10 @@ const scenarioDocsForFrontmatter = [
     ...OFFICIAL_SCENARIO_PATHS,
     'docs/05-scenarios/admin-list-batch.md',
     'docs/05-scenarios/permission-inheritance.md',
+    // 审计 0075 / V360：v2.6 F1 扩展示例与 batch/permission 同级 frontmatter 门禁
+    'docs/05-scenarios/form-controls-extended.md',
+    // v2.7 advanced form controls 扩展示例
+    'docs/05-scenarios/form-controls-advanced.md',
   ]),
 ];
 for (const relativePath of scenarioDocsForFrontmatter) {

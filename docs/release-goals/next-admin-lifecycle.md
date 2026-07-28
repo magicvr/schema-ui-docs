@@ -66,7 +66,8 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 | **P1** | 表格选择与批量 | 当前页多选、批量 request | **已交付** [0022](../decisions/0022-table-selection-and-batch-request.md) |
 | **P1** | 权限继承 | 容器 edit/delete 级联 | **已交付** [0023](../decisions/0023-container-permission-inheritance.md) |
 | **P2** | 标准详情 | 只读 record view | **已交付** [0024](../decisions/0024-record-view.md) |
-| **P2+** | 表单控件面（F1 A+B） | textarea / 布尔 / radio / 多选 | **已交付** [0028](../decisions/0028-form-control-surface.md) · [`v2.6.md`](./v2.6.md)；F1e cascader defer |
+| **P2+** | 表单控件面（F1 A+B） | textarea / 布尔 / radio / 多选 | **已交付** [0028](../decisions/0028-form-control-surface.md) · [`v2.6.md`](./v2.6.md) |
+| **P2+** | 表单控件面进阶 | cascader / checkbox 组 / 富文本 / password / defaultValue | **已交付** [0029](../decisions/0029-cascader.md)–[0033](../decisions/0033-form-default-value.md) · [`v2.7.md`](./v2.7.md) |
 | **P2+** | 其余一等公民 | 子表、导入导出、异步任务、树表等 | **backlog**（§4 D.1 残留；**未立项**） |
 
 **Accepted 之前**的候选 **不进入** `08-renderer-spec` 预定义 capability 表与 Schema（0028 在 accept 前仅 informative）。
@@ -132,9 +133,26 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 |---|---|---|
 | **A** | F1a–F1c | **已交付** |
 | **B** | F1d `select.mode: multiple` | **已交付** |
-| **C** | F1e `cascader` | **defer**（不进 2.6.0） |
+| **C** | F1e `cascader` | **defer 于 2.6**；**已于 v2.7 交付**（ADR-0029） |
 
-#### D.1 待增补一等公民（**残留** backlog；F1 已迁出至 D.1.0）
+#### D.1.0b 表单控件面进阶 → **v2.7 已交付**
+
+| 项 | 状态 |
+|---|---|
+| 门禁 | [`v2.7.md`](./v2.7.md)（stable） |
+| ADR | [0029](../decisions/0029-cascader.md)–[0033](../decisions/0033-form-default-value.md) **accepted**（`form.controls.advanced`） |
+| 迁移 | [`migrations/2.6-to-2.7.md`](../migrations/2.6-to-2.7.md) |
+| 制品 | `2.7.0` / `protocolVersion: "2.7"` |
+
+| 交付 | 范围 |
+|---|---|
+| F1e | `cascader` path 数组 |
+| CG | `checkboxGroup` |
+| RT | `richText` Markdown |
+| PW | `password` |
+| DV | 静态 `defaultValue` |
+
+#### D.1 待增补一等公民（**残留** backlog；F1 / 进阶已迁出）
 
 > **权威说明：** 下表是 **informative 规划清单**，不是语义规范。实现方可继续用 Host Extension，但**不得**伪装为协议已支持。立项时必须：独立 ADR（MVP + 非目标 + 失败策略）→ Schema/L2/fixtures 原子交付 → MINOR + capability。  
 > 优先级反映「中小型软件项目典型 admin」覆盖缺口（2026-07 评估），可按真实生产痛点重排；**不得**因本表存在而跳过 ADR。
@@ -143,7 +161,7 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 
 | ID | 候选 | 业务问题 | 与现状关系 | 建议触发条件 |
 |---|---|---|---|---|
-| **F1** | 表单控件面扩展 | 见 D.1.0 | **v2.6 已交付**（A+B；C defer） | 后续仅 F1e 若触发 |
+| **F1** | 表单控件面扩展 | 见 D.1.0 / D.1.0b | **v2.6 A+B + v2.7 进阶已交付** | — |
 | **F2** | 嵌套 / 子表单（array of objects） | 订单明细行、多联系人、SKU 规格 | `bodyMapping` 与字段模型偏扁平标量 | F1 落地后；出现跨实现一致的可重复区块 / 行编辑提交需求 |
 | **F3** | 导入向导 | 批量导入、行级校验失败回显 | 仅有单文件 `upload` | 多实现要对齐步骤、错误表与部分成功策略 |
 | **F4** | 导出（当前筛选） | 按列表筛选导出文件/任务 | 无标准「导出当前 query」 | 与 search-table 状态机、长任务（F5）边界需先划清 |

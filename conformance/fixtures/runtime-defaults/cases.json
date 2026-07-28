@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "network-page-requires-base-url",
-      "protocolVersion": "2.6",
+      "protocolVersion": "2.7",
       "category": "runtime-defaults",
       "input": {
         "kind": "requestConfig",
@@ -17,7 +17,7 @@
     },
     {
       "id": "static-page-does-not-require-base-url",
-      "protocolVersion": "2.6",
+      "protocolVersion": "2.7",
       "category": "runtime-defaults",
       "input": {
         "kind": "requestConfig",
@@ -29,7 +29,7 @@
     },
     {
       "id": "data-ref-method-default-materialized",
-      "protocolVersion": "2.6",
+      "protocolVersion": "2.7",
       "category": "runtime-defaults",
       "input": {
         "kind": "defaults",
@@ -48,7 +48,7 @@
     },
     {
       "id": "upload-defaults-materialized",
-      "protocolVersion": "2.6",
+      "protocolVersion": "2.7",
       "category": "runtime-defaults",
       "input": {
         "kind": "defaults",
@@ -70,7 +70,7 @@
     },
     {
       "id": "missing-required-prop-is-invalid-component",
-      "protocolVersion": "2.6",
+      "protocolVersion": "2.7",
       "category": "runtime-defaults",
       "input": {
         "kind": "component",
@@ -94,7 +94,7 @@
     },
     {
       "id": "uninstalled-extension-is-unknown-component",
-      "protocolVersion": "2.6",
+      "protocolVersion": "2.7",
       "category": "runtime-defaults",
       "input": {
         "kind": "component",
@@ -108,6 +108,110 @@
       "expected": {
         "ok": false,
         "code": "UNKNOWN_COMPONENT_TYPE"
+      }
+    },
+    {
+      "id": "form-init-default-value-only",
+      "protocolVersion": "2.7",
+      "category": "runtime-defaults",
+      "input": {
+        "kind": "formFieldInit",
+        "fields": [
+          {
+            "field": "name",
+            "wire": "string",
+            "defaultValue": "Ada"
+          },
+          {
+            "field": "active",
+            "wire": "boolean",
+            "defaultValue": true
+          },
+          {
+            "field": "tags",
+            "wire": "array",
+            "defaultValue": [
+              "a"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "values": {
+          "name": "Ada",
+          "active": true,
+          "tags": [
+            "a"
+          ]
+        }
+      }
+    },
+    {
+      "id": "form-init-record-source-overrides-default",
+      "protocolVersion": "2.7",
+      "category": "runtime-defaults",
+      "input": {
+        "kind": "formFieldInit",
+        "fields": [
+          {
+            "field": "name",
+            "wire": "string",
+            "defaultValue": "Ada"
+          },
+          {
+            "field": "active",
+            "wire": "boolean",
+            "defaultValue": true
+          }
+        ],
+        "recordValues": {
+          "name": "Bob"
+        }
+      },
+      "expected": {
+        "ok": true,
+        "values": {
+          "name": "Bob",
+          "active": true
+        }
+      }
+    },
+    {
+      "id": "form-init-reaction-overrides-after-record",
+      "protocolVersion": "2.7",
+      "category": "runtime-defaults",
+      "input": {
+        "kind": "formFieldInit",
+        "fields": [
+          {
+            "field": "name",
+            "wire": "string",
+            "defaultValue": "Ada"
+          },
+          {
+            "field": "tier",
+            "wire": "string",
+            "defaultValue": "free"
+          }
+        ],
+        "recordValues": {
+          "name": "Bob",
+          "tier": "pro"
+        },
+        "reactionWrites": [
+          {
+            "field": "tier",
+            "value": "enterprise"
+          }
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "values": {
+          "name": "Bob",
+          "tier": "enterprise"
+        }
       }
     }
   ]

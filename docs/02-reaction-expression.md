@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.6
+applies_to: schema-ui-protocol v2.7
 ---
 
 # 联动表达式引擎语法规范
@@ -171,6 +171,23 @@ L3a 对 `$deps.*` 做精确包含匹配：`dependencies` 必须声明所引用�
 - multiple 数组可用既有 `contains` 判断选中项（左操作数为数组，右操作数为字面量）。
 - `$deps.<field>` 的类型与上表 wire 相同；声明 `dependencies` 时字段名仍为 `field` 根名。
 - 未声明 `form.controls.extended` 或版本 &lt; `2.6` 时，上述 type / `mode: multiple` 由 L2 拒绝，不进入 L3a 正例。
+
+
+#### 9.2.2 v2.7 表单控件面进阶 wire（ADR-0029–0033）
+
+自 `protocolVersion: "2.7"` 起，下列 type / props 的 wire 固定；使用时声明 `form.controls.advanced`。
+
+| type / 字段 | wire | `$self` / `$deps.<field>` | `fulfill.value` |
+|---|---|---|---|
+| `cascader` | **path 数组**（根→叶 value） | array | 仅整数组替换或清空 |
+| `checkboxGroup` | **选项 value 数组**（与 multi-select 同构） | array | 仅整数组替换或清空 |
+| `richText` | **Markdown string** | string | 仅 string 或清空 |
+| `password` | string | string | 仅 string 或清空 |
+| `defaultValue`（props） | 与字段 wire 同型字面量 | （初值，非 $self 类型） | 不经由 reaction 声明 |
+
+- `cascader` / `checkboxGroup` 可用 `contains`；**禁止**出现在 search form（L2）。
+- 静态 `defaultValue` 初值序见 ADR-0033（recordSource 覆盖 default；reactions 再覆盖）。
+
 
 ### 9.3 `fulfill`/`otherwise` 状态键的作用域限制
 

@@ -1131,6 +1131,118 @@
         ],
         "missingCapabilities": []
       }
+    },
+    {
+      "id": "supported-v27-version",
+      "protocolVersion": "2.7",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.7"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.6",
+            "2.7"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.7",
+        "supportedVersions": [
+          "2.6",
+          "2.7"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "unsupported-v27-on-v26-renderer",
+      "protocolVersion": "2.7",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.7"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.6"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "2.7",
+        "supportedVersions": [
+          "2.6"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "missing-form-controls-advanced-capability",
+      "protocolVersion": "2.7",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.7",
+          "requiredCapabilities": [
+            "form.controls.advanced"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.7"
+          ],
+          "supportedCapabilities": [
+            "form.record.load"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "MISSING_REQUIRED_CAPABILITY",
+        "pageVersion": "2.7",
+        "supportedVersions": [
+          "2.7"
+        ],
+        "missingCapabilities": [
+          "form.controls.advanced"
+        ]
+      }
+    },
+    {
+      "id": "supported-form-controls-advanced-capability",
+      "protocolVersion": "2.7",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.7",
+          "requiredCapabilities": [
+            "form.controls.advanced"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.7"
+          ],
+          "supportedCapabilities": [
+            "form.controls.advanced"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.7",
+        "supportedVersions": [
+          "2.7"
+        ],
+        "missingCapabilities": []
+      }
     }
   ]
 }

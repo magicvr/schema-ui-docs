@@ -9,6 +9,21 @@
 
 （无）
 
+## v2.7.0 — 2026-07-28（表单控件面进阶：cascader / checkboxGroup / richText / password / defaultValue）
+
+> **版本说明：** MINOR 发布。使用 `cascader` / `checkboxGroup` / `richText` / `password` 或任一字段 `props.defaultValue` 的页面必须声明 `meta.protocolVersion: "2.7"` 与 `form.controls.advanced`。合法无上述字段的 `2.6` 页面行为不变。正式协议制品为 `schema-ui-protocol-2.7.0.tar.gz`。ADR-0028 D9 对上述五项的「非目标 / defer」仅约束 v2.6 历史；v2.7 由 ADR-0029–0033 supersede 未来边界。
+
+**协议变更：**
+- **ADR-0029 accepted：** `cascader`；wire = 根→叶 path 数组；禁止 search（`CASCADER_IN_SEARCH`）。
+- **ADR-0030 accepted：** `checkboxGroup`；wire = 选项 value 数组（与 multi-select 同构，独立 type）。
+- **ADR-0031 accepted：** `richText`；wire = Markdown string；消毒为 Host 责任。
+- **ADR-0032 accepted：** `password`；wire = string；Host 遮罩、禁止日志明文。
+- **ADR-0033 accepted：** 静态 `defaultValue`；初值序空值 → default → recordSource → reactions；L2 `DEFAULT_VALUE_WIRE_MISMATCH`。
+- **capability：** `form.controls.advanced`；L2 双重门控（版本 + capability）。
+- **规范：** `02` / `03` / `06` / `08` / 组件 DSL / page schema；迁移 [`2.6-to-2.7.md`](./migrations/2.6-to-2.7.md)；门禁 [`release-goals/v2.7.md`](./release-goals/v2.7.md)。
+- **场景：** [`05-scenarios/form-controls-advanced.md`](./05-scenarios/form-controls-advanced.md)。
+- **conformance：** +3 request-construction、+2 response-mapping、+3 runtime-defaults、+1 reactions、+4 version-negotiation（合计 versioned **316**）。
+
 ## v2.6.0 — 2026-07-28（表单控件面 F1：textarea / 布尔 / radio / 多选）
 
 > **版本说明：** MINOR 发布。使用 `textarea` / `switch` / `checkbox` / `radio` 或 `select.mode: multiple` 的页面必须声明 `meta.protocolVersion: "2.6"` 与 `form.controls.extended`。合法无上述字段的 `2.5` 页面行为不变。正式协议制品为 `schema-ui-protocol-2.6.0.tar.gz`。批次 C（`cascader`）**不**进入本版本。
@@ -31,7 +46,7 @@
 **审计 0073（V349）：**
 - **文档卫生：** 应用级规范正文由 `docs/17-app-manifest.md` 重编号为 [`docs/09-app-manifest.md`](./09-app-manifest.md)（与 `00`–`08` 连续；原 `09`–`16` 门禁文件已迁入 `release-goals/`）。同步 `protocol-manifest`、核心交叉引用、MCP `DOC_MAP` 与 release-check 路径。语义不变。
 - **发布身份：** 工作树不得再以 `2.5.2` 承载与正式 Release 不同的 contentDigest；以 **2.5.3** 固化。
-- **演进轨道：** 当时登记 v2.5 之后 D.1 backlog；**其后** F1 已单独立项为 v2.6（见 Unreleased），不回溯改变本 PATCH 制品语义。
+- **演进轨道：** 当时登记 v2.5 之后 D.1 backlog；**其后** F1 已单独立项并随 **v2.6.0** 正式发布（见上文 `## v2.6.0` 节），不回溯改变本 PATCH 制品语义。
 
 ## v2.5.2 — 2026-07-28（审计 0072 入口卫生与门禁观察面）
 

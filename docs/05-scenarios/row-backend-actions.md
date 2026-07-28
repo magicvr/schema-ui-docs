@@ -1,6 +1,6 @@
 ---
 status: example
-protocol_version: v2.6
+protocol_version: v2.7
 last_updated: 2026-07-09
 ---
 
@@ -19,7 +19,7 @@ last_updated: 2026-07-09
 meta:
   pageId: order_operations
   title: 订单操作台
-  protocolVersion: "2.6"
+  protocolVersion: "2.7"
   requiredCapabilities:
     - actions.row.request
 

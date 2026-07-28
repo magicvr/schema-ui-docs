@@ -32,6 +32,7 @@
  *      - 2.3 字段（permissionCascade / permissionIntent）要求 protocolVersion >= "2.3" 且 permissions.inheritance
  *      - 2.4 字段（recordView）要求 protocolVersion >= "2.4" 且 record.view.load
  *      - 2.6 字段（textarea/switch/checkbox/radio/select.mode:multiple）要求 protocolVersion >= "2.6" 且 form.controls.extended（ADR-0028）
+ *      - 2.7 字段（cascader/checkboxGroup/richText/password/defaultValue）要求 protocolVersion >= "2.7" 且 form.controls.advanced（ADR-0029–0033）
  *
  * 用法：
  *   node scripts/validate-l2-components.js <file-or-glob> [--json]
@@ -67,11 +68,18 @@ const FLOOR_23 = '2.3';
 const FLOOR_24 = '2.4';
 const FLOOR_25 = '2.5';
 const FLOOR_26 = '2.6';
+const FLOOR_27 = '2.7';
 const PERMISSION_INHERITANCE_CAPABILITY = 'permissions.inheritance';
 const RECORD_VIEW_LOAD_CAPABILITY = 'record.view.load';
 const TABLE_SORT_CAPABILITY = 'table.sort';
 const FORM_CONTROLS_EXTENDED_CAPABILITY = 'form.controls.extended';
 const FORM_CONTROLS_EXTENDED_TYPES = new Set(['textarea', 'switch', 'checkbox', 'radio']);
+const FORM_CONTROLS_ADVANCED_CAPABILITY = 'form.controls.advanced';
+const FORM_CONTROLS_ADVANCED_TYPES = new Set(['cascader', 'checkboxGroup', 'richText', 'password']);
+const FORM_DEFAULT_VALUE_TYPES = new Set([
+  'input', 'inputNumber', 'textarea', 'switch', 'checkbox', 'radio', 'select',
+  'datePicker', 'upload', 'cascader', 'checkboxGroup', 'richText', 'password',
+]);
 const RESERVED_TABLE_QUERY_KEYS = new Set(['page', 'pageSize', 'sort']);
 const PERMISSION_CASCADE_NODE_TYPES = new Set(['section', 'grid', 'form', 'tabs', 'table']);
 const PERMISSION_CASCADE_KEYS = new Set(['edit', 'delete']);
@@ -166,8 +174,30 @@ function getDeclaredFields(propsSpec) {
   return Object.keys(propsSpec).filter(k => !reserved.has(k));
 }
 
-/** 简单类型检查：仅针对 string / number / boolean / array / object */
+function valueMatchesType(value, expectedType) {
+  if (expectedType === 'string') return typeof value === 'string';
+  if (expectedType === 'number') return typeof value === 'number' && Number.isFinite(value);
+  if (expectedType === 'integer') return typeof value === 'number' && Number.isInteger(value);
+  if (expectedType === 'boolean') return typeof value === 'boolean';
+  if (expectedType === 'array') return Array.isArray(value);
+  if (expectedType === 'object') {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+  if (expectedType === 'null') return value === null;
+  return false;
+}
+
+/** 简单类型检查：string / number / boolean / array / object；亦支持 type 联合数组 */
 function checkType(value, expectedType, fieldPath, violations) {
+  if (Array.isArray(expectedType)) {
+    if (!expectedType.some((t) => valueMatchesType(value, t))) {
+      violations.push({
+        path: fieldPath,
+        message: `期望 ${expectedType.join('|')}，实际 ${value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value}`,
+      });
+    }
+    return;
+  }
   if (expectedType === 'string' && typeof value !== 'string') {
     violations.push({ path: fieldPath, message: `期望 string，实际 ${typeof value}` });
   } else if (expectedType === 'number' && (typeof value !== 'number' || !Number.isFinite(value))) {
@@ -1765,6 +1795,7 @@ function collectFormFields(formNode, formPath, violations) {
   const fieldTypes = new Set([
     'input', 'inputNumber', 'datePicker', 'upload', 'select',
     'textarea', 'switch', 'checkbox', 'radio', // ADR-0028 F1
+    'cascader', 'checkboxGroup', 'richText', 'password', // ADR-0029–0032
   ]);
 
   const addField = (name, nodePath, ownerType, propName) => {
@@ -2156,6 +2187,12 @@ function validateProtocolVersionFloor(doc, violations) {
     if (node.type === 'select' && node.props && node.props.mode === 'multiple') {
       requireFloor(`${nodePath}.props.mode`, 'select.mode: multiple', FLOOR_26);
     }
+    if (FORM_CONTROLS_ADVANCED_TYPES.has(node.type)) {
+      requireFloor(nodePath, `form control ${node.type}`, FLOOR_27);
+    }
+    if (node.props && Object.prototype.hasOwnProperty.call(node.props, 'defaultValue')) {
+      requireFloor(`${nodePath}.props.defaultValue`, 'props.defaultValue', FLOOR_27);
+    }
     if (node.type === 'table' && node.props) {
       if (node.props.selection !== undefined) {
         requireFloor(`${nodePath}.props.selection`, 'table.props.selection', FLOOR_22);
@@ -2305,6 +2342,16 @@ function validateRequiredCapabilities(doc, violations) {
         FORM_CONTROLS_EXTENDED_CAPABILITY,
         `${nodePath}.props.mode`,
         'select.mode: multiple',
+      );
+    }
+    if (FORM_CONTROLS_ADVANCED_TYPES.has(node.type)) {
+      requireCapability(FORM_CONTROLS_ADVANCED_CAPABILITY, nodePath, `form control ${node.type}`);
+    }
+    if (node.props && Object.prototype.hasOwnProperty.call(node.props, 'defaultValue')) {
+      requireCapability(
+        FORM_CONTROLS_ADVANCED_CAPABILITY,
+        `${nodePath}.props.defaultValue`,
+        'props.defaultValue',
       );
     }
     if (node.type === 'table' && node.props) {
@@ -2539,7 +2586,7 @@ function validateReservedTableQueryParams(doc, violations) {
 }
 
 /**
- * ADR-0028 D6a: select.mode:multiple (and cascader if ever shipped) forbidden under search form.
+ * ADR-0028 D6a / ADR-0029 / ADR-0030: array-valued form fields forbidden under search form.
  */
 function validateSelectMultipleInSearch(doc, violations) {
   if (!doc || typeof doc !== 'object') return;
@@ -2557,7 +2604,14 @@ function validateSelectMultipleInSearch(doc, violations) {
       violations.push({
         path: nodePath,
         message:
-          'cascader 不得用于 form.mode: search（数组 query 未定义；ADR-0028）',
+          'cascader 不得用于 form.mode: search（CASCADER_IN_SEARCH / ADR-0029；数组 query 未定义）',
+      });
+    }
+    if (node.type === 'checkboxGroup') {
+      violations.push({
+        path: nodePath,
+        message:
+          'checkboxGroup 不得用于 form.mode: search（CHECKBOX_GROUP_IN_SEARCH / ADR-0030；数组 query 未定义）',
       });
     }
     if (Array.isArray(node.children)) {
@@ -2577,6 +2631,77 @@ function validateSelectMultipleInSearch(doc, violations) {
     if (node.type === 'form' && node.props?.mode === 'search') {
       if (Array.isArray(node.children)) {
         node.children.forEach((child, index) => scanSearchFields(child, `${nodePath}.children[${index}]`));
+      }
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, index) => scanNode(child, `${nodePath}.children[${index}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, index) => {
+        if (item && item.content) {
+          scanNode(item.content, `${nodePath}.props.items[${index}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+  if (isPlainObject(doc.actions)) {
+    for (const [actionId, action] of Object.entries(doc.actions)) {
+      if (action?.type === 'modal' && action.content) {
+        scanNode(action.content, `actions.${actionId}.content`);
+      }
+    }
+  }
+}
+
+/**
+ * ADR-0033: defaultValue must match field wire (static literal check).
+ */
+function defaultValueMatchesWire(nodeType, props, value) {
+  if (nodeType === 'switch' || nodeType === 'checkbox') return typeof value === 'boolean';
+  if (nodeType === 'inputNumber') return typeof value === 'number' && Number.isFinite(value);
+  if (nodeType === 'cascader' || nodeType === 'checkboxGroup') {
+    return Array.isArray(value) && value.every((el) => (
+      el === null
+      || typeof el === 'string'
+      || typeof el === 'boolean'
+      || (typeof el === 'number' && Number.isFinite(el))
+    ));
+  }
+  if (nodeType === 'select' && props && props.mode === 'multiple') {
+    return Array.isArray(value) && value.every((el) => (
+      el === null
+      || typeof el === 'string'
+      || typeof el === 'boolean'
+      || (typeof el === 'number' && Number.isFinite(el))
+    ));
+  }
+  if (nodeType === 'select' || nodeType === 'radio') {
+    return value === null
+      || typeof value === 'string'
+      || typeof value === 'boolean'
+      || (typeof value === 'number' && Number.isFinite(value));
+  }
+  return typeof value === 'string';
+}
+
+function validateDefaultValueWire(doc, violations) {
+  if (!doc || typeof doc !== 'object') return;
+
+  const scanNode = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    if (
+      FORM_DEFAULT_VALUE_TYPES.has(node.type)
+      && node.props
+      && Object.prototype.hasOwnProperty.call(node.props, 'defaultValue')
+    ) {
+      const dv = node.props.defaultValue;
+      if (!defaultValueMatchesWire(node.type, node.props, dv)) {
+        violations.push({
+          path: `${nodePath}.props.defaultValue`,
+          message: `defaultValue 与字段 wire 不匹配（DEFAULT_VALUE_WIRE_MISMATCH / ADR-0033；type=${node.type}）`,
+        });
       }
     }
     if (Array.isArray(node.children)) {
@@ -2718,6 +2843,7 @@ function validatePage(doc, fileLabel) {
   validateParamsResponseMappingBan(doc, violations);
   validateReservedTableQueryParams(doc, violations);
   validateSelectMultipleInSearch(doc, violations);
+  validateDefaultValueWire(doc, violations);
   return violations.map(v => ({ file: fileLabel, ...v }));
 }
 

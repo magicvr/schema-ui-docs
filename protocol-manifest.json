@@ -1,8 +1,8 @@
 {
   "manifestVersion": "1.0",
   "name": "schema-ui-protocol",
-  "artifactVersion": "2.6.0",
-  "protocolVersion": "2.6",
+  "artifactVersion": "2.7.0",
+  "protocolVersion": "2.7",
   "authority": {
     "semanticSpecs": [
       "PROJECT_CHARTER.md",
@@ -41,7 +41,12 @@
       "docs/decisions/0025-app-manifest.md",
       "docs/decisions/0026-app-navigation.md",
       "docs/decisions/0027-table-sort-declaration.md",
-      "docs/decisions/0028-form-control-surface.md"
+      "docs/decisions/0028-form-control-surface.md",
+      "docs/decisions/0029-cascader.md",
+      "docs/decisions/0030-checkbox-group.md",
+      "docs/decisions/0031-rich-text.md",
+      "docs/decisions/0032-password.md",
+      "docs/decisions/0033-form-default-value.md"
     ],
     "structuralContracts": [
       "docs/schemas/*.json"
@@ -56,7 +61,8 @@
       "docs/05-scenarios/**/*.md",
       "docs/05-scenarios/_samples/order-list-batch.yaml",
       "docs/05-scenarios/_samples/order-detail-lifecycle.yaml",
-      "docs/05-scenarios/_samples/user-profile-extended.yaml"
+      "docs/05-scenarios/_samples/user-profile-extended.yaml",
+      "docs/05-scenarios/_samples/user-profile-advanced.yaml"
     ],
     "releaseMetadata": [
       "protocol-manifest.json",

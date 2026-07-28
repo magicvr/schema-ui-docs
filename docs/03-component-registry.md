@@ -2,7 +2,7 @@
 status: living-document
 owner: 前端组件库团队
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.6
+applies_to: schema-ui-protocol v2.7
 ---
 
 # 组件类型（type）注册表
@@ -459,6 +459,59 @@ body:
 | `defaultVisible` | boolean | 否 | |
 | `description` / `tooltip` | string | 否 | |
 | `span` | number | 否 | |
+
+
+
+### `cascader`（since 2.7 / ADR-0029）
+
+级联选择。wire 为**根到叶 path 数组**。使用时 `protocolVersion: "2.7"` 与 `form.controls.advanced`。**禁止**用于 search form。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | 字段名 |
+| `label` / `labelKey` | string | 是 | 字段标签 |
+| `options` | array | 是 | 嵌套 `{label\|labelKey, value, children?}` |
+| `required` | boolean | 否 | length ≥ 1 |
+| `defaultValue` | array | 否（since 2.7） | 静态 path 初值（ADR-0033） |
+| `defaultVisible` / `placeholder` / `description` / `tooltip` / `span` | | 否 | |
+
+### `checkboxGroup`（since 2.7 / ADR-0030）
+
+多选框组。wire 为选项 value **数组**（与 `select.mode: multiple` 同构，type 入口不同）。`form.controls.advanced`。**禁止** search。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | |
+| `label` / `labelKey` | string | 是 | |
+| `options` | array | 是 | 静态 `{label\|labelKey, value}` |
+| `required` | boolean | 否 | length ≥ 1 |
+| `defaultValue` | array | 否 | ADR-0033 |
+
+### `richText`（since 2.7 / ADR-0031）
+
+富文本。wire 为 **Markdown string**。展示侧 HTML 消毒为 **Host 责任**。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | |
+| `label` / `labelKey` | string | 是 | |
+| `required` | boolean | 否 | 空串不满足 |
+| `defaultValue` | string | 否 | Markdown 初值 |
+
+### `password`（since 2.7 / ADR-0032）
+
+密码。wire 为 **string**。Host **必须**遮罩呈现，**不得**在协议诊断日志输出明文。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | |
+| `label` / `labelKey` | string | 是 | |
+| `required` | boolean | 否 | |
+| `defaultValue` | string | 否 | 少用于密码；若声明须为 string |
+
+### 静态 `defaultValue`（since 2.7 / ADR-0033）
+
+单字段表单控件可选 props。类型须匹配 wire（L2 `DEFAULT_VALUE_WIRE_MISMATCH`）。初值序：类型空值 → `defaultValue` → `recordSource` 覆盖 → reactions 覆盖。出现即要求 `"2.7"` + `form.controls.advanced`。
 
 ### `inputNumber`
 数字输入控件。
