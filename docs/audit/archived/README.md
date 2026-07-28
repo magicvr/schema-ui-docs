@@ -6,6 +6,28 @@
 
 ---
 
+## 0077 — 2026-07-28 — v2.7.0 落地后 MCP/validator 身份、入口投影与发布证据
+
+**主题：** v2.7.0 交付后 MCP lock 未跟版、validator SemVer 误升、DOC_MAP 仍指 v2.6、入口文档滞后，以及正式 tag/CD 证据链（V363–V371）。
+**性质：** 4×P1 + 4×P2 + 1×P3 **全部关闭**。主类型=实现/契约漂移；次类型=发布完整性。
+
+| 文件 | 说明 |
+|---|---|
+| [0077-2026-07-28-review.md](./0077-2026-07-28-review.md) | 审计报告 — V363–V371（全部关闭） |
+| [0077-2026-07-28-checklist.md](./0077-2026-07-28-checklist.md) | 跟踪清单 — 修复、2.7.0 发布与归档门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| V363–V365、V367–V371 | lock 2.7.0、validator 1.0.0、DOC_MAP→v2.7、入口/文档 in-repo 闭合；本地门禁绿 |
+| V366 发布 | PR [#32](https://github.com/magicvr/schema-ui-docs/pull/32) → `main` `ca9e5fe`；tag `v2.7.0` Protocol Release [30329060753](https://github.com/magicvr/schema-ui-docs/actions/runs/30329060753) success；tag `mcp-v2.7.0` MCP CD [30329060412](https://github.com/magicvr/schema-ui-docs/actions/runs/30329060412) success |
+| 正式资产 | protocol artifact `sha256:45ceb27a…`；content `2170d612…`；fixture `f9589dc0…`；MCP 镜像 index `sha256:37749442…`（`2.7.0` / `2.7` / `latest` 同 digest） |
+
+**说明：** 未改写 `v2.6.0` / `mcp-v2.6.0`。生产消费者升级继续作为 out-of-repo 跟踪。
+
+---
+
 ## 0076 — 2026-07-28 — v2.6.0 后 MCP lock 父包版本与 release 门禁
 
 **主题：** `mcp/package-lock.json` 的 `packages[".."]`（`file:..` 工作区）残留 **2.5.3**，与根包 **2.6.0** 不一致；`mcp-release-check` 未断言该字段（V362）。
