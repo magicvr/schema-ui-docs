@@ -7,7 +7,7 @@ applies_to: schema-ui-protocol v2.6 (post-v2.6 track; residual D.1 backlog)
 
 # 下一步目标：Admin 生命周期协议轨道
 
-本文档确立 **v2.0 之后** 的协议演进方向，把 [ADR-0019](../decisions/0019-v2-admin-scope.md) 已明确排除的「完整 Admin 生命周期」落成可执行的目标与优先级，并记录 **v2.5 之后** 的一等公民演进（含 **v2.6 F1 立项中** 与其余 D.1 backlog）。
+本文档确立 **v2.0 之后** 的协议演进方向，把 [ADR-0019](../decisions/0019-v2-admin-scope.md) 已明确排除的「完整 Admin 生命周期」落成可执行的目标与优先级，并记录 **v2.6 之后** 的一等公民演进（**F1 A+B 已交付**；F1e cascader 与其余 D.1 为残留 backlog）。
 
 它**不是**任一版本的发布门禁，也不改变已发布页面/清单的合法语义。在对应 capability、ADR、Schema 与 versioned fixtures 原子落地之前，下列能力**不得**被描述为协议已支持，也不得要求标准 Renderer 通过私有 handler 猜测实现。
 

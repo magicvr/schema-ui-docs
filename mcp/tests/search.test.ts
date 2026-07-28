@@ -21,8 +21,8 @@ describe('protocol docs', () => {
 
   it('returns the current v2 release goals by stable docId', () => {
     const doc = getDoc('v2-release-goals');
-    expect(doc.path).toBe('docs/release-goals/v2.5.md');
-    expect(doc.content).toContain('v2.5');
+    expect(doc.path).toBe('docs/release-goals/v2.6.md');
+    expect(doc.content).toContain('v2.6');
   });
 
   it('returns the app-manifest core doc by stable docId', () => {

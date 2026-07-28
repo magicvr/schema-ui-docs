@@ -55,7 +55,8 @@
     "scenarios": [
       "docs/05-scenarios/**/*.md",
       "docs/05-scenarios/_samples/order-list-batch.yaml",
-      "docs/05-scenarios/_samples/order-detail-lifecycle.yaml"
+      "docs/05-scenarios/_samples/order-detail-lifecycle.yaml",
+      "docs/05-scenarios/_samples/user-profile-extended.yaml"
     ],
     "releaseMetadata": [
       "protocol-manifest.json",

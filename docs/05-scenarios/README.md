@@ -36,6 +36,7 @@
 8. **`admin-list-detail-lifecycle.md`** — 列表行进详情、只读 `recordView` 加载（ADR-0024）
 9. **`admin-list-batch.md`** — 当前页多选与批量 request（ADR-0022）
 10. **`permission-inheritance.md`** — 容器权限继承与操作入口意图（ADR-0023）
+11. **`form-controls-extended.md`** — 扩展表单控件面（`textarea` / 布尔 / `radio` / multi-`select`；需 `form.controls.extended`，ADR-0028）
 
 ## 相关文档
 
