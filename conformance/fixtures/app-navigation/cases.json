@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "three-slots-project",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -168,7 +168,7 @@
     },
     {
       "id": "unknown-slot-rejected",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "validate",
@@ -195,7 +195,7 @@
     },
     {
       "id": "filter-default-visible",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -258,7 +258,7 @@
     },
     {
       "id": "filter-permissions-hides-admin",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -399,7 +399,7 @@
     },
     {
       "id": "empty-group-pruned",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -476,7 +476,7 @@
     },
     {
       "id": "array-order-stable",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -549,7 +549,7 @@
     },
     {
       "id": "icon-unmapped-still-renders-text",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -619,7 +619,7 @@
     },
     {
       "id": "highlight-page-ref-d4a",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -692,7 +692,7 @@
     },
     {
       "id": "highlight-url-exact",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -765,7 +765,7 @@
     },
     {
       "id": "highlight-ignores-query",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -828,7 +828,7 @@
     },
     {
       "id": "multi-active-allowed",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "project",
@@ -905,7 +905,7 @@
     },
     {
       "id": "m3a-deps-expression-rejected",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "validate",
@@ -935,7 +935,7 @@
     },
     {
       "id": "m3a-row-expression-rejected",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "validate",
@@ -965,7 +965,7 @@
     },
     {
       "id": "m3a-self-expression-rejected",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "validate",
@@ -995,7 +995,7 @@
     },
     {
       "id": "m3a-illegal-syntax-rejected",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "validate",
@@ -1025,7 +1025,7 @@
     },
     {
       "id": "m3a-legal-context-expressions-ok",
-      "protocolVersion": "2.5",
+      "protocolVersion": "2.6",
       "category": "app-navigation",
       "input": {
         "operation": "validate",

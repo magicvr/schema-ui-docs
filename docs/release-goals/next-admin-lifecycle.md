@@ -2,16 +2,16 @@
 status: active
 owner: 前后端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.5 (post-v2.5 track; Phase D.1 backlog)
+applies_to: schema-ui-protocol v2.6 (post-v2.6 track; residual D.1 backlog)
 ---
 
 # 下一步目标：Admin 生命周期协议轨道
 
-本文档确立 **v2.0 之后** 的协议演进方向，把 [ADR-0019](../decisions/0019-v2-admin-scope.md) 已明确排除的「完整 Admin 生命周期」落成可执行的目标与优先级，并记录 **v2.5 之后仍待升格的一等公民 backlog**。
+本文档确立 **v2.0 之后** 的协议演进方向，把 [ADR-0019](../decisions/0019-v2-admin-scope.md) 已明确排除的「完整 Admin 生命周期」落成可执行的目标与优先级，并记录 **v2.5 之后** 的一等公民演进（含 **v2.6 F1 立项中** 与其余 D.1 backlog）。
 
 它**不是**任一版本的发布门禁，也不改变已发布页面/清单的合法语义。在对应 capability、ADR、Schema 与 versioned fixtures 原子落地之前，下列能力**不得**被描述为协议已支持，也不得要求标准 Renderer 通过私有 handler 猜测实现。
 
-历史门禁：[`v2.0.md`](./v2.0.md) … [`v2.5.md`](./v2.5.md)。应用级清单/导航为**平行轨道**（ADR-0025/0026，规范 [`09-app-manifest.md`](../09-app-manifest.md)），不并入本文件的页面 Admin Phase 编号，但在 §8 状态表中交叉记录。
+历史门禁：[`v2.0.md`](./v2.0.md) … [`v2.6.md`](./v2.6.md)。应用级清单/导航为**平行轨道**（ADR-0025/0026，规范 [`09-app-manifest.md`](../09-app-manifest.md)），不并入本文件的页面 Admin Phase 编号，但在 §8 状态表中交叉记录。
 
 ## 1. 背景与动机
 
@@ -28,7 +28,7 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 
 若继续仅用 Host Extension 承载上述能力，多 Renderer / 多后端页面生产方将产生不可互操作的私货分叉。下一步目标是把其中共识最高的部分升为 **v2.x 可选 capability**，而不是立刻开破坏性 MAJOR。
 
-**v2.1–v2.5 已交付**上表中的主 CRUD 生命周期与应用壳（见 §4 / §8）。当前缺口转向：**表单表达力**、**运营批处理闭环**与少数结构化列表增强（见 §4 Phase D.1）。
+**v2.1–v2.6 已交付**主 CRUD 生命周期、应用壳与表单控件面 F1 A+B（见 §4 / §8）。其余缺口仍为：**运营批处理闭环**、子表与少数结构化列表增强（见 §4 Phase D.1 残留 backlog）。
 
 ## 2. 轨道原则
 
@@ -66,9 +66,10 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 | **P1** | 表格选择与批量 | 当前页多选、批量 request | **已交付** [0022](../decisions/0022-table-selection-and-batch-request.md) |
 | **P1** | 权限继承 | 容器 edit/delete 级联 | **已交付** [0023](../decisions/0023-container-permission-inheritance.md) |
 | **P2** | 标准详情 | 只读 record view | **已交付** [0024](../decisions/0024-record-view.md) |
-| **P2+** | 待增补一等公民 | 表单控件面、子表、导入导出、异步任务、树表等 | **backlog**（§4 Phase D.1；**未立项**） |
+| **P2+** | 表单控件面（F1 A+B） | textarea / 布尔 / radio / 多选 | **已交付** [0028](../decisions/0028-form-control-surface.md) · [`v2.6.md`](./v2.6.md)；F1e cascader defer |
+| **P2+** | 其余一等公民 | 子表、导入导出、异步任务、树表等 | **backlog**（§4 D.1 残留；**未立项**） |
 
-**Accepted 之前**的候选 **不进入** `08-renderer-spec` 预定义 capability 表与 Schema。
+**Accepted 之前**的候选 **不进入** `08-renderer-spec` 预定义 capability 表与 Schema（0028 在 accept 前仅 informative）。
 
 ### 3.3 明确非目标（本轨道默认不做）
 
@@ -118,27 +119,37 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 
 - [x] ADR-0025 / 0026 / 0027 · `app.manifest` / `app.navigation` / `table.sort`。详见 [`v2.5.md`](./v2.5.md)、[`09-app-manifest.md`](../09-app-manifest.md)。
 
-#### D.1 待增补一等公民（backlog；**当前不立项、不写 Schema、不进 conformance 正例**）
+#### D.1.0 表单控件面 F1 → **v2.6 已交付（A+B）**
+
+| 项 | 状态 |
+|---|---|
+| 门禁 | [`v2.6.md`](./v2.6.md)（stable；G0–G4 已关闭） |
+| ADR | [0028](../decisions/0028-form-control-surface.md) **accepted**（`form.controls.extended`） |
+| 迁移 | [`migrations/2.5-to-2.6.md`](../migrations/2.5-to-2.6.md) |
+| 制品 | `2.6.0` / `protocolVersion: "2.6"` |
+
+| 批次 | 范围 | 状态 |
+|---|---|---|
+| **A** | F1a–F1c | **已交付** |
+| **B** | F1d `select.mode: multiple` | **已交付** |
+| **C** | F1e `cascader` | **defer**（不进 2.6.0） |
+
+#### D.1 待增补一等公民（**残留** backlog；F1 已迁出至 D.1.0）
 
 > **权威说明：** 下表是 **informative 规划清单**，不是语义规范。实现方可继续用 Host Extension，但**不得**伪装为协议已支持。立项时必须：独立 ADR（MVP + 非目标 + 失败策略）→ Schema/L2/fixtures 原子交付 → MINOR + capability。  
 > 优先级反映「中小型软件项目典型 admin」覆盖缺口（2026-07 评估），可按真实生产痛点重排；**不得**因本表存在而跳过 ADR。
 
-##### D.1.1 建议优先（高频、少 Host 即难撑完整 CRUD 表单）
+##### D.1.1 建议优先（F1 已立项后的下一档）
 
 | ID | 候选 | 业务问题 | 与现状关系 | 建议触发条件 |
 |---|---|---|---|---|
-| **F1** | 表单控件面扩展 | 备注、布尔开关、单选、多选、级联等 | 现仅 `input` / `inputNumber` / `select` / `datePicker` / `dateRangePicker` / `upload` | 多实现要对齐同一套字段 type 与提交投影；避免各 Host 私有 type 分叉 |
-| F1a | `textarea` | 长文本、驳回原因、描述 | 无 | 可与 F1 同包最小交付 |
-| F1b | `switch` / `checkbox` | 启用禁用、布尔配置 | 无 | 提交值为 boolean 的 wire 需写清 |
-| F1c | `radio` / 按钮组 | 少量互斥枚举 | 可用 `select` 凑合 | 展示语义需与 select 区分时 |
-| F1d | 多选 `select` / tag | 角色、标签、多类目 | `select` 现为单值 | 数组提交与 query 序列化边界需 ADR |
-| F1e | 级联选择 | 省市区、类目树 | 无 | 选项树数据契约与 path 取值需独立定 |
-| **F2** | 嵌套 / 子表单（array of objects） | 订单明细行、多联系人、SKU 规格 | `bodyMapping` 与字段模型偏扁平标量 | 出现跨实现一致的可重复区块 / 行编辑提交需求 |
+| **F1** | 表单控件面扩展 | 见 D.1.0 | **v2.6 已交付**（A+B；C defer） | 后续仅 F1e 若触发 |
+| **F2** | 嵌套 / 子表单（array of objects） | 订单明细行、多联系人、SKU 规格 | `bodyMapping` 与字段模型偏扁平标量 | F1 落地后；出现跨实现一致的可重复区块 / 行编辑提交需求 |
 | **F3** | 导入向导 | 批量导入、行级校验失败回显 | 仅有单文件 `upload` | 多实现要对齐步骤、错误表与部分成功策略 |
 | **F4** | 导出（当前筛选） | 按列表筛选导出文件/任务 | 无标准「导出当前 query」 | 与 search-table 状态机、长任务（F5）边界需先划清 |
 | **F5** | 异步任务 / 长操作结果 | 大导出、批量改价、重建索引 | 一次 HTTP Action 不够 | 出现可声明的任务 id / 进度 / 结果回跳跨页契约 |
 
-建议落地节奏（非门禁）：**F1（可先 F1a–F1c）→ F2 → F3/F4（可拆 capability）→ F5**。每一项单独 MINOR，禁止「表单大爆炸」单 PR 吞并。
+建议落地节奏（非门禁）：**F1（v2.6）→ F2 → F3/F4（可拆 capability）→ F5**。每一项单独 MINOR，禁止「表单大爆炸」单 PR 吞并。
 
 ##### D.1.2 按域触发（一类业务会卡，非每个项目都要）
 
@@ -188,7 +199,8 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 3. `2.3` — Phase C.1（0023）
 4. `2.4` — Phase D.0（0024）
 5. `2.5` — 平行轨道：应用清单/导航 + `table.sort`（0025–0027）
-6. 更后 MINOR — Phase D.1 按 §4 D.1 单独立项
+6. `2.6` — Phase D.1.0 F1 表单控件面 A+B（0028）
+7. 更后 MINOR — Phase D.1 残留（F2+ / F1e / L*）按 §4 D.1 单独立项
 
 ## 6. 成功标准
 
@@ -205,10 +217,12 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 
 | 文档 | 关系 |
 |---|---|
-| [`v2.0.md`](./v2.0.md) … [`v2.5.md`](./v2.5.md) | 各 MINOR 历史/当前发布门禁；本文件不替代它们 |
+| [`v2.0.md`](./v2.0.md) … [`v2.5.md`](./v2.5.md) | 各 MINOR 历史发布门禁；本文件不替代它们 |
+| [`v2.6.md`](./v2.6.md) | F1 A+B 已发布门禁 |
 | [`decisions/0019-v2-admin-scope.md`](../decisions/0019-v2-admin-scope.md) | 界定 v2.0 不含完整 Admin；本文件是其后续执行轨道 |
 | [0020](../decisions/0020-page-action-trigger.md) … [0024](../decisions/0024-record-view.md) | 页面 Admin 生命周期已接受 ADR |
 | [0025](../decisions/0025-app-manifest.md) / [0026](../decisions/0026-app-navigation.md) / [0027](../decisions/0027-table-sort-declaration.md) | 应用级与表排序；平行于本轨道 |
+| [0028](../decisions/0028-form-control-surface.md) | F1 表单控件面 A+B；accepted @ v2.6 |
 | [`09-app-manifest.md`](../09-app-manifest.md) | 应用级规范正文（原短暂编号 `17`，现与 `00`–`08` 连续） |
 | [`PROJECT_CHARTER.md`](../../PROJECT_CHARTER.md) | 变更门禁与权威层级 |
 | `docs/audit/` | 过程记录；结论须沉淀回规范/ADR/本文件/CHANGELOG |
@@ -217,12 +231,13 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 
 | 项 | 状态 |
 |---|---|
-| 协议制品 / 协议线 | `2.5.3` / `"2.5"`（见 `protocol-manifest.json`） |
+| 协议制品 / 协议线 | `2.6.0` / `"2.6"`（见 `protocol-manifest.json`） |
 | 页面 Admin 主路径 | **Phase B / C / C.1 / D.0 已发布**（2.1–2.4） |
 | 应用壳 + 表排序 | **2.5 已发布**（0025–0027；规范 `09`） |
-| Phase D.1 | **backlog 已登记**（§4 D.1.1–D.1.4）；**无一候选已立项** |
-| 建议下一步 | 按真实痛点从 **F1 表单控件面** 或 **F3/F4 导入导出** 中择一起草 ADR；不得以 Host 私货扩张已交付边界 |
+| Phase D.1.0 F1 | **v2.6 已交付**（0028 A+B；C defer） |
+| Phase D.1 残留 | F2–F5、F1e、L*、U* 仍为 backlog；**未立项** |
+| 建议下一步 | 按痛点从 **F2 子表** 或 **F3/F4 导入导出** 择一 ADR；不得以 Host 私货扩张已交付边界 |
 
 ---
 
-**维护说明：** 当某一 D.1 候选合入协议时：勾选/移出 backlog 表 → 新 `docs/release-goals/vX.Y.md` 门禁 → `CHANGELOG`；本文件保留轨道级视图。proposed ADR 在 `accepted` 前不得进入 `protocol-manifest.json` 的 `authority.semanticSpecs`。
+**维护说明：** 当某一 D.1 候选合入协议时：勾选/移出 backlog 表 → 新或更新 `docs/release-goals/vX.Y.md` 门禁 → `CHANGELOG`；本文件保留轨道级视图。proposed ADR 在 `accepted` 前不得进入 `protocol-manifest.json` 的 `authority.semanticSpecs`（可放 `informative.releaseMetadata` 供轨道引用）。

@@ -27,7 +27,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:712f6c4293ccd7e7c0355d9fe9e4b264eecbd64fc5cac68251a4e8e8458ecf7e';
+  'sha256:3a9cd233e4cf70a312551b99ca051c4c0b9b4756f055046ba536cf2cd9284ec0';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -158,6 +158,22 @@ const releaseTargets = {
       'defaultSort',
     ],
   },
+  '2.6': {
+    releaseGoalsPath: 'docs/release-goals/v2.6.md',
+    migrationPath: 'docs/migrations/2.5-to-2.6.md',
+    migrationRequiredTopics: [
+      'protocolVersion',
+      'legacy adapter',
+      'query',
+      'pageSize',
+      'requestMapping',
+      'actions.upload',
+      'form.controls.extended',
+      'textarea',
+      'select.mode',
+      'multiple',
+    ],
+  },
 };
 const releaseTarget = releaseTargets[protocolVersion];
 assert.ok(releaseTarget, `Missing release target definition for protocolVersion ${protocolVersion}`);
@@ -246,6 +262,8 @@ const expectedVersionedCaseCountByProtocol = {
   '2.4': 214,
   // 2.5: 282 base (v2.5.0) +1 app-manifest floor +5 nav M3a +4 D1b base matrix = 292 (审计 0071)
   '2.5': 292,
+  // 2.6: 292 +3 request-construction +2 response-mapping +4 version-negotiation +2 reactions = 303
+  '2.6': 303,
 };
 const expectedVersionedCaseCount = expectedVersionedCaseCountByProtocol[protocolVersion];
 assert.ok(

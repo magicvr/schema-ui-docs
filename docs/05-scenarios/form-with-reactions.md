@@ -1,6 +1,6 @@
 ---
 status: example
-protocol_version: v2.5
+protocol_version: v2.6
 last_updated: 2026-07-10
 ---
 
@@ -17,7 +17,7 @@ last_updated: 2026-07-10
 meta:
   pageId: order_create
   title: 新建订单
-  protocolVersion: "2.5"
+  protocolVersion: "2.6"
 
 body:
   type: form

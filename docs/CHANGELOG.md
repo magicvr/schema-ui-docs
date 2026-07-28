@@ -9,6 +9,21 @@
 
 （无）
 
+## v2.6.0 — 2026-07-28（表单控件面 F1：textarea / 布尔 / radio / 多选）
+
+> **版本说明：** MINOR 发布。使用 `textarea` / `switch` / `checkbox` / `radio` 或 `select.mode: multiple` 的页面必须声明 `meta.protocolVersion: "2.6"` 与 `form.controls.extended`。合法无上述字段的 `2.5` 页面行为不变。正式协议制品为 `schema-ui-protocol-2.6.0.tar.gz`。批次 C（`cascader`）**不**进入本版本。
+
+**协议变更：**
+- **ADR-0028 accepted：** 表单控件面扩展（F1 批次 A+B）。
+- **新组件：** `textarea`（string）、`switch` / `checkbox`（boolean；`required` ⇒ 必须为 true）、`radio`（静态 options，单值）。
+- **扩展 `select`：** `props.mode: single|multiple`；multiple 时 wire 为数组；**禁止**用于 search form（L2 `SELECT_MULTIPLE_IN_SEARCH`）。
+- **capability：** `form.controls.extended`；L2 双重门控（版本 + capability）。
+- **recordSource：** 可选 `fieldWireTypes` 语义——类型不匹配跳过该键（`FIELD_WIRE_TYPE_MISMATCH`），不中止整表。
+- **提交投影：** request body 允许 boolean 与 multiple 数组；`bodyMapping` 仍为字段名重命名。
+- **规范：** `02` / `03` / `07` / `08` / 组件 DSL / page schema；迁移 [`2.5-to-2.6.md`](./migrations/2.5-to-2.6.md)；门禁 [`release-goals/v2.6.md`](./release-goals/v2.6.md)。
+- **场景：** [`05-scenarios/form-controls-extended.md`](./05-scenarios/form-controls-extended.md)。
+- **conformance：** +3 request-construction、+2 response-mapping、+4 version-negotiation、+2 reactions（合计 versioned **303**）。
+
 ## v2.5.3 — 2026-07-28（审计 0073 文档重编号与发布身份）
 
 > **版本说明：** PATCH 发布准备。页面 `meta.protocolVersion` 继续为 `"2.5"`；schemas、versioned fixtures 与核心语义相对正式 `v2.5.2` **机器契约未变**（fixture digest 仍为 `712f6c42…`）。本版本将应用级规范路径重编号固化为独立制品身份（审计 0073 / V349）。**不**改写 `v2.5.2` / `mcp-v2.5.2` tag 或其 Release 资产。正式协议制品为 `schema-ui-protocol-2.5.3.tar.gz`（contentDigest / artifactDigest 以 tag 后 GitHub Release 与制品内 `manifest.json` 为准）。
@@ -16,7 +31,7 @@
 **审计 0073（V349）：**
 - **文档卫生：** 应用级规范正文由 `docs/17-app-manifest.md` 重编号为 [`docs/09-app-manifest.md`](./09-app-manifest.md)（与 `00`–`08` 连续；原 `09`–`16` 门禁文件已迁入 `release-goals/`）。同步 `protocol-manifest`、核心交叉引用、MCP `DOC_MAP` 与 release-check 路径。语义不变。
 - **发布身份：** 工作树不得再以 `2.5.2` 承载与正式 Release 不同的 contentDigest；以 **2.5.3** 固化。
-- **演进轨道：** [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md) 登记 v2.5 之后 **D.1 待增补一等公民 backlog**（表单控件面、子表、导入导出、异步任务、树表等）；仍为 informative，不升 `protocolVersion`、不立项 Schema。
+- **演进轨道：** 当时登记 v2.5 之后 D.1 backlog；**其后** F1 已单独立项为 v2.6（见 Unreleased），不回溯改变本 PATCH 制品语义。
 
 ## v2.5.2 — 2026-07-28（审计 0072 入口卫生与门禁观察面）
 

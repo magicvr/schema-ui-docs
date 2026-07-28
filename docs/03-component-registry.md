@@ -2,7 +2,7 @@
 status: living-document
 owner: 前端组件库团队
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.5
+applies_to: schema-ui-protocol v2.6
 ---
 
 # 组件类型（type）注册表
@@ -416,6 +416,50 @@ body:
 
 支持 `children`：否。支持 `data`：否（表单字段不直接绑定 API）。支持 `reactions`：是。支持 `states`：否。
 
+### `textarea`（since 2.6 / ADR-0028）
+
+长文本输入。wire 为 **string**（与 `input` 相同）。使用时页面须声明 `meta.protocolVersion: "2.6"` 与 `form.controls.extended`。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | 字段名 |
+| `label` / `labelKey` | string | 是 | 字段标签 |
+| `required` | boolean | 否 | 空串不满足必填 |
+| `defaultVisible` | boolean | 否 | |
+| `placeholder` / `description` / `tooltip` | string | 否 | |
+| `span` | number | 否 | |
+
+支持 `children`：否。支持 `data`：否。支持 `reactions`：是。支持 `states`：否。不引入 `rows`/`maxLength` 等呈现 props。
+
+### `switch` / `checkbox`（since 2.6 / ADR-0028）
+
+布尔控件。wire 仅 **boolean**（JSON `true`/`false`）；缺省未交互为 `false`。`required: true` 表示提交值必须为 **`true`**。二者 wire 相同，仅展示语义不同。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | 字段名 |
+| `label` / `labelKey` | string | 是 | 字段标签 |
+| `required` | boolean | 否 | true ⇒ 值必须为 true |
+| `defaultVisible` | boolean | 否 | |
+| `description` / `tooltip` | string | 否 | |
+| `span` | number | 否 | |
+
+支持 `reactions`：是。search 模式下 boolean 按 ADR-0010 序列化为小写 `true`/`false`。
+
+### `radio`（since 2.6 / ADR-0028）
+
+单选按钮组。wire 为**单个**选项 `value` 标量（与单选 `select` 同构）。MVP **仅**静态 `options`（无 `optionsSource`）。
+
+| props 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `field` | string | 是 | 字段名 |
+| `label` / `labelKey` | string | 是 | 字段标签 |
+| `options` | array | 是 | `{label\|labelKey, value}`，至少一项 |
+| `required` | boolean | 否 | |
+| `defaultVisible` | boolean | 否 | |
+| `description` / `tooltip` | string | 否 | |
+| `span` | number | 否 | |
+
 ### `inputNumber`
 数字输入控件。
 
@@ -492,8 +536,9 @@ props:
 | `label` / `labelKey` | string | 是 | 字段标签 |
 | `options` | array\<{label/labelKey,value}\> | 与 `optionsSource` 二选一 | 固定选项列表；选项文案可使用 `labelKey` 国际化，`label` / `labelKey` 至少提供一个 |
 | `optionsSource` | OptionsSource | 与 `options` 二选一（since 0.2） | 远程动态选项，见下 |
+| `mode` | enum: `single`\|`multiple` | 否（since 2.6） | 缺省 `single`；`multiple` 时 wire 为选项 value 的 **JSON 数组**，须 `form.controls.extended` 且 `protocolVersion >= "2.6"`；**禁止**用于 `form.mode: search`（L2：`SELECT_MULTIPLE_IN_SEARCH`） |
 | `placeholder` | string | 否（since 0.2） | 占位提示文案 |
-| `required` | boolean | 否 | 是否必填 |
+| `required` | boolean | 否 | 是否必填；`multiple` 时要求数组 length ≥ 1 |
 | `defaultVisible` | boolean | 否 | 初始是否可见（配合 `reactions` 使用） |
 | `description` | string | 否（since 0.2） | 字段说明文案 |
 | `tooltip` | string | 否（since 0.2） | 悬浮提示文案 |

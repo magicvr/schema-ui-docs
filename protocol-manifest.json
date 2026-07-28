@@ -1,8 +1,8 @@
 {
   "manifestVersion": "1.0",
   "name": "schema-ui-protocol",
-  "artifactVersion": "2.5.3",
-  "protocolVersion": "2.5",
+  "artifactVersion": "2.6.0",
+  "protocolVersion": "2.6",
   "authority": {
     "semanticSpecs": [
       "PROJECT_CHARTER.md",
@@ -40,7 +40,8 @@
       "docs/decisions/0024-record-view.md",
       "docs/decisions/0025-app-manifest.md",
       "docs/decisions/0026-app-navigation.md",
-      "docs/decisions/0027-table-sort-declaration.md"
+      "docs/decisions/0027-table-sort-declaration.md",
+      "docs/decisions/0028-form-control-surface.md"
     ],
     "structuralContracts": [
       "docs/schemas/*.json"

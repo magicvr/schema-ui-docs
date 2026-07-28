@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-23
-applies_to: schema-ui-protocol v2.5
+applies_to: schema-ui-protocol v2.6
 ---
 
 # Schema-Driven UI 协议总纲
@@ -53,7 +53,7 @@ applies_to: schema-ui-protocol v2.5
 - 想扩展协议、新增字段 → 先读 `decisions/`，确认没有历史上被否决过的类似方案。
 - 查阅历史审计证据 → 查看 `audit/`；它不是协议权威来源，也不进入协议制品。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`；升级步骤看 `migrations/`。
-- 维护或发布某 MINOR → 对照 [`release-goals/`](./release-goals/) 下对应 `vX.Y.md`（当前线：[`v2.5.md`](./release-goals/v2.5.md)，G0–G5 已闭合）。**门禁不是语义权威。**
+- 维护或发布某 MINOR → 对照 [`release-goals/`](./release-goals/) 下对应 `vX.Y.md`（当前线：[`v2.6.md`](./release-goals/v2.6.md)，G0–G4 已闭合）。**门禁不是语义权威。**
 - 规划后续 Admin 能力 / 待增补一等公民 → 读 [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md)（**informative** backlog；P0–D.0 已交付，D.1 待立项）。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
@@ -84,9 +84,9 @@ applies_to: schema-ui-protocol v2.5
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v2.5.3`，页面通过 `meta.protocolVersion: "2.5"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.5 发布门禁见 [release-goals/v2.5.md](./release-goals/v2.5.md)；从 2.4 升级见 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)；v2.4 见 [release-goals/v2.4.md](./release-goals/v2.4.md) 与 [migrations/2.3-to-2.4.md](./migrations/2.3-to-2.4.md)；从 2.2 升级见 [migrations/2.2-to-2.3.md](./migrations/2.2-to-2.3.md)。
+当前协议版本：`v2.6.0`，页面通过 `meta.protocolVersion: "2.6"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.6 发布门禁见 [release-goals/v2.6.md](./release-goals/v2.6.md)；从 2.5 升级见 [migrations/2.5-to-2.6.md](./migrations/2.5-to-2.6.md)；v2.5 见 [release-goals/v2.5.md](./release-goals/v2.5.md) 与 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)。
 
-PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`、`record.view.load`、`table.sort`、`app.manifest`、`app.navigation`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。L2 另强制字段集→`protocolVersion` 下限（2.1 字段不得挂在 `"2.0"`；2.2 字段须 `"2.2"`；`permissionCascade` / `permissionIntent` 须 `"2.3"` 且声明 `permissions.inheritance`；`recordView` 须 `"2.4"` 且声明 `record.view.load`；`sortable` / `sortField` / `defaultSort` 须 `"2.5"` 且声明 `table.sort`）。
+PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`、`record.view.load`、`table.sort`、`app.manifest`、`app.navigation`、`form.controls.extended`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。L2 另强制字段集→`protocolVersion` 下限（2.1 字段不得挂在 `"2.0"`；2.2 字段须 `"2.2"`；`permissionCascade` / `permissionIntent` 须 `"2.3"` 且声明 `permissions.inheritance`；`recordView` 须 `"2.4"` 且声明 `record.view.load`；`sortable` / `sortField` / `defaultSort` 须 `"2.5"` 且声明 `table.sort`；`textarea` / `switch` / `checkbox` / `radio` / `select.mode: multiple` 须 `"2.6"` 且声明 `form.controls.extended`）。
 
 **Admin 生命周期 P0**（页面工具栏、行级导航、编辑回填）已由 [ADR-0020](./decisions/0020-page-action-trigger.md) / [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) 接受；**当前页多选与批量 request** 由 [ADR-0022](./decisions/0022-table-selection-and-batch-request.md) 随 `2.2.0` 制品正式发布；**容器权限继承与操作 intent** 由 [ADR-0023](./decisions/0023-container-permission-inheritance.md) 随 `2.3.0` 制品正式发布；**标准只读详情 `recordView`** 由 [ADR-0024](./decisions/0024-record-view.md) 随 `2.4.0` 制品正式发布；**应用级清单 / 导航 / 表格排序声明** 由 [ADR-0025](./decisions/0025-app-manifest.md) / [0026](./decisions/0026-app-navigation.md) / [0027](./decisions/0027-table-sort-declaration.md) 随 `2.5.0` 制品正式发布。未使用对应字段的合法旧 MINOR 页面行为不变。演进轨道见 [release-goals/next-admin-lifecycle.md](./release-goals/next-admin-lifecycle.md)（非语义权威）。
 
