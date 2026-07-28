@@ -31,6 +31,10 @@ P1 批量已接受（capability 门控；目标 2.2 制品）：
 
 - [`0022-table-selection-and-batch-request.md`](./0022-table-selection-and-batch-request.md) — 当前页多选与批量 request。
 
+表单控件面 F1（原 D.1 建议优先）已单独立项为 **v2.6**（进行中，非 v2.0 范围回写）：
+
+- [`0028-form-control-surface.md`](./0028-form-control-surface.md) — **proposed**；门禁 [`release-goals/v2.6.md`](../release-goals/v2.6.md)。
+
 ## 后果
 
 “通用 Admin”在本协议中指可互操作的基础页面协议，不等于覆盖所有 CRUD 生命周期。生产 Renderer 可通过 Host Extension 提供额外能力，但该能力不属于核心页面的跨实现保证。

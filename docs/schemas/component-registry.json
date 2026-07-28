@@ -507,6 +507,128 @@
         { "required": ["labelKey"] }
       ]
     },
+    "textarea": {
+      "category": "表单",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "supportsStates": false,
+      "since": "2.6",
+      "description": "【ADR-0028】长文本；wire 为 string；使用时声明 form.controls.extended 且 protocolVersion >= 2.6",
+      "props": {
+        "field": { "type": "string", "minLength": 1, "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
+        "labelKey": { "type": "string", "required": false },
+        "required": { "type": "boolean", "required": false },
+        "defaultVisible": { "type": "boolean", "required": false },
+        "placeholder": { "type": "string", "required": false },
+        "description": { "type": "string", "required": false },
+        "tooltip": { "type": "string", "required": false },
+        "span": { "type": "integer", "minimum": 1, "required": false },
+        "additionalProperties": false
+      },
+      "anyOf": [
+        { "required": ["label"] },
+        { "required": ["labelKey"] }
+      ]
+    },
+    "switch": {
+      "category": "表单",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "supportsStates": false,
+      "since": "2.6",
+      "description": "【ADR-0028】布尔开关；wire 仅 boolean；缺省未交互 false；required:true 要求值为 true",
+      "props": {
+        "field": { "type": "string", "minLength": 1, "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
+        "labelKey": { "type": "string", "required": false },
+        "required": { "type": "boolean", "required": false, "description": "true 时提交值必须为 true" },
+        "defaultVisible": { "type": "boolean", "required": false },
+        "description": { "type": "string", "required": false },
+        "tooltip": { "type": "string", "required": false },
+        "span": { "type": "integer", "minimum": 1, "required": false },
+        "additionalProperties": false
+      },
+      "anyOf": [
+        { "required": ["label"] },
+        { "required": ["labelKey"] }
+      ]
+    },
+    "checkbox": {
+      "category": "表单",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "supportsStates": false,
+      "since": "2.6",
+      "description": "【ADR-0028】布尔勾选；wire 与 switch 同为 boolean",
+      "props": {
+        "field": { "type": "string", "minLength": 1, "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
+        "labelKey": { "type": "string", "required": false },
+        "required": { "type": "boolean", "required": false, "description": "true 时提交值必须为 true" },
+        "defaultVisible": { "type": "boolean", "required": false },
+        "description": { "type": "string", "required": false },
+        "tooltip": { "type": "string", "required": false },
+        "span": { "type": "integer", "minimum": 1, "required": false },
+        "additionalProperties": false
+      },
+      "anyOf": [
+        { "required": ["label"] },
+        { "required": ["labelKey"] }
+      ]
+    },
+    "radio": {
+      "category": "表单",
+      "supportsChildren": false,
+      "supportsData": false,
+      "supportsReactions": true,
+      "supportsStates": false,
+      "since": "2.6",
+      "description": "【ADR-0028】单选按钮组；wire 为单个选项 value 标量；MVP 仅静态 options",
+      "props": {
+        "field": { "type": "string", "minLength": 1, "required": true },
+        "label": { "type": "string", "required": false, "description": "字段标签，与 labelKey 至少提供一个" },
+        "labelKey": { "type": "string", "required": false },
+        "options": {
+          "type": "array",
+          "required": true,
+          "minItems": 1,
+          "description": "静态选项；MVP 无 optionsSource",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "labelKey": { "type": "string" },
+              "value": { "description": "选项值" }
+            },
+            "required": ["value"],
+            "anyOf": [
+              { "required": ["label"] },
+              { "required": ["labelKey"] }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": { "type": "boolean", "required": false },
+        "defaultVisible": { "type": "boolean", "required": false },
+        "description": { "type": "string", "required": false },
+        "tooltip": { "type": "string", "required": false },
+        "span": { "type": "integer", "minimum": 1, "required": false },
+        "additionalProperties": false
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            { "required": ["label"] },
+            { "required": ["labelKey"] }
+          ]
+        },
+        { "required": ["options"] }
+      ]
+    },
     "inputNumber": {
       "category": "表单",
       "supportsChildren": false,
@@ -660,6 +782,13 @@
           },
           "required": ["url", "labelField", "valueField"],
           "additionalProperties": false
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["single", "multiple"],
+          "required": false,
+          "since": "2.6",
+          "description": "【ADR-0028】缺省 single；multiple 时 wire 为选项 value 的 JSON 数组；禁止用于 form.mode:search；使用 multiple 须 form.controls.extended 且 protocolVersion >= 2.6"
         },
         "required": { "type": "boolean", "required": false },
         "defaultVisible": { "type": "boolean", "required": false },

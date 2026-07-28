@@ -567,7 +567,11 @@ function isFormContext(node) {
 function collectFormFieldRoots(node, output = new Set(), root = true) {
   if (!node || typeof node !== 'object') return output;
   if (!root && node.type === 'form') return output;
-  const fieldTypes = new Set(['input', 'inputNumber', 'datePicker', 'select', 'upload']);
+  // Mirror L2 collectFormFields (ADR-0028 F1): textarea/switch/checkbox/radio are form field roots.
+  const fieldTypes = new Set([
+    'input', 'inputNumber', 'datePicker', 'select', 'upload',
+    'textarea', 'switch', 'checkbox', 'radio',
+  ]);
   if (fieldTypes.has(node.type) && typeof node.props?.field === 'string' && node.props.field.length > 0) {
     output.add(node.props.field.split('.')[0]);
   }

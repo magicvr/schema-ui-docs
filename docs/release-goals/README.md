@@ -30,7 +30,8 @@ last_updated: 2026-07-28
 | [v2.2.md](./v2.2.md) | `v2.2.0` MINOR 发布门禁 |
 | [v2.3.md](./v2.3.md) | `v2.3.0` MINOR 发布门禁 |
 | [v2.4.md](./v2.4.md) | `v2.4` 线 MINOR 发布门禁 |
-| [v2.5.md](./v2.5.md) | `v2.5` accept / 发布门禁（当前线） |
-| [next-admin-lifecycle.md](./next-admin-lifecycle.md) | Admin 生命周期轨道与 **D.1 待增补一等公民 backlog**（规划，非单版本门禁、非语义权威） |
+| [v2.5.md](./v2.5.md) | `v2.5` accept / 发布门禁（已发布线） |
+| [v2.6.md](./v2.6.md) | `v2.6` accept / 发布门禁（F1 表单控件面 A+B；当前线） |
+| [next-admin-lifecycle.md](./next-admin-lifecycle.md) | Admin 生命周期轨道：已交付 2.1–2.6、残留 D.1 backlog（规划，非语义权威） |
 
 历史发布门禁路径曾为 `docs/09-…`–`docs/16-…`（与核心规范同级编号）。自整理起统一放在本目录，避免被误读为协议章节。应用级规范正文现为连续编号的 [`docs/09-app-manifest.md`](../09-app-manifest.md)（v2.5 发布时曾短暂使用 `17-app-manifest.md`）。

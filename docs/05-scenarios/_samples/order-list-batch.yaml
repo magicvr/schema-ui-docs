@@ -1,7 +1,7 @@
 meta:
   pageId: order_list_batch
   title: 订单列表批量
-  protocolVersion: "2.5"
+  protocolVersion: "2.6"
   requiredCapabilities:
     - actions.page.trigger
     - table.selection

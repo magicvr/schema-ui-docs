@@ -21,19 +21,45 @@ def resolve_mapped_value(response, path):
     return {"found": True, "value": value}
 
 
+def wire_type_matches(wire, value):
+    if wire == "string":
+        return isinstance(value, str)
+    if wire == "boolean":
+        return isinstance(value, bool)
+    if wire == "number":
+        return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+    if wire == "array":
+        return isinstance(value, list)
+    return True
+
+
 def map_form_record(input_value):
     mapping = input_value.get("responseMapping")
     if mapping is None or not isinstance(mapping, dict) or not mapping:
         return failure("INVALID_RESPONSE_MAPPING", "responseMapping")
     values = {}
+    skipped = {}
+    raw_wires = input_value.get("fieldWireTypes")
+    field_wire_types = raw_wires if isinstance(raw_wires, dict) else None
     for field, path_expr in mapping.items():
         if not isinstance(field, str) or not field or not isinstance(path_expr, str) or not path_expr:
             return failure("INVALID_RESPONSE_MAPPING", f"responseMapping.{field}")
         found, value = read_path(input_value["response"], path_expr)
         # ADR-0021 D5a / V273: missing path does not abort whole fill.
         # Conformance-observable value is JSON null (equivalent empty initial).
-        values[field] = value if found else None
-    return {"ok": True, "values": values}
+        if not found:
+            values[field] = None
+            continue
+        wire = field_wire_types.get(field) if field_wire_types else None
+        if wire and not wire_type_matches(wire, value):
+            # ADR-0028 OQ-1: type mismatch skips the key; does not abort whole fill.
+            skipped[field] = "FIELD_WIRE_TYPE_MISMATCH"
+            continue
+        values[field] = value
+    result = {"ok": True, "values": values}
+    if skipped:
+        result["skipped"] = skipped
+    return result
 
 
 def map_response(input_value):

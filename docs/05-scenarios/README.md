@@ -16,9 +16,10 @@
 | [`admin-list-detail-lifecycle.md`](./admin-list-detail-lifecycle.md) | `table` + `recordView` | 列表行进详情、只读 recordView 加载（扩展示例） | `actions.row.navigate`、`record.view.load`（ADR-0021/0024） |
 | [`admin-list-batch.md`](./admin-list-batch.md) | `table` + toolbar batch | 当前页多选与批量 request（扩展示例） | `table.selection`、`actions.batch.request`（ADR-0022） |
 | [`permission-inheritance.md`](./permission-inheritance.md) | `section` / `form` / `table` + actions | 容器 edit/delete 继承与显式操作 intent（扩展示例） | `permissionCascade`、`permissionIntent`、`permissions.inheritance`（ADR-0023） |
+| [`form-controls-extended.md`](./form-controls-extended.md) | `textarea` / `switch` / `checkbox` / `radio` / multi-`select` | 扩展表单控件面与 boolean/数组提交（扩展示例） | `form.controls.extended`（ADR-0028） |
 
 > `admin-list-edit-lifecycle.md` 与 `admin-list-detail-lifecycle.md` 为 Admin 生命周期扩展示例：**已进入** conformance `scenarios` suite（`CONFORMANCE_SCENARIO_PATHS`），**尚未**列入 `OFFICIAL_SCENARIO_PATHS` 六场景 release 门禁清单。  
-> `admin-list-batch.md` 为 Phase C 扩展示例：机器可读样例见 `_samples/order-list-batch.yaml`；当前示例随协议线统一声明 `protocolVersion: "2.5"`（batch 字段集仍属 2.2+ capability）。
+> `admin-list-batch.md` 为 Phase C 扩展示例：机器可读样例见 `_samples/order-list-batch.yaml`；当前示例随协议线统一声明 `protocolVersion: "2.6"`（batch 字段集仍属 2.2+ capability）。
 > `permission-inheritance.md` 为 ADR-0023 扩展示例；跨语言可观测规则由 `permissions-inheritance` fixture suite 覆盖。
 
 ## 阅读顺序
@@ -35,6 +36,7 @@
 8. **`admin-list-detail-lifecycle.md`** — 列表行进详情、只读 `recordView` 加载（ADR-0024）
 9. **`admin-list-batch.md`** — 当前页多选与批量 request（ADR-0022）
 10. **`permission-inheritance.md`** — 容器权限继承与操作入口意图（ADR-0023）
+11. **`form-controls-extended.md`** — 扩展表单控件面（`textarea` / 布尔 / `radio` / multi-`select`；需 `form.controls.extended`，ADR-0028）
 
 ## 相关文档
 

@@ -31,6 +31,7 @@
  *      - 2.2 字段（selection / requiresSelection / batchMapping）在 ALLOW_22_FIELDS_ON_21 时 >= "2.1"，否则 >= "2.2"
  *      - 2.3 字段（permissionCascade / permissionIntent）要求 protocolVersion >= "2.3" 且 permissions.inheritance
  *      - 2.4 字段（recordView）要求 protocolVersion >= "2.4" 且 record.view.load
+ *      - 2.6 字段（textarea/switch/checkbox/radio/select.mode:multiple）要求 protocolVersion >= "2.6" 且 form.controls.extended（ADR-0028）
  *
  * 用法：
  *   node scripts/validate-l2-components.js <file-or-glob> [--json]
@@ -65,9 +66,12 @@ const FLOOR_22 = ALLOW_22_FIELDS_ON_21 ? '2.1' : '2.2';
 const FLOOR_23 = '2.3';
 const FLOOR_24 = '2.4';
 const FLOOR_25 = '2.5';
+const FLOOR_26 = '2.6';
 const PERMISSION_INHERITANCE_CAPABILITY = 'permissions.inheritance';
 const RECORD_VIEW_LOAD_CAPABILITY = 'record.view.load';
 const TABLE_SORT_CAPABILITY = 'table.sort';
+const FORM_CONTROLS_EXTENDED_CAPABILITY = 'form.controls.extended';
+const FORM_CONTROLS_EXTENDED_TYPES = new Set(['textarea', 'switch', 'checkbox', 'radio']);
 const RESERVED_TABLE_QUERY_KEYS = new Set(['page', 'pageSize', 'sort']);
 const PERMISSION_CASCADE_NODE_TYPES = new Set(['section', 'grid', 'form', 'tabs', 'table']);
 const PERMISSION_CASCADE_KEYS = new Set(['edit', 'delete']);
@@ -1758,7 +1762,10 @@ function validateRowActionRefs(doc, violations) {
 
 function collectFormFields(formNode, formPath, violations) {
   const fields = new Map();
-  const fieldTypes = new Set(['input', 'inputNumber', 'datePicker', 'upload', 'select']);
+  const fieldTypes = new Set([
+    'input', 'inputNumber', 'datePicker', 'upload', 'select',
+    'textarea', 'switch', 'checkbox', 'radio', // ADR-0028 F1
+  ]);
 
   const addField = (name, nodePath, ownerType, propName) => {
     if (typeof name !== 'string' || name.length === 0) {
@@ -2143,6 +2150,12 @@ function validateProtocolVersionFloor(doc, violations) {
     if (node.type === 'recordView') {
       requireFloor(nodePath, 'recordView', FLOOR_24);
     }
+    if (FORM_CONTROLS_EXTENDED_TYPES.has(node.type)) {
+      requireFloor(nodePath, `form control ${node.type}`, FLOOR_26);
+    }
+    if (node.type === 'select' && node.props && node.props.mode === 'multiple') {
+      requireFloor(`${nodePath}.props.mode`, 'select.mode: multiple', FLOOR_26);
+    }
     if (node.type === 'table' && node.props) {
       if (node.props.selection !== undefined) {
         requireFloor(`${nodePath}.props.selection`, 'table.props.selection', FLOOR_22);
@@ -2283,6 +2296,16 @@ function validateRequiredCapabilities(doc, violations) {
     }
     if (node.type === 'recordView') {
       requireCapability(RECORD_VIEW_LOAD_CAPABILITY, nodePath, 'recordView');
+    }
+    if (FORM_CONTROLS_EXTENDED_TYPES.has(node.type)) {
+      requireCapability(FORM_CONTROLS_EXTENDED_CAPABILITY, nodePath, `form control ${node.type}`);
+    }
+    if (node.type === 'select' && node.props && node.props.mode === 'multiple') {
+      requireCapability(
+        FORM_CONTROLS_EXTENDED_CAPABILITY,
+        `${nodePath}.props.mode`,
+        'select.mode: multiple',
+      );
     }
     if (node.type === 'table' && node.props) {
       if (node.props.selection !== undefined) {
@@ -2516,6 +2539,69 @@ function validateReservedTableQueryParams(doc, violations) {
 }
 
 /**
+ * ADR-0028 D6a: select.mode:multiple (and cascader if ever shipped) forbidden under search form.
+ */
+function validateSelectMultipleInSearch(doc, violations) {
+  if (!doc || typeof doc !== 'object') return;
+
+  const scanSearchFields = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'select' && node.props && node.props.mode === 'multiple') {
+      violations.push({
+        path: `${nodePath}.props.mode`,
+        message:
+          'select.mode: multiple 不得用于 form.mode: search（SELECT_MULTIPLE_IN_SEARCH / ADR-0028 D6a；数组 query 未定义）',
+      });
+    }
+    if (node.type === 'cascader') {
+      violations.push({
+        path: nodePath,
+        message:
+          'cascader 不得用于 form.mode: search（数组 query 未定义；ADR-0028）',
+      });
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, index) => scanSearchFields(child, `${nodePath}.children[${index}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, index) => {
+        if (item && item.content) {
+          scanSearchFields(item.content, `${nodePath}.props.items[${index}].content`);
+        }
+      });
+    }
+  };
+
+  const scanNode = (node, nodePath) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'form' && node.props?.mode === 'search') {
+      if (Array.isArray(node.children)) {
+        node.children.forEach((child, index) => scanSearchFields(child, `${nodePath}.children[${index}]`));
+      }
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach((child, index) => scanNode(child, `${nodePath}.children[${index}]`));
+    }
+    if (node.props && Array.isArray(node.props.items)) {
+      node.props.items.forEach((item, index) => {
+        if (item && item.content) {
+          scanNode(item.content, `${nodePath}.props.items[${index}].content`);
+        }
+      });
+    }
+  };
+
+  if (doc.body) scanNode(doc.body, 'body');
+  if (isPlainObject(doc.actions)) {
+    for (const [actionId, action] of Object.entries(doc.actions)) {
+      if (action?.type === 'modal' && action.content) {
+        scanNode(action.content, `actions.${actionId}.content`);
+      }
+    }
+  }
+}
+
+/**
  * ADR-0027 L2: table.sort declaration surface.
  * - sortField only when sortable:true
  * - sortKey unique across sortable columns
@@ -2631,6 +2717,7 @@ function validatePage(doc, fileLabel) {
   validateProtocolVersionFloor(doc, violations);
   validateParamsResponseMappingBan(doc, violations);
   validateReservedTableQueryParams(doc, violations);
+  validateSelectMultipleInSearch(doc, violations);
   return violations.map(v => ({ file: fileLabel, ...v }));
 }
 

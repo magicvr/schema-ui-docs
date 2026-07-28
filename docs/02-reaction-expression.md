@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.5
+applies_to: schema-ui-protocol v2.6
 ---
 
 # 联动表达式引擎语法规范
@@ -152,6 +152,25 @@ L3a 对 `$deps.*` 做精确包含匹配：`dependencies` 必须声明所引用�
 
 - `scope: form`（表单字段 `reactions`）：`$self` 指当前字段自身的当前值（与 v0.1 一致）。
 - `scope: row`（表格列表达式）：`$self` 指**当前列对应单元格的原始数据值**（即 `$row[column.field]`，未经 `format` 处理的原始值）。`$self` 在表格 `actions` 的表达式中不适用（无"当前单元格"概念，**任意 scope**），静态校验拒绝。
+
+#### 9.2.1 v2.6 表单控件面 wire 与 `$self` / `$deps`（ADR-0028）
+
+自 `protocolVersion: "2.6"` 起，下列字段 type 的协议 wire 与表达式取值类型固定（与提交投影、`form.recordSource` 回填一致）。L3a 将它们计为 form 字段根（可出现在 `$deps.<field>`）。
+
+| type / 字段 | wire | `$self` / `$deps.<field>` | `fulfill.value` / `otherwise.value` |
+|---|---|---|---|
+| `textarea` | string | string | 仅 string，或协议已有的清空语义（如 `null`） |
+| `switch` / `checkbox` | **boolean**（仅 JSON `true`/`false`） | boolean | **仅 boolean**；禁止 `"true"`/`1` 等 coercion |
+| `radio` | 单个选项 `value` 标量 | 与选项 value 同型 | 与单选 `select` 对齐的标量 |
+| `select`（缺省 / `mode: single`） | 单值标量 | 标量 | 标量（既有） |
+| `select`（`mode: multiple`） | **JSON 数组**（元素为选项 value） | **array** | **仅整数组替换**（或清空）；禁止按元素 merge / 部分覆盖 |
+
+补充：
+
+- `switch`/`checkbox` 缺省未交互为 `false`（非三态 `null`）；比较用 ADR-0016（`true == 1` 不相等）。
+- multiple 数组可用既有 `contains` 判断选中项（左操作数为数组，右操作数为字面量）。
+- `$deps.<field>` 的类型与上表 wire 相同；声明 `dependencies` 时字段名仍为 `field` 根名。
+- 未声明 `form.controls.extended` 或版本 &lt; `2.6` 时，上述 type / `mode: multiple` 由 L2 拒绝，不进入 L3a 正例。
 
 ### 9.3 `fulfill`/`otherwise` 状态键的作用域限制
 
@@ -312,6 +331,7 @@ visibleWhen:
 
 - 同一字段上的多条 `reactions` 按数组顺序求值，后一条对 `value` 覆盖前一条。
 - Renderer 在开发环境应输出警告，提示存在多处写同一字段 `value` 的配置，建议合并规则或拆分字段。
+- **v2.6 / ADR-0028：** 写入值的类型必须符合该字段 wire（§9.2.1）。`switch`/`checkbox` 只接受 boolean；`select.mode: multiple` 只接受**完整数组**（整数组替换），不得把标量写入 multiple 字段，也不得定义「只改数组某一元素」的协议语义。
 
 ### 14.2 循环保护
 

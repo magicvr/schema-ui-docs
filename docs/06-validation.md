@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.5
+applies_to: schema-ui-protocol v2.6
 ---
 
 # 校验规则与工具链
@@ -38,6 +38,8 @@ applies_to: schema-ui-protocol v2.5
 > **v2.4 / ADR-0024 只读详情：** `type: recordView` 要求 `meta.protocolVersion >= "2.4"` 与 `record.view.load`（权威字段纪律亦见 `01` `meta.protocolVersion`；双重门控两端均须出现）。L2 校验 `recordSource`（与 form 同构：method 必填 GET、responseMapping 非空、path 占位对齐）及 `fields[]`（非空、key 唯一且 ⊆ responseMapping、`format: tag` 时 tagMap 必填）。**`fields[].key ⊆ responseMapping` 为跨字段约束，L0/L1 JSON Schema 无法表达，仅 L2 为权威执行点**（审计 0067 V306）。`$context.route` 可绑定 `recordView.props.recordSource` 的 path/query，仍禁止出现在普通表达式挂载点。双重门控 L2 负例（`2.3`+recordView、`2.4` 缺 capability + recordView）见 `docs/05-scenarios/_samples/audit-0067-*.yaml` 与 MCP `validate_content` 测试（审计 0067 V303）。
 
 > **v2.5 / ADR-0027 表格排序声明：** 出现 `columns[].sortable` / `sortField` 或 `table.props.defaultSort` 时要求 `meta.protocolVersion >= "2.5"` 与 `table.sort`。L2：`sortField` 仅 `sortable: true`；可排序 sortKey 全表唯一；保留名 `page`/`pageSize`/`sort` 拒绝；`defaultSort.field` 命中可排序 sortKey；可排序交互与 `defaultSort` **仅** `pagination.mode: server`。运行时未知 sortKey → `TABLE_SORT_FIELD_UNKNOWN`（见 `03` / ADR-0027）。
+
+> **v2.6 / ADR-0028 表单控件面：** 出现 `textarea` / `switch` / `checkbox` / `radio` 或 `select.mode: multiple` 时要求 `meta.protocolVersion >= "2.6"` 与 `form.controls.extended`。L2：search form 子树拒绝 `mode: multiple`（`SELECT_MULTIPLE_IN_SEARCH`）；新控件计入 form 字段命名空间（供 `bodyMapping` 校验）。`cascader` 不在 2.6 交付。
 
 > **v2.5 / 应用级清单（M 系列，与页面 L 平行）：** 清单制品使用 **M0 / M1 / M3a**（有意无 M2），见 [09-app-manifest.md](./09-app-manifest.md) 与 ADR-0025/0026。M0 = `app-manifest.schema.json`；M1 = 引用完整性、route 模板、capability 门控等；M3a = 导航 `visibleWhen`/`permissions` 复用 L3a 非表单规则（仅清单作用域）。页面管线 L0–L4 定义零改动。
 

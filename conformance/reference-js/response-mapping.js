@@ -21,6 +21,14 @@ function resolveMappedValue(response, path) {
   return resolved.found ? resolved : failure('RESPONSE_MAPPING_PATH_MISSING', path);
 }
 
+function wireTypeMatches(wire, value) {
+  if (wire === 'string') return typeof value === 'string';
+  if (wire === 'boolean') return typeof value === 'boolean';
+  if (wire === 'number') return typeof value === 'number' && Number.isFinite(value);
+  if (wire === 'array') return Array.isArray(value);
+  return true;
+}
+
 function mapFormRecord(input) {
   const mapping = input.responseMapping;
   if (mapping === undefined || mapping === null || typeof mapping !== 'object'
@@ -28,6 +36,11 @@ function mapFormRecord(input) {
     return failure('INVALID_RESPONSE_MAPPING', 'responseMapping');
   }
   const values = {};
+  const skipped = {};
+  const fieldWireTypes = input.fieldWireTypes && typeof input.fieldWireTypes === 'object'
+    && !Array.isArray(input.fieldWireTypes)
+    ? input.fieldWireTypes
+    : null;
   for (const [field, pathExpr] of Object.entries(mapping)) {
     if (typeof field !== 'string' || field.length === 0
       || typeof pathExpr !== 'string' || pathExpr.length === 0) {
@@ -36,9 +49,21 @@ function mapFormRecord(input) {
     const resolved = readPath(input.response, pathExpr);
     // ADR-0021 D5a / V273: missing path does not abort the whole fill.
     // Conformance-observable value is JSON null (equivalent empty initial; not undefined).
-    values[field] = resolved.found ? resolved.value : null;
+    if (!resolved.found) {
+      values[field] = null;
+      continue;
+    }
+    const wire = fieldWireTypes ? fieldWireTypes[field] : undefined;
+    if (wire && !wireTypeMatches(wire, resolved.value)) {
+      // ADR-0028 OQ-1: type mismatch skips the key; does not abort whole fill.
+      skipped[field] = 'FIELD_WIRE_TYPE_MISMATCH';
+      continue;
+    }
+    values[field] = resolved.value;
   }
-  return { ok: true, values };
+  const result = { ok: true, values };
+  if (Object.keys(skipped).length > 0) result.skipped = skipped;
+  return result;
 }
 
 function mapResponse(input) {
