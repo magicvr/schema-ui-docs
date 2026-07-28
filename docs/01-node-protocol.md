@@ -25,7 +25,7 @@ meta:            # 页面元信息
   pageId: string
   title: string
   description: string
-  protocolVersion: string   # 必填（since 0.2）。当前制品使用 "2.6"；字段集→版本下限见下文与 migrations/
+  protocolVersion: string   # 必填（since 0.2）。当前制品使用 "2.7"；字段集→版本下限见下文与 migrations/
   requiredCapabilities: [string] # 可选（since 0.2.6）。执行能力协商，如 actions.page.trigger / table.selection / permissions.inheritance / record.view.load / table.sort / form.controls.extended / form.controls.advanced / app.manifest
 
 datasources:     # 【可选】页面级预声明数据源，供 body 内节点通过 ref 引用；仅允许 source: api 或 source: static，禁止 source: ref（引用链会导致递归风险）

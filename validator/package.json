@@ -1,6 +1,6 @@
 {
   "name": "schema-ui-validator",
-  "version": "2.7.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Non-normative Schema-UI protocol validation helpers",
   "schemaUiProtocol": {
