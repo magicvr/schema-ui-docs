@@ -1,7 +1,21 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-const image = process.argv[2] ?? 'schema-ui-mcp:2.0.0';
+function defaultLocalImageTag() {
+  const packageJsonPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json');
+  const { version } = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  if (typeof version !== 'string' || version.length === 0) {
+    throw new Error(`mcp/package.json missing version (read from ${packageJsonPath})`);
+  }
+  return `schema-ui-mcp:${version}`;
+}
+
+// Prefer explicit argv (CI/CD and GHCR pulls). Bare `npm run smoke:docker` follows mcp package version
+// so the default cannot lag across MINOR bumps (审计 0078 / V373；历史 0036).
+const image = process.argv[2] ?? defaultLocalImageTag();
 const dockerCommand = process.env.DOCKER_COMMAND ?? 'docker';
 
 const client = new Client({ name: 'schema-ui-mcp-docker-smoke', version: '0.0.0' });

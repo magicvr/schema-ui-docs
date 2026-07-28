@@ -2,16 +2,16 @@
 status: active
 owner: 前后端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.6 (post-v2.6 track; residual D.1 backlog)
+applies_to: schema-ui-protocol v2.7 (post-v2.7 track; residual D.1 backlog)
 ---
 
 # 下一步目标：Admin 生命周期协议轨道
 
-本文档确立 **v2.0 之后** 的协议演进方向，把 [ADR-0019](../decisions/0019-v2-admin-scope.md) 已明确排除的「完整 Admin 生命周期」落成可执行的目标与优先级，并记录 **v2.6 之后** 的一等公民演进（**F1 A+B 已交付**；F1e cascader 与其余 D.1 为残留 backlog）。
+本文档确立 **v2.0 之后** 的协议演进方向，把 [ADR-0019](../decisions/0019-v2-admin-scope.md) 已明确排除的「完整 Admin 生命周期」落成可执行的目标与优先级，并记录 **v2.7 之后** 的一等公民演进（**F1 A+B @ v2.6 与表单进阶 F1e+ @ v2.7 已交付**；残留 D.1 为 F2+ / L* / U* backlog）。
 
 它**不是**任一版本的发布门禁，也不改变已发布页面/清单的合法语义。在对应 capability、ADR、Schema 与 versioned fixtures 原子落地之前，下列能力**不得**被描述为协议已支持，也不得要求标准 Renderer 通过私有 handler 猜测实现。
 
-历史门禁：[`v2.0.md`](./v2.0.md) … [`v2.6.md`](./v2.6.md)。应用级清单/导航为**平行轨道**（ADR-0025/0026，规范 [`09-app-manifest.md`](../09-app-manifest.md)），不并入本文件的页面 Admin Phase 编号，但在 §8 状态表中交叉记录。
+历史门禁：[`v2.0.md`](./v2.0.md) … [`v2.7.md`](./v2.7.md)。应用级清单/导航为**平行轨道**（ADR-0025/0026，规范 [`09-app-manifest.md`](../09-app-manifest.md)），不并入本文件的页面 Admin Phase 编号，但在 §8 状态表中交叉记录。
 
 ## 1. 背景与动机
 
@@ -28,7 +28,7 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 
 若继续仅用 Host Extension 承载上述能力，多 Renderer / 多后端页面生产方将产生不可互操作的私货分叉。下一步目标是把其中共识最高的部分升为 **v2.x 可选 capability**，而不是立刻开破坏性 MAJOR。
 
-**v2.1–v2.6 已交付**主 CRUD 生命周期、应用壳与表单控件面 F1 A+B（见 §4 / §8）。其余缺口仍为：**运营批处理闭环**、子表与少数结构化列表增强（见 §4 Phase D.1 残留 backlog）。
+**v2.1–v2.7 已交付**主 CRUD 生命周期、应用壳、表单控件面 F1 A+B 与进阶五件套（见 §4 / §8）。其余缺口仍为：**运营批处理闭环**、子表与少数结构化列表增强（见 §4 Phase D.1 残留 backlog）。
 
 ## 2. 轨道原则
 
@@ -218,7 +218,8 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 4. `2.4` — Phase D.0（0024）
 5. `2.5` — 平行轨道：应用清单/导航 + `table.sort`（0025–0027）
 6. `2.6` — Phase D.1.0 F1 表单控件面 A+B（0028）
-7. 更后 MINOR — Phase D.1 残留（F2+ / F1e / L*）按 §4 D.1 单独立项
+7. `2.7` — Phase D.1.0b 表单控件面进阶（0029–0033；含 F1e）
+8. 更后 MINOR — Phase D.1 残留（F2+ / L* / U*）按 §4 D.1 单独立项
 
 ## 6. 成功标准
 
@@ -237,10 +238,12 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 |---|---|
 | [`v2.0.md`](./v2.0.md) … [`v2.5.md`](./v2.5.md) | 各 MINOR 历史发布门禁；本文件不替代它们 |
 | [`v2.6.md`](./v2.6.md) | F1 A+B 已发布门禁 |
+| [`v2.7.md`](./v2.7.md) | 表单进阶（cascader / checkboxGroup / richText / password / defaultValue）已发布门禁 |
 | [`decisions/0019-v2-admin-scope.md`](../decisions/0019-v2-admin-scope.md) | 界定 v2.0 不含完整 Admin；本文件是其后续执行轨道 |
 | [0020](../decisions/0020-page-action-trigger.md) … [0024](../decisions/0024-record-view.md) | 页面 Admin 生命周期已接受 ADR |
 | [0025](../decisions/0025-app-manifest.md) / [0026](../decisions/0026-app-navigation.md) / [0027](../decisions/0027-table-sort-declaration.md) | 应用级与表排序；平行于本轨道 |
 | [0028](../decisions/0028-form-control-surface.md) | F1 表单控件面 A+B；accepted @ v2.6 |
+| [0029](../decisions/0029-cascader.md)–[0033](../decisions/0033-form-default-value.md) | 表单进阶；accepted @ v2.7 |
 | [`09-app-manifest.md`](../09-app-manifest.md) | 应用级规范正文（原短暂编号 `17`，现与 `00`–`08` 连续） |
 | [`PROJECT_CHARTER.md`](../../PROJECT_CHARTER.md) | 变更门禁与权威层级 |
 | `docs/audit/` | 过程记录；结论须沉淀回规范/ADR/本文件/CHANGELOG |
@@ -249,11 +252,12 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 
 | 项 | 状态 |
 |---|---|
-| 协议制品 / 协议线 | `2.6.0` / `"2.6"`（见 `protocol-manifest.json`） |
+| 协议制品 / 协议线 | `2.7.0` / `"2.7"`（见 `protocol-manifest.json`） |
 | 页面 Admin 主路径 | **Phase B / C / C.1 / D.0 已发布**（2.1–2.4） |
 | 应用壳 + 表排序 | **2.5 已发布**（0025–0027；规范 `09`） |
-| Phase D.1.0 F1 | **v2.6 已交付**（0028 A+B；C defer） |
-| Phase D.1 残留 | F2–F5、F1e、L*、U* 仍为 backlog；**未立项** |
+| Phase D.1.0 F1 | **v2.6 已交付**（0028 A+B；C 当时 defer） |
+| Phase D.1.0b 进阶 | **v2.7 已交付**（0029–0033；含 F1e cascader） |
+| Phase D.1 残留 | F2–F5、L*、U* 仍为 backlog；**未立项**（F1 / F1e 已迁出） |
 | 建议下一步 | 按痛点从 **F2 子表** 或 **F3/F4 导入导出** 择一 ADR；不得以 Host 私货扩张已交付边界 |
 
 ---
