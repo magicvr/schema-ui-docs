@@ -26,6 +26,18 @@ const validatorPackage = readJson('validator/package.json');
 assert.match(mcpPackage.version, /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/, 'MCP version must be SemVer');
 assert.equal(mcpLock.version, mcpPackage.version, 'MCP lockfile version mismatch');
 assert.equal(mcpLock.packages[''].version, mcpPackage.version, 'MCP lockfile root package version mismatch');
+// file:.. workspace link: lock must snapshot the parent package version (审计 0076 / V362).
+assert.ok(mcpLock.packages['..'], 'MCP lockfile missing packages[".."] for file:.. workspace link');
+assert.equal(
+  mcpLock.packages['..'].version,
+  protocolPackage.version,
+  'MCP lockfile packages[".."] version must match root package.json version',
+);
+assert.equal(
+  mcpLock.packages['..'].name,
+  protocolPackage.name,
+  'MCP lockfile packages[".."] name must match root package.json name',
+);
 assert.equal(protocolManifest.artifactVersion, protocolPackage.version, 'Protocol package and manifest version mismatch');
 assert.equal(
   mcpPackage.schemaUiProtocol?.artifactVersion,

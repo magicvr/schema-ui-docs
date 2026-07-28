@@ -6,6 +6,28 @@
 
 ---
 
+## 0076 — 2026-07-28 — v2.6.0 后 MCP lock 父包版本与 release 门禁
+
+**主题：** `mcp/package-lock.json` 的 `packages[".."]`（`file:..` 工作区）残留 **2.5.3**，与根包 **2.6.0** 不一致；`mcp-release-check` 未断言该字段（V362）。
+**性质：** 1×P2 **全部关闭**。主类型=实现/契约漂移（门禁卫生）。
+
+| 文件 | 说明 |
+|---|---|
+| [0076-2026-07-28-review.md](./0076-2026-07-28-review.md) | 审计报告 — V362（全部关闭） |
+| [0076-2026-07-28-checklist.md](./0076-2026-07-28-checklist.md) | 跟踪清单 — 修复与归档门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| V362 | lock parent `2.5.3` → `2.6.0`；`mcp-release-check` 断言 `packages[".."].name/version` |
+| 本地门禁 | `release:check:mcp` 绿；负例 parent=2.5.3 fail-closed；`release:check` 303 / fixture `3a9cd233…` |
+| 发布 | **不**强制 PATCH；**未**改写 `v2.6.0` / `mcp-v2.6.0`；不进协议 contentDigest |
+
+**说明：** 正式 tag 曾带 parent 漂移；本轮仅修工作树 lock 与门禁防复发。生产消费者仍 pin `v2.4.1`（out-of-repo）。
+
+---
+
 ## 0075 — 2026-07-28 — v2.6.0 发布后总纲交付叙事与 F1 场景门禁投影
 
 **主题：** 正式 `v2.6.0` 发布后总纲 §5 交付叙事缺 ADR-0028、F1 扩展示例未进 frontmatter 门禁、CHANGELOG `v2.5.3` 历史指针陈旧（V359–V361）。
