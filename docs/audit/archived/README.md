@@ -6,6 +6,28 @@
 
 ---
 
+## 0074 — 2026-07-28 — v2.6.0 落地后制品门禁、MCP 投影与发布证据
+
+**主题：** v2.6.0（ADR-0028 F1 A+B）落地后 F1 sample 未入 manifest、MCP 测试投影滞后、入口卫生，以及正式 tag/CD 证据链（V350–V358）。
+**性质：** 3×P1 + 4×P2 + 2×P3 **全部关闭**。主类型=实现/契约漂移；次类型=发布完整性。
+
+| 文件 | 说明 |
+|---|---|
+| [0074-2026-07-28-review.md](./0074-2026-07-28-review.md) | 审计报告 — V350–V358（全部关闭） |
+| [0074-2026-07-28-checklist.md](./0074-2026-07-28-checklist.md) | 跟踪清单 — 修复、2.6.0 发布与归档门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| V350–V351、V353–V358 | manifest sample、MCP test、入口文档 in-repo 闭合；本地全量门禁与 PR CI 绿 |
+| V352 发布 | PR [#30](https://github.com/magicvr/schema-ui-docs/pull/30) → `main` `cf65b96`；tag `v2.6.0` Protocol Release [30319358897](https://github.com/magicvr/schema-ui-docs/actions/runs/30319358897) success；tag `mcp-v2.6.0` MCP CD [30319358872](https://github.com/magicvr/schema-ui-docs/actions/runs/30319358872) success |
+| 正式资产 | protocol artifact `sha256:e132d225…`；content `a2c6b4a4…`；fixture `3a9cd233…`；MCP 镜像 index `sha256:fafeacb0…`（`2.6.0` / `2.6` / `latest` 同 digest） |
+
+**说明：** 未改写 `v2.5.3` / `mcp-v2.5.3`。生产消费者升级继续作为 out-of-repo 跟踪。
+
+---
+
 ## 0073 — 2026-07-28 — v2.5.2 后 Unreleased 重编号与发布身份
 
 **主题：** 17→09 app-manifest 路径重编号后工作树仍声明 **2.5.2** 导致 content/artifact digest 分叉，以 **2.5.3** PATCH 固化（V349）。

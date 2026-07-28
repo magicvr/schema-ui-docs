@@ -49,7 +49,7 @@ ghcr.io/<github-owner-lowercase>/schema-ui-mcp
 
 将 `<github-owner-lowercase>` 换成仓库所有者的小写登录名或 org（例如 `ghcr.io/acme/schema-ui-mcp`）。
 
-当前版本示例（版本号以 `mcp/package.json` 与**已发布** `mcp-v*` tag 为准；应与协议线一致，例如协议 `2.6` → MCP `2.6.x`。工作树 MCP 为 `2.6.0`（捆绑协议 `2.6.0`）。正式拉取需 tag **`mcp-v2.6.0`** 发布后的镜像；在此之前生产请继续 pin 已发布的 **`2.5.3`** / **`mcp-v2.5.3`**，不要只用 `latest`）：
+当前版本示例（版本号以 `mcp/package.json` 与**已发布** `mcp-v*` tag 为准；应与协议线一致，例如协议 `2.6` → MCP `2.6.x`。工作树与正式 MCP 为 `2.6.0`（捆绑协议 `2.6.0`）；稳定接入请 pin **`2.6.0`** / **`mcp-v2.6.0`**，不要只用 `latest`）：
 
 ```bash
 docker pull ghcr.io/<owner>/schema-ui-mcp:2.6.0
