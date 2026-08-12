@@ -45,8 +45,12 @@ applies_to: schema-ui-protocol vNext (candidate track)
 - [x] umbrella ADR 明确薄 Host/App 层与协议外事项；
 - [x] 95 个候选均获得 `adopt-now` / `reserve-extension` / `explicitly-out` 处置；
 - [x] 三个能力包拆成独立 proposed ADR；
-- [x] 独立审计无 P0/P1 阻断（2026-08-13 Grok Build 最终复核：`BLOCKING_COUNT=0`）；
-- [ ] 消费者候选目录同步 ADR-0034 D10 的 H0/S2 标签语义，不以 deferred 冒充已保留 capability；
+- [x] 独立审计无 P0/P1 阻断（2026-08-13 Grok Build 最终复核：`BLOCKING_COUNT=0`；
+  本轮 cross 审计落盘见消费者仓 GOAL-004 `03-audit/A-002`）；
+- [x] 消费者候选目录同步 ADR-0034 D10 的 H0/S2 标签语义，不以 deferred 冒充已保留 capability
+  （2026-08-13：消费者仓 `schema-ui-core` 目录附件新增 §1b/§1c/§6 同步说明，
+  commit `c0c7bc1`（目录引入）+ `473be5f`（self 审计 A-001 与台账）；95/95 处置与 D10 逐字核对一致，
+  self 审计 A-001 pass，independent 审计 A-002 conditional / BLOCKING_COUNT=0，F-1/F-2 P1 已修复）；
 - [ ] 维护者确认进入 accept 设计阶段。
 
 ### H1 — ADR accept
