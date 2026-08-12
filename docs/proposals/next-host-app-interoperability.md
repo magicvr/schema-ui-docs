@@ -55,10 +55,17 @@ applies_to: schema-ui-protocol vNext (candidate track)
 
 ### H1 — ADR accept
 
-- [ ] 0034–0037 的结构、算法、错误码、安全和非目标完成评审；
-- [ ] 至少两个独立 Host/App 消费者证据，或明确接受单消费者 residual；
-- [ ] 确定目标协议版本与 migration 策略；
-- [ ] accepted ADR 同一变更集更新核心规范交叉引用，但尚未宣称生产支持。
+- [x] 0034–0037 的结构、算法、错误码、安全和非目标完成评审（2026-08-13；self 评审修正 4 项：
+      F-1 P1 跨 ADR 分类冲突、F-2/F-3/F-4 P2，全部落入 ADR 文本；见 ADR-0034 §H1 评审与 accept 记录）；
+- [x] 至少两个独立 Host/App 消费者证据，或明确接受单消费者 residual（`schema-ui-core` 的
+      `apps/web` Host 与 `apps/api` App 侧两个独立实现；维护者显式接受单组织 residual，跨组织第二
+      Host 不设为本批 accept 门禁）；
+- [x] 确定目标协议版本与 migration 策略（2.8.0 / `2.8`，additive + capability 门控，无强制迁移；
+      见 ADR-0034 D9）；
+- [x] accepted ADR 同一变更集更新核心规范交叉引用，但尚未宣称生产支持（新增
+      [10-host-interoperability.md](../10-host-interoperability.md) 规范投影；`08` §3.4 登记三个
+      capability；`09` 增补 `pages[].returnIntentQueryKeys`；`protocol-manifest.json` 按计划随 H4
+      变更集原子更新，保持 v2.7.0 制品可复现。commit `3936cf9`）。
 
 ### H2 — 机器契约与行为向量
 
@@ -93,7 +100,9 @@ applies_to: schema-ui-protocol vNext (candidate track)
 
 ## 6. 当前结论
 
-H0 提案阶段全部六项已闭合（2026-08-13），维护者已确认进入 **H1 · ADR accept 设计阶段**。H1 的四项
-门禁（0034～0037 评审、独立消费者证据、目标协议版本与 migration 策略、accepted ADR 更新核心规范
-交叉引用）尚未完成。v2.7.0 制品、页面协议与 app manifest 不变；消费者项目可以继续用私有 Host
-adapter，但只能把实现作为设计证据，不能据此宣称新协议到手或进入协议驱动的实现整改。
+H0 提案阶段与 **H1 · ADR accept 阶段**均已闭合（2026-08-13）：ADR 0034–0037 accepted（commit
+`3936cf9`），核心规范投影 [10-host-interoperability.md](../10-host-interoperability.md) 以 `candidate`
+状态就位。当前处于 **H2 · 机器契约与行为向量** 阶段：封闭 JSON Schema、capability registry、
+semantic validator、正反 fixtures、JS/Python reference 与 2.7 回归五项门禁尚未完成；H3 生产 Host
+evidence 与 H4 发布闭环亦未开始。v2.7.0 制品、页面协议与 app manifest 不变；在 H2–H4 完成并发布
+新制品前，不得宣称协议支持，消费者实现只能作为设计证据。
