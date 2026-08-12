@@ -51,7 +51,7 @@ applies_to: schema-ui-protocol vNext (candidate track)
   （2026-08-13：消费者仓 `schema-ui-core` 目录附件新增 §1b/§1c/§6 同步说明，
   commit `c0c7bc1`（目录引入）+ `473be5f`（self 审计 A-001 与台账）；95/95 处置与 D10 逐字核对一致，
   self 审计 A-001 pass，independent 审计 A-002 conditional / A-003 pass，BLOCKING_COUNT=0）；
-- [ ] 维护者确认进入 accept 设计阶段。
+- [x] 维护者确认进入 accept 设计阶段（2026-08-13 维护者确认）。
 
 ### H1 — ADR accept
 
@@ -93,5 +93,7 @@ applies_to: schema-ui-protocol vNext (candidate track)
 
 ## 6. 当前结论
 
-当前停留在 **H0 提案阶段**。v2.7.0 制品、页面协议与 app manifest 不变；消费者项目可以继续用私有 Host
+H0 提案阶段全部六项已闭合（2026-08-13），维护者已确认进入 **H1 · ADR accept 设计阶段**。H1 的四项
+门禁（0034～0037 评审、独立消费者证据、目标协议版本与 migration 策略、accepted ADR 更新核心规范
+交叉引用）尚未完成。v2.7.0 制品、页面协议与 app manifest 不变；消费者项目可以继续用私有 Host
 adapter，但只能把实现作为设计证据，不能据此宣称新协议到手或进入协议驱动的实现整改。
