@@ -1,7 +1,8 @@
 ---
-status: proposed
+status: accepted
 date: 2026-08-12
-applies_to: schema-ui-protocol vNext (candidate)
+last_updated: 2026-08-13
+applies_to: schema-ui-protocol v2.8
 track: Host/App interoperability
 ---
 
@@ -9,8 +10,11 @@ track: Host/App interoperability
 
 ## 状态
 
-**Proposed（草案，未接受）。** 本 ADR 只裁定是否需要新增 Host/App 协议面及其边界，不接受任何具体字段，
-不修改 `protocol-manifest.json`，不激活发布目标，也不授权消费者仓提前实现。
+**Accepted（2026-08-13，H1 accept 设计阶段评审通过）。** 自 `schema-ui-protocol v2.8` 起进入实现轨道；
+[ADR-0035](./0035-host-bootstrap-lifecycle.md) / [0036](./0036-host-failure-recovery.md) /
+[0037](./0037-host-conformance-claim.md) 同步 accepted。accept 只裁定边界与候选 wire 设计，
+**不宣称生产支持**：H2 机器契约、H3 生产 Host evidence 与 H4 发布闭环门禁完成并发布新制品前，
+不得声明协议已支持；消费者仓在 S3 固定前不得按新协议整改实现。
 
 输入证据来自消费者仓的
 `I-HOST-APP-001-protocol-gap-catalog.md`（2026-08-12）。该目录是需求输入，不是协议权威；
@@ -129,9 +133,21 @@ manifest 正例、不得声称标准 Host 支持，也不得通过“忽略未�
 
 ### D9. 版本与交付门禁
 
-本草案不指定版本号。若后续只新增可选字段/文档和 capability，且旧清单与旧页面的合法输入、默认值和
-可观测结果不变，使用下一个 MINOR；若需要改变 ADR-0025 的一次性 snapshot、既有 401/403 行为或
-未知字段规则，必须评估下一 MAJOR 或提供显式新 capability，禁止静默改写 2.7。
+目标版本经 H1 评审确定为下一个 MINOR **2.8.0**（`protocolVersion` `2.8`）：本批只新增可选
+document/字段/capability，且旧清单与旧页面的合法输入、默认值和可观测结果不变，符合 MINOR 判据。
+若需要改变 ADR-0025 的一次性 snapshot、既有 401/403 行为或未知字段规则，必须评估下一 MAJOR 或
+提供显式新 capability，禁止静默改写 2.7。
+
+**Migration 策略（H1 裁定）：** 纯 additive、capability 门控、无强制迁移动作。
+
+1. 未声明 `host.bootstrap` / `host.failure-recovery` / `host.conformance-claim` 的既有 Host
+   行为完全不变：不请求 bootstrap document、不生成 Host failure result、不产生 claim；
+2. 提供新 document 的 App 不改变既有 manifest 语义；bootstrap 默认入口 `404/410` 即回退
+   ADR-0025 装载路径，旧 Host 与旧 App 的对接路径零改动；
+3. 升级动作只存在于「选择声明新 capability 的 Host」一侧，且必须先通过对应 capability 的
+   全部机器契约与 evidence 门禁；App 侧唯一增量是可选 bootstrap document、可选 manifest
+   `pages[].returnIntentQueryKeys` 与可选 claim；
+4. v2.7 既有错误优先级、401/403 语义、未知字段 fail-closed 规则原样保留。
 
 每个被接受的能力包必须原子交付：
 
@@ -292,6 +308,34 @@ manifest 正例、不得声称标准 Host 支持，也不得通过“忽略未�
 - 消费者需要继续维护部分 Host 私约，直到对应独立 ADR 被接受；
 - vNext 至少需要三个能力包及配套 fixtures，不能只新增一个 JSON Schema 文件完成。
 
+## H1 评审与 accept 记录（2026-08-13）
+
+H1 门禁四项评审结论：
+
+1. **结构/算法/错误码/安全/非目标评审完成**。self 评审发现并修正 4 项（F-1 P1、F-2/F-3/F-4 P2）：
+   - **F-1（P1，跨 ADR 分类冲突）**：0035 D7 原将 bootstrap/manifest 获取失败一律映射
+     `protocol-rejected`，与 0036 D2/D3「429/timeout/offline/5xx 只在 bootstrap/manifest/page-schema
+     的 Host-level fetch 命中」冲突。已在 0035 D7 写入分类优先级：401/403 → 传输/HTTP 类别 →
+     校验类失败，0035 与 0036 现无分歧；
+   - **F-2（P2）**：0035 D3 阶段 2 的 diagnostics code 映射不明确（ADR-0009 无 bootstrap 版本码），
+     已在 0035 明确 `UNSUPPORTED_BOOTSTRAP_VERSION` 等码并保留 ADR-0009 码的复用范围；
+   - **F-3（P2）**：0037 D1 集合排序未定义对象数组的排序键，已补 D1a 规范化序列化规则；
+   - **F-4（P2）**：0036 D6 `returnIntentQueryKeys` 的 manifest 落点与 capability 门控未钉死，
+     已明确为 `pages[]` 注册表项字段并沿 ADR-0025 M1 门控。
+2. **消费者证据**：`schema-ui-core` 的 `apps/web`（Host，React/TS）与 `apps/api`（App 侧，Go）
+   两个独立程序实现作为本批消费者证据（均已在生产实现清单装载、启动顺序、全局错误页与认证恢复等
+   接缝行为，gap catalog 即来自其实证）。独立性口径为「实现独立」；**维护者显式接受单组织
+   residual**：跨组织第二个 Host 消费者不设为本批 accept 门禁，留给后续版本，出现前 `app.profile`
+   等候选继续保留扩展位。
+3. **目标协议版本与 migration 策略**：`2.8.0` / `2.8`，additive + capability 门控（见 D9）。
+4. **核心规范交叉引用**：accepted 同一变更集新增 [10-host-interoperability.md](../10-host-interoperability.md)
+   并在 `08` §3.4 登记三个 capability、`09` 增补 `pages[].returnIntentQueryKeys`；`protocol-manifest.json`
+   的 `authority.semanticSpecs` 与版本号随 H4 发布变更集原子更新，本变更集不触碰，以保持 v2.7.0
+   制品可复现。
+
+独立审计：H1 变更集经 grok build（grok 4.5，reasoning high）独立审计复核，阻断性意见 0 条
+（见 `docs/audit` 本轮审计记录）。
+
 ## 已裁定的原开放问题
 
 1. **Bootstrap 使用独立公开 document。** 不扩展现有 manifest 承载 session；404/410 才回退现有
@@ -302,4 +346,5 @@ manifest 正例、不得声称标准 Host 支持，也不得通过“忽略未�
    digest 与可核对 evidence，详见 ADR-0037。
 4. **`app.profile` 暂缓。** 缺少第二个独立消费者前只保留扩展位置，不进入首批。
 
-本 umbrella ADR 当前无未裁定开放问题；0035–0037 各自的 accept 门禁仍须独立满足。
+本 umbrella ADR 无未裁定开放问题；0035–0037 已于同一 H1 评审中 accepted，各自的 H2 机器契约与
+H3 evidence 门禁仍须独立满足。

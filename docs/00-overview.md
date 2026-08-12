@@ -38,6 +38,7 @@ applies_to: schema-ui-protocol v2.7
 | [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
 | [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
 | [09-app-manifest.md](./09-app-manifest.md) | 前后端开发者 | 应用级清单与导航规范（ADR-0025/0026） |
+| [10-host-interoperability.md](./10-host-interoperability.md) | Host/App 开发者 / AI | Host/App 互操作：bootstrap 生命周期、Host failure result、conformance claim（ADR-0034–0037，v2.8 候选） |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
 | [migrations/](./migrations/) | 前后端开发者 | 版本间升级路径（informative） |

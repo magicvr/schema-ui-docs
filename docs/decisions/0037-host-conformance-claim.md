@@ -1,7 +1,8 @@
 ---
-status: proposed
+status: accepted
 date: 2026-08-12
-applies_to: schema-ui-protocol vNext (candidate)
+last_updated: 2026-08-13
+applies_to: schema-ui-protocol v2.8
 track: Host/App interoperability
 ---
 
@@ -9,8 +10,9 @@ track: Host/App interoperability
 
 ## 状态
 
-**Proposed（草案，未接受）。** 依赖 [ADR-0034](./0034-host-app-interoperability-boundary.md)。本文定义
-可核验声明格式；它不让自报声明成为安全信任根，也不改变 ADR-0009 的 runtime 协商。
+**Accepted（2026-08-13，H1 评审通过）。** 依赖 [ADR-0034](./0034-host-app-interoperability-boundary.md)。本文定义
+可核验声明格式；它不让自报声明成为安全信任根，也不改变 ADR-0009 的 runtime 协商。accept 不宣称生产
+支持；机器契约与生产 evidence 门禁见 H2–H4。
 
 ## 背景
 
@@ -64,6 +66,19 @@ claim 可以嵌入 Host bundle，或从显式/同源 URL 加载；无论载体�
 
 固定对象全部 `additionalProperties: false`；集合非空、无重复并按字节升序输出，确保可复现 digest。
 
+### D1a. 规范化序列化（可复现 digest 的唯一权威，H1 评审 F-3）
+
+claim 的 digest 只对规范化序列化后的 UTF-8 bytes 计算 SHA-256。规范化规则固定为：
+
+1. 对象键按 UTF-8 字节升序输出；
+2. 字符串数组按元素 UTF-8 字节升序；
+3. 对象数组按每个元素规范化序列化后的字节升序（`suites` 即按整个 suite 对象字节序，`evidence` 同理）；
+4. JSON 字符串转义只保留 RFC 8259 必转字符（`"`、`\` 与控制字符），`/` 与其它可打印字符不转义；
+5. 数字、布尔、`null` 按 JSON 常规输出；禁止多余空白。
+
+同一组不可变 bytes 无论来自内嵌 bundle 还是 URL 加载，必须产出同一 digest。claim builder 与 verifier
+必须消费同一规范化实现（以 reference 实现为准）。
+
 ### D2. Support scope 必须精确
 
 - `pageVersions` 与 `manifestVersions` 是独立列表，元素必须精确 `MAJOR.MINOR`；
@@ -87,7 +102,9 @@ capability registry 是独立、机器可读、进入协议制品的封闭对象
 ```
 
 `deprecatedSince`/`removedIn` 必须是精确 MAJOR.MINOR 或 `null`；`removedIn` 若非空必须晚于
-`deprecatedSince`，且 claim 不得列出已在其目标版本移除的 capability。registry ID 唯一，依赖图必须无环。
+`deprecatedSince`。registry ID 唯一，依赖图必须无环。claim 校验时，对 claim `support.pageVersions` /
+`support.manifestVersions` 的每个元素 `v`，任一被列出 capability 的 `removedIn` 非空且 `removedIn ≤ v`，
+即视为该版本已移除 → 该 capability 在该 claim 中按未登记处理（`UNKNOWN_CLAIM_CAPABILITY`）。
 
 ### D3. 禁止 partial support 冒充 capability
 

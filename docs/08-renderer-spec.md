@@ -336,6 +336,9 @@ Renderer 不自动发现、选择或串联 adapter。本协议只定义 adapter 
 | `table.sort` | 表格列 `sortable` / `sortField` 与 `defaultSort` | ADR-0027 |
 | `form.controls.extended` | `textarea` / `switch` / `checkbox` / `radio` / `select.mode: multiple` | ADR-0028 |
 | `form.controls.advanced` | `cascader` / `checkboxGroup` / `richText` / `password` / `defaultValue` | ADR-0029–0033 |
+| `host.bootstrap` | bootstrap document、确定性启动生命周期、auth 归一化、manifest identity/缓存 | ADR-0035 / [10](./10-host-interoperability.md) |
+| `host.failure-recovery` | Host failure result、分类/优先级、retry、return intent、A11y 最低义务 | ADR-0036 / [10](./10-host-interoperability.md) |
+| `host.conformance-claim` | conformance claim、capability registry、evidence 制品 | ADR-0037 / [10](./10-host-interoperability.md) |
 
 ### 3.5 协商结果与错误信息格式
 

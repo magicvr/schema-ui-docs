@@ -1,7 +1,8 @@
 ---
-status: proposed
+status: accepted
 date: 2026-08-12
-applies_to: schema-ui-protocol vNext (candidate)
+last_updated: 2026-08-13
+applies_to: schema-ui-protocol v2.8
 track: Host/App interoperability
 ---
 
@@ -9,8 +10,9 @@ track: Host/App interoperability
 
 ## 状态
 
-**Proposed（草案，未接受）。** 依赖 [ADR-0034](./0034-host-app-interoperability-boundary.md)，并消费
+**Accepted（2026-08-13，H1 评审通过）。** 依赖 [ADR-0034](./0034-host-app-interoperability-boundary.md)，并消费
 [ADR-0035](./0035-host-bootstrap-lifecycle.md) 的阶段/结果。本文不替代 API、manifest 或 Action 的既有错误结构。
+accept 不宣称生产支持；机器契约与生产 evidence 门禁见 H2–H4。
 
 ## 背景
 
@@ -160,9 +162,17 @@ route 优先。两者均未命中才产生 `HOST_ROUTE_NOT_FOUND`。
 ```
 
 Host 只接受应用内绝对 path；拒绝 scheme、authority、fragment、登录/回调 path 自循环与超过有效期的意图；
-query 值为 string。首版协议 allowlist 保留 `tab`、`view`、`page`、`pageSize`、`sort`，以及 vNext
-manifest 对当前注册页声明的 `returnIntentQueryKeys`；该字段是无重复 query key 数组，出现即要求
-`host.failure-recovery` capability，固定对象仍封闭。Host 必须永久拒绝大小写不敏感的 `token`、
+query 值为 string。首版协议 allowlist 保留 `tab`、`view`、`page`、`pageSize`、`sort`，以及 manifest
+对当前注册页声明的 `returnIntentQueryKeys`（H1 评审 F-4 钉死落点与门控）：
+
+- `returnIntentQueryKeys` 是 app manifest **`pages[]` 注册表项**上的可选字段（对当前注册页生效），
+  值为无重复 query key 数组；
+- 出现该字段的清单必须声明 `host.failure-recovery` capability（沿 ADR-0025 M1 门控模式：出现字段但
+  未声明 capability → M1 拒绝，不得部分消费）；
+- 未声明 `host.failure-recovery` 的 Host 不得消费该字段扩展 allowlist；Host 实现声明该 capability 后，
+  该字段进入其 return intent allowlist 的来源之一，Host 只能进一步收窄，不能扩张。
+
+Host 必须永久拒绝大小写不敏感的 `token`、
 `access_token`、`id_token`、`code`、`state`、`session`、`redirect`、`returnTo`，即使误被声明；未列 key
 一律丢弃，Host 只能进一步收窄，不能扩张。成功消费一次后 nonce 作废，不得重放。普通 deep link 不受此
 恢复意图 allowlist 影响。

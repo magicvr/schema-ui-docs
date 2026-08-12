@@ -1,7 +1,8 @@
 ---
-status: proposed
+status: accepted
 date: 2026-08-12
-applies_to: schema-ui-protocol vNext (candidate)
+last_updated: 2026-08-13
+applies_to: schema-ui-protocol v2.8
 track: Host/App interoperability
 ---
 
@@ -9,8 +10,9 @@ track: Host/App interoperability
 
 ## 状态
 
-**Proposed（草案，未接受）。** 依赖 [ADR-0034](./0034-host-app-interoperability-boundary.md)。本 ADR
-定义候选 wire 与算法，不修改 v2.7 app manifest 的一次性快照、默认入口或合法输入。
+**Accepted（2026-08-13，H1 评审通过）。** 依赖 [ADR-0034](./0034-host-app-interoperability-boundary.md)。
+本文定义候选 wire 与算法，不修改 v2.7 app manifest 的一次性快照、默认入口或合法输入。accept 不宣称
+生产支持；机器契约与生产 evidence 门禁见 H2–H4。
 
 ## 背景
 
@@ -76,16 +78,20 @@ GET {baseURL}/.well-known/schema-ui/host-bootstrap.json
 1. `bootstrap-discovery`：读取显式 URL，或尝试默认 bootstrap URL；
 2. `bootstrap-validation`：结构校验；`bootstrapVersion` 与 Host `supportedBootstrapVersions` 精确匹配；按
    ADR-0009 的列表合法性、声明序缺项结果对 `requiredCapabilities` **全集**协商，任一缺失即
-   `MISSING_REQUIRED_CAPABILITY`；不得只检查 `host.bootstrap`。非法 Host 支持列表、非法 document
-   capability 列表、版本不支持分别保留 ADR-0009 对应 diagnostics code，并进入 D7
-   `BOOTSTRAP_NEGOTIATION_REJECTED`；
+   `MISSING_REQUIRED_CAPABILITY`；不得只检查 `host.bootstrap`。diagnostics code 定义（H1 评审 F-2）：
+   - Host `supportedBootstrapVersions` 非法/为空/重复 → `INVALID_HOST_SUPPORT`；
+   - document `requiredCapabilities` 列表非法/重复 → `INVALID_REQUIRED_CAPABILITIES`（沿 ADR-0009）；
+   - `bootstrapVersion` 未被 Host 精确支持 → `UNSUPPORTED_BOOTSTRAP_VERSION`；
+   - document 结构/封闭对象/字段格式失败 → `INVALID_BOOTSTRAP_DOCUMENT`。
+   以上任一均进入 D7 `BOOTSTRAP_NEGOTIATION_REJECTED` / `BOOTSTRAP_DOCUMENT_FAILED`，原
+   diagnostics code 保留；
 3. `availability-gate`：
    - `maintenance` → 终态，不获取 manifest；
    - `upgrade-required` → 终态，不获取 manifest；
    - `normal` / `degraded` → 继续；
 4. `auth-resolution`：Host session adapter 产生 D4 归一化状态；`locked` / `reauth-required` 立即进入终态；
-5. `manifest-load`：`anonymous` / `authenticated` 才继续；按 document URL，或 404/410 fallback 时按
-   ADR-0025 入口获取；
+5. `manifest-load`：`anonymous` / `authenticated` 才继续；按 document 声明的 `manifest.url` 获取
+   （未提供 document、走 404/410 fallback 时按 ADR-0025 默认入口获取）；
 6. `manifest-integrity`：若声明 `sha256`，先核验原始 bytes；不一致终止；
 7. `manifest-validation`：完全复用 M0/M1/M3a、严格版本/capability 协商与稳定错误码；
 8. `context-resolution`：按 D4 注入一次性 `$context.user` / `$context.features` 快照；
@@ -93,6 +99,9 @@ GET {baseURL}/.well-known/schema-ui/host-bootstrap.json
 
 任一较早阶段失败后不得执行后续阶段。应用实例重建会取消前一次尚未完成的 bootstrap；迟到结果必须丢弃，
 不得覆盖新实例。
+
+未声明 `host.bootstrap` capability 的 Host 不进入本算法：它既不请求 bootstrap document，也不受本文任何
+结果约束，继续按 ADR-0025 从 manifest 入口启动。
 
 ### D4. Host 归一化 auth state
 
@@ -166,7 +175,7 @@ effectiveCapabilities = supportedCapabilities - disabledCapabilities
 | `UPGRADE_REQUIRED` | availability mode 为 upgrade-required |
 | `REAUTH_REQUIRED` | session adapter 在启动期返回 reauth-required |
 | `ACCOUNT_LOCKED` | session adapter 返回 locked |
-| `BOOTSTRAP_DOCUMENT_FAILED` | bootstrap 获取/Content-Type/解析/结构失败，且不是默认入口 404/410 |
+| `BOOTSTRAP_DOCUMENT_FAILED` | bootstrap 获取失败（见下方分类映射）或 Content-Type/解析/结构失败，且不是默认入口 404/410 |
 | `BOOTSTRAP_NEGOTIATION_REJECTED` | bootstrap version/support/capability 协商拒绝；保留原 diagnostics code |
 | `MANIFEST_CAPABILITY_REJECTED` | effective capabilities 缺少 manifest required capability |
 | `MANIFEST_INTEGRITY_FAILED` | manifest raw bytes 与声明 digest 不一致 |
@@ -181,7 +190,8 @@ manifest 自身失败继续使用 ADR-0025/0009 已有错误码；本表不重�
 | `UPGRADE_REQUIRED` | `(bootstrap, upgrade-required, HOST_UPGRADE_REQUIRED)` |
 | `REAUTH_REQUIRED` | `(auth, reauth-required, HOST_REAUTH_REQUIRED)` |
 | `ACCOUNT_LOCKED` | `(auth, account-locked, HOST_ACCOUNT_LOCKED)` |
-| `BOOTSTRAP_DOCUMENT_FAILED` | `(bootstrap, protocol-rejected, HOST_PROTOCOL_REJECTED)` |
+| `BOOTSTRAP_DOCUMENT_FAILED`（获取失败） | 按传输/HTTP 类别：429 → `(bootstrap, rate-limited, HOST_RATE_LIMITED)`；超时 → `(bootstrap, timeout, HOST_TIMEOUT)`；传输明确不可达 → `(bootstrap, offline, HOST_OFFLINE)`；其它可安全归类的 5xx/传输失败 → `(bootstrap, unavailable, HOST_UNAVAILABLE)` |
+| `BOOTSTRAP_DOCUMENT_FAILED`（Content-Type/解析/结构失败） | `(bootstrap, protocol-rejected, HOST_PROTOCOL_REJECTED)` |
 | `BOOTSTRAP_NEGOTIATION_REJECTED` | `(bootstrap, protocol-rejected, HOST_PROTOCOL_REJECTED)` |
 | `MANIFEST_CAPABILITY_REJECTED` | `(manifest, protocol-rejected, HOST_PROTOCOL_REJECTED)` |
 | `MANIFEST_INTEGRITY_FAILED` | `(manifest, protocol-rejected, HOST_PROTOCOL_REJECTED)` |
@@ -190,9 +200,12 @@ manifest 自身失败继续使用 ADR-0025/0009 已有错误码；本表不重�
 ADR-0036 D3 的认证优先级处理：anonymous/未认证状态的 `401` 只能映射
 `HOST_AUTH_REQUIRED`，authenticated 状态的 `401` 只能映射 `HOST_REAUTH_REQUIRED`，任意 `403` 只能映射
 `HOST_FORBIDDEN`；这些结果仍保留既有
-`onAuthFailure`/forbidden 语义。排除上述全部 `401`/`403` 映射后，manifest 既有稳定错误（包括
-`MANIFEST_LOAD_FAILED`、`MISSING_PROTOCOL_VERSION`、`UNSUPPORTED_PROTOCOL_VERSION` 与
-`MISSING_REQUIRED_CAPABILITY`）才映射 `(manifest, protocol-rejected, HOST_PROTOCOL_REJECTED)`，原码保留在
+`onAuthFailure`/forbidden 语义。排除上述全部 `401`/`403` 映射后，再按传输/HTTP 类别归类
+（H1 评审 F-1：与 ADR-0036 D2/D3 对齐）：429 → `rate-limited`、请求超时 → `timeout`、传输明确不可达 →
+`offline`、其它可安全归类的 5xx/传输失败 → `unavailable`；排除了 401/403 与传输/HTTP 类别之后，manifest
+既有稳定错误（`MANIFEST_LOAD_FAILED` 中的解析/结构失败、`MISSING_PROTOCOL_VERSION`、
+`UNSUPPORTED_PROTOCOL_VERSION` 与 `MISSING_REQUIRED_CAPABILITY`）才映射
+`(manifest, protocol-rejected, HOST_PROTOCOL_REJECTED)`，原码保留在
 diagnostics；Node DataRef、Action 与局部业务请求不适用本条。
 
 ## 明确非目标
