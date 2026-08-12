@@ -69,25 +69,48 @@ applies_to: schema-ui-protocol vNext (candidate track)
 
 ### H2 — 机器契约与行为向量
 
-- [ ] bootstrap/failure/claim 封闭 JSON Schema；
-- [ ] capability registry 与 dependency contract；
-- [ ] semantic validator、稳定错误码与正反 fixtures；
-- [ ] JS/Python reference 逐字段一致；
-- [ ] 旧 2.7 page/manifest conformance 全部回归。
+- [x] bootstrap/failure/claim 封闭 JSON Schema（B0 `host-bootstrap.schema.json`、F0
+      `host-failure.schema.json`、C0 `host-conformance-claim.schema.json`，全部
+      `additionalProperties: false` + 条件字段 if/then；commit `453008d`）；
+- [x] capability registry 与 dependency contract（`capability-registry.json` 17 项登记、
+      依赖闭包、DAG 无环、removedIn 规则；C1 按 §4.8 顺序执行）；
+- [x] semantic validator、稳定错误码与正反 fixtures（B1 §2.8 诊断码、F1 分类/过滤、C1 校验码；
+      host-bootstrap 23 / host-failure 43 / host-conformance-claim 30 正反 fixtures，
+      app-manifest +4 returnIntentQueryKeys 用例）；
+- [x] JS/Python reference 逐字段一致（全部新 suite 双语言通过；claim 规范化 digest 跨语言
+      交叉验证一致）；
+- [x] 旧 2.7 page/manifest conformance 全部回归（2.7 线全量通过后随 H4 版本线推进到 2.8；
+      41 条 conformance 条目 JS/Python 全绿）。
 
 ### H3 — 生产 Host evidence
 
-- [ ] 至少一个生产 Host 从真实入口消费新协议对象；
-- [ ] claim 绑定同一协议 artifact digest、fixture digest 与 build ID；
-- [ ] browser-level failure focus/live-region 与 recovery 测试；
-- [ ] 消费者不得以 fixture adapter、mock 或私有 allowlist 冒充生产支持。
+- [x] 至少一个生产 Host 从真实入口消费新协议对象（消费者 `schema-ui-core` `apps/web` 生产
+      boot 路径消费 Go API 真实 bootstrap document（同字节组装，`manifest.sha256` 真实核验）；
+      GOAL-004 E-004）；
+- [x] claim 绑定同一协议 artifact digest、fixture digest 与 build ID（构建生成
+      `conformance-claim.json`，绑定上游制品 contentDigest、fixture 树 digest 与
+      `git:<buildId>`，`claim-artifact.test` 门禁：C0/C1 `CLAIM_OK` + evidence sha256 绑定；
+      2.8.0 正式发布后已重 pin 最终 digest）；
+- [x] browser-level failure focus/live-region 与 recovery 测试（Playwright 4 tests：
+      maintenance 终态 manifest 未获取 + polite + focus、protocol-rejected assertive、
+      route not-found home 恢复 + focus 回主标题、真实入口正常 boot；全量 e2e 7 通过）；
+- [x] 消费者不得以 fixture adapter、mock 或私有 allowlist 冒充生产支持（生产模块直接消费
+      上游 fixtures：host 三 suite 99 cases 零排除；app-manifest/app-navigation 零排除；
+      已登记 residual 与候选绑定性质记录在 E-004，不冒充）。
 
 ### H4 — 发布闭环
 
-- [ ] 新版本 release goal、migration、CHANGELOG 与 `protocol-manifest.json` 原子更新；
-- [ ] 完整本地/CI conformance、artifact reproducibility、MCP/validator compatible range；
-- [ ] 人工 tag 后的 release asset/digest 与消费者 pin 可核对；
-- [ ] 正式证据产生前不关闭发布门禁。
+- [x] 新版本 release goal、migration、CHANGELOG 与 `protocol-manifest.json` 原子更新
+      （`release-goals/v2.8.md` G0–G4 闭合、`migrations/2.7-to-2.8.md`、CHANGELOG `v2.8.0`、
+      `semanticSpecs` 增补 10-host-interoperability 与 ADR-0034–0037；commit `593f625`）；
+- [x] 完整本地/CI conformance、artifact reproducibility、MCP/validator compatible range
+      （421 versioned cases；release:check / release:check:mcp / release:check:validator 全绿；
+      制品 build/verify 双一致；MCP 134 tests；链接检查通过）；
+- [x] 人工 tag 后的 release asset/digest 与消费者 pin 可核对（tag `v2.8.0`；
+      contentDigest `sha256:40690917…` / artifactDigest `sha256:594207e0…` / fixture 树
+      `sha256:7aacf133…`；消费者仓重 pin `593f625` 并重生成 claim，可逐字核对）；
+- [x] 正式证据产生前不关闭发布门禁（H3 evidence 与消费者 E-004 先于本变更集落盘；
+      发布门禁随证据关闭）。
 
 ## 5. 防漂移规则
 
@@ -100,9 +123,9 @@ applies_to: schema-ui-protocol vNext (candidate track)
 
 ## 6. 当前结论
 
-H0 提案阶段与 **H1 · ADR accept 阶段**均已闭合（2026-08-13）：ADR 0034–0037 accepted（commit
-`3936cf9`），核心规范投影 [10-host-interoperability.md](../10-host-interoperability.md) 以 `candidate`
-状态就位。当前处于 **H2 · 机器契约与行为向量** 阶段：封闭 JSON Schema、capability registry、
-semantic validator、正反 fixtures、JS/Python reference 与 2.7 回归五项门禁尚未完成；H3 生产 Host
-evidence 与 H4 发布闭环亦未开始。v2.7.0 制品、页面协议与 app manifest 不变；在 H2–H4 完成并发布
-新制品前，不得宣称协议支持，消费者实现只能作为设计证据。
+H0–H4 全部闭合（2026-08-13）：ADR 0034–0037 accepted（`3936cf9`）→ H2 机器契约落地
+（`453008d`）→ H3 生产 Host evidence 与浏览器级测试（消费者仓 GOAL-004 E-004）→ H4 发布闭环
+（`593f625`，tag `v2.8.0`）。正式制品 `schema-ui-protocol-2.8.0` 已发布：contentDigest
+`sha256:40690917b7b83f54936453b5851c87320f5ed878b517eab7d1558d12fe506a31`、artifactDigest
+`sha256:594207e06ed7ecbb97515c3bc7add985c7b8b81ec74e678f4a12d270909bd18b`；消费者仓已按正式
+digest 重 pin。三个能力包均为可选 capability，未声明的 Host 零行为变化。
