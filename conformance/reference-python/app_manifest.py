@@ -17,6 +17,9 @@ def is_object(value):
 
 
 MANIFEST_MIN_PROTOCOL_VERSION = "2.5"
+# returnIntentQueryKeys fieldset floor (ADR-0036 / 10 §3.7 / 09 §6).
+RETURN_INTENT_MIN_PROTOCOL_VERSION = "2.8"
+RETURN_INTENT_KEY_PATTERN = re.compile(r"^[a-z][a-zA-Z0-9_]*$")
 
 
 def version_at_least(version, floor):
@@ -229,6 +232,24 @@ def validate_manifest_m1(manifest):
                 for name in extract_placeholders(schema_url):
                     if name not in route_names:
                         errors.append({"code": "SCHEMA_URL_PLACEHOLDER_NOT_IN_ROUTE", "path": f"pages[{index}].schemaUrl"})
+            # v2.8+ return intent allowlist extension (ADR-0036 / 09 §6 / 10 §3.7):
+            # presence ⇒ protocolVersion >= 2.8 AND host.failure-recovery capability.
+            if "returnIntentQueryKeys" in page:
+                keys = page.get("returnIntentQueryKeys")
+                keys_valid = (
+                    isinstance(keys, list)
+                    and len(keys) > 0
+                    and all(isinstance(key, str) and RETURN_INTENT_KEY_PATTERN.fullmatch(key) for key in keys)
+                    and len(set(keys)) == len(keys)
+                )
+                if not keys_valid:
+                    errors.append({"code": "INVALID_RETURN_INTENT_QUERY_KEYS", "path": f"pages[{index}].returnIntentQueryKeys"})
+                version_comparable = isinstance(pv, str) and VERSION_PATTERN.fullmatch(pv) is not None
+                if version_comparable and not version_at_least(pv, RETURN_INTENT_MIN_PROTOCOL_VERSION):
+                    errors.append({"code": "PROTOCOL_VERSION_TOO_LOW", "path": f"pages[{index}].returnIntentQueryKeys"})
+                if version_comparable and version_at_least(pv, RETURN_INTENT_MIN_PROTOCOL_VERSION) \
+                        and "host.failure-recovery" not in caps:
+                    errors.append({"code": "MISSING_REQUIRED_CAPABILITY", "path": f"pages[{index}].returnIntentQueryKeys", "detail": "host.failure-recovery"})
 
         if app is not None and "homePageRef" in app and app.get("homePageRef") is not None:
             if len(pages) == 0:

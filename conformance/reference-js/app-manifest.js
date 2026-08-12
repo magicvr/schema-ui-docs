@@ -24,6 +24,9 @@ function versionAtLeast(version, floor) {
 }
 
 const MANIFEST_MIN_PROTOCOL_VERSION = '2.5';
+/** returnIntentQueryKeys fieldset floor (ADR-0036 / 10 §3.7 / 09 §6). */
+const RETURN_INTENT_MIN_PROTOCOL_VERSION = '2.8';
+const RETURN_INTENT_KEY_PATTERN = /^[a-z][a-zA-Z0-9_]*$/;
 
 function joinBaseUrl(baseURL, path) {
   const base = String(baseURL || '').replace(/\/+$/, '');
@@ -271,6 +274,27 @@ function validateManifestM1(manifest) {
           if (!routeNames.has(name)) {
             errors.push({ code: 'SCHEMA_URL_PLACEHOLDER_NOT_IN_ROUTE', path: `pages[${index}].schemaUrl` });
           }
+        }
+      }
+      // v2.8+ return intent allowlist extension (ADR-0036 / 09 §6 / 10 §3.7):
+      // presence ⇒ protocolVersion >= 2.8 AND host.failure-recovery capability.
+      if (page.returnIntentQueryKeys !== undefined) {
+        const keys = page.returnIntentQueryKeys;
+        const keysValid = Array.isArray(keys)
+          && keys.length > 0
+          && keys.every(key => typeof key === 'string' && RETURN_INTENT_KEY_PATTERN.test(key))
+          && new Set(keys).size === keys.length;
+        if (!keysValid) {
+          errors.push({ code: 'INVALID_RETURN_INTENT_QUERY_KEYS', path: `pages[${index}].returnIntentQueryKeys` });
+        }
+        const versionComparable = typeof manifest.protocolVersion === 'string'
+          && VERSION_PATTERN.test(manifest.protocolVersion);
+        if (versionComparable && !versionAtLeast(manifest.protocolVersion, RETURN_INTENT_MIN_PROTOCOL_VERSION)) {
+          errors.push({ code: 'PROTOCOL_VERSION_TOO_LOW', path: `pages[${index}].returnIntentQueryKeys` });
+        }
+        if (versionComparable && versionAtLeast(manifest.protocolVersion, RETURN_INTENT_MIN_PROTOCOL_VERSION)
+          && !caps.includes('host.failure-recovery')) {
+          errors.push({ code: 'MISSING_REQUIRED_CAPABILITY', path: `pages[${index}].returnIntentQueryKeys`, detail: 'host.failure-recovery' });
         }
       }
     });

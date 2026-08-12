@@ -1375,6 +1375,129 @@
           }
         ]
       }
+    },
+    {
+      "id": "return-intent-query-keys-valid",
+      "protocolVersion": "2.8",
+      "category": "app-manifest",
+      "input": {
+        "operation": "validate",
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": ["app.manifest", "host.failure-recovery"],
+          "app": { "appId": "demo-app", "name": "Demo", "homePageRef": "home" },
+          "pages": [
+            {
+              "pageId": "home",
+              "title": "Home",
+              "schemaUrl": "/api/schema/home",
+              "route": "/home",
+              "returnIntentQueryKeys": ["invoiceId", "view"]
+            }
+          ]
+        }
+      },
+      "expected": { "ok": true }
+    },
+    {
+      "id": "return-intent-query-keys-version-too-low",
+      "protocolVersion": "2.8",
+      "category": "app-manifest",
+      "input": {
+        "operation": "validate",
+        "manifest": {
+          "protocolVersion": "2.7",
+          "requiredCapabilities": ["app.manifest"],
+          "app": { "appId": "demo-app", "name": "Demo", "homePageRef": "home" },
+          "pages": [
+            {
+              "pageId": "home",
+              "title": "Home",
+              "schemaUrl": "/api/schema/home",
+              "route": "/home",
+              "returnIntentQueryKeys": ["invoiceId"]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "PROTOCOL_VERSION_TOO_LOW",
+        "path": "pages[0].returnIntentQueryKeys",
+        "errors": [
+          {
+            "code": "PROTOCOL_VERSION_TOO_LOW",
+            "path": "pages[0].returnIntentQueryKeys"
+          }
+        ]
+      }
+    },
+    {
+      "id": "return-intent-query-keys-missing-capability",
+      "protocolVersion": "2.8",
+      "category": "app-manifest",
+      "input": {
+        "operation": "validate",
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": ["app.manifest"],
+          "app": { "appId": "demo-app", "name": "Demo", "homePageRef": "home" },
+          "pages": [
+            {
+              "pageId": "home",
+              "title": "Home",
+              "schemaUrl": "/api/schema/home",
+              "route": "/home",
+              "returnIntentQueryKeys": ["invoiceId"]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "MISSING_REQUIRED_CAPABILITY",
+        "path": "pages[0].returnIntentQueryKeys",
+        "errors": [
+          {
+            "code": "MISSING_REQUIRED_CAPABILITY",
+            "path": "pages[0].returnIntentQueryKeys",
+            "detail": "host.failure-recovery"
+          }
+        ]
+      }
+    },
+    {
+      "id": "return-intent-query-keys-invalid-shape",
+      "protocolVersion": "2.8",
+      "category": "app-manifest",
+      "input": {
+        "operation": "validate",
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": ["app.manifest", "host.failure-recovery"],
+          "app": { "appId": "demo-app", "name": "Demo", "homePageRef": "home" },
+          "pages": [
+            {
+              "pageId": "home",
+              "title": "Home",
+              "schemaUrl": "/api/schema/home",
+              "route": "/home",
+              "returnIntentQueryKeys": ["view", "view"]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "INVALID_RETURN_INTENT_QUERY_KEYS",
+        "path": "pages[0].returnIntentQueryKeys",
+        "errors": [
+          {
+            "code": "INVALID_RETURN_INTENT_QUERY_KEYS",
+            "path": "pages[0].returnIntentQueryKeys"
+          }
+        ]
+      }
     }
   ]
 }

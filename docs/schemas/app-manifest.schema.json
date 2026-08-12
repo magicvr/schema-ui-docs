@@ -18,9 +18,9 @@
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "pattern": "^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*)*$"
+        "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)*$"
       },
-      "description": "Must include app.manifest; must include app.navigation when navigation key is present (M1)."
+      "description": "Must include app.manifest; must include app.navigation when navigation key is present (M1). v2.8 起 ID 段内允许连字符（ADR-0034 机读语法增宽）。"
     },
     "app": {
       "type": "object",
@@ -109,6 +109,16 @@
         "route": {
           "$ref": "#/definitions/AppRelativePath",
           "description": "Application-route-root path template; may contain {name}; never joined with API baseURL (09 D1b)"
+        },
+        "returnIntentQueryKeys": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-zA-Z0-9_]*$"
+          },
+          "description": "v2.8+（ADR-0036 / 10 §3.7）：认证恢复意图 allowlist 扩展，对当前注册页生效。M1 门控：出现该字段 ⇒ protocolVersion >= 2.8 且声明 host.failure-recovery capability，否则 PROTOCOL_VERSION_TOO_LOW / MISSING_REQUIRED_CAPABILITY。敏感 key（token 等）由 Host 消费端永久拒绝，不在此处拒绝（10 §3.7）。"
         }
       },
       "anyOf": [

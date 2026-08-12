@@ -1,0 +1,1094 @@
+{
+  "fixtureVersion": "1.0",
+  "category": "host-conformance-claim",
+  "cases": [
+    {
+      "id": "canonical-object-key-sort",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": { "operation": "canonicalize", "value": { "b": 1, "a": "x" } },
+      "expected": { "canonical": "{\"a\":\"x\",\"b\":1}" }
+    },
+    {
+      "id": "canonical-non-ascii-key-byte-order",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": { "operation": "canonicalize", "value": { "键": "v", "a": "x" } },
+      "expected": { "canonical": "{\"a\":\"x\",\"键\":\"v\"}" }
+    },
+    {
+      "id": "canonical-string-array-sort",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": { "operation": "canonicalize", "value": { "items": ["c", "a", "b"] } },
+      "expected": { "canonical": "{\"items\":[\"a\",\"b\",\"c\"]}" }
+    },
+    {
+      "id": "canonical-object-array-sort",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "canonicalize",
+        "value": { "suites": [{ "suiteId": "z" }, { "suiteId": "a" }] }
+      },
+      "expected": { "canonical": "{\"suites\":[{\"suiteId\":\"a\"},{\"suiteId\":\"z\"}]}" }
+    },
+    {
+      "id": "canonical-minimal-escaping",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": { "operation": "canonicalize", "value": { "x": "a\"b\\c" } },
+      "expected": { "canonical": "{\"x\":\"a\\\"b\\\\c\"}" }
+    },
+    {
+      "id": "canonical-nested-mixed",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "canonicalize",
+        "value": { "z": 1, "a": { "b": 2, "a": 1 }, "arr": ["x", "a"] }
+      },
+      "expected": { "canonical": "{\"a\":{\"a\":1,\"b\":2},\"arr\":[\"a\",\"x\"],\"z\":1}" }
+    },
+    {
+      "id": "claim-digest-disordered-claim",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "claimDigest",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.7", "2.8"],
+            "manifestVersions": ["2.5", "2.8"],
+            "capabilities": ["app.manifest", "app.navigation", "host.bootstrap"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [
+              { "suiteId": "host-bootstrap", "suiteVersion": "1.0", "result": "pass" },
+              { "suiteId": "app-navigation", "suiteVersion": "1.0", "result": "pass" },
+              { "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }
+            ]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        }
+      },
+      "expected": { "digest": "9a27f723b4b6b540d655c759a247dd9dba706fe10314914dba2cd8502c0c0fbb" }
+    },
+    {
+      "id": "claim-digest-canonical-order-invariant",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "claimDigest",
+        "claim": {
+          "evidence": [
+            {
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "uri": "https://ci.example.test/run/123",
+              "subjectBuildId": "git:abc123",
+              "kind": "ci-artifact"
+            }
+          ],
+          "conformance": {
+            "suites": [
+              { "result": "pass", "suiteVersion": "1.0", "suiteId": "host-bootstrap" },
+              { "result": "pass", "suiteVersion": "1.0", "suiteId": "app-manifest" }
+            ],
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "fixtureVersion": "1.0"
+          },
+          "support": {
+            "capabilities": ["host.bootstrap", "app.manifest"],
+            "manifestVersions": ["2.8"],
+            "pageVersions": ["2.8"]
+          },
+          "protocolArtifact": {
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "artifactVersion": "2.8.0"
+          },
+          "host": { "buildId": "git:abc123", "hostVersion": "4.2.0", "hostId": "schema-ui-web" },
+          "claimVersion": "1.0"
+        }
+      },
+      "expected": { "digest": "f6117a940a8a2ab641de80b857b6e7efe17235007cd5131309cd141f9e77c202" }
+    },
+    {
+      "id": "registry-valid",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateRegistry",
+        "registry": {
+          "protocolVersion": "2.8",
+          "capabilities": {
+            "app.manifest": {
+              "sinceProtocolVersion": "2.5",
+              "dependsOn": [],
+              "mandatorySuites": ["app-manifest"],
+              "deprecatedSince": null,
+              "removedIn": null
+            },
+            "app.navigation": {
+              "sinceProtocolVersion": "2.5",
+              "dependsOn": ["app.manifest"],
+              "mandatorySuites": ["app-navigation"],
+              "deprecatedSince": null,
+              "removedIn": null
+            }
+          }
+        }
+      },
+      "expected": { "valid": true, "errors": [] }
+    },
+    {
+      "id": "registry-removed-not-after-deprecated",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateRegistry",
+        "registry": {
+          "protocolVersion": "2.8",
+          "capabilities": {
+            "legacy.feature": {
+              "sinceProtocolVersion": "2.0",
+              "dependsOn": [],
+              "mandatorySuites": ["legacy-feature"],
+              "deprecatedSince": "2.8",
+              "removedIn": "2.8"
+            }
+          }
+        }
+      },
+      "expected": {
+        "valid": false,
+        "errors": ["legacy.feature: removedIn must be strictly later than deprecatedSince"]
+      }
+    },
+    {
+      "id": "registry-removed-without-deprecated",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateRegistry",
+        "registry": {
+          "protocolVersion": "2.8",
+          "capabilities": {
+            "legacy.feature": {
+              "sinceProtocolVersion": "2.0",
+              "dependsOn": [],
+              "mandatorySuites": ["legacy-feature"],
+              "deprecatedSince": null,
+              "removedIn": "2.8"
+            }
+          }
+        }
+      },
+      "expected": {
+        "valid": false,
+        "errors": ["legacy.feature: removedIn requires deprecatedSince"]
+      }
+    },
+    {
+      "id": "registry-unknown-key",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateRegistry",
+        "registry": {
+          "protocolVersion": "2.8",
+          "capabilities": {
+            "app.manifest": {
+              "sinceProtocolVersion": "2.5",
+              "dependsOn": [],
+              "mandatorySuites": ["app-manifest"],
+              "deprecatedSince": null,
+              "removedIn": null,
+              "partial": false
+            }
+          }
+        }
+      },
+      "expected": {
+        "valid": false,
+        "errors": ["app.manifest: unknown key partial"]
+      }
+    },
+    {
+      "id": "registry-dependency-cycle",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateRegistry",
+        "registry": {
+          "protocolVersion": "2.8",
+          "capabilities": {
+            "cap.a": {
+              "sinceProtocolVersion": "2.8",
+              "dependsOn": ["cap.b"],
+              "mandatorySuites": ["suite-a"],
+              "deprecatedSince": null,
+              "removedIn": null
+            },
+            "cap.b": {
+              "sinceProtocolVersion": "2.8",
+              "dependsOn": ["cap.a"],
+              "mandatorySuites": ["suite-b"],
+              "deprecatedSince": null,
+              "removedIn": null
+            }
+          }
+        }
+      },
+      "expected": {
+        "valid": false,
+        "errors": ["dependency cycle detected: cap.a -> cap.b -> cap.a"]
+      }
+    },
+    {
+      "id": "registry-unregistered-dependency",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateRegistry",
+        "registry": {
+          "protocolVersion": "2.8",
+          "capabilities": {
+            "cap.a": {
+              "sinceProtocolVersion": "2.8",
+              "dependsOn": ["missing.cap"],
+              "mandatorySuites": ["suite-a"],
+              "deprecatedSince": null,
+              "removedIn": null
+            }
+          }
+        }
+      },
+      "expected": {
+        "valid": false,
+        "errors": ["cap.a: dependsOn references unregistered capability missing.cap"]
+      }
+    },
+    {
+      "id": "registry-invalid-capability-id",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateRegistry",
+        "registry": {
+          "protocolVersion": "2.8",
+          "capabilities": {
+            "Host.bootstrap": {
+              "sinceProtocolVersion": "2.8",
+              "dependsOn": [],
+              "mandatorySuites": ["host-bootstrap"],
+              "deprecatedSince": null,
+              "removedIn": null
+            }
+          }
+        }
+      },
+      "expected": {
+        "valid": false,
+        "errors": ["invalid capabilityId: Host.bootstrap"]
+      }
+    },
+    {
+      "id": "registry-invalid-since-version",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateRegistry",
+        "registry": {
+          "protocolVersion": "2.8",
+          "capabilities": {
+            "app.manifest": {
+              "sinceProtocolVersion": "2.5.1",
+              "dependsOn": [],
+              "mandatorySuites": ["app-manifest"],
+              "deprecatedSince": null,
+              "removedIn": null
+            }
+          }
+        }
+      },
+      "expected": {
+        "valid": false,
+        "errors": ["app.manifest: sinceProtocolVersion must be a precise MAJOR.MINOR"]
+      }
+    },
+    {
+      "id": "validate-claim-ok",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest", "host.bootstrap"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [
+              { "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" },
+              { "suiteId": "host-bootstrap", "suiteVersion": "1.0", "result": "pass" }
+            ]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              },
+              "host.bootstrap": {
+                "sinceProtocolVersion": "2.8",
+                "dependsOn": ["app.manifest"],
+                "mandatorySuites": ["host-bootstrap"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "CLAIM_OK" }
+    },
+    {
+      "id": "validate-claim-unknown-version",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "2.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "UNKNOWN_CLAIM_VERSION" }
+    },
+    {
+      "id": "validate-claim-unknown-capability",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["bogus.cap"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "bogus-suite", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "UNKNOWN_CLAIM_CAPABILITY" }
+    },
+    {
+      "id": "validate-claim-removed-in-listed-version",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest", "legacy.feature"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [
+              { "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" },
+              { "suiteId": "legacy-feature", "suiteVersion": "1.0", "result": "pass" }
+            ]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              },
+              "legacy.feature": {
+                "sinceProtocolVersion": "2.0",
+                "dependsOn": [],
+                "mandatorySuites": ["legacy-feature"],
+                "deprecatedSince": "2.6",
+                "removedIn": "2.8"
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "UNKNOWN_CLAIM_CAPABILITY" }
+    },
+    {
+      "id": "validate-claim-removed-in-below-versions-ok",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.7"],
+            "manifestVersions": ["2.7"],
+            "capabilities": ["app.manifest", "legacy.feature"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [
+              { "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" },
+              { "suiteId": "legacy-feature", "suiteVersion": "1.0", "result": "pass" }
+            ]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              },
+              "legacy.feature": {
+                "sinceProtocolVersion": "2.0",
+                "dependsOn": [],
+                "mandatorySuites": ["legacy-feature"],
+                "deprecatedSince": "2.6",
+                "removedIn": "2.8"
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "CLAIM_OK" }
+    },
+    {
+      "id": "validate-claim-dependency-not-closed",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.navigation"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "app-navigation", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              },
+              "app.navigation": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": ["app.manifest"],
+                "mandatorySuites": ["app-navigation"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "INCOMPLETE_CAPABILITY_DEPENDENCY" }
+    },
+    {
+      "id": "validate-claim-artifact-mismatch",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "CLAIM_ARTIFACT_MISMATCH" }
+    },
+    {
+      "id": "validate-claim-fixture-mismatch",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "CLAIM_FIXTURE_MISMATCH" }
+    },
+    {
+      "id": "validate-claim-suite-incomplete",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest", "host.bootstrap"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              },
+              "host.bootstrap": {
+                "sinceProtocolVersion": "2.8",
+                "dependsOn": ["app.manifest"],
+                "mandatorySuites": ["host-bootstrap"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "CLAIM_SUITE_INCOMPLETE" }
+    },
+    {
+      "id": "validate-claim-evidence-build-mismatch",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:other",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "CLAIM_EVIDENCE_BUILD_MISMATCH" }
+    },
+    {
+      "id": "validate-claim-evidence-unverifiable",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "evidenceStates": ["unverifiable"]
+        }
+      },
+      "expected": { "code": "CLAIM_EVIDENCE_UNVERIFIABLE" }
+    },
+    {
+      "id": "validate-claim-invalid-versions-list",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": [],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "INVALID_CLAIM" }
+    },
+    {
+      "id": "validate-claim-invalid-evidence-empty",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["app.manifest"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": []
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "INVALID_CLAIM" }
+    },
+    {
+      "id": "validate-claim-transitive-dependency-missing",
+      "protocolVersion": "2.8",
+      "category": "host-conformance-claim",
+      "input": {
+        "operation": "validateClaim",
+        "claim": {
+          "claimVersion": "1.0",
+          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "protocolArtifact": {
+            "artifactVersion": "2.8.0",
+            "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "support": {
+            "pageVersions": ["2.8"],
+            "manifestVersions": ["2.8"],
+            "capabilities": ["host.bootstrap"]
+          },
+          "conformance": {
+            "fixtureVersion": "1.0",
+            "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "suites": [{ "suiteId": "host-bootstrap", "suiteVersion": "1.0", "result": "pass" }]
+          },
+          "evidence": [
+            {
+              "kind": "ci-artifact",
+              "subjectBuildId": "git:abc123",
+              "uri": "https://ci.example.test/run/123",
+              "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+            }
+          ]
+        },
+        "options": {
+          "registry": {
+            "protocolVersion": "2.8",
+            "capabilities": {
+              "app.manifest": {
+                "sinceProtocolVersion": "2.5",
+                "dependsOn": [],
+                "mandatorySuites": ["app-manifest"],
+                "deprecatedSince": null,
+                "removedIn": null
+              },
+              "host.bootstrap": {
+                "sinceProtocolVersion": "2.8",
+                "dependsOn": ["app.manifest"],
+                "mandatorySuites": ["host-bootstrap"],
+                "deprecatedSince": null,
+                "removedIn": null
+              }
+            }
+          },
+          "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      },
+      "expected": { "code": "INCOMPLETE_CAPABILITY_DEPENDENCY" }
+    }
+  ]
+}

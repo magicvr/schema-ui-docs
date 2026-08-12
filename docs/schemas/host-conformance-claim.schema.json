@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema-ui.dev/schemas/host-conformance-claim.schema.json",
+  "title": "Schema-UI Host Conformance Claim",
+  "description": "C0 structural contract for the build-generated static conformance claim (ADR-0037, spec 10 §4). Semantic rules (C1): canonical serialization and digest (D1a), capability registry/dependency closure, removedIn handling, digest and suite-coverage checks in the D6 order.",
+  "type": "object",
+  "required": ["claimVersion", "host", "protocolArtifact", "support", "conformance", "evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "claimVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "host": {
+      "type": "object",
+      "required": ["hostId", "hostVersion", "buildId"],
+      "additionalProperties": false,
+      "properties": {
+        "hostId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$"
+        },
+        "hostVersion": { "type": "string", "minLength": 1 },
+        "buildId": { "type": "string", "minLength": 1 }
+      }
+    },
+    "protocolArtifact": {
+      "type": "object",
+      "required": ["artifactVersion", "contentSha256"],
+      "additionalProperties": false,
+      "properties": {
+        "artifactVersion": {
+          "type": "string",
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+        },
+        "contentSha256": { "$ref": "#/definitions/Sha256" }
+      }
+    },
+    "support": {
+      "type": "object",
+      "required": ["pageVersions", "manifestVersions", "capabilities"],
+      "additionalProperties": false,
+      "properties": {
+        "pageVersions": { "$ref": "#/definitions/VersionList" },
+        "manifestVersions": { "$ref": "#/definitions/VersionList" },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)*$"
+          }
+        }
+      }
+    },
+    "conformance": {
+      "type": "object",
+      "required": ["fixtureVersion", "fixtureSha256", "suites"],
+      "additionalProperties": false,
+      "properties": {
+        "fixtureVersion": {
+          "type": "string",
+          "const": "1.0"
+        },
+        "fixtureSha256": { "$ref": "#/definitions/Sha256" },
+        "suites": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["suiteId", "suiteVersion", "result"],
+            "additionalProperties": false,
+            "properties": {
+              "suiteId": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]+$"
+              },
+              "suiteVersion": {
+                "type": "string",
+                "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+              },
+              "result": {
+                "type": "string",
+                "const": "pass",
+                "description": "First version only allows pass; skip/xfail/not-run suites must not appear in a claim."
+              }
+            }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["kind", "subjectBuildId", "uri", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["ci-artifact", "signed-attestation", "local-report"]
+          },
+          "subjectBuildId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Must equal host.buildId verbatim (C1: CLAIM_EVIDENCE_BUILD_MISMATCH)."
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^\\s@]+$",
+            "description": "Same-origin path, https: or in-build relative artifact path; credentials/userinfo forbidden (C1 re-checks scheme safety)."
+          },
+          "sha256": { "$ref": "#/definitions/Sha256" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "VersionList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+      },
+      "description": "Exact MAJOR.MINOR entries only; no ranges, latest or compatible inference."
+    }
+  }
+}

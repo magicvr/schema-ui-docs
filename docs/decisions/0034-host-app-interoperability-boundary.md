@@ -336,6 +336,15 @@ H1 门禁四项评审结论：
 独立审计：H1 变更集经 grok build（grok 4.5，reasoning high）独立审计复核，阻断性意见 0 条
 （见 `docs/audit` 本轮审计记录）。
 
+**H2 追加说明（2026-08-13，capability ID 机读语法增宽）：** H2 落地 `capability-registry.json` 与
+B0/C0 Schema 时发现：既有 capability ID 机读语法 `^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*$`
+（page/manifest Schema 与 JS/Python reference）不允许段内连字符，而本 ADR D2 接受的
+`host.failure-recovery` 含连字符。为使 accepted 的 capability ID 可表达，v2.8 将语法增宽为
+`^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)*$`（段内允许连字符，段首仍须小写字母）。该增宽是 additive
+的：此前合法的 ID 全部不变，此前因连字符被拒的 ID 变为合法；未知 ID 仍 fail-closed，且 claim 中的
+capability 仍以 registry 登记为唯一权威。同步更新 `page.schema.json`、`app-manifest.schema.json`、
+新 B0/C0 Schema 与全部 JS/Python reference。
+
 ## 已裁定的原开放问题
 
 1. **Bootstrap 使用独立公开 document。** 不扩展现有 manifest 承载 session；404/410 才回退现有
