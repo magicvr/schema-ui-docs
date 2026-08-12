@@ -1,8 +1,8 @@
 {
   "name": "schema-ui-protocol-workspace",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "private": true,
-  "description": "Schema-UI v2.7.0 协议源码、制品构建与辅助验证工作区",
+  "description": "Schema-UI v2.8.0 协议源码、制品构建与辅助验证工作区",
   "scripts": {
     "validate": "node scripts/validate-all.js",
     "validate:scenarios": "node scripts/validate-scenarios.js",
@@ -51,6 +51,12 @@
     "test:conformance:uploads:python": "python conformance/runner/run-uploads-python.py",
     "test:conformance:version": "node conformance/runner/run-version-negotiation.js",
     "test:conformance:version:python": "python conformance/runner/run-version-negotiation-python.py",
+    "test:conformance:host-bootstrap": "node conformance/runner/run-host-bootstrap.js",
+    "test:conformance:host-bootstrap:python": "python conformance/runner/run-host-bootstrap-python.py",
+    "test:conformance:host-failure": "node conformance/runner/run-host-failure.js",
+    "test:conformance:host-failure:python": "python conformance/runner/run-host-failure-python.py",
+    "test:conformance:host-conformance-claim": "node conformance/runner/run-host-conformance-claim.js",
+    "test:conformance:host-conformance-claim:python": "python conformance/runner/run-host-conformance-claim-python.py",
     "test:conformance:all": "node scripts/run-all-conformance.js",
     "validate:l2": "node scripts/validate-l2-components.js",
     "validate:l3a": "node scripts/validate-l3a-expressions.js",
@@ -59,11 +65,12 @@
   "dependencies": {
     "ajv": "^8.20.0",
     "glob": "^13.0.6",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.3.1"
   },
   "devDependencies": {},
   "overrides": {
-    "brace-expansion": "^5.0.8",
+    "brace-expansion": "^5.0.9",
+    "fast-uri": "^3.1.5",
     "minimatch": "^10.2.6"
   },
   "engines": {

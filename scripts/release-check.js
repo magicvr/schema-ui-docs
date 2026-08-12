@@ -27,7 +27,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:f9589dc0ef09d3f29b4b3af8fb34f5bbc1a7239d64b46fa556f9006d6d2fab29';
+  'sha256:7aacf1332ec66a16db8c79c5f3af37d241bd69b88103e503fe4d91984dd138a2';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -192,6 +192,23 @@ const releaseTargets = {
       'defaultValue',
     ],
   },
+  '2.8': {
+    releaseGoalsPath: 'docs/release-goals/v2.8.md',
+    migrationPath: 'docs/migrations/2.7-to-2.8.md',
+    migrationRequiredTopics: [
+      'protocolVersion',
+      'legacy adapter',
+      'query',
+      'pageSize',
+      'requestMapping',
+      'actions.upload',
+      'host.bootstrap',
+      'host.failure-recovery',
+      'host.conformance-claim',
+      'returnIntentQueryKeys',
+      'bootstrap',
+    ],
+  },
 };
 const releaseTarget = releaseTargets[protocolVersion];
 assert.ok(releaseTarget, `Missing release target definition for protocolVersion ${protocolVersion}`);
@@ -249,6 +266,9 @@ const expectedCategories = new Set([
   'table-sort',
   'app-manifest',
   'app-navigation',
+  'host-bootstrap',
+  'host-failure',
+  'host-conformance-claim',
 ]);
 let versionedCaseCount = 0;
 for (const category of expectedCategories) {
@@ -284,6 +304,9 @@ const expectedVersionedCaseCountByProtocol = {
   '2.6': 303,
   // 2.7: 303 +3 request-construction +2 response-mapping +3 runtime-defaults +1 reactions +4 version-negotiation = 316
   '2.7': 316,
+  // 2.8: 316 +4 app-manifest (returnIntentQueryKeys) +5 version-negotiation
+  //      +23 host-bootstrap +43 host-failure +30 host-conformance-claim = 421
+  '2.8': 421,
 };
 const expectedVersionedCaseCount = expectedVersionedCaseCountByProtocol[protocolVersion];
 assert.ok(
@@ -308,6 +331,7 @@ const coreSpecPaths = [
   'docs/07-actions-contract.md',
   'docs/08-renderer-spec.md',
   'docs/09-app-manifest.md',
+  'docs/10-host-interoperability.md',
 ];
 const appliesToNeedle = `applies_to: schema-ui-protocol v${protocolVersion}`;
 for (const relativePath of coreSpecPaths) {

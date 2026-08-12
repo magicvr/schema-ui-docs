@@ -1,7 +1,7 @@
 meta:
   pageId: user_profile_advanced
   title: 进阶用户资料
-  protocolVersion: "2.7"
+  protocolVersion: "2.8"
   requiredCapabilities:
     - form.controls.advanced
     - form.record.load

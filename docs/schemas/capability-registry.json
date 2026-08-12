@@ -1,0 +1,128 @@
+{
+  "$schema": "https://internal/schema-ui/capability-registry-dsl#",
+  "$id": "https://internal/schema-ui/capability-registry.json",
+  "title": "Schema-UI Capability Registry",
+  "description": "机器可读 capability 登记表（ADR-0037 / spec 10 §4.4）。claim 校验器必须从本文件读取 capability ID、版本、依赖与 mandatory suite 映射；Markdown 仅补充语义说明。registry ID 唯一，依赖图必须无环。claim 校验时，对 claim support.pageVersions / support.manifestVersions 的每个元素 v，任一被列出 capability 的 removedIn 非空且 removedIn ≤ v，该 capability 在该 claim 中按未登记处理（UNKNOWN_CLAIM_CAPABILITY）。mandatorySuites 是「claim 声明该 capability 时必须全部 pass 的 suite」；claim 的 suites[] 必须覆盖所有被列出 capability 的 mandatorySuites 并集。",
+  "protocolVersion": "2.8",
+  "capabilities": {
+    "actions.upload": {
+      "sinceProtocolVersion": "0.2.6",
+      "dependsOn": [],
+      "mandatorySuites": ["uploads"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "actions.row.request": {
+      "sinceProtocolVersion": "0.2.7",
+      "dependsOn": [],
+      "mandatorySuites": ["request-construction"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "actions.page.trigger": {
+      "sinceProtocolVersion": "2.1",
+      "dependsOn": [],
+      "mandatorySuites": ["request-construction"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "actions.row.navigate": {
+      "sinceProtocolVersion": "2.1",
+      "dependsOn": [],
+      "mandatorySuites": ["request-construction"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "form.record.load": {
+      "sinceProtocolVersion": "2.1",
+      "dependsOn": [],
+      "mandatorySuites": ["response-mapping"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "table.selection": {
+      "sinceProtocolVersion": "2.2",
+      "dependsOn": [],
+      "mandatorySuites": ["search-table"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "actions.batch.request": {
+      "sinceProtocolVersion": "2.2",
+      "dependsOn": [],
+      "mandatorySuites": ["request-construction"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "permissions.inheritance": {
+      "sinceProtocolVersion": "2.3",
+      "dependsOn": [],
+      "mandatorySuites": ["permissions-inheritance"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "record.view.load": {
+      "sinceProtocolVersion": "2.4",
+      "dependsOn": [],
+      "mandatorySuites": ["response-mapping"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "app.manifest": {
+      "sinceProtocolVersion": "2.5",
+      "dependsOn": [],
+      "mandatorySuites": ["app-manifest"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "app.navigation": {
+      "sinceProtocolVersion": "2.5",
+      "dependsOn": ["app.manifest"],
+      "mandatorySuites": ["app-navigation"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "table.sort": {
+      "sinceProtocolVersion": "2.5",
+      "dependsOn": [],
+      "mandatorySuites": ["table-sort"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "form.controls.extended": {
+      "sinceProtocolVersion": "2.6",
+      "dependsOn": [],
+      "mandatorySuites": ["component-format"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "form.controls.advanced": {
+      "sinceProtocolVersion": "2.7",
+      "dependsOn": [],
+      "mandatorySuites": ["component-format"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "host.bootstrap": {
+      "sinceProtocolVersion": "2.8",
+      "dependsOn": ["app.manifest"],
+      "mandatorySuites": ["host-bootstrap"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "host.failure-recovery": {
+      "sinceProtocolVersion": "2.8",
+      "dependsOn": ["app.manifest"],
+      "mandatorySuites": ["host-failure"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "host.conformance-claim": {
+      "sinceProtocolVersion": "2.8",
+      "dependsOn": ["app.manifest"],
+      "mandatorySuites": ["host-conformance-claim"],
+      "deprecatedSince": null,
+      "removedIn": null
+    }
+  }
+}

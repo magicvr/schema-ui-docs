@@ -23,6 +23,9 @@
 | 容器权限继承 / 操作 intent / fail-closed 前置门禁 | `fixtures/permissions-inheritance/cases.json` | `reference-js/permission-inheritance.js`、`reference-python/permission_inheritance.py` | `npm run test:conformance:permissions-inheritance`、`npm run test:conformance:permissions-inheritance:python` |
 | 单文件/多文件上传 | `fixtures/uploads/cases.json` | `reference-js/upload-execution.js`、`reference-python/upload_execution.py` | `npm run test:conformance:uploads`、`npm run test:conformance:uploads:python` |
 | 官方六场景 + Admin 生命周期扩展示例执行 | `fixtures/scenarios/cases.json` | `reference-js/scenario-execution.js`、`reference-python/scenario_execution.py` | `npm run test:conformance:scenarios`、`npm run test:conformance:scenarios:python` |
+| Host bootstrap 生命周期（ADR-0035） | `fixtures/host-bootstrap/cases.json` | `reference-js/host-bootstrap.js`、`reference-python/host_bootstrap.py` | `npm run test:conformance:host-bootstrap`、`npm run test:conformance:host-bootstrap:python` |
+| Host failure 结果与恢复（ADR-0036） | `fixtures/host-failure/cases.json` | `reference-js/host-failure.js`、`reference-python/host_failure.py` | `npm run test:conformance:host-failure`、`npm run test:conformance:host-failure:python` |
+| Host conformance claim（ADR-0037） | `fixtures/host-conformance-claim/cases.json` | `reference-js/host-conformance-claim.js`、`reference-python/host_conformance_claim.py` | `npm run test:conformance:host-conformance-claim`、`npm run test:conformance:host-conformance-claim:python` |
 
 ### `cases[].protocolVersion` 语义（V227）
 

@@ -2,7 +2,7 @@
 status: stable
 owner: 前后端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.7
+applies_to: schema-ui-protocol v2.8
 ---
 
 # 应用级清单（app manifest）与导航
@@ -117,6 +117,7 @@ navigation: { ... }                    # 可选；见 §8
 | `title` / `titleKey` | 至少一 | 列表展示；渲染时页 `meta.title` 优先 |
 | `schemaUrl` | 是 | GET schema 的 API 相对 path；可含 `{name}` |
 | `route` | 是 | 前端路由模板（应用路由根）；可含 `{name}` |
+| `returnIntentQueryKeys` | 否 | **v2.8+**；无重复 query key 数组（元素匹配 `^[a-z][a-zA-Z0-9_]*$`）。认证恢复意图 allowlist 扩展（[10](./10-host-interoperability.md) §3.7）：出现该字段的清单必须声明 `host.failure-recovery` capability 且 `protocolVersion >= "2.8"`（M1，否则 `MISSING_REQUIRED_CAPABILITY` / `PROTOCOL_VERSION_TOO_LOW`）；未声明该 capability 的 Host 不得消费此字段扩展 allowlist |
 
 - **schemaUrl 占位：** 静态 M1：`schemaUrl` 的 `{name}` ⊆ `route` 的 `{name}`。运行时未解析 → `MISSING_PATH_BINDING`（对齐 [07](./07-actions-contract.md) §3.2）。
 - **空 `pages`：** 合法壳；不得 `homePageRef`；若有 `navigation`，link 项**仅允许** `url`（任何 `pageRef` → M1 失败）。
@@ -211,7 +212,7 @@ navigation:
 | 层级 | 对应页面 | 内容 |
 |---|---|---|
 | **M0** 结构 | L0 | `app-manifest.schema.json`：顶层结构、类型、`additionalProperties: false`、`protocolVersion` 格式 |
-| **M1** 语义 | L2 | 清单 `protocolVersion >= "2.5"`（字段集下限；**不是**页面解耦）、`pageId` 唯一、`appId` pattern、route 模板语法与唯一、占位符 ⊆、`homePageRef` 完整性与无参、空 pages 禁 home/`pageRef`、capability 门控、路径/logo 形态、`pageRef`/`url` 互斥、组不嵌组、`permissions` 仅 view |
+| **M1** 语义 | L2 | 清单 `protocolVersion >= "2.5"`（字段集下限；**不是**页面解耦）、`pageId` 唯一、`appId` pattern、route 模板语法与唯一、占位符 ⊆、`homePageRef` 完整性与无参、空 pages 禁 home/`pageRef`、capability 门控（含 `returnIntentQueryKeys` 出现 ⇒ `protocolVersion >= "2.8"` 且声明 `host.failure-recovery`）、路径/logo 形态、`pageRef`/`url` 互斥、组不嵌组、`permissions` 仅 view |
 | **M3a** 表达式 | L3a | 导航 `visibleWhen` / `permissions`：复用 L3a **非表单**规则（仅 `$context.user.*` / `$context.features.*`），作用域为清单制品；静态非法须结构化报告（不得仅靠运行时静默隐藏） |
 
 ---

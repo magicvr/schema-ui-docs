@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema-ui.dev/schemas/host-bootstrap.schema.json",
+  "title": "Schema-UI Host Bootstrap Document",
+  "description": "B0 structural contract for the optional host bootstrap document (ADR-0035, spec 10 §2). Semantic rules (B1): version/capability negotiation per ADR-0009, availability gates, auth normalization, manifest capability narrowing and stable bootstrap results.",
+  "type": "object",
+  "required": ["bootstrapVersion", "requiredCapabilities", "manifest", "availability"],
+  "additionalProperties": false,
+  "properties": {
+    "bootstrapVersion": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Independent document version; first version is exactly 1.0 and must not be mixed with page/manifest versions."
+    },
+    "requiredCapabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/definitions/CapabilityId" },
+      "description": "All elements participate in negotiation (ADR-0009). First version must include host.bootstrap (B1)."
+    },
+    "manifest": {
+      "type": "object",
+      "required": ["url"],
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "anyOf": [
+            { "pattern": "^/(?!/)[^\\s\\\\]*$" },
+            { "pattern": "^https://[^@\\s]+$" }
+          ],
+          "description": "Relative API path (^/(?!/)[^\\s\\\\]*$) or safe https: URL. Cross-API-baseURL-origin URLs must also declare sha256 (B1)."
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of the raw 200 manifest response bytes, lowercase hex, exact compare."
+        }
+      }
+    },
+    "availability": {
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["normal", "maintenance", "upgrade-required", "degraded"]
+        },
+        "messageKey": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional display key; Host dictionary miss must fall back to its own safe generic copy, never echo server text."
+        },
+        "retryAfterSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Only allowed with mode maintenance; absent means manual retry only."
+        },
+        "minimumHostVersion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Only allowed with mode upgrade-required; opaque display/diagnostic string, no SemVer guessing."
+        },
+        "disabledCapabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/definitions/CapabilityId" },
+          "description": "Only allowed with mode degraded; registered capability IDs only (B1 checks against capability-registry.json)."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "maintenance" } } },
+          "then": {
+            "properties": {
+              "minimumHostVersion": { "not": {} },
+              "disabledCapabilities": { "not": {} }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "mode": { "const": "upgrade-required" } } },
+          "then": {
+            "properties": {
+              "retryAfterSeconds": { "not": {} },
+              "disabledCapabilities": { "not": {} }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "mode": { "const": "degraded" } } },
+          "then": {
+            "properties": {
+              "retryAfterSeconds": { "not": {} },
+              "minimumHostVersion": { "not": {} }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "mode": { "const": "normal" } } },
+          "then": {
+            "properties": {
+              "retryAfterSeconds": { "not": {} },
+              "minimumHostVersion": { "not": {} },
+              "disabledCapabilities": { "not": {} }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "CapabilityId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)*$",
+      "description": "v2.8 起 ID 段内允许连字符（ADR-0034 机读语法增宽，容纳 host.failure-recovery）。"
+    }
+  }
+}

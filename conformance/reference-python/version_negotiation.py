@@ -2,7 +2,8 @@ import re
 
 
 VERSION_PATTERN = re.compile(r"^[0-9]+\.[0-9]+$")
-CAPABILITY_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*$")
+# v2.8: segments may contain hyphens (host.failure-recovery) — ADR-0034 grammar widening.
+CAPABILITY_PATTERN = re.compile(r"^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)*$")
 
 
 def is_unique_string_list(value, pattern, allow_empty):

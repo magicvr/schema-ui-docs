@@ -1,7 +1,8 @@
 'use strict';
 
 const VERSION_PATTERN = /^[0-9]+\.[0-9]+$/;
-const CAPABILITY_PATTERN = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*$/;
+// v2.8: segments may contain hyphens (host.failure-recovery) — ADR-0034 grammar widening.
+const CAPABILITY_PATTERN = /^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)*$/;
 
 function isUniqueStringList(value, pattern, allowEmpty) {
   return Array.isArray(value)

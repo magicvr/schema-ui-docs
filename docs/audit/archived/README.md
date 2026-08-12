@@ -6,6 +6,28 @@
 
 ---
 
+## 0078 — 2026-07-28 — v2.7.0 发布后轨道叙事与 Docker smoke 默认
+
+**主题：** `next-admin-lifecycle` 仍停在 2.6 且 F1e 误标 backlog、`smoke-docker` 无参默认 `2.0.0`、总纲 D.1 阅读建议过粗（V372–V374）。
+**性质：** 2×P2 + 1×P3 **全部关闭**。主类型=实现/契约漂移（informative 入口 + 工具卫生）。
+
+| 文件 | 说明 |
+|---|---|
+| [0078-2026-07-28-review.md](./0078-2026-07-28-review.md) | 审计报告 — V372–V374（全部关闭） |
+| [0078-2026-07-28-checklist.md](./0078-2026-07-28-checklist.md) | 跟踪清单 — 修复与归档门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| V372–V374 | next-admin-lifecycle 对齐 2.7；smoke 默认跟 `mcp/package.json`；00-overview 阅读建议修正 |
+| 本地门禁 | `check:links` 绿；`release:check` 316 / fixture `f9589dc0…`；content `d67f6cef…` · artifact `b94449eb…`（与正式 `v2.7.0` informative 分叉） |
+| GHCR | 显式 smoke `2.7.0` 通过；index `sha256:37749442…`（正式 pin 未改） |
+
+**说明：** **未**改写 `v2.7.0` / `mcp-v2.7.0`；**不**强制 PATCH。生产消费者仍 pin `v2.4.1`（out-of-repo）。
+
+---
+
 ## 0077 — 2026-07-28 — v2.7.0 落地后 MCP/validator 身份、入口投影与发布证据
 
 **主题：** v2.7.0 交付后 MCP lock 未跟版、validator SemVer 误升、DOC_MAP 仍指 v2.6、入口文档滞后，以及正式 tag/CD 证据链（V363–V371）。

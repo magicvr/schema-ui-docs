@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schema-ui.dev/schemas/host-failure.schema.json",
+  "title": "Schema-UI Host Failure Result",
+  "description": "F0 structural contract for the normalized Host failure result (ADR-0036, spec 10 §3). Semantic rules (F1): kind/hostCode pairing, scope/kind compatibility, elevation predicates, retry defaults and recovery-action filtering per kind.",
+  "type": "object",
+  "required": ["failureVersion", "failureId", "scope", "kind", "hostCode", "message"],
+  "additionalProperties": false,
+  "properties": {
+    "failureVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "failureId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[\\x20-\\x7E]+$",
+      "description": "Unique printable string per primary failure occurrence within an app instance; stable across countdown/redraw/manual retry of the same surface; new failure after recovery must generate a new ID. Not a backend request ID, no user data, no cross-instance uniqueness required."
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["bootstrap", "manifest", "page", "auth", "route", "runtime"]
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "maintenance",
+        "upgrade-required",
+        "authentication-required",
+        "reauth-required",
+        "account-locked",
+        "forbidden",
+        "not-found",
+        "rate-limited",
+        "timeout",
+        "offline",
+        "protocol-rejected",
+        "render-failed",
+        "unavailable"
+      ]
+    },
+    "hostCode": {
+      "type": "string",
+      "enum": [
+        "HOST_MAINTENANCE",
+        "HOST_UPGRADE_REQUIRED",
+        "HOST_AUTH_REQUIRED",
+        "HOST_REAUTH_REQUIRED",
+        "HOST_ACCOUNT_LOCKED",
+        "HOST_FORBIDDEN",
+        "HOST_ROUTE_NOT_FOUND",
+        "HOST_RATE_LIMITED",
+        "HOST_TIMEOUT",
+        "HOST_OFFLINE",
+        "HOST_PROTOCOL_REJECTED",
+        "HOST_RENDER_FAILED",
+        "HOST_UNAVAILABLE"
+      ],
+      "description": "Host must not copy arbitrary backend codes into hostCode nor act on unregistered codes."
+    },
+    "retry": {
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["none", "manual", "after"]
+        },
+        "afterSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Only allowed (and required) with mode after; UI countdown only, actual retry still governed by existing request/action retry policy."
+        }
+      },
+      "anyOf": [
+        {
+          "properties": { "mode": { "const": "after" } },
+          "required": ["afterSeconds"]
+        },
+        { "not": { "required": ["afterSeconds"] } }
+      ]
+    },
+    "message": {
+      "type": "object",
+      "required": ["messageKey"],
+      "additionalProperties": false,
+      "properties": {
+        "messageKey": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Host dictionary miss must use safe generic copy."
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "number", "boolean"]
+          },
+          "description": "Primitive params only; HTML is forbidden (F1)."
+        }
+      }
+    },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requestId": { "$ref": "#/definitions/CorrelationRef" },
+        "traceId": { "$ref": "#/definitions/CorrelationRef" }
+      },
+      "description": "Host-verified printable short strings only; never header dumps, URL query, tokens, principals, stacks or bodies."
+    },
+    "diagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "phase": { "type": "string", "minLength": 1 },
+        "protocolCode": { "type": "string", "minLength": 1 },
+        "hostVersion": { "type": "string", "minLength": 1 },
+        "protocolVersion": { "type": "string", "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$" },
+        "manifestSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      },
+      "description": "Closed field set; stack and raw exceptions go to controlled logs only, never into the user-copyable result."
+    },
+    "recoveryActions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["retry", "reauth", "home", "back", "reload", "support"]
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "anyOf": [
+              { "pattern": "^/(?!/)[^\\s\\\\]*$" },
+              { "pattern": "^https://[^@\\s]+$" }
+            ],
+            "description": "Same-origin app path or https: URL without userinfo; external links must open with noopener/noreferrer."
+          }
+        },
+        "anyOf": [
+          { "properties": { "type": { "const": "support" } } },
+          { "not": { "required": ["url"] } }
+        ]
+      },
+      "description": "Closed object array; per-kind filtering (e.g. forbidden/account-locked must not offer reauth) is enforced by F1."
+    }
+  },
+  "definitions": {
+    "CorrelationRef": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[\\x20-\\x7E]+$"
+    }
+  }
+}

@@ -3,7 +3,7 @@
 Schema-UI 是前端 Renderer 与后端页面生产方共同遵守的、框架和语言无关的配置驱动 UI 协议。
 协议本身是本仓库的核心交付物；验证器、reference、MCP 和 Docker 镜像都是非规范性辅助工具。
 
-当前协议版本为 `2.7.0`，页面声明使用 `meta.protocolVersion: "2.7"`。
+当前协议版本为 `2.8.0`，页面声明使用 `meta.protocolVersion: "2.8"`。
 
 开始阅读：[`PROJECT_CHARTER.md`](./PROJECT_CHARTER.md) → [`docs/00-overview.md`](./docs/00-overview.md)。
 
@@ -11,7 +11,7 @@ Schema-UI 是前端 Renderer 与后端页面生产方共同遵守的、框架和
 
 | 层级 | 内容 | 作用 |
 |---|---|---|
-| 核心规范 | `docs/00`–`09`、协议 ADR | 定义字段语义、默认值和能力边界 |
+| 核心规范 | `docs/00`–`10`、协议 ADR | 定义字段语义、默认值和能力边界 |
 | 机器契约 | `docs/schemas/` | 定义 JSON/YAML 结构与组件字段 |
 | 行为契约 | `conformance/fixtures/` | 定义跨前后端实现的可观测结果 |
 | 协议制品 | `schema-ui-protocol-<version>.tar.gz` | 前后端共同固定和消费的不可变发布单元 |
@@ -45,16 +45,17 @@ npm run verify:protocol-artifact
 输出：
 
 ```text
-dist/schema-ui-protocol-2.7.0.tar.gz
-dist/schema-ui-protocol-2.7.0.tar.gz.sha256
+dist/schema-ui-protocol-2.8.0.tar.gz
+dist/schema-ui-protocol-2.8.0.tar.gz.sha256
 dist/protocol/manifest.json
 ```
 
 独立前端和后端仓库应固定协议 tag 或制品 SHA-256，直接消费同一份 Schema 和 fixtures；不得复制后维护
 私有期望结果。JavaScript、Python、Java、.NET 等消费者使用同一个制品，不要求安装或运行 MCP。
 
-当前跨实现消费规则与 fixture 分类见 [`conformance/README.md`](./conformance/README.md)。从 `2.6` 升级到
-`2.7` 请按 [`docs/migrations/2.6-to-2.7.md`](./docs/migrations/2.6-to-2.7.md) 执行；从 `2.5` 请先按
+当前跨实现消费规则与 fixture 分类见 [`conformance/README.md`](./conformance/README.md)。从 `2.7` 升级到
+`2.8` 请按 [`docs/migrations/2.7-to-2.8.md`](./docs/migrations/2.7-to-2.8.md) 执行；从 `2.6` 请先按
+[`docs/migrations/2.6-to-2.7.md`](./docs/migrations/2.6-to-2.7.md) 执行；从 `2.5` 请先按
 [`docs/migrations/2.5-to-2.6.md`](./docs/migrations/2.5-to-2.6.md) 执行；从 `2.4` 请先按
 [`docs/migrations/2.4-to-2.5.md`](./docs/migrations/2.4-to-2.5.md) 执行；从 `2.3` 请先按
 [`docs/migrations/2.3-to-2.4.md`](./docs/migrations/2.3-to-2.4.md) 执行；从 `2.2` 请先按
@@ -92,9 +93,9 @@ npm run validate -- "pages/**/*.yaml"
 | 人工 tag `v*` | 协议 GitHub Release：`tar.gz` + `.sha256` |
 | 人工 tag `mcp-v*` | MCP 镜像推到 **GHCR**（`ghcr.io/<owner>/schema-ui-mcp`，含稳定版 `latest`） |
 
-- 协议 tag：`v<protocol-artifact-version>`，例如 `v2.7.0`；
-- 页面协议版本：MAJOR.MINOR，例如 `2.7`；
-- MCP tag：`mcp-v<mcp-version>`，例如 `mcp-v2.7.0`（tag 独立推送；**MAJOR.MINOR 与协议线对齐**，PATCH 可独立）；
+- 协议 tag：`v<protocol-artifact-version>`，例如 `v2.8.0`；
+- 页面协议版本：MAJOR.MINOR，例如 `2.8`；
+- MCP tag：`mcp-v<mcp-version>`，例如 `mcp-v2.8.0`（tag 独立推送；**MAJOR.MINOR 与协议线对齐**，PATCH 可独立）；
 - 验证器独立 SemVer；MCP 镜像正式源为 GitHub Packages，不是 Docker Hub。
 
 `npm run release:check:tag` 只验证协议 tag。协议工作流生成 tar.gz 和 SHA-256；MCP 工作流不改变协议版本。
@@ -103,14 +104,14 @@ npm run validate -- "pages/**/*.yaml"
 
 ### 验证器
 
-`scripts/` 提供 L0/L1、L2、L3a、L4 校验实现。当前 validator 版本为 `1.0.0`，支持协议制品 `2.7.0`，
+`scripts/` 提供 L0/L1、L2、L3a、L4 校验实现。当前 validator 版本为 `1.0.0`，支持协议制品 `2.8.0`，
 兼容声明见 `validator/package.json`。根 CLI 和 MCP 共用同一个 Ajv 装配模块；L4 的禁止字段
 直接从 `node.schema.json` 派生，避免维护第二份规则。使用说明见 [`docs/06-validation.md`](./docs/06-validation.md)。
 
 ### MCP
 
 `mcp/` 提供协议只读查询与 `validate_content` 内容校验。它不读取宿主项目文件系统，不生成或修改页面，
-也不进入协议权威层。MCP 当前版本为 `2.7.0`，捆绑协议制品 `2.7.0`（MAJOR.MINOR 共线；MCP PATCH 可独立演进）。正式分发为
+也不进入协议权威层。MCP 当前版本为 `2.8.0`，捆绑协议制品 `2.8.0`（MAJOR.MINOR 共线；MCP PATCH 可独立演进）。正式分发为
 `ghcr.io/<owner>/schema-ui-mcp` 上的 stdio Docker 镜像（内置协议快照，运行时不远程刷新）。
 
 安装、Docker、工具接口见 [`docs/mcp/README.md`](./docs/mcp/README.md)；发布流程见
@@ -132,7 +133,7 @@ npm run validate -- "pages/**/*.yaml"
 └── .github/workflows/             # Protocol 与 MCP 分离的 CI/CD
 ```
 
-当前发布门禁见 [`docs/release-goals/v2.7.md`](./docs/release-goals/v2.7.md)（目录说明见
+当前发布门禁见 [`docs/release-goals/v2.8.md`](./docs/release-goals/v2.8.md)（目录说明见
 [`docs/release-goals/README.md`](./docs/release-goals/README.md)）；
 发布流程见 [`docs/RELEASE.md`](./docs/RELEASE.md)；
 历史版本门禁见 [`docs/release-goals/`](./docs/release-goals/)；

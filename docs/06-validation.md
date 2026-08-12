@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.7
+applies_to: schema-ui-protocol v2.8
 ---
 
 # 校验规则与工具链
@@ -42,6 +42,8 @@ applies_to: schema-ui-protocol v2.7
 > **v2.6 / ADR-0028 表单控件面：** 出现 `textarea` / `switch` / `checkbox` / `radio` 或 `select.mode: multiple` 时要求 `meta.protocolVersion >= "2.6"` 与 `form.controls.extended`。L2：search form 子树拒绝 `mode: multiple`（`SELECT_MULTIPLE_IN_SEARCH`）；新控件计入 form 字段命名空间（供 `bodyMapping` 校验）。
 >
 > **v2.7 / ADR-0029–0033 表单进阶：** 出现 `cascader` / `checkboxGroup` / `richText` / `password` 或任一 `props.defaultValue` 时要求 `meta.protocolVersion >= "2.7"` 与 `form.controls.advanced`。L2：search 拒绝 `cascader`（`CASCADER_IN_SEARCH`）与 `checkboxGroup`（`CHECKBOX_GROUP_IN_SEARCH`）；`defaultValue` wire 不匹配 → `DEFAULT_VALUE_WIRE_MISMATCH`。
+
+> **v2.8 / Host/App 互操作（B/F/C 系列，与页面 L、清单 M 管线平行）：** 三个可选能力包使用独立门禁，见 [10-host-interoperability.md](./10-host-interoperability.md) §5 与 ADR-0035/0036/0037。B0 = `host-bootstrap.schema.json`；B1 = bootstrap validator（阶段算法与稳定结果）；F0 = `host-failure.schema.json`；F1 = failure validator（分类优先级、提升谓词、retry/recovery 过滤）；C0 = `host-conformance-claim.schema.json` + `capability-registry.json`；C1 = claim validator（规范化 digest、registry 依赖/移除、§4.8 校验顺序）。fixtures 位于 `conformance/fixtures/host-bootstrap` / `host-failure` / `host-conformance-claim`。v2.8 起 capability ID 机读语法段内允许连字符（`host.failure-recovery`，ADR-0034 H2 追加说明）。
 
 > **v2.5 / 应用级清单（M 系列，与页面 L 平行）：** 清单制品使用 **M0 / M1 / M3a**（有意无 M2），见 [09-app-manifest.md](./09-app-manifest.md) 与 ADR-0025/0026。M0 = `app-manifest.schema.json`；M1 = 引用完整性、route 模板、capability 门控等；M3a = 导航 `visibleWhen`/`permissions` 复用 L3a 非表单规则（仅清单作用域）。页面管线 L0–L4 定义零改动。
 
