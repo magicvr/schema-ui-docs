@@ -12,7 +12,8 @@ track: Host/App interoperability
 
 **Accepted（2026-08-13，H1 评审通过）。** 依赖 [ADR-0034](./0034-host-app-interoperability-boundary.md)。本文定义
 可核验声明格式；它不让自报声明成为安全信任根，也不改变 ADR-0009 的 runtime 协商。accept 不宣称生产
-支持；机器契约与生产 evidence 门禁见 H2–H4。
+支持；机器契约与生产 evidence 门禁见 H2–H4。（2026-08-13 发布后注记：H2–H4 已闭合，
+`v2.8.0` 已发布，本段为 accept 时点状态。）
 
 ## 背景
 

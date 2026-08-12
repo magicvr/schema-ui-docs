@@ -15,6 +15,8 @@ track: Host/App interoperability
 [0037](./0037-host-conformance-claim.md) 同步 accepted。accept 只裁定边界与候选 wire 设计，
 **不宣称生产支持**：H2 机器契约、H3 生产 Host evidence 与 H4 发布闭环门禁完成并发布新制品前，
 不得声明协议已支持；消费者仓在 S3 固定前不得按新协议整改实现。
+（2026-08-13 发布后注记：H2–H4 已全部闭合，`v2.8.0`（tag `v2.8.0` @ `593f625`）已发布，
+本段为 accept 时点状态，不再构成当前限制。）
 
 输入证据来自消费者仓的
 `I-HOST-APP-001-protocol-gap-catalog.md`（2026-08-12）。该目录是需求输入，不是协议权威；
