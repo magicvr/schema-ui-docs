@@ -1243,6 +1243,151 @@
         ],
         "missingCapabilities": []
       }
+    },
+    {
+      "id": "supported-v28-version",
+      "protocolVersion": "2.8",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.8"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.7",
+            "2.8"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.8",
+        "supportedVersions": [
+          "2.7",
+          "2.8"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "unsupported-v28-on-v27-renderer",
+      "protocolVersion": "2.8",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.8"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.7"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "2.8",
+        "supportedVersions": [
+          "2.7"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "supported-host-bootstrap-capability",
+      "protocolVersion": "2.8",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "host.bootstrap",
+            "host.failure-recovery"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.8"
+          ],
+          "supportedCapabilities": [
+            "host.bootstrap",
+            "host.failure-recovery"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.8",
+        "supportedVersions": [
+          "2.8"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "missing-host-failure-recovery-capability",
+      "protocolVersion": "2.8",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "host.bootstrap",
+            "host.failure-recovery"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.8"
+          ],
+          "supportedCapabilities": [
+            "host.bootstrap"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "MISSING_REQUIRED_CAPABILITY",
+        "pageVersion": "2.8",
+        "supportedVersions": [
+          "2.8"
+        ],
+        "missingCapabilities": [
+          "host.failure-recovery"
+        ]
+      }
+    },
+    {
+      "id": "invalid-host-capability-id-hyphen-grammar",
+      "protocolVersion": "2.8",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "host.-failure"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.8"
+          ],
+          "supportedCapabilities": [
+            "host.-failure"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "INVALID_REQUIRED_CAPABILITIES",
+        "pageVersion": "2.8",
+        "supportedVersions": [
+          "2.8"
+        ],
+        "missingCapabilities": []
+      }
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "manifestVersion": "1.0",
   "name": "schema-ui-protocol",
-  "artifactVersion": "2.7.0",
-  "protocolVersion": "2.7",
+  "artifactVersion": "2.8.0",
+  "protocolVersion": "2.8",
   "authority": {
     "semanticSpecs": [
       "PROJECT_CHARTER.md",
@@ -15,6 +15,7 @@
       "docs/07-actions-contract.md",
       "docs/08-renderer-spec.md",
       "docs/09-app-manifest.md",
+      "docs/10-host-interoperability.md",
       "docs/decisions/0001-why-single-node-tree.md",
       "docs/decisions/0002-why-not-two-schema-uischema.md",
       "docs/decisions/0003-context-namespace-and-visible-when.md",
@@ -46,7 +47,11 @@
       "docs/decisions/0030-checkbox-group.md",
       "docs/decisions/0031-rich-text.md",
       "docs/decisions/0032-password.md",
-      "docs/decisions/0033-form-default-value.md"
+      "docs/decisions/0033-form-default-value.md",
+      "docs/decisions/0034-host-app-interoperability-boundary.md",
+      "docs/decisions/0035-host-bootstrap-lifecycle.md",
+      "docs/decisions/0036-host-failure-recovery.md",
+      "docs/decisions/0037-host-conformance-claim.md"
     ],
     "structuralContracts": [
       "docs/schemas/*.json"

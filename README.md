@@ -3,7 +3,7 @@
 Schema-UI 是前端 Renderer 与后端页面生产方共同遵守的、框架和语言无关的配置驱动 UI 协议。
 协议本身是本仓库的核心交付物；验证器、reference、MCP 和 Docker 镜像都是非规范性辅助工具。
 
-当前协议版本为 `2.7.0`，页面声明使用 `meta.protocolVersion: "2.7"`。
+当前协议版本为 `2.8.0`，页面声明使用 `meta.protocolVersion: "2.8"`。
 
 开始阅读：[`PROJECT_CHARTER.md`](./PROJECT_CHARTER.md) → [`docs/00-overview.md`](./docs/00-overview.md)。
 

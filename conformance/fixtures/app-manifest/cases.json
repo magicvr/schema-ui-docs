@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "negotiate-accept-2-5",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "negotiate",
@@ -37,7 +37,7 @@
     },
     {
       "id": "negotiate-unsupported-version",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "negotiate",
@@ -68,7 +68,7 @@
     },
     {
       "id": "negotiate-missing-version",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "negotiate",
@@ -98,7 +98,7 @@
     },
     {
       "id": "negotiate-missing-capability",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "negotiate",
@@ -132,7 +132,7 @@
     },
     {
       "id": "decoupled-manifest-2-5-page-2-4",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "decoupledVersions",
@@ -188,7 +188,7 @@
     },
     {
       "id": "m1-missing-app-manifest-capability",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -225,7 +225,7 @@
     },
     {
       "id": "m1-navigation-without-capability",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -294,7 +294,7 @@
     },
     {
       "id": "home-unknown-id",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -354,7 +354,7 @@
     },
     {
       "id": "home-parametric-route-rejected",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -392,7 +392,7 @@
     },
     {
       "id": "home-landing-path",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "resolveHome",
@@ -452,7 +452,7 @@
     },
     {
       "id": "deep-link-prefers-over-home",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "resolveHome",
@@ -513,7 +513,7 @@
     },
     {
       "id": "d4a-literal-beats-param",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "matchRoute",
@@ -570,7 +570,7 @@
     },
     {
       "id": "d4a-param-match",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "matchRoute",
@@ -629,7 +629,7 @@
     },
     {
       "id": "d4a-declaration-order-tiebreak",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "matchRoute",
@@ -662,7 +662,7 @@
     },
     {
       "id": "d4a-trailing-slash-not-normalized",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "matchRoute",
@@ -715,7 +715,7 @@
     },
     {
       "id": "d4a-percent-decode",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "matchRoute",
@@ -741,7 +741,7 @@
     },
     {
       "id": "d4a-plus-literal",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "matchRoute",
@@ -767,7 +767,7 @@
     },
     {
       "id": "d4a-illegal-percent-fails",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "matchRoute",
@@ -787,7 +787,7 @@
     },
     {
       "id": "schema-url-join-base",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "resolveSchemaUrl",
@@ -802,7 +802,7 @@
     },
     {
       "id": "schema-url-placeholder-bound",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "resolveSchemaUrl",
@@ -819,7 +819,7 @@
     },
     {
       "id": "schema-url-missing-binding",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "resolveSchemaUrl",
@@ -835,7 +835,7 @@
     },
     {
       "id": "page-id-mismatch",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "pageIdMatch",
@@ -849,7 +849,7 @@
     },
     {
       "id": "page-id-match-ok",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "pageIdMatch",
@@ -862,7 +862,7 @@
     },
     {
       "id": "logo-relative-join",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "resolveLogo",
@@ -876,7 +876,7 @@
     },
     {
       "id": "logo-https-passthrough",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "resolveLogo",
@@ -890,7 +890,7 @@
     },
     {
       "id": "logo-http-rejected",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "resolveLogo",
@@ -904,7 +904,7 @@
     },
     {
       "id": "logo-data-rejected",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "resolveLogo",
@@ -918,7 +918,7 @@
     },
     {
       "id": "manifest-load-failed",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "load",
@@ -932,7 +932,7 @@
     },
     {
       "id": "navigate-hit-injects-route",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "navigate",
@@ -999,7 +999,7 @@
     },
     {
       "id": "navigate-miss-still-ok",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "navigate",
@@ -1060,7 +1060,7 @@
     },
     {
       "id": "empty-pages-shell-ok",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -1091,7 +1091,7 @@
     },
     {
       "id": "empty-pages-page-ref-rejected",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -1134,7 +1134,7 @@
     },
     {
       "id": "d4a-route-length-tiebreak",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "matchRoute",
@@ -1166,7 +1166,7 @@
     },
     {
       "id": "nav-link-page-ref-url-mutex",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -1220,7 +1220,7 @@
     },
     {
       "id": "nav-group-nested-rejected",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -1287,7 +1287,7 @@
     },
     {
       "id": "nav-page-ref-unknown",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -1340,7 +1340,7 @@
     },
     {
       "id": "m1-protocol-version-below-2-5-rejected",
-      "protocolVersion": "2.7",
+      "protocolVersion": "2.8",
       "category": "app-manifest",
       "input": {
         "operation": "validate",
@@ -1384,20 +1384,32 @@
         "operation": "validate",
         "manifest": {
           "protocolVersion": "2.8",
-          "requiredCapabilities": ["app.manifest", "host.failure-recovery"],
-          "app": { "appId": "demo-app", "name": "Demo", "homePageRef": "home" },
+          "requiredCapabilities": [
+            "app.manifest",
+            "host.failure-recovery"
+          ],
+          "app": {
+            "appId": "demo-app",
+            "name": "Demo",
+            "homePageRef": "home"
+          },
           "pages": [
             {
               "pageId": "home",
               "title": "Home",
               "schemaUrl": "/api/schema/home",
               "route": "/home",
-              "returnIntentQueryKeys": ["invoiceId", "view"]
+              "returnIntentQueryKeys": [
+                "invoiceId",
+                "view"
+              ]
             }
           ]
         }
       },
-      "expected": { "ok": true }
+      "expected": {
+        "ok": true
+      }
     },
     {
       "id": "return-intent-query-keys-version-too-low",
@@ -1407,15 +1419,23 @@
         "operation": "validate",
         "manifest": {
           "protocolVersion": "2.7",
-          "requiredCapabilities": ["app.manifest"],
-          "app": { "appId": "demo-app", "name": "Demo", "homePageRef": "home" },
+          "requiredCapabilities": [
+            "app.manifest"
+          ],
+          "app": {
+            "appId": "demo-app",
+            "name": "Demo",
+            "homePageRef": "home"
+          },
           "pages": [
             {
               "pageId": "home",
               "title": "Home",
               "schemaUrl": "/api/schema/home",
               "route": "/home",
-              "returnIntentQueryKeys": ["invoiceId"]
+              "returnIntentQueryKeys": [
+                "invoiceId"
+              ]
             }
           ]
         }
@@ -1440,15 +1460,23 @@
         "operation": "validate",
         "manifest": {
           "protocolVersion": "2.8",
-          "requiredCapabilities": ["app.manifest"],
-          "app": { "appId": "demo-app", "name": "Demo", "homePageRef": "home" },
+          "requiredCapabilities": [
+            "app.manifest"
+          ],
+          "app": {
+            "appId": "demo-app",
+            "name": "Demo",
+            "homePageRef": "home"
+          },
           "pages": [
             {
               "pageId": "home",
               "title": "Home",
               "schemaUrl": "/api/schema/home",
               "route": "/home",
-              "returnIntentQueryKeys": ["invoiceId"]
+              "returnIntentQueryKeys": [
+                "invoiceId"
+              ]
             }
           ]
         }
@@ -1474,15 +1502,25 @@
         "operation": "validate",
         "manifest": {
           "protocolVersion": "2.8",
-          "requiredCapabilities": ["app.manifest", "host.failure-recovery"],
-          "app": { "appId": "demo-app", "name": "Demo", "homePageRef": "home" },
+          "requiredCapabilities": [
+            "app.manifest",
+            "host.failure-recovery"
+          ],
+          "app": {
+            "appId": "demo-app",
+            "name": "Demo",
+            "homePageRef": "home"
+          },
           "pages": [
             {
               "pageId": "home",
               "title": "Home",
               "schemaUrl": "/api/schema/home",
               "route": "/home",
-              "returnIntentQueryKeys": ["view", "view"]
+              "returnIntentQueryKeys": [
+                "view",
+                "view"
+              ]
             }
           ]
         }

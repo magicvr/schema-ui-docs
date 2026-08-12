@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.7
+applies_to: schema-ui-protocol v2.8
 ---
 
 # 校验规则与工具链

@@ -6,22 +6,49 @@
       "id": "canonical-object-key-sort",
       "protocolVersion": "2.8",
       "category": "host-conformance-claim",
-      "input": { "operation": "canonicalize", "value": { "b": 1, "a": "x" } },
-      "expected": { "canonical": "{\"a\":\"x\",\"b\":1}" }
+      "input": {
+        "operation": "canonicalize",
+        "value": {
+          "b": 1,
+          "a": "x"
+        }
+      },
+      "expected": {
+        "canonical": "{\"a\":\"x\",\"b\":1}"
+      }
     },
     {
       "id": "canonical-non-ascii-key-byte-order",
       "protocolVersion": "2.8",
       "category": "host-conformance-claim",
-      "input": { "operation": "canonicalize", "value": { "键": "v", "a": "x" } },
-      "expected": { "canonical": "{\"a\":\"x\",\"键\":\"v\"}" }
+      "input": {
+        "operation": "canonicalize",
+        "value": {
+          "键": "v",
+          "a": "x"
+        }
+      },
+      "expected": {
+        "canonical": "{\"a\":\"x\",\"键\":\"v\"}"
+      }
     },
     {
       "id": "canonical-string-array-sort",
       "protocolVersion": "2.8",
       "category": "host-conformance-claim",
-      "input": { "operation": "canonicalize", "value": { "items": ["c", "a", "b"] } },
-      "expected": { "canonical": "{\"items\":[\"a\",\"b\",\"c\"]}" }
+      "input": {
+        "operation": "canonicalize",
+        "value": {
+          "items": [
+            "c",
+            "a",
+            "b"
+          ]
+        }
+      },
+      "expected": {
+        "canonical": "{\"items\":[\"a\",\"b\",\"c\"]}"
+      }
     },
     {
       "id": "canonical-object-array-sort",
@@ -29,16 +56,34 @@
       "category": "host-conformance-claim",
       "input": {
         "operation": "canonicalize",
-        "value": { "suites": [{ "suiteId": "z" }, { "suiteId": "a" }] }
+        "value": {
+          "suites": [
+            {
+              "suiteId": "z"
+            },
+            {
+              "suiteId": "a"
+            }
+          ]
+        }
       },
-      "expected": { "canonical": "{\"suites\":[{\"suiteId\":\"a\"},{\"suiteId\":\"z\"}]}" }
+      "expected": {
+        "canonical": "{\"suites\":[{\"suiteId\":\"a\"},{\"suiteId\":\"z\"}]}"
+      }
     },
     {
       "id": "canonical-minimal-escaping",
       "protocolVersion": "2.8",
       "category": "host-conformance-claim",
-      "input": { "operation": "canonicalize", "value": { "x": "a\"b\\c" } },
-      "expected": { "canonical": "{\"x\":\"a\\\"b\\\\c\"}" }
+      "input": {
+        "operation": "canonicalize",
+        "value": {
+          "x": "a\"b\\c"
+        }
+      },
+      "expected": {
+        "canonical": "{\"x\":\"a\\\"b\\\\c\"}"
+      }
     },
     {
       "id": "canonical-nested-mixed",
@@ -46,9 +91,21 @@
       "category": "host-conformance-claim",
       "input": {
         "operation": "canonicalize",
-        "value": { "z": 1, "a": { "b": 2, "a": 1 }, "arr": ["x", "a"] }
+        "value": {
+          "z": 1,
+          "a": {
+            "b": 2,
+            "a": 1
+          },
+          "arr": [
+            "x",
+            "a"
+          ]
+        }
       },
-      "expected": { "canonical": "{\"a\":{\"a\":1,\"b\":2},\"arr\":[\"a\",\"x\"],\"z\":1}" }
+      "expected": {
+        "canonical": "{\"a\":{\"a\":1,\"b\":2},\"arr\":[\"a\",\"x\"],\"z\":1}"
+      }
     },
     {
       "id": "claim-digest-disordered-claim",
@@ -58,23 +115,49 @@
         "operation": "claimDigest",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.7", "2.8"],
-            "manifestVersions": ["2.5", "2.8"],
-            "capabilities": ["app.manifest", "app.navigation", "host.bootstrap"]
+            "pageVersions": [
+              "2.7",
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.5",
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest",
+              "app.navigation",
+              "host.bootstrap"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
             "suites": [
-              { "suiteId": "host-bootstrap", "suiteVersion": "1.0", "result": "pass" },
-              { "suiteId": "app-navigation", "suiteVersion": "1.0", "result": "pass" },
-              { "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }
+              {
+                "suiteId": "host-bootstrap",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              },
+              {
+                "suiteId": "app-navigation",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              },
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
             ]
           },
           "evidence": [
@@ -87,7 +170,9 @@
           ]
         }
       },
-      "expected": { "digest": "9a27f723b4b6b540d655c759a247dd9dba706fe10314914dba2cd8502c0c0fbb" }
+      "expected": {
+        "digest": "9a27f723b4b6b540d655c759a247dd9dba706fe10314914dba2cd8502c0c0fbb"
+      }
     },
     {
       "id": "claim-digest-canonical-order-invariant",
@@ -106,26 +191,47 @@
           ],
           "conformance": {
             "suites": [
-              { "result": "pass", "suiteVersion": "1.0", "suiteId": "host-bootstrap" },
-              { "result": "pass", "suiteVersion": "1.0", "suiteId": "app-manifest" }
+              {
+                "result": "pass",
+                "suiteVersion": "1.0",
+                "suiteId": "host-bootstrap"
+              },
+              {
+                "result": "pass",
+                "suiteVersion": "1.0",
+                "suiteId": "app-manifest"
+              }
             ],
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
             "fixtureVersion": "1.0"
           },
           "support": {
-            "capabilities": ["host.bootstrap", "app.manifest"],
-            "manifestVersions": ["2.8"],
-            "pageVersions": ["2.8"]
+            "capabilities": [
+              "host.bootstrap",
+              "app.manifest"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "pageVersions": [
+              "2.8"
+            ]
           },
           "protocolArtifact": {
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "artifactVersion": "2.8.0"
           },
-          "host": { "buildId": "git:abc123", "hostVersion": "4.2.0", "hostId": "schema-ui-web" },
+          "host": {
+            "buildId": "git:abc123",
+            "hostVersion": "4.2.0",
+            "hostId": "schema-ui-web"
+          },
           "claimVersion": "1.0"
         }
       },
-      "expected": { "digest": "f6117a940a8a2ab641de80b857b6e7efe17235007cd5131309cd141f9e77c202" }
+      "expected": {
+        "digest": "f6117a940a8a2ab641de80b857b6e7efe17235007cd5131309cd141f9e77c202"
+      }
     },
     {
       "id": "registry-valid",
@@ -139,21 +245,30 @@
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
               "dependsOn": [],
-              "mandatorySuites": ["app-manifest"],
+              "mandatorySuites": [
+                "app-manifest"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             },
             "app.navigation": {
               "sinceProtocolVersion": "2.5",
-              "dependsOn": ["app.manifest"],
-              "mandatorySuites": ["app-navigation"],
+              "dependsOn": [
+                "app.manifest"
+              ],
+              "mandatorySuites": [
+                "app-navigation"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             }
           }
         }
       },
-      "expected": { "valid": true, "errors": [] }
+      "expected": {
+        "valid": true,
+        "errors": []
+      }
     },
     {
       "id": "registry-removed-not-after-deprecated",
@@ -167,7 +282,9 @@
             "legacy.feature": {
               "sinceProtocolVersion": "2.0",
               "dependsOn": [],
-              "mandatorySuites": ["legacy-feature"],
+              "mandatorySuites": [
+                "legacy-feature"
+              ],
               "deprecatedSince": "2.8",
               "removedIn": "2.8"
             }
@@ -176,7 +293,9 @@
       },
       "expected": {
         "valid": false,
-        "errors": ["legacy.feature: removedIn must be strictly later than deprecatedSince"]
+        "errors": [
+          "legacy.feature: removedIn must be strictly later than deprecatedSince"
+        ]
       }
     },
     {
@@ -191,7 +310,9 @@
             "legacy.feature": {
               "sinceProtocolVersion": "2.0",
               "dependsOn": [],
-              "mandatorySuites": ["legacy-feature"],
+              "mandatorySuites": [
+                "legacy-feature"
+              ],
               "deprecatedSince": null,
               "removedIn": "2.8"
             }
@@ -200,7 +321,9 @@
       },
       "expected": {
         "valid": false,
-        "errors": ["legacy.feature: removedIn requires deprecatedSince"]
+        "errors": [
+          "legacy.feature: removedIn requires deprecatedSince"
+        ]
       }
     },
     {
@@ -215,7 +338,9 @@
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
               "dependsOn": [],
-              "mandatorySuites": ["app-manifest"],
+              "mandatorySuites": [
+                "app-manifest"
+              ],
               "deprecatedSince": null,
               "removedIn": null,
               "partial": false
@@ -225,7 +350,9 @@
       },
       "expected": {
         "valid": false,
-        "errors": ["app.manifest: unknown key partial"]
+        "errors": [
+          "app.manifest: unknown key partial"
+        ]
       }
     },
     {
@@ -239,15 +366,23 @@
           "capabilities": {
             "cap.a": {
               "sinceProtocolVersion": "2.8",
-              "dependsOn": ["cap.b"],
-              "mandatorySuites": ["suite-a"],
+              "dependsOn": [
+                "cap.b"
+              ],
+              "mandatorySuites": [
+                "suite-a"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             },
             "cap.b": {
               "sinceProtocolVersion": "2.8",
-              "dependsOn": ["cap.a"],
-              "mandatorySuites": ["suite-b"],
+              "dependsOn": [
+                "cap.a"
+              ],
+              "mandatorySuites": [
+                "suite-b"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             }
@@ -256,7 +391,9 @@
       },
       "expected": {
         "valid": false,
-        "errors": ["dependency cycle detected: cap.a -> cap.b -> cap.a"]
+        "errors": [
+          "dependency cycle detected: cap.a -> cap.b -> cap.a"
+        ]
       }
     },
     {
@@ -270,8 +407,12 @@
           "capabilities": {
             "cap.a": {
               "sinceProtocolVersion": "2.8",
-              "dependsOn": ["missing.cap"],
-              "mandatorySuites": ["suite-a"],
+              "dependsOn": [
+                "missing.cap"
+              ],
+              "mandatorySuites": [
+                "suite-a"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             }
@@ -280,7 +421,9 @@
       },
       "expected": {
         "valid": false,
-        "errors": ["cap.a: dependsOn references unregistered capability missing.cap"]
+        "errors": [
+          "cap.a: dependsOn references unregistered capability missing.cap"
+        ]
       }
     },
     {
@@ -295,7 +438,9 @@
             "Host.bootstrap": {
               "sinceProtocolVersion": "2.8",
               "dependsOn": [],
-              "mandatorySuites": ["host-bootstrap"],
+              "mandatorySuites": [
+                "host-bootstrap"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             }
@@ -304,7 +449,9 @@
       },
       "expected": {
         "valid": false,
-        "errors": ["invalid capabilityId: Host.bootstrap"]
+        "errors": [
+          "invalid capabilityId: Host.bootstrap"
+        ]
       }
     },
     {
@@ -319,7 +466,9 @@
             "app.manifest": {
               "sinceProtocolVersion": "2.5.1",
               "dependsOn": [],
-              "mandatorySuites": ["app-manifest"],
+              "mandatorySuites": [
+                "app-manifest"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             }
@@ -328,7 +477,9 @@
       },
       "expected": {
         "valid": false,
-        "errors": ["app.manifest: sinceProtocolVersion must be a precise MAJOR.MINOR"]
+        "errors": [
+          "app.manifest: sinceProtocolVersion must be a precise MAJOR.MINOR"
+        ]
       }
     },
     {
@@ -339,22 +490,41 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest", "host.bootstrap"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest",
+              "host.bootstrap"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
             "suites": [
-              { "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" },
-              { "suiteId": "host-bootstrap", "suiteVersion": "1.0", "result": "pass" }
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              },
+              {
+                "suiteId": "host-bootstrap",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
             ]
           },
           "evidence": [
@@ -373,14 +543,20 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               },
               "host.bootstrap": {
                 "sinceProtocolVersion": "2.8",
-                "dependsOn": ["app.manifest"],
-                "mandatorySuites": ["host-bootstrap"],
+                "dependsOn": [
+                  "app.manifest"
+                ],
+                "mandatorySuites": [
+                  "host-bootstrap"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -390,7 +566,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "CLAIM_OK" }
+      "expected": {
+        "code": "CLAIM_OK"
+      }
     },
     {
       "id": "validate-claim-unknown-version",
@@ -400,20 +578,36 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "2.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -431,7 +625,9 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -441,7 +637,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "UNKNOWN_CLAIM_VERSION" }
+      "expected": {
+        "code": "UNKNOWN_CLAIM_VERSION"
+      }
     },
     {
       "id": "validate-claim-unknown-capability",
@@ -451,20 +649,36 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["bogus.cap"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "bogus.cap"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "bogus-suite", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "bogus-suite",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -482,7 +696,9 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -492,7 +708,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "UNKNOWN_CLAIM_CAPABILITY" }
+      "expected": {
+        "code": "UNKNOWN_CLAIM_CAPABILITY"
+      }
     },
     {
       "id": "validate-claim-removed-in-listed-version",
@@ -502,22 +720,41 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest", "legacy.feature"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest",
+              "legacy.feature"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
             "suites": [
-              { "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" },
-              { "suiteId": "legacy-feature", "suiteVersion": "1.0", "result": "pass" }
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              },
+              {
+                "suiteId": "legacy-feature",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
             ]
           },
           "evidence": [
@@ -536,14 +773,18 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               },
               "legacy.feature": {
                 "sinceProtocolVersion": "2.0",
                 "dependsOn": [],
-                "mandatorySuites": ["legacy-feature"],
+                "mandatorySuites": [
+                  "legacy-feature"
+                ],
                 "deprecatedSince": "2.6",
                 "removedIn": "2.8"
               }
@@ -553,7 +794,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "UNKNOWN_CLAIM_CAPABILITY" }
+      "expected": {
+        "code": "UNKNOWN_CLAIM_CAPABILITY"
+      }
     },
     {
       "id": "validate-claim-removed-in-below-versions-ok",
@@ -563,22 +806,41 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.7"],
-            "manifestVersions": ["2.7"],
-            "capabilities": ["app.manifest", "legacy.feature"]
+            "pageVersions": [
+              "2.7"
+            ],
+            "manifestVersions": [
+              "2.7"
+            ],
+            "capabilities": [
+              "app.manifest",
+              "legacy.feature"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
             "suites": [
-              { "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" },
-              { "suiteId": "legacy-feature", "suiteVersion": "1.0", "result": "pass" }
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              },
+              {
+                "suiteId": "legacy-feature",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
             ]
           },
           "evidence": [
@@ -597,14 +859,18 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               },
               "legacy.feature": {
                 "sinceProtocolVersion": "2.0",
                 "dependsOn": [],
-                "mandatorySuites": ["legacy-feature"],
+                "mandatorySuites": [
+                  "legacy-feature"
+                ],
                 "deprecatedSince": "2.6",
                 "removedIn": "2.8"
               }
@@ -614,7 +880,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "CLAIM_OK" }
+      "expected": {
+        "code": "CLAIM_OK"
+      }
     },
     {
       "id": "validate-claim-dependency-not-closed",
@@ -624,20 +892,36 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.navigation"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.navigation"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "app-navigation", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "app-navigation",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -655,14 +939,20 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               },
               "app.navigation": {
                 "sinceProtocolVersion": "2.5",
-                "dependsOn": ["app.manifest"],
-                "mandatorySuites": ["app-navigation"],
+                "dependsOn": [
+                  "app.manifest"
+                ],
+                "mandatorySuites": [
+                  "app-navigation"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -672,7 +962,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "INCOMPLETE_CAPABILITY_DEPENDENCY" }
+      "expected": {
+        "code": "INCOMPLETE_CAPABILITY_DEPENDENCY"
+      }
     },
     {
       "id": "validate-claim-artifact-mismatch",
@@ -682,20 +974,36 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -713,7 +1021,9 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -723,7 +1033,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "CLAIM_ARTIFACT_MISMATCH" }
+      "expected": {
+        "code": "CLAIM_ARTIFACT_MISMATCH"
+      }
     },
     {
       "id": "validate-claim-fixture-mismatch",
@@ -733,20 +1045,36 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -764,7 +1092,9 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -774,7 +1104,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "CLAIM_FIXTURE_MISMATCH" }
+      "expected": {
+        "code": "CLAIM_FIXTURE_MISMATCH"
+      }
     },
     {
       "id": "validate-claim-suite-incomplete",
@@ -784,20 +1116,37 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest", "host.bootstrap"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest",
+              "host.bootstrap"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -815,14 +1164,20 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               },
               "host.bootstrap": {
                 "sinceProtocolVersion": "2.8",
-                "dependsOn": ["app.manifest"],
-                "mandatorySuites": ["host-bootstrap"],
+                "dependsOn": [
+                  "app.manifest"
+                ],
+                "mandatorySuites": [
+                  "host-bootstrap"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -832,7 +1187,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "CLAIM_SUITE_INCOMPLETE" }
+      "expected": {
+        "code": "CLAIM_SUITE_INCOMPLETE"
+      }
     },
     {
       "id": "validate-claim-evidence-build-mismatch",
@@ -842,20 +1199,36 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -873,7 +1246,9 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -883,7 +1258,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "CLAIM_EVIDENCE_BUILD_MISMATCH" }
+      "expected": {
+        "code": "CLAIM_EVIDENCE_BUILD_MISMATCH"
+      }
     },
     {
       "id": "validate-claim-evidence-unverifiable",
@@ -893,20 +1270,36 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -924,7 +1317,9 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -932,10 +1327,14 @@
           },
           "artifactContentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-          "evidenceStates": ["unverifiable"]
+          "evidenceStates": [
+            "unverifiable"
+          ]
         }
       },
-      "expected": { "code": "CLAIM_EVIDENCE_UNVERIFIABLE" }
+      "expected": {
+        "code": "CLAIM_EVIDENCE_UNVERIFIABLE"
+      }
     },
     {
       "id": "validate-claim-invalid-versions-list",
@@ -945,20 +1344,34 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
             "pageVersions": [],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest"]
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -976,7 +1389,9 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -986,7 +1401,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "INVALID_CLAIM" }
+      "expected": {
+        "code": "INVALID_CLAIM"
+      }
     },
     {
       "id": "validate-claim-invalid-evidence-empty",
@@ -996,20 +1413,36 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["app.manifest"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "app.manifest"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "app-manifest", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "app-manifest",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": []
         },
@@ -1020,7 +1453,9 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -1030,7 +1465,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "INVALID_CLAIM" }
+      "expected": {
+        "code": "INVALID_CLAIM"
+      }
     },
     {
       "id": "validate-claim-transitive-dependency-missing",
@@ -1040,20 +1477,36 @@
         "operation": "validateClaim",
         "claim": {
           "claimVersion": "1.0",
-          "host": { "hostId": "schema-ui-web", "hostVersion": "4.2.0", "buildId": "git:abc123" },
+          "host": {
+            "hostId": "schema-ui-web",
+            "hostVersion": "4.2.0",
+            "buildId": "git:abc123"
+          },
           "protocolArtifact": {
             "artifactVersion": "2.8.0",
             "contentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           "support": {
-            "pageVersions": ["2.8"],
-            "manifestVersions": ["2.8"],
-            "capabilities": ["host.bootstrap"]
+            "pageVersions": [
+              "2.8"
+            ],
+            "manifestVersions": [
+              "2.8"
+            ],
+            "capabilities": [
+              "host.bootstrap"
+            ]
           },
           "conformance": {
             "fixtureVersion": "1.0",
             "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "suites": [{ "suiteId": "host-bootstrap", "suiteVersion": "1.0", "result": "pass" }]
+            "suites": [
+              {
+                "suiteId": "host-bootstrap",
+                "suiteVersion": "1.0",
+                "result": "pass"
+              }
+            ]
           },
           "evidence": [
             {
@@ -1071,14 +1524,20 @@
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
                 "dependsOn": [],
-                "mandatorySuites": ["app-manifest"],
+                "mandatorySuites": [
+                  "app-manifest"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               },
               "host.bootstrap": {
                 "sinceProtocolVersion": "2.8",
-                "dependsOn": ["app.manifest"],
-                "mandatorySuites": ["host-bootstrap"],
+                "dependsOn": [
+                  "app.manifest"
+                ],
+                "mandatorySuites": [
+                  "host-bootstrap"
+                ],
                 "deprecatedSince": null,
                 "removedIn": null
               }
@@ -1088,7 +1547,9 @@
           "fixtureSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
         }
       },
-      "expected": { "code": "INCOMPLETE_CAPABILITY_DEPENDENCY" }
+      "expected": {
+        "code": "INCOMPLETE_CAPABILITY_DEPENDENCY"
+      }
     }
   ]
 }

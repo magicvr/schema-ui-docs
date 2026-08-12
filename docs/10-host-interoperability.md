@@ -1,5 +1,5 @@
 ---
-status: candidate
+status: stable
 owner: 前后端架构组
 last_updated: 2026-08-13
 applies_to: schema-ui-protocol v2.8
@@ -8,13 +8,13 @@ based_on: ADR-0034–0037（accepted，2026-08-13）
 
 # Host/App 互操作协议（bootstrap / failure / claim）
 
-本文是 `schema-ui-protocol v2.8` 候选轨道的新增规范面，投影已 accepted 的
+本文是 `schema-ui-protocol v2.8` 的新增规范面，投影已 accepted 的
 [ADR-0034](./decisions/0034-host-app-interoperability-boundary.md) /
 [0035](./decisions/0035-host-bootstrap-lifecycle.md) /
 [0036](./decisions/0036-host-failure-recovery.md) /
 [0037](./decisions/0037-host-conformance-claim.md)。三个能力包分别由 `host.bootstrap`、
-`host.failure-recovery`、`host.conformance-claim` capability 门控。在 v2.8 制品正式发布前，
-本文**不**是生产支持声明；未声明对应 capability 的 Host 不受本文任何条款约束。
+`host.failure-recovery`、`host.conformance-claim` capability 门控；全部为可选能力，
+未声明对应 capability 的 Host 不受本文任何条款约束。
 
 ## 1. 范围与能力门控
 

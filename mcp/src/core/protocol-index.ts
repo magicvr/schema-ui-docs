@@ -28,9 +28,10 @@ export const DOC_MAP: DocEntry[] = [
   ['actions-contract', 'docs/07-actions-contract.md'],
   ['renderer-spec', 'docs/08-renderer-spec.md'],
   ['app-manifest', 'docs/09-app-manifest.md'],
+  ['host-interoperability', 'docs/10-host-interoperability.md'],
   ['v1-release-goals', 'docs/release-goals/v1.0.md'],
   // Stable id always points at the current v2 line gate (v2.5+).
-  ['v2-release-goals', 'docs/release-goals/v2.7.md'],
+  ['v2-release-goals', 'docs/release-goals/v2.8.md'],
   ['changelog', 'docs/CHANGELOG.md'],
 ].map(([docId, relativePath], order) => {
   const absolutePath = protocolPath(relativePath);

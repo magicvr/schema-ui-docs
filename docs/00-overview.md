@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.7
+applies_to: schema-ui-protocol v2.8
 ---
 
 # Schema-Driven UI 协议总纲
@@ -38,7 +38,7 @@ applies_to: schema-ui-protocol v2.7
 | [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
 | [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
 | [09-app-manifest.md](./09-app-manifest.md) | 前后端开发者 | 应用级清单与导航规范（ADR-0025/0026） |
-| [10-host-interoperability.md](./10-host-interoperability.md) | Host/App 开发者 / AI | Host/App 互操作：bootstrap 生命周期、Host failure result、conformance claim（ADR-0034–0037，v2.8 候选） |
+| [10-host-interoperability.md](./10-host-interoperability.md) | Host/App 开发者 / AI | Host/App 互操作：bootstrap 生命周期、Host failure result、conformance claim（ADR-0034–0037，since 2.8） |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
 | [migrations/](./migrations/) | 前后端开发者 | 版本间升级路径（informative） |
@@ -54,7 +54,7 @@ applies_to: schema-ui-protocol v2.7
 - 想扩展协议、新增字段 → 先读 `decisions/`，确认没有历史上被否决过的类似方案。
 - 查阅历史审计证据 → 查看 `audit/`；它不是协议权威来源，也不进入协议制品。
 - 想了解版本变更历史 → 直接看 `CHANGELOG.md`；升级步骤看 `migrations/`。
-- 维护或发布某 MINOR → 对照 [`release-goals/`](./release-goals/) 下对应 `vX.Y.md`（当前线：[`v2.7.md`](./release-goals/v2.7.md)，G0–G4 已闭合；前序 [`v2.6.md`](./release-goals/v2.6.md)）。**门禁不是语义权威。**
+- 维护或发布某 MINOR → 对照 [`release-goals/`](./release-goals/) 下对应 `vX.Y.md`（当前线：[`v2.8.md`](./release-goals/v2.8.md)，G0–G4 已闭合；前序 [`v2.6.md`](./release-goals/v2.6.md)）。**门禁不是语义权威。**
 - 规划后续 Admin 能力 / 待增补一等公民 → 读 [`release-goals/next-admin-lifecycle.md`](./release-goals/next-admin-lifecycle.md)（**informative** backlog；P0–D.0 与 D.1 中 F1/进阶已随 v2.6/v2.7 交付，残留 F2+ 等见该文 §4 / §8）。
 
 ## 3. 术语表（权威定义，其余文档不得与本表冲突）
@@ -85,7 +85,7 @@ applies_to: schema-ui-protocol v2.7
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v2.7.0`，页面通过 `meta.protocolVersion: "2.7"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.7 发布门禁见 [release-goals/v2.7.md](./release-goals/v2.7.md)；从 2.6 升级见 [migrations/2.6-to-2.7.md](./migrations/2.6-to-2.7.md)；v2.6 见 [release-goals/v2.6.md](./release-goals/v2.6.md) 与 [migrations/2.5-to-2.6.md](./migrations/2.5-to-2.6.md)；v2.5 见 [release-goals/v2.5.md](./release-goals/v2.5.md) 与 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)。
+当前协议版本：`v2.8.0`，页面通过 `meta.protocolVersion: "2.8"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.8 发布门禁见 [release-goals/v2.8.md](./release-goals/v2.8.md)；从 2.7 升级见 [migrations/2.7-to-2.8.md](./migrations/2.7-to-2.8.md)；v2.6 见 [release-goals/v2.6.md](./release-goals/v2.6.md) 与 [migrations/2.5-to-2.6.md](./migrations/2.5-to-2.6.md)；v2.5 见 [release-goals/v2.5.md](./release-goals/v2.5.md) 与 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)。
 
 PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`、`record.view.load`、`table.sort`、`app.manifest`、`app.navigation`、`form.controls.extended`、`form.controls.advanced`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。L2 另强制字段集→`protocolVersion` 下限（2.1 字段不得挂在 `"2.0"`；2.2 字段须 `"2.2"`；`permissionCascade` / `permissionIntent` 须 `"2.3"` 且声明 `permissions.inheritance`；`recordView` 须 `"2.4"` 且声明 `record.view.load`；`sortable` / `sortField` / `defaultSort` 须 `"2.5"` 且声明 `table.sort`；`textarea` / `switch` / `checkbox` / `radio` / `select.mode: multiple` 须 `"2.6"` 且声明 `form.controls.extended`；`cascader` / `checkboxGroup` / `richText` / `password` / `defaultValue` 须 `"2.7"` 且声明 `form.controls.advanced`）。
 

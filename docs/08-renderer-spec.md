@@ -2,7 +2,7 @@
 status: stable
 owner: 前端架构组
 last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.7
+applies_to: schema-ui-protocol v2.8
 ---
 
 # Renderer（前端渲染器）实现规范

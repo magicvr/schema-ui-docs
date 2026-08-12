@@ -15,7 +15,7 @@
         "protocolVersion": {
           "type": "string",
           "pattern": "^[0-9]+\\.[0-9]+$",
-          "description": "必填（since 0.2），格式 MAJOR.MINOR。当前协议制品为 \"2.7\"。使用 permissionCascade 或 permissionIntent 时必须 \"2.3\" 并声明 permissions.inheritance；使用 type: recordView 时必须 \"2.4\" 并声明 record.view.load；使用 sortable/sortField/defaultSort 时必须 \"2.5\" 并声明 table.sort；使用 textarea/switch/checkbox/radio 或 select.mode:multiple 时必须 \"2.6\" 并声明 form.controls.extended；使用 cascader/checkboxGroup/richText/password 或 defaultValue 时必须 \"2.7\" 并声明 form.controls.advanced；2.2 字段仍要求至少 \"2.2\"。L2 强制字段集→版本下限（V282、ADR-0023/0024/0027/0028/0029–0033）"
+          "description": "必填（since 0.2），格式 MAJOR.MINOR。当前协议制品为 \"2.8\"。使用 permissionCascade 或 permissionIntent 时必须 \"2.3\" 并声明 permissions.inheritance；使用 type: recordView 时必须 \"2.4\" 并声明 record.view.load；使用 sortable/sortField/defaultSort 时必须 \"2.5\" 并声明 table.sort；使用 textarea/switch/checkbox/radio 或 select.mode:multiple 时必须 \"2.6\" 并声明 form.controls.extended；使用 cascader/checkboxGroup/richText/password 或 defaultValue 时必须 \"2.7\" 并声明 form.controls.advanced；2.2 字段仍要求至少 \"2.2\"。L2 强制字段集→版本下限（V282、ADR-0023/0024/0027/0028/0029–0033）"
         },
         "requiredCapabilities": {
           "type": "array",

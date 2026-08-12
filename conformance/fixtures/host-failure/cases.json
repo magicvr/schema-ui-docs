@@ -6,147 +6,313 @@
       "id": "classify-403-forbidden",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "manifest", "status": 403, "authState": "authenticated", "transport": null },
-      "expected": { "scope": "manifest", "kind": "forbidden", "hostCode": "HOST_FORBIDDEN" }
+      "input": {
+        "operation": "classify",
+        "scope": "manifest",
+        "status": 403,
+        "authState": "authenticated",
+        "transport": null
+      },
+      "expected": {
+        "scope": "manifest",
+        "kind": "forbidden",
+        "hostCode": "HOST_FORBIDDEN"
+      }
     },
     {
       "id": "classify-401-anonymous-auth-required",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "page", "status": 401, "authState": "anonymous", "transport": null },
-      "expected": { "scope": "page", "kind": "authentication-required", "hostCode": "HOST_AUTH_REQUIRED" }
+      "input": {
+        "operation": "classify",
+        "scope": "page",
+        "status": 401,
+        "authState": "anonymous",
+        "transport": null
+      },
+      "expected": {
+        "scope": "page",
+        "kind": "authentication-required",
+        "hostCode": "HOST_AUTH_REQUIRED"
+      }
     },
     {
       "id": "classify-401-authenticated-reauth",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "manifest", "status": 401, "authState": "authenticated", "transport": null },
-      "expected": { "scope": "manifest", "kind": "reauth-required", "hostCode": "HOST_REAUTH_REQUIRED" }
+      "input": {
+        "operation": "classify",
+        "scope": "manifest",
+        "status": 401,
+        "authState": "authenticated",
+        "transport": null
+      },
+      "expected": {
+        "scope": "manifest",
+        "kind": "reauth-required",
+        "hostCode": "HOST_REAUTH_REQUIRED"
+      }
     },
     {
       "id": "classify-426-upgrade-required",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "bootstrap", "status": 426, "authState": "anonymous", "transport": null },
-      "expected": { "scope": "bootstrap", "kind": "upgrade-required", "hostCode": "HOST_UPGRADE_REQUIRED" }
+      "input": {
+        "operation": "classify",
+        "scope": "bootstrap",
+        "status": 426,
+        "authState": "anonymous",
+        "transport": null
+      },
+      "expected": {
+        "scope": "bootstrap",
+        "kind": "upgrade-required",
+        "hostCode": "HOST_UPGRADE_REQUIRED"
+      }
     },
     {
       "id": "classify-429-rate-limited",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "manifest", "status": 429, "authState": "anonymous", "transport": null },
-      "expected": { "scope": "manifest", "kind": "rate-limited", "hostCode": "HOST_RATE_LIMITED" }
+      "input": {
+        "operation": "classify",
+        "scope": "manifest",
+        "status": 429,
+        "authState": "anonymous",
+        "transport": null
+      },
+      "expected": {
+        "scope": "manifest",
+        "kind": "rate-limited",
+        "hostCode": "HOST_RATE_LIMITED"
+      }
     },
     {
       "id": "classify-timeout",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "page", "status": null, "authState": "anonymous", "transport": "timeout" },
-      "expected": { "scope": "page", "kind": "timeout", "hostCode": "HOST_TIMEOUT" }
+      "input": {
+        "operation": "classify",
+        "scope": "page",
+        "status": null,
+        "authState": "anonymous",
+        "transport": "timeout"
+      },
+      "expected": {
+        "scope": "page",
+        "kind": "timeout",
+        "hostCode": "HOST_TIMEOUT"
+      }
     },
     {
       "id": "classify-offline",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "manifest", "status": null, "authState": "anonymous", "transport": "offline" },
-      "expected": { "scope": "manifest", "kind": "offline", "hostCode": "HOST_OFFLINE" }
+      "input": {
+        "operation": "classify",
+        "scope": "manifest",
+        "status": null,
+        "authState": "anonymous",
+        "transport": "offline"
+      },
+      "expected": {
+        "scope": "manifest",
+        "kind": "offline",
+        "hostCode": "HOST_OFFLINE"
+      }
     },
     {
       "id": "classify-503-unavailable",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "bootstrap", "status": 503, "authState": "anonymous", "transport": null },
-      "expected": { "scope": "bootstrap", "kind": "unavailable", "hostCode": "HOST_UNAVAILABLE" }
+      "input": {
+        "operation": "classify",
+        "scope": "bootstrap",
+        "status": 503,
+        "authState": "anonymous",
+        "transport": null
+      },
+      "expected": {
+        "scope": "bootstrap",
+        "kind": "unavailable",
+        "hostCode": "HOST_UNAVAILABLE"
+      }
     },
     {
       "id": "classify-404-not-elevated",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "manifest", "status": 404, "authState": "anonymous", "transport": null },
+      "input": {
+        "operation": "classify",
+        "scope": "manifest",
+        "status": 404,
+        "authState": "anonymous",
+        "transport": null
+      },
       "expected": null
     },
     {
       "id": "classify-422-not-elevated",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "page", "status": 422, "authState": "authenticated", "transport": null },
+      "input": {
+        "operation": "classify",
+        "scope": "page",
+        "status": 422,
+        "authState": "authenticated",
+        "transport": null
+      },
       "expected": null
     },
     {
       "id": "classify-non-host-scope-null",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "classify", "scope": "route", "status": 500, "authState": "anonymous", "transport": null },
+      "input": {
+        "operation": "classify",
+        "scope": "route",
+        "status": 500,
+        "authState": "anonymous",
+        "transport": null
+      },
       "expected": null
     },
     {
       "id": "map-maintenance",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "MAINTENANCE" },
-      "expected": { "scope": "bootstrap", "kind": "maintenance", "hostCode": "HOST_MAINTENANCE" }
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "MAINTENANCE"
+      },
+      "expected": {
+        "scope": "bootstrap",
+        "kind": "maintenance",
+        "hostCode": "HOST_MAINTENANCE"
+      }
     },
     {
       "id": "map-upgrade-required",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "UPGRADE_REQUIRED" },
-      "expected": { "scope": "bootstrap", "kind": "upgrade-required", "hostCode": "HOST_UPGRADE_REQUIRED" }
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "UPGRADE_REQUIRED"
+      },
+      "expected": {
+        "scope": "bootstrap",
+        "kind": "upgrade-required",
+        "hostCode": "HOST_UPGRADE_REQUIRED"
+      }
     },
     {
       "id": "map-reauth-required",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "REAUTH_REQUIRED" },
-      "expected": { "scope": "auth", "kind": "reauth-required", "hostCode": "HOST_REAUTH_REQUIRED" }
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "REAUTH_REQUIRED"
+      },
+      "expected": {
+        "scope": "auth",
+        "kind": "reauth-required",
+        "hostCode": "HOST_REAUTH_REQUIRED"
+      }
     },
     {
       "id": "map-account-locked",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "ACCOUNT_LOCKED" },
-      "expected": { "scope": "auth", "kind": "account-locked", "hostCode": "HOST_ACCOUNT_LOCKED" }
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "ACCOUNT_LOCKED"
+      },
+      "expected": {
+        "scope": "auth",
+        "kind": "account-locked",
+        "hostCode": "HOST_ACCOUNT_LOCKED"
+      }
     },
     {
       "id": "map-negotiation-rejected",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "BOOTSTRAP_NEGOTIATION_REJECTED" },
-      "expected": { "scope": "bootstrap", "kind": "protocol-rejected", "hostCode": "HOST_PROTOCOL_REJECTED" }
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "BOOTSTRAP_NEGOTIATION_REJECTED"
+      },
+      "expected": {
+        "scope": "bootstrap",
+        "kind": "protocol-rejected",
+        "hostCode": "HOST_PROTOCOL_REJECTED"
+      }
     },
     {
       "id": "map-document-failed-timeout",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "BOOTSTRAP_DOCUMENT_FAILED", "fetchClassification": "timeout" },
-      "expected": { "scope": "bootstrap", "kind": "timeout", "hostCode": "HOST_TIMEOUT" }
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "BOOTSTRAP_DOCUMENT_FAILED",
+        "fetchClassification": "timeout"
+      },
+      "expected": {
+        "scope": "bootstrap",
+        "kind": "timeout",
+        "hostCode": "HOST_TIMEOUT"
+      }
     },
     {
       "id": "map-document-failed-protocol",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "BOOTSTRAP_DOCUMENT_FAILED", "fetchClassification": "protocol" },
-      "expected": { "scope": "bootstrap", "kind": "protocol-rejected", "hostCode": "HOST_PROTOCOL_REJECTED" }
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "BOOTSTRAP_DOCUMENT_FAILED",
+        "fetchClassification": "protocol"
+      },
+      "expected": {
+        "scope": "bootstrap",
+        "kind": "protocol-rejected",
+        "hostCode": "HOST_PROTOCOL_REJECTED"
+      }
     },
     {
       "id": "map-manifest-capability-rejected",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "MANIFEST_CAPABILITY_REJECTED" },
-      "expected": { "scope": "manifest", "kind": "protocol-rejected", "hostCode": "HOST_PROTOCOL_REJECTED" }
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "MANIFEST_CAPABILITY_REJECTED"
+      },
+      "expected": {
+        "scope": "manifest",
+        "kind": "protocol-rejected",
+        "hostCode": "HOST_PROTOCOL_REJECTED"
+      }
     },
     {
       "id": "map-manifest-integrity-failed",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "MANIFEST_INTEGRITY_FAILED" },
-      "expected": { "scope": "manifest", "kind": "protocol-rejected", "hostCode": "HOST_PROTOCOL_REJECTED" }
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "MANIFEST_INTEGRITY_FAILED"
+      },
+      "expected": {
+        "scope": "manifest",
+        "kind": "protocol-rejected",
+        "hostCode": "HOST_PROTOCOL_REJECTED"
+      }
     },
     {
       "id": "map-ready-no-failure",
       "protocolVersion": "2.8",
       "category": "host-failure",
-      "input": { "operation": "mapBootstrapResult", "result": "READY" },
+      "input": {
+        "operation": "mapBootstrapResult",
+        "result": "READY"
+      },
       "expected": null
     },
     {
@@ -161,14 +327,30 @@
           "scope": "bootstrap",
           "kind": "maintenance",
           "hostCode": "HOST_MAINTENANCE",
-          "retry": { "mode": "after", "afterSeconds": 120 },
-          "message": { "messageKey": "host.maintenance" },
-          "correlation": { "requestId": "req-1" },
-          "diagnostics": { "phase": "availability-gate" },
-          "recoveryActions": [{ "type": "retry" }]
+          "retry": {
+            "mode": "after",
+            "afterSeconds": 120
+          },
+          "message": {
+            "messageKey": "host.maintenance"
+          },
+          "correlation": {
+            "requestId": "req-1"
+          },
+          "diagnostics": {
+            "phase": "availability-gate"
+          },
+          "recoveryActions": [
+            {
+              "type": "retry"
+            }
+          ]
         }
       },
-      "expected": { "valid": true, "errors": [] }
+      "expected": {
+        "valid": true,
+        "errors": []
+      }
     },
     {
       "id": "validate-kind-hostcode-mismatch",
@@ -182,12 +364,16 @@
           "scope": "bootstrap",
           "kind": "maintenance",
           "hostCode": "HOST_TIMEOUT",
-          "message": { "messageKey": "host.maintenance" }
+          "message": {
+            "messageKey": "host.maintenance"
+          }
         }
       },
       "expected": {
         "valid": false,
-        "errors": ["hostCode HOST_TIMEOUT does not match kind maintenance (expected HOST_MAINTENANCE)"]
+        "errors": [
+          "hostCode HOST_TIMEOUT does not match kind maintenance (expected HOST_MAINTENANCE)"
+        ]
       }
     },
     {
@@ -202,12 +388,16 @@
           "scope": "route",
           "kind": "maintenance",
           "hostCode": "HOST_MAINTENANCE",
-          "message": { "messageKey": "host.maintenance" }
+          "message": {
+            "messageKey": "host.maintenance"
+          }
         }
       },
       "expected": {
         "valid": false,
-        "errors": ["kind maintenance is not valid in scope route"]
+        "errors": [
+          "kind maintenance is not valid in scope route"
+        ]
       }
     },
     {
@@ -222,11 +412,22 @@
           "scope": "auth",
           "kind": "forbidden",
           "hostCode": "HOST_FORBIDDEN",
-          "message": { "messageKey": "host.forbidden" },
-          "recoveryActions": [{ "type": "reauth" }]
+          "message": {
+            "messageKey": "host.forbidden"
+          },
+          "recoveryActions": [
+            {
+              "type": "reauth"
+            }
+          ]
         }
       },
-      "expected": { "valid": false, "errors": ["forbidden must not offer reauth"] }
+      "expected": {
+        "valid": false,
+        "errors": [
+          "forbidden must not offer reauth"
+        ]
+      }
     },
     {
       "id": "validate-account-locked-only-home-support",
@@ -240,11 +441,22 @@
           "scope": "auth",
           "kind": "account-locked",
           "hostCode": "HOST_ACCOUNT_LOCKED",
-          "message": { "messageKey": "host.accountLocked" },
-          "recoveryActions": [{ "type": "retry" }]
+          "message": {
+            "messageKey": "host.accountLocked"
+          },
+          "recoveryActions": [
+            {
+              "type": "retry"
+            }
+          ]
         }
       },
-      "expected": { "valid": false, "errors": ["account-locked only allows home/support recovery actions"] }
+      "expected": {
+        "valid": false,
+        "errors": [
+          "account-locked only allows home/support recovery actions"
+        ]
+      }
     },
     {
       "id": "validate-account-locked-home-support-valid",
@@ -258,11 +470,24 @@
           "scope": "auth",
           "kind": "account-locked",
           "hostCode": "HOST_ACCOUNT_LOCKED",
-          "message": { "messageKey": "host.accountLocked" },
-          "recoveryActions": [{ "type": "home" }, { "type": "support", "url": "https://support.example.test/status" }]
+          "message": {
+            "messageKey": "host.accountLocked"
+          },
+          "recoveryActions": [
+            {
+              "type": "home"
+            },
+            {
+              "type": "support",
+              "url": "https://support.example.test/status"
+            }
+          ]
         }
       },
-      "expected": { "valid": true, "errors": [] }
+      "expected": {
+        "valid": true,
+        "errors": []
+      }
     },
     {
       "id": "validate-render-failed-no-auto-loop",
@@ -276,11 +501,21 @@
           "scope": "runtime",
           "kind": "render-failed",
           "hostCode": "HOST_RENDER_FAILED",
-          "retry": { "mode": "after", "afterSeconds": 5 },
-          "message": { "messageKey": "host.renderFailed" }
+          "retry": {
+            "mode": "after",
+            "afterSeconds": 5
+          },
+          "message": {
+            "messageKey": "host.renderFailed"
+          }
         }
       },
-      "expected": { "valid": false, "errors": ["render-failed must not auto-loop reload (retry mode after forbidden)"] }
+      "expected": {
+        "valid": false,
+        "errors": [
+          "render-failed must not auto-loop reload (retry mode after forbidden)"
+        ]
+      }
     },
     {
       "id": "validate-render-failed-reload-support-valid",
@@ -294,12 +529,27 @@
           "scope": "runtime",
           "kind": "render-failed",
           "hostCode": "HOST_RENDER_FAILED",
-          "retry": { "mode": "manual" },
-          "message": { "messageKey": "host.renderFailed" },
-          "recoveryActions": [{ "type": "reload" }, { "type": "support", "url": "/support/status" }]
+          "retry": {
+            "mode": "manual"
+          },
+          "message": {
+            "messageKey": "host.renderFailed"
+          },
+          "recoveryActions": [
+            {
+              "type": "reload"
+            },
+            {
+              "type": "support",
+              "url": "/support/status"
+            }
+          ]
         }
       },
-      "expected": { "valid": true, "errors": [] }
+      "expected": {
+        "valid": true,
+        "errors": []
+      }
     },
     {
       "id": "validate-missing-message-key",
@@ -316,7 +566,12 @@
           "message": {}
         }
       },
-      "expected": { "valid": false, "errors": ["message.messageKey is required"] }
+      "expected": {
+        "valid": false,
+        "errors": [
+          "message.messageKey is required"
+        ]
+      }
     },
     {
       "id": "validate-message-params-html-rejected",
@@ -330,10 +585,20 @@
           "scope": "bootstrap",
           "kind": "maintenance",
           "hostCode": "HOST_MAINTENANCE",
-          "message": { "messageKey": "host.maintenance", "params": { "detail": "<b>bad</b>" } }
+          "message": {
+            "messageKey": "host.maintenance",
+            "params": {
+              "detail": "<b>bad</b>"
+            }
+          }
         }
       },
-      "expected": { "valid": false, "errors": ["message.params must not contain HTML"] }
+      "expected": {
+        "valid": false,
+        "errors": [
+          "message.params must not contain HTML"
+        ]
+      }
     },
     {
       "id": "validate-protocol-rejected-valid",
@@ -347,12 +612,24 @@
           "scope": "manifest",
           "kind": "protocol-rejected",
           "hostCode": "HOST_PROTOCOL_REJECTED",
-          "message": { "messageKey": "host.protocolRejected" },
-          "diagnostics": { "protocolCode": "UNSUPPORTED_PROTOCOL_VERSION", "protocolVersion": "2.8" },
-          "recoveryActions": [{ "type": "retry" }]
+          "message": {
+            "messageKey": "host.protocolRejected"
+          },
+          "diagnostics": {
+            "protocolCode": "UNSUPPORTED_PROTOCOL_VERSION",
+            "protocolVersion": "2.8"
+          },
+          "recoveryActions": [
+            {
+              "type": "retry"
+            }
+          ]
         }
       },
-      "expected": { "valid": true, "errors": [] }
+      "expected": {
+        "valid": true,
+        "errors": []
+      }
     },
     {
       "id": "intent-valid-tab-kept",
@@ -362,15 +639,22 @@
         "operation": "validateReturnIntent",
         "intent": {
           "path": "/orders/123",
-          "query": { "tab": "history" },
+          "query": {
+            "tab": "history"
+          },
           "expiresAt": "2026-08-14T00:00:00Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": [], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": true,
-        "keptQuery": { "tab": "history" },
+        "keptQuery": {
+          "tab": "history"
+        },
         "droppedKeys": [],
         "rejectedKeys": [],
         "reason": null
@@ -384,17 +668,26 @@
         "operation": "validateReturnIntent",
         "intent": {
           "path": "/orders/123",
-          "query": { "access_token": "abc", "returnTo": "/x" },
+          "query": {
+            "access_token": "abc",
+            "returnTo": "/x"
+          },
           "expiresAt": "2026-08-14T00:00:00Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": [], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": true,
         "keptQuery": {},
         "droppedKeys": [],
-        "rejectedKeys": ["access_token", "returnTo"],
+        "rejectedKeys": [
+          "access_token",
+          "returnTo"
+        ],
         "reason": null
       }
     },
@@ -406,17 +699,24 @@
         "operation": "validateReturnIntent",
         "intent": {
           "path": "/orders/123",
-          "query": { "Token": "abc" },
+          "query": {
+            "Token": "abc"
+          },
           "expiresAt": "2026-08-14T00:00:00Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": [], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": true,
         "keptQuery": {},
         "droppedKeys": [],
-        "rejectedKeys": ["Token"],
+        "rejectedKeys": [
+          "Token"
+        ],
         "reason": null
       }
     },
@@ -428,16 +728,26 @@
         "operation": "validateReturnIntent",
         "intent": {
           "path": "/orders/123",
-          "query": { "tab": "history", "secretFilter": "x" },
+          "query": {
+            "tab": "history",
+            "secretFilter": "x"
+          },
           "expiresAt": "2026-08-14T00:00:00Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": [], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": true,
-        "keptQuery": { "tab": "history" },
-        "droppedKeys": ["secretFilter"],
+        "keptQuery": {
+          "tab": "history"
+        },
+        "droppedKeys": [
+          "secretFilter"
+        ],
         "rejectedKeys": [],
         "reason": null
       }
@@ -450,15 +760,26 @@
         "operation": "validateReturnIntent",
         "intent": {
           "path": "/invoices/9",
-          "query": { "invoiceId": "inv-9", "tab": "details" },
+          "query": {
+            "invoiceId": "inv-9",
+            "tab": "details"
+          },
           "expiresAt": "2026-08-14T00:00:00Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": ["invoiceId"], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [
+            "invoiceId"
+          ],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": true,
-        "keptQuery": { "invoiceId": "inv-9", "tab": "details" },
+        "keptQuery": {
+          "invoiceId": "inv-9",
+          "tab": "details"
+        },
         "droppedKeys": [],
         "rejectedKeys": [],
         "reason": null
@@ -472,16 +793,25 @@
         "operation": "validateReturnIntent",
         "intent": {
           "path": "/invoices/9",
-          "query": { "InvoiceId": "inv-9" },
+          "query": {
+            "InvoiceId": "inv-9"
+          },
           "expiresAt": "2026-08-14T00:00:00Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": ["InvoiceId"], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [
+            "InvoiceId"
+          ],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": true,
         "keptQuery": {},
-        "droppedKeys": ["InvoiceId"],
+        "droppedKeys": [
+          "InvoiceId"
+        ],
         "rejectedKeys": [],
         "reason": null
       }
@@ -498,7 +828,10 @@
           "expiresAt": "2026-08-14T00:00:00Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": [], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": false,
@@ -520,7 +853,10 @@
           "expiresAt": "2026-08-14T00:00:00Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": [], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": false,
@@ -542,7 +878,10 @@
           "expiresAt": "2026-08-12T23:59:59Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": [], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": false,
@@ -563,7 +902,10 @@
           "query": {},
           "expiresAt": "2026-08-14T00:00:00Z"
         },
-        "options": { "registeredKeys": [], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": false,
@@ -581,11 +923,16 @@
         "operation": "validateReturnIntent",
         "intent": {
           "path": "/orders/123",
-          "query": { "tab": 42 },
+          "query": {
+            "tab": 42
+          },
           "expiresAt": "2026-08-14T00:00:00Z",
           "nonce": "host-local-opaque"
         },
-        "options": { "registeredKeys": [], "nowIso": "2026-08-13T00:00:00Z" }
+        "options": {
+          "registeredKeys": [],
+          "nowIso": "2026-08-13T00:00:00Z"
+        }
       },
       "expected": {
         "valid": false,

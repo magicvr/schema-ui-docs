@@ -9,17 +9,37 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
-        "manifest": { "protocolVersion": "2.8", "requiredCapabilities": ["app.manifest"] },
+        "auth": {
+          "state": "anonymous"
+        },
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "app.manifest"
+          ]
+        },
         "integrity": null
       },
       "expected": {
@@ -29,7 +49,13 @@
         "fetchClassification": null,
         "missingCapabilities": [],
         "effectiveCapabilities": null,
-        "context": { "user": { "id": "", "name": "", "roles": [] } }
+        "context": {
+          "user": {
+            "id": "",
+            "name": "",
+            "roles": []
+          }
+        }
       }
     },
     {
@@ -39,21 +65,45 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
         "auth": {
           "state": "authenticated",
-          "principal": { "id": "u-123", "name": "Ada", "roles": ["admin"] },
+          "principal": {
+            "id": "u-123",
+            "name": "Ada",
+            "roles": [
+              "admin"
+            ]
+          },
           "provenance": "host-session-adapter"
         },
-        "manifest": { "protocolVersion": "2.8", "requiredCapabilities": ["app.manifest"] },
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "app.manifest"
+          ]
+        },
         "integrity": null
       },
       "expected": {
@@ -63,7 +113,15 @@
         "fetchClassification": null,
         "missingCapabilities": [],
         "effectiveCapabilities": null,
-        "context": { "user": { "id": "u-123", "name": "Ada", "roles": ["admin"] } }
+        "context": {
+          "user": {
+            "id": "u-123",
+            "name": "Ada",
+            "roles": [
+              "admin"
+            ]
+          }
+        }
       }
     },
     {
@@ -73,16 +131,32 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "maintenance", "retryAfterSeconds": 120 }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "maintenance",
+            "retryAfterSeconds": 120
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -103,16 +177,32 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "upgrade-required", "minimumHostVersion": "9.9.9" }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "upgrade-required",
+            "minimumHostVersion": "9.9.9"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -133,17 +223,41 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "degraded", "disabledCapabilities": ["table.sort"] }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "degraded",
+            "disabledCapabilities": [
+              "table.sort"
+            ]
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap", "table.sort"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap",
+            "table.sort"
+          ]
         },
-        "auth": { "state": "anonymous" },
-        "manifest": { "protocolVersion": "2.8", "requiredCapabilities": ["app.manifest"] },
+        "auth": {
+          "state": "anonymous"
+        },
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "app.manifest"
+          ]
+        },
         "integrity": null,
         "capabilityRegistry": {
           "protocolVersion": "2.8",
@@ -151,21 +265,29 @@
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
               "dependsOn": [],
-              "mandatorySuites": ["app-manifest"],
+              "mandatorySuites": [
+                "app-manifest"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             },
             "host.bootstrap": {
               "sinceProtocolVersion": "2.8",
-              "dependsOn": ["app.manifest"],
-              "mandatorySuites": ["host-bootstrap"],
+              "dependsOn": [
+                "app.manifest"
+              ],
+              "mandatorySuites": [
+                "host-bootstrap"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             },
             "table.sort": {
               "sinceProtocolVersion": "2.5",
               "dependsOn": [],
-              "mandatorySuites": ["table-sort"],
+              "mandatorySuites": [
+                "table-sort"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             }
@@ -178,8 +300,17 @@
         "phase": "ready",
         "fetchClassification": null,
         "missingCapabilities": [],
-        "effectiveCapabilities": ["app.manifest", "host.bootstrap"],
-        "context": { "user": { "id": "", "name": "", "roles": [] } }
+        "effectiveCapabilities": [
+          "app.manifest",
+          "host.bootstrap"
+        ],
+        "context": {
+          "user": {
+            "id": "",
+            "name": "",
+            "roles": []
+          }
+        }
       }
     },
     {
@@ -189,17 +320,40 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "degraded", "disabledCapabilities": ["app.manifest"] }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "degraded",
+            "disabledCapabilities": [
+              "app.manifest"
+            ]
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
-        "manifest": { "protocolVersion": "2.8", "requiredCapabilities": ["app.manifest"] },
+        "auth": {
+          "state": "anonymous"
+        },
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "app.manifest"
+          ]
+        },
         "integrity": null,
         "capabilityRegistry": {
           "protocolVersion": "2.8",
@@ -207,14 +361,20 @@
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
               "dependsOn": [],
-              "mandatorySuites": ["app-manifest"],
+              "mandatorySuites": [
+                "app-manifest"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             },
             "host.bootstrap": {
               "sinceProtocolVersion": "2.8",
-              "dependsOn": ["app.manifest"],
-              "mandatorySuites": ["host-bootstrap"],
+              "dependsOn": [
+                "app.manifest"
+              ],
+              "mandatorySuites": [
+                "host-bootstrap"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             }
@@ -226,8 +386,12 @@
         "result": "MANIFEST_CAPABILITY_REJECTED",
         "phase": "manifest-validation",
         "fetchClassification": null,
-        "missingCapabilities": ["app.manifest"],
-        "effectiveCapabilities": ["host.bootstrap"],
+        "missingCapabilities": [
+          "app.manifest"
+        ],
+        "effectiveCapabilities": [
+          "host.bootstrap"
+        ],
         "context": null
       }
     },
@@ -238,17 +402,40 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "degraded", "disabledCapabilities": ["table.sort"] }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "degraded",
+            "disabledCapabilities": [
+              "table.sort"
+            ]
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
-        "manifest": { "protocolVersion": "2.8", "requiredCapabilities": ["app.manifest"] },
+        "auth": {
+          "state": "anonymous"
+        },
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "app.manifest"
+          ]
+        },
         "integrity": null,
         "capabilityRegistry": {
           "protocolVersion": "2.8",
@@ -256,7 +443,9 @@
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
               "dependsOn": [],
-              "mandatorySuites": ["app-manifest"],
+              "mandatorySuites": [
+                "app-manifest"
+              ],
               "deprecatedSince": null,
               "removedIn": null
             }
@@ -280,16 +469,31 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "reauth-required" },
+        "auth": {
+          "state": "reauth-required"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -310,16 +514,31 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "locked" },
+        "auth": {
+          "state": "locked"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -340,16 +559,31 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["0.9"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "0.9"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -370,16 +604,29 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
           "supportedBootstrapVersions": [],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -400,16 +647,32 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0", "1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0",
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -430,16 +693,31 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["app.manifest"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "app.manifest"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -460,16 +738,32 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap", "host.bootstrap"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "host.bootstrap",
+            "host.bootstrap"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -490,16 +784,32 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap", "host.failure-recovery"],
-          "manifest": { "url": "/.well-known/schema-ui/app-manifest.json" },
-          "availability": { "mode": "normal" }
+          "requiredCapabilities": [
+            "host.bootstrap",
+            "host.failure-recovery"
+          ],
+          "manifest": {
+            "url": "/.well-known/schema-ui/app-manifest.json"
+          },
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -508,7 +818,9 @@
         "result": "BOOTSTRAP_NEGOTIATION_REJECTED",
         "phase": "bootstrap-validation",
         "fetchClassification": null,
-        "missingCapabilities": ["host.failure-recovery"],
+        "missingCapabilities": [
+          "host.failure-recovery"
+        ],
         "effectiveCapabilities": null,
         "context": null
       }
@@ -520,20 +832,38 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
           "manifest": {
             "url": "/.well-known/schema-ui/app-manifest.json",
             "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
-          "availability": { "mode": "normal" }
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
-        "manifest": { "protocolVersion": "2.8", "requiredCapabilities": ["app.manifest"] },
+        "auth": {
+          "state": "anonymous"
+        },
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "app.manifest"
+          ]
+        },
         "integrity": {
           "declaredSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "computedSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
@@ -556,20 +886,38 @@
       "input": {
         "document": {
           "bootstrapVersion": "1.0",
-          "requiredCapabilities": ["host.bootstrap"],
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ],
           "manifest": {
             "url": "/.well-known/schema-ui/app-manifest.json",
             "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
-          "availability": { "mode": "normal" }
+          "availability": {
+            "mode": "normal"
+          }
         },
-        "fetch": { "status": "ok" },
+        "fetch": {
+          "status": "ok"
+        },
         "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
         },
-        "auth": { "state": "anonymous" },
-        "manifest": { "protocolVersion": "2.8", "requiredCapabilities": ["app.manifest"] },
+        "auth": {
+          "state": "anonymous"
+        },
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "app.manifest"
+          ]
+        },
         "integrity": {
           "declaredSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "computedSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -582,7 +930,13 @@
         "fetchClassification": null,
         "missingCapabilities": [],
         "effectiveCapabilities": null,
-        "context": { "user": { "id": "", "name": "", "roles": [] } }
+        "context": {
+          "user": {
+            "id": "",
+            "name": "",
+            "roles": []
+          }
+        }
       }
     },
     {
@@ -591,12 +945,22 @@
       "category": "host-bootstrap",
       "input": {
         "document": null,
-        "fetch": { "status": "failed", "classification": "rate-limited" },
-        "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+        "fetch": {
+          "status": "failed",
+          "classification": "rate-limited"
         },
-        "auth": { "state": "anonymous" },
+        "hostSupport": {
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
+        },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -616,12 +980,22 @@
       "category": "host-bootstrap",
       "input": {
         "document": null,
-        "fetch": { "status": "failed", "classification": "protocol" },
-        "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+        "fetch": {
+          "status": "failed",
+          "classification": "protocol"
         },
-        "auth": { "state": "anonymous" },
+        "hostSupport": {
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
+        },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -641,12 +1015,22 @@
       "category": "host-bootstrap",
       "input": {
         "document": null,
-        "fetch": { "status": "failed", "classification": "weird-transport" },
-        "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest", "host.bootstrap"]
+        "fetch": {
+          "status": "failed",
+          "classification": "weird-transport"
         },
-        "auth": { "state": "anonymous" },
+        "hostSupport": {
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest",
+            "host.bootstrap"
+          ]
+        },
+        "auth": {
+          "state": "anonymous"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -666,13 +1050,26 @@
       "category": "host-bootstrap",
       "input": {
         "document": null,
-        "fetch": { "status": "not-provided" },
-        "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest"]
+        "fetch": {
+          "status": "not-provided"
         },
-        "auth": { "state": "anonymous" },
-        "manifest": { "protocolVersion": "2.8", "requiredCapabilities": ["app.manifest"] },
+        "hostSupport": {
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest"
+          ]
+        },
+        "auth": {
+          "state": "anonymous"
+        },
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "app.manifest"
+          ]
+        },
         "integrity": null
       },
       "expected": {
@@ -682,7 +1079,13 @@
         "fetchClassification": null,
         "missingCapabilities": [],
         "effectiveCapabilities": null,
-        "context": { "user": { "id": "", "name": "", "roles": [] } }
+        "context": {
+          "user": {
+            "id": "",
+            "name": "",
+            "roles": []
+          }
+        }
       }
     },
     {
@@ -691,12 +1094,20 @@
       "category": "host-bootstrap",
       "input": {
         "document": null,
-        "fetch": { "status": "not-provided" },
-        "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest"]
+        "fetch": {
+          "status": "not-provided"
         },
-        "auth": { "state": "reauth-required" },
+        "hostSupport": {
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest"
+          ]
+        },
+        "auth": {
+          "state": "reauth-required"
+        },
         "manifest": null,
         "integrity": null
       },
@@ -716,13 +1127,26 @@
       "category": "host-bootstrap",
       "input": {
         "document": null,
-        "fetch": { "status": "not-provided" },
-        "hostSupport": {
-          "supportedBootstrapVersions": ["1.0"],
-          "supportedCapabilities": ["app.manifest"]
+        "fetch": {
+          "status": "not-provided"
         },
-        "auth": { "state": "anonymous" },
-        "manifest": { "protocolVersion": "2.8", "requiredCapabilities": ["host.bootstrap"] },
+        "hostSupport": {
+          "supportedBootstrapVersions": [
+            "1.0"
+          ],
+          "supportedCapabilities": [
+            "app.manifest"
+          ]
+        },
+        "auth": {
+          "state": "anonymous"
+        },
+        "manifest": {
+          "protocolVersion": "2.8",
+          "requiredCapabilities": [
+            "host.bootstrap"
+          ]
+        },
         "integrity": null
       },
       "expected": {
@@ -730,7 +1154,9 @@
         "result": "MANIFEST_CAPABILITY_REJECTED",
         "phase": "manifest-validation",
         "fetchClassification": null,
-        "missingCapabilities": ["host.bootstrap"],
+        "missingCapabilities": [
+          "host.bootstrap"
+        ],
         "effectiveCapabilities": null,
         "context": null
       }

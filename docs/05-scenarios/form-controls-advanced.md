@@ -1,6 +1,6 @@
 ---
 status: example
-protocol_version: v2.7
+protocol_version: v2.8
 last_updated: 2026-07-28
 capabilities:
   - form.controls.advanced
@@ -11,13 +11,13 @@ capabilities:
 
 对应能力：[ADR-0029](../decisions/0029-cascader.md)–[0033](../decisions/0033-form-default-value.md)。演示 `cascader`、`checkboxGroup`、`richText`、`password` 与静态 `defaultValue`。
 
-使用前 Renderer 须支持 `form.controls.advanced`，页面 `meta.protocolVersion: "2.7"`。
+使用前 Renderer 须支持 `form.controls.advanced`，页面 `meta.protocolVersion: "2.8"`。
 
 ```yaml
 meta:
   pageId: user_profile_advanced
   title: 进阶用户资料
-  protocolVersion: "2.7"
+  protocolVersion: "2.8"
   requiredCapabilities:
     - form.controls.advanced
     - form.record.load

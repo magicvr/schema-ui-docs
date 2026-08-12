@@ -55,7 +55,8 @@
             "type": "object"
           },
           "expected": {
-            "type": "object"
+            "type": ["object", "null"],
+            "description": "null 表示该输入不产生协议结果（如 host-failure 分类“不提升”的负例）。"
           }
         },
         "additionalProperties": false

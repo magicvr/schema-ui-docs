@@ -20,7 +20,7 @@
 | [`form-controls-advanced.md`](./form-controls-advanced.md) | `cascader` / `checkboxGroup` / `richText` / `password` / `defaultValue` | 进阶表单控件面（扩展示例） | `form.controls.advanced`（ADR-0029–0033） |
 
 > `admin-list-edit-lifecycle.md` 与 `admin-list-detail-lifecycle.md` 为 Admin 生命周期扩展示例：**已进入** conformance `scenarios` suite（`CONFORMANCE_SCENARIO_PATHS`），**尚未**列入 `OFFICIAL_SCENARIO_PATHS` 六场景 release 门禁清单。
-> `admin-list-batch.md` 为 Phase C 扩展示例：机器可读样例见 `_samples/order-list-batch.yaml`；当前示例随协议线统一声明 `protocolVersion: "2.7"`（batch 字段集仍属 2.2+ capability）；**已进入** `release-check` 场景 frontmatter 与 YAML `meta.protocolVersion` 一致性门禁。
+> `admin-list-batch.md` 为 Phase C 扩展示例：机器可读样例见 `_samples/order-list-batch.yaml`；当前示例随协议线统一声明 `protocolVersion: "2.8"`（batch 字段集仍属 2.2+ capability）；**已进入** `release-check` 场景 frontmatter 与 YAML `meta.protocolVersion` 一致性门禁。
 > `permission-inheritance.md` 为 ADR-0023 扩展示例；跨语言可观测规则由 `permissions-inheritance` fixture suite 覆盖；**已进入** 同上 frontmatter 一致性门禁。
 > `form-controls-extended.md` 为 ADR-0028 / v2.6 F1 扩展示例：机器可读样例见 `_samples/user-profile-extended.yaml`；**已进入** frontmatter 一致性门禁（审计 0075 / V360）；**尚未**列入 `OFFICIAL_SCENARIO_PATHS` 或默认 `CONFORMANCE_SCENARIO_PATHS`（可观测算法由 request-construction / response-mapping / version-negotiation / reactions 等 suite 覆盖）。
 > `form-controls-advanced.md` 为 ADR-0029–0033 / v2.7 进阶扩展示例：机器可读样例见 `_samples/user-profile-advanced.yaml`；**已进入** frontmatter 一致性门禁（审计 0077 / V371）；**尚未**列入 `OFFICIAL_SCENARIO_PATHS` 或默认 `CONFORMANCE_SCENARIO_PATHS`（可观测算法由 request-construction / response-mapping / runtime-defaults / version-negotiation / reactions 等 suite 覆盖）。

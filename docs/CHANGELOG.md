@@ -5,9 +5,60 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
-## Unreleased
+## v2.8.0 — 2026-08-13（Host/App 互操作：bootstrap 生命周期 / Host failure 结果 / conformance claim）
 
-（无）
+> **版本说明：** MINOR 发布。本批只新增可选 document/字段/capability：未声明 `host.bootstrap` /
+> `host.failure-recovery` / `host.conformance-claim` 的既有 Host 行为完全不变（不请求 bootstrap
+> document、不产生 failure result、不产生 claim）；未提供新 document 的 App 经 bootstrap 默认
+> 入口 `404/410` 回退 ADR-0025 装载路径，旧 Host 与旧 App 的对接路径零改动。既有 401/403、
+> Action 可观测结果与未知字段 fail-closed 规则原样保留。正式协议制品为
+> `schema-ui-protocol-2.8.0.tar.gz`。
+
+**协议变更（ADR-0034–0037 accepted）：**
+
+- **ADR-0034 accepted：** Host/App 互操作边界与 vNext 增补范围；薄 Host/App 层判据；95 个候选
+  逐项 adopt-now / reserve-extension / explicitly-out（D10）；`app.profile` 暂缓；不建立通用
+  `extensions` 逃逸口；目标 MINOR 2.8，additive + capability 门控（D9）。
+- **ADR-0035 accepted：** 可选公开 bootstrap document
+  （`GET {baseURL}/.well-known/schema-ui/host-bootstrap.json`）；确定性启动生命周期九阶段；
+  Host 归一化 auth state；`degraded` 只做 capability 收窄；manifest identity 与缓存；稳定
+  bootstrap 结果与 Host failure 唯一映射（D7）。
+- **ADR-0036 accepted：** 归一化 Host failure result（封闭对象，13 组 kind/hostCode 稳定码）；
+  封闭提升谓词（Node DataRef / Action 不提升）；Host-owned path 排除；retry 语义；安全消息/
+  诊断/correlation；recovery actions 按 kind 过滤；return intent allowlist（含敏感 key 永久
+  拒绝）；A11y 最低义务（focus / assertive-polite live-region / 同 failureId 去重播报）。
+- **ADR-0037 accepted：** 构建生成的静态 conformance claim；D1a 规范化序列化与可复现 digest；
+  capability registry（17 项登记、依赖闭包、DAG 无环、removedIn 规则）；禁止 partial/skip/
+  allowlist 冒充；§4.8 校验顺序与稳定结果码；evidence 可核对引用。
+- **capability：** `host.bootstrap`、`host.failure-recovery`、`host.conformance-claim`
+  （`08` §3.4 登记）。
+- **capability ID 机读语法增宽（H2 追加）：** 段内允许连字符
+  （`^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)*$`），容纳 `host.failure-recovery`；此前合法 ID 全部
+  不变，未知 ID 仍 fail-closed。
+- **app manifest：** `pages[].returnIntentQueryKeys`（v2.8+，`host.failure-recovery` capability
+  门控；`INVALID_RETURN_INTENT_QUERY_KEYS`）。
+- **规范：** 新增 [`10-host-interoperability.md`](./10-host-interoperability.md)；`00` / `06` /
+  `08` / `09` 交叉引用同步；迁移 [`2.7-to-2.8.md`](./migrations/2.7-to-2.8.md)；门禁
+  [`release-goals/v2.8.md`](./release-goals/v2.8.md)。
+- **machine contracts：** `host-bootstrap.schema.json`（B0）、`host-failure.schema.json`（F0）、
+  `host-conformance-claim.schema.json` + `capability-registry.json`（C0）。
+
+**Conformance：**
+
+- 新 suite：`host-bootstrap`（23）、`host-failure`（43）、`host-conformance-claim`（30），
+  JS/Python 双 reference 逐字段一致（claim digest 跨语言交叉验证）；
+- `app-manifest` +4（returnIntentQueryKeys 正反用例）；`version-negotiation` +5（2.8 接受/拒绝
+  与 host capability 向量）；
+- 算法类 fixtures 与官方场景统一 `protocolVersion: "2.8"`；2.7 回归全部通过（合计 versioned
+  **316 → 421**）。
+
+**生产 evidence（消费者 `schema-ui-core` GOAL-004 E-004）：**
+
+- `apps/web` 生产 Host 从真实入口消费 bootstrap document（Go API 同字节组装，
+  `manifest.sha256` 真实核验）；浏览器级 failure focus / live-region / recovery 测试；
+- 候选 conformance claim 绑定协议制品 content digest（`2d802a58…`）、fixture 树 digest
+  （`2d1a13e1…`）与 build ID；2.8.0 正式制品发布后消费者按本版本重 pin（其
+  `provenance-v2.8-candidate.json` 说明）。
 
 ## v2.7.0 — 2026-07-28（表单控件面进阶：cascader / checkboxGroup / richText / password / defaultValue）
 
