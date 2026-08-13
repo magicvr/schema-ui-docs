@@ -5,6 +5,19 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
+## v2.8.1 — 2026-08-13（审计 0080：正式身份纠偏与当前线入口）
+
+> **版本说明：** PATCH。页面 `meta.protocolVersion` 继续为 `"2.8"`；schemas、versioned fixtures 与核心语义相对正式 `v2.8.0` **机器契约未变**（fixture digest 仍为 `7aacf133…`）。本版本纠正「正式 tag / contentDigest」误记，并扫当前线入口文案（审计 0080 / V379–V385）。**不**改写 `v2.8.0` / `mcp-v2.8.0` tag 或其 Release 资产。正式协议制品为 `schema-ui-protocol-2.8.1.tar.gz`（contentDigest / artifactDigest 以 tag 后 GitHub Release 与制品内 `manifest.json` 为准）。
+
+**审计 0080（V379–V385）：**
+- **V379：** 正式 `v2.8.0` 身份为 tag @ `521cff8`、content `sha256:4fae4605…`、artifact `sha256:6cdbffcc…`、fixture `sha256:7aacf133…`。H4 预备 commit `593f625` / content `40690917…` / artifact `594207e0…` **不是**正式 pin。
+- **V380：** `conformance/README.md` 当前算法线与门禁表述改为 `"2.8"`。
+- **V381：** `release-goals/README.md` 列出 `v2.8.md` 为当前线；`next-admin-lifecycle` §8 协议线对齐 manifest。
+- **V382：** MCP 文档示例跟当前 MCP 版本。
+- **V383：** Host/App 轨道提案标为已交付，不再把 ADR-0034–0037 写成 proposed。
+- **V384：** 审计索引登记 0079（过程文件，不进协议制品）。
+- **V385：** 下文 v2.8.0 生产 evidence 改为正式 pin。
+
 ## v2.8.0 — 2026-08-13（Host/App 互操作：bootstrap 生命周期 / Host failure 结果 / conformance claim）
 
 > **版本说明：** MINOR 发布。本批只新增可选 document/字段/capability：未声明 `host.bootstrap` /
@@ -56,9 +69,12 @@
 
 - `apps/web` 生产 Host 从真实入口消费 bootstrap document（Go API 同字节组装，
   `manifest.sha256` 真实核验）；浏览器级 failure focus / live-region / recovery 测试；
-- 候选 conformance claim 绑定协议制品 content digest（`2d802a58…`）、fixture 树 digest
-  （`2d1a13e1…`）与 build ID；2.8.0 正式制品发布后消费者按本版本重 pin（其
-  `provenance-v2.8-candidate.json` 说明）。
+- 正式 pin（不可变）：tag `v2.8.0` @ `521cff8`；contentDigest
+  `sha256:4fae46058d01bb62d8ff5a17b35f57021a417302c9d8b932916e17ab8acf3c30`；artifactDigest
+  `sha256:6cdbffccaa0da1f9e05487b7def93aaef14b7fbae7b14dc8761fc661c9946f31`；fixture 树
+  `sha256:7aacf1332ec66a16db8c79c5f3af37d241bd69b88103e503fe4d91984dd138a2`。
+  消费者仓曾按 H4 预备 commit `593f625` / content `40690917…` 重 pin（审计 0080 / V379，
+  out-of-repo）。
 
 ## v2.7.0 — 2026-07-28（表单控件面进阶：cascader / checkboxGroup / richText / password / defaultValue）
 

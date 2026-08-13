@@ -239,6 +239,7 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 | [`v2.0.md`](./v2.0.md) … [`v2.5.md`](./v2.5.md) | 各 MINOR 历史发布门禁；本文件不替代它们 |
 | [`v2.6.md`](./v2.6.md) | F1 A+B 已发布门禁 |
 | [`v2.7.md`](./v2.7.md) | 表单进阶（cascader / checkboxGroup / richText / password / defaultValue）已发布门禁 |
+| [`v2.8.md`](./v2.8.md) | Host/App 互操作（平行轨道，非本文件 D.1）已发布门禁 |
 | [`decisions/0019-v2-admin-scope.md`](../decisions/0019-v2-admin-scope.md) | 界定 v2.0 不含完整 Admin；本文件是其后续执行轨道 |
 | [0020](../decisions/0020-page-action-trigger.md) … [0024](../decisions/0024-record-view.md) | 页面 Admin 生命周期已接受 ADR |
 | [0025](../decisions/0025-app-manifest.md) / [0026](../decisions/0026-app-navigation.md) / [0027](../decisions/0027-table-sort-declaration.md) | 应用级与表排序；平行于本轨道 |
@@ -252,7 +253,7 @@ v2.0 已收敛为可互操作的**基础 Admin 页面**契约：布局、展示�
 
 | 项 | 状态 |
 |---|---|
-| 协议制品 / 协议线 | `2.7.0` / `"2.7"`（见 `protocol-manifest.json`） |
+| 协议制品 / 协议线 | `2.8.1` / `"2.8"`（见 `protocol-manifest.json`；Host/App 平行轨道见 [`v2.8.md`](./v2.8.md)） |
 | 页面 Admin 主路径 | **Phase B / C / C.1 / D.0 已发布**（2.1–2.4） |
 | 应用壳 + 表排序 | **2.5 已发布**（0025–0027；规范 `09`） |
 | Phase D.1.0 F1 | **v2.6 已交付**（0028 A+B；C 当时 defer） |
