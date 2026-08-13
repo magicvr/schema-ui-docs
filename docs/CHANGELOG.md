@@ -5,6 +5,28 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
+## v2.8.2 — 2026-08-13（审计 0081：下游消费边界审计与角色命名）
+
+> **版本说明：** PATCH。页面 `meta.protocolVersion` 继续为 `"2.8"`；schemas、versioned fixtures 与核心
+> 语义相对 `v2.8.1` **机器契约未变**（fixture digest 仍为 `7aacf133…`）。本版本为**文档修订**：新增
+> ADR-0038 并修正消费边界缺口，不改变合法输入、默认值与可观测结果。
+
+**审计 0081（V386–V393）：**
+
+- **V386（P1）：** 消费方角色命名。ADR-0038 在 `00` 术语表新增六个角色（页面生产方 / 业务 API
+  实现方 / manifest 生产方 / Renderer / Host / 组件库·皮肤系统）与 §4.1 职责矩阵；全文统一"后端"
+  三重指代（21 处）；charter 变更门禁第 3 问角色化。
+- **V387（P2）：** `00` 文档地图面向读者列按角色改写，职责矩阵作为"契约管谁"总索引。
+- **V388（P2）：** `06` v0.2.4 `responseMapping` 条件必填执行点唯一化为 L2（页面生产方 CI 负责、
+  Renderer 兜底）；`02` 循环保护改为"实现上限（Renderer 自定的确定正整数，建议 10 轮）"。
+- **V389（P2）：** `01` §3.9 权限行为表去 DOM 化；`04` §6 错误文案补注 Host i18n 边界
+  （语义稳定、逐字文案由 Host 决定）。
+- **V390（P2）：** `01` L28/L47 当前协议版本残留 `"2.7"` → `"2.8"`（0080 扫版漏网）。
+- **V391–V393（P3，候选登记，本轮不修改）：** `text` 默认取值键序、错误文案 messageKey 化、
+  效力词汇规范化。
+- **显式留白标注：** `09` §6 navigate 未命中时 `$context.route` 不注入；`07` §8 页面级 `reload`
+  目标由 Renderer/Host 自决；`04` §2 `sort` 排序结果语义由业务 API 实现方自决。
+
 ## v2.8.1 — 2026-08-13（审计 0080：正式身份纠偏与当前线入口）
 
 > **版本说明：** PATCH。页面 `meta.protocolVersion` 继续为 `"2.8"`；schemas、versioned fixtures 与核心语义相对正式 `v2.8.0` **机器契约未变**（fixture digest 仍为 `7aacf133…`）。本版本纠正「正式 tag / contentDigest」误记，并扫当前线入口文案（审计 0080 / V379–V385）。**不**改写 `v2.8.0` / `mcp-v2.8.0` tag 或其 Release 资产。正式协议制品为 `schema-ui-protocol-2.8.1.tar.gz`（contentDigest / artifactDigest 以 tag 后 GitHub Release 与制品内 `manifest.json` 为准）。

@@ -1,14 +1,14 @@
 ---
 status: stable
-owner: 后端架构组
-last_updated: 2026-07-23
+owner: 前后端架构组
+last_updated: 2026-08-13
 applies_to: schema-ui-protocol v2.8
 ---
 
 # 数据源 / API 契约规范
 
-> 本文档面向后端开发者：只要接口按本文档的契约返回数据，
-> 前端 Renderer 就能自动完成请求、分页、加载态、错误态处理，后端无需关心这些前端行为。
+> 本文档面向**页面生产方**与**业务 API 实现方**：只要接口按本文档的契约返回数据，
+> 前端 Renderer 就能自动完成请求、分页、加载态、错误态处理，业务 API 实现方无需关心这些前端行为。
 
 ## 1. `datasources` 声明（页面级预声明）
 
@@ -48,7 +48,7 @@ data:
 | `method: GET` + `params: { status: paid }` | `GET ...?status=paid`，无 body |
 | 显式非 `GET` DataRef | 静态校验拒绝，错误码 `DATA_REF_METHOD_NOT_READ_ONLY` |
 
-前端 Renderer 会自动附加以下保留 query 参数，后端接口需要支持：
+前端 Renderer 会自动附加以下保留 query 参数，业务 API 需要支持：
 
 | 参数 | 说明 |
 |---|---|
@@ -57,6 +57,9 @@ data:
 | `sort` | 排序字段，格式 `field:asc` / `field:desc` |
 
 `page`、`pageSize`、`sort` 由 Renderer 表格状态独占。`data.params`、`datasources.*.params` 与搜索表单导出的字段名不得使用这些名称，L2 静态拒绝冲突配置。表格请求的唯一合并顺序为：已有 URL query < 有效 API 数据源静态 params < 搜索字段 < Renderer 分页/排序状态。搜索提交与清空筛选将 `page` 重置为 `1`；翻页保留筛选和排序；排序变化保留筛选并将 `page` 重置为 `1`。完整状态转换见 [ADR-0011](./decisions/0011-reserved-query-params.md)。
+
+> **排序结果语义留白（ADR-0038）：** `sort` 的 wire 格式与请求状态机由协议规定；排序结果的比较语义
+> （字符串/数字的排序规则、业务 API 忽略 `sort` 参数时的行为）本协议不规定，由业务 API 实现方自决。
 
 **可排序字段声明面（since 2.5 / ADR-0027）：** 哪些列可点、默认排序与展示 field 到 sort key 的映射由 `columns[].sortable` / `sortField` 与 `table.props.defaultSort` 声明（见 [03](./03-component-registry.md) 与 [ADR-0027](./decisions/0027-table-sort-declaration.md)）。未声明 `table.sort` 的页面无协议级排序 UI 义务；`sort` 保留 query 的 wire 格式与 0011 状态机不变。若状态中的 `sort` sortKey 无法命中任一可排序列，请求前失败码为 **`TABLE_SORT_FIELD_UNKNOWN`**。
 
@@ -69,7 +72,7 @@ data:
 
 **不支持**字符串模板拼接（如 `prefix-$deps.ownerId`、`$deps.ownerId-suffix`）、转义、表达式求值或其他变量命名空间。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 时，静态校验以 `DATA_PARAMS_VARIABLE` 拒绝。
 
-引用的 `$deps.*` 值在运行时为 `null` 或 `undefined` 时，该参数作为 tombstone **从最终请求的 query 中删除**（包括删除已有 URL 或更早参数来源中的同名 key；不传空字符串、不传字面量 `"null"`）。目的是让后端能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
+引用的 `$deps.*` 值在运行时为 `null` 或 `undefined` 时，该参数作为 tombstone **从最终请求的 query 中删除**（包括删除已有 URL 或更早参数来源中的同名 key；不传空字符串、不传字面量 `"null"`）。目的是让业务 API 实现方能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
 
 ```yaml
 data:
@@ -120,7 +123,7 @@ DataRef、`select.optionsSource.params` 和行级 `requestMapping.query` 必须�
 
 ### 4.1.1 响应字段名映射 `responseMapping`（since 0.2.4）
 
-若后端无法使用 `list` / `total` 作为响应体字段名（如遗留系统使用 `data` / `items` / `count`），可在 `data.responseMapping` 中声明字段名映射。`responseMapping` 与 `params` 同级，不属于请求参数，Renderer 不得将其发送给后端。
+若业务 API 无法使用 `list` / `total` 作为响应体字段名（如遗留系统使用 `data` / `items` / `count`），可在 `data.responseMapping` 中声明字段名映射。`responseMapping` 与 `params` 同级，不属于请求参数，Renderer 不得将其发送给业务 API。
 
 ```yaml
 data:
@@ -192,7 +195,7 @@ body:
 ]
 ```
 
-字段名需与 `chart.props.xField` / `yField` 对应。未声明 `responseMapping` 时，`chart` 默认期望响应体为裸数组；若后端返回包裹结构，可在 `data.responseMapping.list` 中声明数组所在点路径。
+字段名需与 `chart.props.xField` / `yField` 对应。未声明 `responseMapping` 时，`chart` 默认期望响应体为裸数组；若业务 API 返回包裹结构，可在 `data.responseMapping.list` 中声明数组所在点路径。
 
 ## 5. 认证约定（since 0.2.5）
 
@@ -203,7 +206,7 @@ Renderer 发出的所有 API 请求均**不在协议层携带身份凭据**—�
 | 凭据注入方式 | 宿主应用在 Renderer 初始化时提供 `requestInterceptor` 钩子，统一注入 `Authorization: Bearer <token>` 或其他 scheme |
 | Token 刷新 | Token 刷新逻辑由宿主应用层（非 Renderer）管理；Renderer 收到 `401` 后触发 `onAuthFailure` 钩子，由宿主应用决定重新刷新还是跳转登录 |
 | 跨域凭据 | 是否携带 Cookie（`credentials: include`）由宿主初始化配置决定，协议默认 `credentials: same-origin` |
-| 安全边界 | `$context.user.*` 仅用于前端渲染层的显隐判断，**不可替代后端鉴权**；后端必须对每个接口独立做身份校验，不能信任前端传来的任何身份声明 |
+| 安全边界 | `$context.user.*` 仅用于前端渲染层的显隐判断，**不可替代业务 API 实现方的鉴权**；业务 API 实现方必须对每个接口独立做身份校验，不能信任前端传来的任何身份声明 |
 
 ### 5.1 `401` / `403` 的处理规则
 
@@ -225,12 +228,16 @@ Renderer 发出的所有 API 请求均**不在协议层携带身份凭据**—�
 | HTTP 状态码 | 前端行为 |
 |---|---|
 | `200` | 正常渲染 |
-| `400` | 展示后端返回的 `message` 字段；若存在 `errors` 数组（字段级验证错误），Renderer 将错误回填到对应表单字段 |
+| `400` | 展示业务 API 返回的 `message` 字段；若存在 `errors` 数组（字段级验证错误），Renderer 将错误回填到对应表单字段 |
 | `401` | 见 §5.1：触发 `onAuthFailure(401)`，节点进入错误态 |
 | `403` | 见 §5.1：触发 `onAuthFailure(403)`，节点渲染"无权限访问"占位 |
 | `404` | 展示"资源不存在"占位（节点级，不影响其他节点） |
-| 其他 `4xx` | 展示后端返回的 `message` 字段作为错误提示 |
-| `5xx` | 展示统一的"系统异常，请稍后重试"文案，不透出后端错误细节 |
+| 其他 `4xx` | 展示业务 API 返回的 `message` 字段作为错误提示 |
+| `5xx` | 展示统一的"系统异常，请稍后重试"文案，不透出业务 API 错误细节 |
+
+> **文案边界（ADR-0038）：** 上表（含 §6.4）中的具体文案是协议安全兜底的**示例文案**：错误语义与分类
+> 是规范性的（5xx 不透出服务端细节、403 无权限占位等），逐字文案不是。Host 可通过自身 i18n 体系
+> 以等价语义文案替换，不得改变错误语义与分类。彻底的 `messageKey` 化登记为后续 ADR 候选。
 
 ### 6.2 通用错误响应体结构
 
@@ -243,11 +250,11 @@ Renderer 发出的所有 API 请求均**不在协议层携带身份凭据**—�
 }
 ```
 
-> **`code` 字段说明：** `code` 字段目前**仅用于调试日志和错误追踪**，前端 Renderer 不会据此做程序化判断（如跳转登录页、显示特定 UI）——此类逻辑属于应用层业务逻辑，不应由协议层的 Renderer 处理。后端仍应返回有业务意义的 `code` 值以便排查问题；若后续需要前端据此做程序化处理，建议通过场景 ADR 另行约定。
+> **`code` 字段说明：** `code` 字段目前**仅用于调试日志和错误追踪**，前端 Renderer 不会据此做程序化判断（如跳转登录页、显示特定 UI）——此类逻辑属于应用层业务逻辑，不应由协议层的 Renderer 处理。业务 API 实现方仍应返回有业务意义的 `code` 值以便排查问题；若后续需要前端据此做程序化处理，建议通过场景 ADR 另行约定。
 
 ### 6.3 字段级验证错误（`400` + `errors`）
 
-当请求参数未通过后端校验时（如表单提交），后端应在 `errors` 数组中返回字段级错误，供 Renderer 回填到对应表单字段下方展示：
+当请求参数未通过业务 API 校验时（如表单提交），业务 API 实现方应在 `errors` 数组中返回字段级错误，供 Renderer 回填到对应表单字段下方展示：
 
 ```json
 {
@@ -267,7 +274,7 @@ Renderer 发出的所有 API 请求均**不在协议层携带身份凭据**—�
 
 当失败请求来自 Action 且同时声明 `onError` 时，字段回填、认证钩子和安全错误文案属于不可跳过的协议级处理；与 OutcomeBehavior 的组合顺序见 [07-actions-contract.md §8.1](./07-actions-contract.md#81-onerror-与标准-http-错误处理顺序)。其中 `400 + errors` 不执行 navigate/reload/closeModal，`401`/`403` 不执行 Action `onError`。
 
-> **后端推荐实践：** 同一字段若有多条校验错误，每条错误对应独立的数组项（同 `field` 可重复）；Renderer 只展示第一条，多余的输出到控制台日志。
+> **业务 API 推荐实践：** 同一字段若有多条校验错误，每条错误对应独立的数组项（同 `field` 可重复）；Renderer 只展示第一条，多余的输出到控制台日志。
 
 ### 6.4 网络超时与中断
 
@@ -279,10 +286,10 @@ Renderer 发出的所有 API 请求均**不在协议层携带身份凭据**—�
 
 ## 7. 分页模式说明（对应 `table.props.pagination.mode`）
 
-| 模式 | 后端行为 |
+| 模式 | 业务 API 行为 |
 |---|---|
-| `server` | 后端必须支持 `page`/`pageSize` 参数并返回 `total` |
-| `client` | 后端一次性返回全量 `list`，前端本地分页，无需支持分页参数 |
+| `server` | 业务 API 必须支持 `page`/`pageSize` 参数并返回 `total` |
+| `client` | 业务 API 一次性返回全量 `list`，前端本地分页，无需支持分页参数 |
 | `none` | 不分页，直接展示 `list` 全部内容 |
 
 ## 8. 静态数据与 `source: ref`（`data.source: static/ref`）

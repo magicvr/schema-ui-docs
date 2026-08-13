@@ -24,7 +24,7 @@ applies_to: schema-ui-protocol v2.8
 
 应用清单本身是 **v2.5 字段集**：顶层 `protocolVersion` 必须 `>= "2.5"`（M1 `PROTOCOL_VERSION_TOO_LOW`）。**不得**把「页面可继续为 2.4」误读为「清单也可声明 2.4」。
 
-未提供清单的后端：页面级对接与 v2.4 完全一致（应用级可选）。
+未提供清单的 manifest 生产方：页面级对接与 v2.4 完全一致（应用级可选）。
 
 ### 1.1 Capability
 
@@ -121,7 +121,7 @@ navigation: { ... }                    # 可选；见 §8
 
 - **schemaUrl 占位：** 静态 M1：`schemaUrl` 的 `{name}` ⊆ `route` 的 `{name}`。运行时未解析 → `MISSING_PATH_BINDING`（对齐 [07](./07-actions-contract.md) §3.2）。
 - **空 `pages`：** 合法壳；不得 `homePageRef`；若有 `navigation`，link 项**仅允许** `url`（任何 `pageRef` → M1 失败）。
-- **navigate 接缝：** `type:navigate` 的 url **不强制**命中注册表。命中恰好一个 `route` 时，宿主**必须**按 §7 填充 `$context.route`（path/params/query）。未命中：允许导航；`params` 可为空。
+- **navigate 接缝：** `type:navigate` 的 url **不强制**命中注册表。命中恰好一个 `route` 时，宿主**必须**按 §7 填充 `$context.route`（path/params/query）。未命中：允许导航；`$context.route` **不注入**，`params` 可为空（ADR-0038 明确两条路径的对照）。
 
 注册表是发现面不是权限面。
 
@@ -197,7 +197,7 @@ navigation:
    - `url`：与 `P` **全等**（禁止前缀匹配）。
    - 多 active 允许；query 不参与。
 
-菜单可见 ≠ 访问控制；页面权限与后端鉴权独立生效。
+菜单可见 ≠ 访问控制；页面权限与业务 API 鉴权独立生效。
 
 ### 8.3 Icon 语义名建议词表（informative）
 

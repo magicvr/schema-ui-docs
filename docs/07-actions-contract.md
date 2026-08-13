@@ -36,7 +36,7 @@ actions:
 | `custom` | 调用前端白名单预注册的处理函数（**不接受任意代码/表达式**，仅传函数名引用） |
 
 `custom` 类型的边界与联动表达式引擎的原则一致（见 [02-reaction-expression.md](./02-reaction-expression.md)）：
-协议只传递"意图声明"，具体实现始终由前端代码掌控，避免后端配置里出现"类代码"内容。
+协议只传递"意图声明"，具体实现始终由前端代码掌控，避免页面配置里出现"类代码"内容。
 
 ## 3. `request` 类型完整字段
 
@@ -63,13 +63,13 @@ onError: OutcomeBehavior     # 【可选】
 | `{}` | `{}` |
 
 - 普通表单通过 `form.props.submitAction` 提交字段时不得引用 `method: GET` 的 request；浏览器请求不能为 GET 携带该 JSON 请求体。v0.2 不为普通表单定义隐式 query 映射，请使用 `POST` / `PUT` / `PATCH` / `DELETE`。该限制不影响行级 Action 使用 `requestMapping.query` 构造 GET 请求。
-- `retryPolicy` 缺省为 `never`。`never` 表示 Renderer 不自动重发同一逻辑调用；超时或网络中断的结果为 `unknown`，用户重新提交会创建新的逻辑调用。`idempotent` 表示 Renderer 为一次逻辑调用生成一个不透明的 invocation id，并在所有重试中发送相同的 `Idempotency-Key` 请求头；后端必须按 Action、方法、目标 URL 和该 key 去重并复用最终结果。
+- `retryPolicy` 缺省为 `never`。`never` 表示 Renderer 不自动重发同一逻辑调用；超时或网络中断的结果为 `unknown`，用户重新提交会创建新的逻辑调用。`idempotent` 表示 Renderer 为一次逻辑调用生成一个不透明的 invocation id，并在所有重试中发送相同的 `Idempotency-Key` 请求头；业务 API 实现方必须按 Action、方法、目标 URL 和该 key 去重并复用最终结果。
 - `retryPolicy: idempotent` 不允许配置静态 key。invocation id 由 Renderer 在一次用户触发时生成，不能跨逻辑调用复用；conformance harness 使用 `input.invocationId` 表示该运行时值。
 - `onSuccess` / `onError` 缺省时，Renderer 使用默认行为（如 `toast` 展示通用成功/失败提示）。
 
 ### 3.1 行级后端请求绑定（since 0.2.7）
 
-表格行内按钮若需要直接调用后端接口，应在 `RowAction` 上声明 `actionRef`，引用顶层 `type: request` action，并通过 `requestMapping` 绑定当前行数据。使用该能力时，页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。
+表格行内按钮若需要直接调用业务 API，应在 `RowAction` 上声明 `actionRef`，引用顶层 `type: request` action，并通过 `requestMapping` 绑定当前行数据。使用该能力时，页面必须声明 `meta.requiredCapabilities: [actions.row.request]`。
 
 ```yaml
 meta:
@@ -136,10 +136,10 @@ requestMapping:
 - `action.url` 中的路径占位符只允许完整 `{name}` 形式，其中 name 匹配 `[A-Za-z_][A-Za-z0-9_]*`；空、数字开头、连字符、嵌套、孤立或未闭合花括号均非法。每个合法 `{name}` 都必须在 `requestMapping.path.<name>` 中声明。
 - `requestMapping.path` 不得声明 URL 中不存在的 key。
 - `requestMapping` key 必须非空，值只允许 string / finite number / boolean / null 或单个 `$row.*` 点路径。字符串中**任意位置**出现 `$` 时，整段必须是合法 `$row.*` 引用（L2 精确匹配）；拒绝 `$parentRow.*`、模板拼接（如 `prefix-$row.id`）以及字面量中夹带 `$` 的值。v0.2 静态拒绝嵌套表格及 `$parentRow.*`，也不允许 `$deps.*`、`$context.*`、表达式或函数。
-- `requestMapping.path` / `query` / `body` 不支持嵌套对象或数组值；需要复杂结构时应由后端适配，或使用前端预注册 handler。
+- `requestMapping.path` / `query` / `body` 不支持嵌套对象或数组值；需要复杂结构时应由业务 API 实现方适配，或使用前端预注册 handler。
 - `requestMapping.query` 的已有 URL 合并、重复 key、空值删除、排序和百分号编码统一遵循 [ADR-0010](./decisions/0010-query-serialization.md)，不得使用调用框架的默认 query encoder。
 - `GET` / `DELETE` 行级请求不得声明 `requestMapping.body`；请使用 `path` 或 `query` 传递当前行标识。
-- `confirm` 保留在 `RowAction` 层声明，因为确认文案属于按钮触发入口，而不是后端请求定义。
+- `confirm` 保留在 `RowAction` 层声明，因为确认文案属于按钮触发入口，而不是服务端请求定义。
 
 Renderer 执行时先判定 `visibleWhen` / `permissions` / `disabled` 等状态；按钮可点击后再展示 `confirm`，确认通过后构造请求。`onSuccess.behavior: reload` 表示重新加载触发该动作的表格数据。
 
@@ -299,7 +299,7 @@ Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fiel
 
 ### 7.2 上传响应体契约
 
-后端上传接口应返回 `200` + 以下结构，Renderer 将 `url`（或 `id`）写入对应表单字段的值：
+业务 API 的上传接口应返回 `200` + 以下结构，Renderer 将 `url`（或 `id`）写入对应表单字段的值：
 
 ```json
 {
@@ -313,7 +313,7 @@ Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fiel
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
 | `url` | string | 与 `id` 至少一个 | 文件访问地址（CDN 或 OSS 直链） |
-| `id` | string | 与 `url` 至少一个 | 文件在后端存储系统中的 ID |
+| `id` | string | 与 `url` 至少一个 | 文件在业务 API 存储系统中的 ID |
 | `name` | string | 否 | 原始文件名（用于 UI 展示） |
 | `size` | number | 否 | 文件大小（字节），用于校验展示 |
 
@@ -325,7 +325,7 @@ Renderer 以 `multipart/form-data` 方式发送请求，文件字段名由 `fiel
 
 ### 7.3 错误处理
 
-上传失败时，后端应返回标准错误响应体（见 [04-datasource-contract.md §6.2](./04-datasource-contract.md#62-通用错误响应体结构)）。常见的语义化 `code` 值供参考（不强制）：
+上传失败时，业务 API 应返回标准错误响应体（见 [04-datasource-contract.md §6.2](./04-datasource-contract.md#62-通用错误响应体结构)）。常见的语义化 `code` 值供参考（不强制）：
 
 | code | 建议语义 |
 |---|---|
@@ -352,6 +352,10 @@ onSuccess:
 | `navigate` | 跳转到应用路由根下的单斜杠相对地址（非 API baseURL） | `url` |
 | `reload` | 重新加载当前数据（如刷新表格） | — |
 | `closeModal` | 关闭当前弹窗 | — |
+
+> **`reload` 目标留白（ADR-0038）：** 行级动作（RowAction）的 `reload` 目标为触发该动作的表格（既有
+> 契约）。页面级触发入口（`actionButton` / `table.toolbar`）的 `reload` 目标本协议不规定，由
+> Renderer/Host 自决。
 
 不允许出现协议未列出的行为类型或任意脚本回调。
 

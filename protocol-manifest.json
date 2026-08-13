@@ -1,7 +1,7 @@
 {
   "manifestVersion": "1.0",
   "name": "schema-ui-protocol",
-  "artifactVersion": "2.8.1",
+  "artifactVersion": "2.8.2",
   "protocolVersion": "2.8",
   "authority": {
     "semanticSpecs": [
@@ -51,7 +51,8 @@
       "docs/decisions/0034-host-app-interoperability-boundary.md",
       "docs/decisions/0035-host-bootstrap-lifecycle.md",
       "docs/decisions/0036-host-failure-recovery.md",
-      "docs/decisions/0037-host-conformance-claim.md"
+      "docs/decisions/0037-host-conformance-claim.md",
+      "docs/decisions/0038-consumer-roles-and-responsibility-boundaries.md"
     ],
     "structuralContracts": [
       "docs/schemas/*.json"

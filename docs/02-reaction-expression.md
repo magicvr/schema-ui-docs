@@ -8,7 +8,7 @@ applies_to: schema-ui-protocol v2.8
 # 联动表达式引擎语法规范
 
 > ⚠️ 本文档描述的是全协议中**唯一涉及"类代码"逻辑**的部分。
-> 为了保证后端写的是"数据"而非"代码"，本表达式引擎的能力被严格收敛。
+> 为了保证页面生产方写的是"数据"而非"代码"，本表达式引擎的能力被严格收敛。
 > 生成配置的开发者或 AI 助手必须严格遵守本文档的白名单，**不得**自行扩展语法。
 
 ## 1. 使用位置
@@ -69,7 +69,7 @@ applies_to: schema-ui-protocol v2.8
 
 不支持算术运算符（`+` `-` `*` `/`）、三元表达式、字符串拼接、正则匹配。
 如果一个联动场景需要用到这些能力，说明它已经超出"简单显隐/必填联动"的范畴，
-应该改为后端直接下发不同的 Node 结构（例如用两套表单节点配合 `data.source: api` 按条件渲染），
+应该改为页面生产方直接下发不同的 Node 结构（例如用两套表单节点配合 `data.source: api` 按条件渲染），
 而不是继续扩展表达式引擎能力（原因见 [decisions/0001](./decisions/0001-why-single-node-tree.md)）。
 
 ## 4. 字面量
@@ -118,7 +118,7 @@ reactions:
 建议前端在解析阶段对 `when` 表达式做静态扫描：
 - 使用白名单解析器（如自研 mini-parser 或 `expr-eval` 之类的沙箱化库），**禁止使用 `eval`/`new Function`**。
 - 扫描表达式中出现的标识符，如果不在 `dependencies` 声明范围内，直接拒绝渲染并报错，
-  防止后端误写了未声明依赖导致联动"看起来生效但实际读不到值"。
+  防止页面生产方误写了未声明依赖导致联动"看起来生效但实际读不到值"。
 
 ### 8.1 `dependencies` 声明规则（form / row）
 
@@ -146,7 +146,7 @@ L3a 对 `$deps.*` 做精确包含匹配：`dependencies` 必须声明所引用�
 - **`$context` 跨作用域可访问**：`$context.*` 在两种作用域下均可访问，不受隔离规则限制。
 - **非表单节点 `visibleWhen` 只能访问 `$context.*`**：非表单节点不绑定表单字段，即使其表达式默认属于 `scope: form`，也不得访问 `$deps.*`、`$self`、`$row.*` 或 `$parentRow.*`。
 - **表单 `visibleWhen` 不得使用 `$self`**：节点级条件渲染无字段自身值注入；仅允许 `$deps.*` 与 `$context.user.*` / `$context.features.*`（见 §10.1）。
-- **跨作用域联合判断不支持**：若业务需要同时依赖表单级字段和行内字段（如"表单审批模式为严格且当前行金额超阈值"），v0.2 **不提供协议级语法支持**。该场景无法通过现有表达式机制在协议层实现变通，应由后端预计算为行数据字段（如行数据中增加 `canHighlight` 布尔字段），或通过 ADR 新增标准机制。
+- **跨作用域联合判断不支持**：若业务需要同时依赖表单级字段和行内字段（如"表单审批模式为严格且当前行金额超阈值"），v0.2 **不提供协议级语法支持**。该场景无法通过现有表达式机制在协议层实现变通，应由业务 API 实现方预计算为行数据字段（如行数据中增加 `canHighlight` 布尔字段），或通过 ADR 新增标准机制。
 
 ### 9.2 `$self` 的作用域语义
 
@@ -305,7 +305,7 @@ visibleWhen:
 
 - 允许作为 `form.props.recordSource` 与 `recordView.props.recordSource` 的 `path` / `query` 映射值中的**整值替换**（单个 `$context.route.query.*` 或 `$context.route.params.*`）；
 - **默认禁止**出现在普通 `reactions` / `visibleWhen` / `permissions` / `data.params`（L2/L3a 若遇到应拒绝，直至后续 ADR 放开）；
-- 不是安全边界；记录 id 必须由后端鉴权。
+- 不是安全边界；记录 id 必须由业务 API 实现方鉴权。
 
 完整加载回填语义见 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md)、[ADR-0024](./decisions/0024-record-view.md) 与 [03-component-registry.md](./03-component-registry.md) `form.recordSource` / `recordView`。
 
@@ -329,7 +329,7 @@ visibleWhen:
 - 渲染流程不得因此中断。具体实现是否抛出告警日志由宿主环境自行决定。
 - `form.props.recordSource` 与 `recordView.props.recordSource` 绑定的 route 键为 `undefined` 时，按 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md) / [ADR-0024](./decisions/0024-record-view.md) 拒绝构造加载请求并进入错误态（不得用空 id 请求；两者同构 fail-closed）。
 
-> **安全边界声明**：`$context` 不是安全边界，只是渲染边界。`visibleWhen`/`permissions` 控制的是渲染层面的显隐，不能替代后端的真实鉴权。前端 `$context.user.roles` 判断得出的显隐结果，后端必须独立校验，不能信任前端传来的任何身份声明。
+> **安全边界声明**：`$context` 不是安全边界，只是渲染边界。`visibleWhen`/`permissions` 控制的是渲染层面的显隐，不能替代业务 API 实现方的真实鉴权。前端 `$context.user.roles` 判断得出的显隐结果，业务 API 实现方必须独立校验，不能信任前端传来的任何身份声明。
 
 ## 14. 表达式求值时序模型（since 0.2.4）
 
@@ -354,7 +354,7 @@ visibleWhen:
 
 若 Commit 阶段产生的 `value` 写入触发下一轮求值，Renderer 必须设置循环保护：
 
-- 若连续求值轮次超过实现上限（建议 10 轮），Renderer 应停止继续求值，将相关节点置为错误态，并在开发环境输出包含依赖链的错误日志。
+- 若连续求值轮次超过实现上限（Renderer 自定的确定正整数，建议 10 轮），Renderer 应停止继续求值，将相关节点置为错误态，并在开发环境输出包含依赖链的错误日志。
 - 若某轮 Commit 后状态没有实际变化（新值与旧值深相等），不得继续触发下一轮。
 
 `scope: row` 下仍禁止 `value` 状态键；行内字段回写若未来需要支持，必须另开 ADR 决策。
