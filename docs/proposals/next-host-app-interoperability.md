@@ -1,15 +1,17 @@
 ---
-status: active
+status: completed
 owner: 前后端架构组
 last_updated: 2026-08-13
-applies_to: schema-ui-protocol vNext (candidate track)
+applies_to: schema-ui-protocol v2.8（已随 v2.8.0 交付；后续 PATCH 见 CHANGELOG）
 ---
 
-# 下一步目标：Host/App 互操作协议轨道
+# Host/App 互操作协议轨道（已交付）
 
-本文档是 **informative 演化轨道**，不改变 v2.7.0 语义，不是发布门禁，也不授权生产消费者提前实现。
-语义候选以 proposed [ADR-0034](../decisions/0034-host-app-interoperability-boundary.md)–[0037](../decisions/0037-host-conformance-claim.md)
-为准；在 ADR accepted、规范/Schema/fixtures 原子落地并发布新制品前，不得声明协议已支持。
+本文档是 **informative** 历史轨道记录，不是发布门禁，也不是当前语义权威。
+[ADR-0034](../decisions/0034-host-app-interoperability-boundary.md)–[0037](../decisions/0037-host-conformance-claim.md)
+已 **accepted**，并随正式 **`v2.8.0` @ `521cff8`** 落地。规范投影见
+[10-host-interoperability.md](../10-host-interoperability.md)；门禁见
+[release-goals/v2.8.md](../release-goals/v2.8.md)。
 
 ## 1. 目标
 
@@ -23,9 +25,9 @@ applies_to: schema-ui-protocol vNext (candidate track)
 
 | 能力包 | ADR | 候选 capability | 状态 |
 |---|---|---|---|
-| Host bootstrap lifecycle | [0035](../decisions/0035-host-bootstrap-lifecycle.md) | `host.bootstrap` | proposed |
-| Host failure/recovery | [0036](../decisions/0036-host-failure-recovery.md) | `host.failure-recovery` | proposed |
-| Host conformance claim | [0037](../decisions/0037-host-conformance-claim.md) | `host.conformance-claim` | proposed |
+| Host bootstrap lifecycle | [0035](../decisions/0035-host-bootstrap-lifecycle.md) | `host.bootstrap` | **accepted / 已随 v2.8.0 发布** |
+| Host failure/recovery | [0036](../decisions/0036-host-failure-recovery.md) | `host.failure-recovery` | **accepted / 已随 v2.8.0 发布** |
+| Host conformance claim | [0037](../decisions/0037-host-conformance-claim.md) | `host.conformance-claim` | **accepted / 已随 v2.8.0 发布** |
 
 公共 branding/profile、download/job/realtime、tenant/context、telemetry/audit、完整 accessibility preferences
 均不在首批。候选目录的逐项 adopt/reserve/out 裁定见 ADR-0034 D10。
@@ -36,7 +38,7 @@ applies_to: schema-ui-protocol vNext (candidate track)
   目标为下一个 MINOR；
 - 改变 ADR-0025 一次性 manifest snapshot、未知字段 fail-closed、既有错误优先级或合法输入：评估下一
   MAJOR，禁止静默改写 v2.7；
-- proposed ADR、本文与项目边界说明均不触发版本变更。
+- 本文件仅为轨道记录；已发布语义以 accepted ADR、`10` 与 fixtures 为准。
 
 ## 4. 阶段与门禁
 
@@ -106,9 +108,10 @@ applies_to: schema-ui-protocol vNext (candidate track)
 - [x] 完整本地/CI conformance、artifact reproducibility、MCP/validator compatible range
       （421 versioned cases；release:check / release:check:mcp / release:check:validator 全绿；
       制品 build/verify 双一致；MCP 134 tests；链接检查通过）；
-- [x] 人工 tag 后的 release asset/digest 与消费者 pin 可核对（tag `v2.8.0`；
-      contentDigest `sha256:40690917…` / artifactDigest `sha256:594207e0…` / fixture 树
-      `sha256:7aacf133…`；消费者仓重 pin `593f625` 并重生成 claim，可逐字核对）；
+- [x] 人工 tag 后的 release asset/digest 可核对（正式 tag `v2.8.0` @ `521cff8`；
+      contentDigest `sha256:4fae4605…` / artifactDigest `sha256:6cdbffcc…` / fixture 树
+      `sha256:7aacf133…`）。消费者曾按 H4 预备 commit `593f625` / content `40690917…`
+      pin（审计 0080 / V379，out-of-repo）；
 - [x] 正式证据产生前不关闭发布门禁（H3 evidence 与消费者 E-004 先于本变更集落盘；
       发布门禁随证据关闭）。
 
@@ -125,7 +128,10 @@ applies_to: schema-ui-protocol vNext (candidate track)
 
 H0–H4 全部闭合（2026-08-13）：ADR 0034–0037 accepted（`3936cf9`）→ H2 机器契约落地
 （`453008d`）→ H3 生产 Host evidence 与浏览器级测试（消费者仓 GOAL-004 E-004）→ H4 发布闭环
-（`593f625`，tag `v2.8.0`）。正式制品 `schema-ui-protocol-2.8.0` 已发布：contentDigest
-`sha256:40690917b7b83f54936453b5851c87320f5ed878b517eab7d1558d12fe506a31`、artifactDigest
-`sha256:594207e06ed7ecbb97515c3bc7add985c7b8b81ec74e678f4a12d270909bd18b`；消费者仓已按正式
-digest 重 pin。三个能力包均为可选 capability，未声明的 Host 零行为变化。
+（预备 commit `593f625`；**正式 tag `v2.8.0` @ `521cff8`**）。正式制品
+`schema-ui-protocol-2.8.0`：contentDigest
+`sha256:4fae46058d01bb62d8ff5a17b35f57021a417302c9d8b932916e17ab8acf3c30`、artifactDigest
+`sha256:6cdbffccaa0da1f9e05487b7def93aaef14b7fbae7b14dc8761fc661c9946f31`、fixture
+`sha256:7aacf1332ec66a16db8c79c5f3af37d241bd69b88103e503fe4d91984dd138a2`。
+三个能力包均为可选 capability，未声明的 Host 零行为变化。
+后续 informative PATCH（审计 0080 身份纠偏）见 CHANGELOG `v2.8.1`，**不**改写 `v2.8.0`。
