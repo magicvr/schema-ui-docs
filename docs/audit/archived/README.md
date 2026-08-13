@@ -23,9 +23,9 @@
 | V386–V390 | ADR-0038 accepted；`00` 术语表六角色 + §4.1 职责矩阵；全文"后端"统一；`06` v0.2.4 执行点唯一化；`01` 去 DOM 化；`01` L28/L47 改 `"2.8"` |
 | 显式留白 | `09` §6 navigate 未命中不注入 `$context.route`；`07` §8 页面级 `reload` 目标由 Renderer/Host 自决；`04` §2 `sort` 排序语义由业务 API 实现方自决 |
 | 本地门禁 | `release:check` 421 / fixture **仍** `7aacf133…`；`check:links` 267 / 771；`validate:conformance` 19 suites；MCP 134 tests；`release:check:mcp` / `release:check:validator` 绿 |
-| 发布 | tag `v2.8.2` / `mcp-v2.8.2` 由发布流程在合并后执行（out-of-this-change，同 [docs/RELEASE.md](../../RELEASE.md) 规则） |
+| 发布 | PR [#37](https://github.com/magicvr/schema-ui-docs/pull/37) → `main` `0db0136`；tag `v2.8.2` Protocol Release [31660976480](https://github.com/magicvr/schema-ui-docs/actions/runs/31660976480) success；tag `mcp-v2.8.2` MCP CD [31661213568](https://github.com/magicvr/schema-ui-docs/actions/runs/31661213568) success |
 
-**说明：** 纯文档修订 PATCH：不改 Schema / DSL / fixtures，合法输入、默认值与可观测结果不变。
+**说明：** 纯文档修订 PATCH：不改 Schema / DSL / fixtures，合法输入、默认值与可观测结果不变。正式 2.8.2：artifact `sha256:93c904f5…`；content `sha256:ce8b106d…`；fixture `7aacf133…`；GHCR index `sha256:eb615a57…`（`2.8.2` / `2.8` / `latest` / `0db0136` 同 digest）。**未**改写 `v2.8.1` / `mcp-v2.8.1`。
 
 ---
 
