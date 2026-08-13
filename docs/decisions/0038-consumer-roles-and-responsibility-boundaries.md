@@ -8,8 +8,8 @@ applies_to: schema-ui-protocol v2.8
 
 ## 状态
 
-**Accepted（2026-08-13）。** 本 ADR 关闭审计 [0081/V386–V390](../audit/archived/0081-2026-08-13-review.md) 的下游
-消费边界缺口。全部改动为**文档修订**：不修改 Schema、组件 DSL 或 conformance fixtures，既有合法输入的
+**Accepted（2026-08-13）。** 本 ADR 关闭审计 0081/V386–V390（`docs/audit` 过程记录，不进协议制品）的
+下游消费边界缺口。全部改动为**文档修订**：不修改 Schema、组件 DSL 或 conformance fixtures，既有合法输入的
 默认值与可观测结果不变，按 PATCH 修订发布（2.8.2）。
 
 ## 背景
