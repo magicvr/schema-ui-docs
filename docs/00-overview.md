@@ -13,10 +13,10 @@ applies_to: schema-ui-protocol v2.8
 
 **核心分工原则：**
 
-> 后端定义页面的**语义、数据和结构**（通过 YAML/JSON）；
-> 前端负责编写**解析器（Renderer）、核心组件库、皮肤样式**。
+> 页面生产方定义页面的**语义、数据和结构**（通过 YAML/JSON）；
+> 前端（Renderer 与组件库）负责编写**解析器（Renderer）、核心组件库、皮肤样式**。
 
-后端完全不需要感知 CSS、DOM 布局、低级前端事件，只需要回答三个问题：
+页面生产方完全不需要感知 CSS、DOM 布局、低级前端事件，只需要回答三个问题：
 - 我要展示什么数据？（`data`）
 - 用什么形式呈现？（`type` / `props`）
 - 在哪呈现，结构如何组织？（`children`）
@@ -29,19 +29,19 @@ applies_to: schema-ui-protocol v2.8
 | 文档 | 面向读者 | 用途 |
 |---|---|---|
 | [00-overview.md](./00-overview.md) | 所有人 / AI | 总纲、术语表（本文档） |
-| [01-node-protocol.md](./01-node-protocol.md) | 前后端开发者 / AI | **核心协议规范**，Node 结构定义 |
-| [02-reaction-expression.md](./02-reaction-expression.md) | 后端开发者 / AI | 联动表达式语法规范 |
-| [03-component-registry.md](./03-component-registry.md) | 前后端开发者 / AI | 组件类型（`type`）注册表 |
-| [04-datasource-contract.md](./04-datasource-contract.md) | 后端开发者 / AI | API 数据契约（分页、响应结构） |
+| [01-node-protocol.md](./01-node-protocol.md) | 页面生产方 / Renderer 实现者 / AI | **核心协议规范**，Node 结构定义 |
+| [02-reaction-expression.md](./02-reaction-expression.md) | 页面生产方 / AI | 联动表达式语法规范 |
+| [03-component-registry.md](./03-component-registry.md) | 页面生产方 / 组件库实现者 / AI | 组件类型（`type`）注册表 |
+| [04-datasource-contract.md](./04-datasource-contract.md) | 页面生产方 / 业务 API 实现方 / AI | API 数据契约（分页、响应结构） |
 | [05-scenarios/](./05-scenarios/) | 所有人 / AI | 可复制的完整场景示例 |
-| [06-validation.md](./06-validation.md) | 前后端开发者 / AI | 校验规则与工具链 |
-| [07-actions-contract.md](./07-actions-contract.md) | 前后端开发者 / AI | Action 行为契约（since 0.2） |
-| [08-renderer-spec.md](./08-renderer-spec.md) | 前端开发者 / AI | Renderer 实现规范（since 0.2.1） |
-| [09-app-manifest.md](./09-app-manifest.md) | 前后端开发者 | 应用级清单与导航规范（ADR-0025/0026） |
+| [06-validation.md](./06-validation.md) | 页面生产方 / Renderer 实现者 / AI | 校验规则与工具链 |
+| [07-actions-contract.md](./07-actions-contract.md) | 页面生产方 / Renderer 实现者 / AI | Action 行为契约（since 0.2） |
+| [08-renderer-spec.md](./08-renderer-spec.md) | Renderer 实现者 / AI | Renderer 实现规范（since 0.2.1） |
+| [09-app-manifest.md](./09-app-manifest.md) | manifest 生产方 / Host 实现者 | 应用级清单与导航规范（ADR-0025/0026） |
 | [10-host-interoperability.md](./10-host-interoperability.md) | Host/App 开发者 / AI | Host/App 互操作：bootstrap 生命周期、Host failure result、conformance claim（ADR-0034–0037，since 2.8） |
 | [schemas/](./schemas/) | 工具 / AI | 标准 JSON Schema（`page/node/action/reaction`）与组件注册 DSL（`component-registry.json`） |
 | [decisions/](./decisions/) | 维护者 / AI | 架构决策记录（ADR），解释"为什么这么设计" |
-| [migrations/](./migrations/) | 前后端开发者 | 版本间升级路径（informative） |
+| [migrations/](./migrations/) | 各消费方 | 版本间升级路径（informative） |
 | [release-goals/](./release-goals/) | 维护者 | **非核心协议**：版本 accept / 发布门禁与演进轨道（informative） |
 | [RELEASE.md](./RELEASE.md) | 维护者 | 发布流程：main 只 CI、独立 tag、协议资产与 MCP GHCR |
 | `audit/` | 维护者 | 非协议制品的过程记录；完成结论应沉淀到规范、ADR、迁移或 CHANGELOG |
@@ -69,6 +69,11 @@ applies_to: schema-ui-protocol v2.8
 | **reactions** | 声明式联动规则数组；主要挂载在表单字段 Node（默认 `scope: form`）上，也可挂载在表格 `columns[]` / `actions[]`。列表达式使用 `$row.*` 或列级 `$self` 时需 `scope: row`；行操作 `actions` **任意 scope 禁止 `$self`**（仅 `$row.*` / `$context.*`，或 form 上下文下的 `$deps.*`）。`fulfill` 在列/操作上仅允许 `visible`/`disabled`；仅使用 `$deps.*` / `$context.*` 时可使用默认 `scope: form`（表格须位于 form 上下文） |
 | **Renderer（渲染器）** | 前端负责递归解析 Node 树、按 `type` 分发到具体组件的核心模块 |
 | **组件注册表** | 前端维护的 `type` → 组件实现 的映射表，是协议与具体 UI 实现之间的唯一桥梁 |
+| **页面生产方** | 编写页面 YAML/JSON（Node 树、`datasources`、`actions`、`meta` 声明）并承担生产方 CI 校验的一方（ADR-0038） |
+| **业务 API 实现方** | 实现页面引用的 HTTP API（DataRef / optionsSource / recordSource / Action / 上传端点），负责鉴权、错误响应结构与幂等去重的一方（ADR-0038） |
+| **manifest 生产方** | 提供 `app-manifest.json`（及可选的 bootstrap document）的一方（ADR-0038） |
+| **Host（宿主应用）** | 装配 Renderer、注入 `baseURL` / `$context` / 认证、提供 UI 壳与运行环境的一方；可选择声明 `10` 的可选能力（ADR-0038） |
+| **组件库/皮肤系统** | 维护 `type` → 具体组件实现映射，决定视觉与交互呈现的一方（ADR-0038） |
 
 ## 4. 协议边界（不做什么）
 
@@ -80,12 +85,28 @@ applies_to: schema-ui-protocol v2.8
 - ❌ 动画、过渡效果
 - ❌ 响应式断点的具体像素值
 
-后端在 `props` 中只能使用**语义级**枚举（如 `tone: warning`、`format: currency`），
-具体这些语义在视觉上如何呈现，是前端主题系统的职责，后端不应该也不需要关心。
+页面生产方在 `props` 中只能使用**语义级**枚举（如 `tone: warning`、`format: currency`），
+具体这些语义在视觉上如何呈现，是前端主题系统的职责，页面生产方不应该也不需要关心。
+
+### 4.1 消费方职责矩阵（ADR-0038）
+
+下游阅读任何一条契约时，按下表确认"这条约束管我"以及"我的自由区在哪"：
+
+| 角色 | 生产/拥有 | 必须遵循 | 自行决定 |
+|---|---|---|---|
+| 页面生产方 | 页面 YAML/JSON（Node 树、`datasources`、`actions`、`meta` 声明） | `01`/`02`/`03` 页面侧契约、`06` 校验层级（L0–L2 生产方 CI）、`08` §3 版本与 capability 声明 | 页面文件组织、生产方内部评审流程、选用哪些场景与组件 |
+| 业务 API 实现方 | 页面引用的 HTTP API（DataRef / optionsSource / recordSource / Action / 上传端点） | `04` 数据契约（保留参数、错误响应结构、分页、响应映射）、`07` §3 业务 API 义务（幂等去重、错误结构） | 鉴权机制（`04` §5）、实现语言与框架、`sort` 结果排序语义 |
+| manifest 生产方 | `app-manifest.json` 与可选的 bootstrap document | `09`/`10` 结构、路由模板、capability 声明、未知字段 fail-closed | 清单内容编排、是否提供 bootstrap document（可选能力） |
+| Renderer | 组件注册表与解析执行 | `08` 行为契约、conformance fixtures 逐字段一致、`09`/`10` 消费侧义务 | 框架选型（React/Vue/…）、内部实现结构、表达式引擎实现方式 |
+| Host（宿主应用） | 装配 Renderer、注入 `baseURL` / `$context` / 认证、UI 壳 | `08` §2.6/§3 初始化契约、`09` 宿主义务、`10` 可选能力（声明后才生效） | 认证供应商、UI 壳与主题、路由框架、是否声明 `10` 的能力 |
+| 组件库/皮肤系统 | `type` → 具体组件实现 | `03` 组件 props 契约的语义面（wire 类型、必填、组合约束） | 视觉样式、主题、交互形态（§4 的五个不） |
+
+`06` 的校验责任分配：L0/L1/L2 由页面生产方 CI 保证，L3a/L3b 由 Renderer 加载时兜底（CI 侧 L3a 可选）；
+部分规则仅 L2 为权威执行点。生产方与消费者各守其位，验证器通过不替代协议评审。
 
 ## 5. 版本与稳定性
 
-当前协议版本：`v2.8.1`，页面通过 `meta.protocolVersion: "2.8"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.8 发布门禁见 [release-goals/v2.8.md](./release-goals/v2.8.md)；从 2.7 升级见 [migrations/2.7-to-2.8.md](./migrations/2.7-to-2.8.md)；v2.6 见 [release-goals/v2.6.md](./release-goals/v2.6.md) 与 [migrations/2.5-to-2.6.md](./migrations/2.5-to-2.6.md)；v2.5 见 [release-goals/v2.5.md](./release-goals/v2.5.md) 与 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)。
+当前协议版本：`v2.8.2`，页面通过 `meta.protocolVersion: "2.8"` 声明 MAJOR.MINOR。`1.0` 页面不得直接进入 v2 标准 Renderer；必须继续由 v1 Renderer 消费，或由调用方显式执行迁移 adapter 后再交给 v2。标准 Renderer 入口不做版本猜测。v2.8 发布门禁见 [release-goals/v2.8.md](./release-goals/v2.8.md)；从 2.7 升级见 [migrations/2.7-to-2.8.md](./migrations/2.7-to-2.8.md)；v2.6 见 [release-goals/v2.6.md](./release-goals/v2.6.md) 与 [migrations/2.5-to-2.6.md](./migrations/2.5-to-2.6.md)；v2.5 见 [release-goals/v2.5.md](./release-goals/v2.5.md) 与 [migrations/2.4-to-2.5.md](./migrations/2.4-to-2.5.md)。
 
 PATCH 或 RC 修订若包含需要 Renderer 执行支持的能力，页面应通过 `meta.requiredCapabilities` 显式声明（如 `actions.upload`、`actions.row.request`、`actions.page.trigger`、`actions.row.navigate`、`form.record.load`、`table.selection`、`actions.batch.request`、`permissions.inheritance`、`record.view.load`、`table.sort`、`app.manifest`、`app.navigation`、`form.controls.extended`、`form.controls.advanced`），Renderer 在加载前按自身 `supportedCapabilities` 做能力匹配。这样 `protocolVersion` 继续保持结构兼容锚点，同时避免同一 MAJOR.MINOR 下的新旧 Renderer 对执行能力产生误判。L2 另强制字段集→`protocolVersion` 下限（2.1 字段不得挂在 `"2.0"`；2.2 字段须 `"2.2"`；`permissionCascade` / `permissionIntent` 须 `"2.3"` 且声明 `permissions.inheritance`；`recordView` 须 `"2.4"` 且声明 `record.view.load`；`sortable` / `sortField` / `defaultSort` 须 `"2.5"` 且声明 `table.sort`；`textarea` / `switch` / `checkbox` / `radio` / `select.mode: multiple` 须 `"2.6"` 且声明 `form.controls.extended`；`cascader` / `checkboxGroup` / `richText` / `password` / `defaultValue` 须 `"2.7"` 且声明 `form.controls.advanced`）。
 

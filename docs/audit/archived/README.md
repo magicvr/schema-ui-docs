@@ -6,9 +6,55 @@
 
 ---
 
+## 0081 — 2026-08-13 — 下游消费边界审计与角色命名
+
+**主题：** 协议对"哪些遵循协议、哪些下游自决"的边界总体明确，但存在结构性缺口：消费方角色从未命名，"后端"一词三重指代（页面生产方 / 业务 API 实现方 / manifest 生产方）；附带校验执行点不唯一、DOM 词汇、文案边界不一致与 `"2.7"` 版本残留（V386–V393）。以 **ADR-0038 + 2.8.2 PATCH** 固化（纯文档修订，机器契约未变）。
+**性质：** 1×P1 + 4×P2 in-repo 全部关闭；3×P3（V391–V393）登记为后续候选不改本轮。主类型=消费边界审计；次类型=实现/契约漂移。
+
+| 文件 | 说明 |
+|---|---|
+| [0081-2026-08-13-review.md](./0081-2026-08-13-review.md) | 审计报告 — V386–V393（P1/P2 关闭，P3 候选登记） |
+| [0081-2026-08-13-checklist.md](./0081-2026-08-13-checklist.md) | 跟踪清单 — ADR-0038、修订、2.8.2 身份与门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| V386–V390 | ADR-0038 accepted；`00` 术语表六角色 + §4.1 职责矩阵；全文"后端"统一；`06` v0.2.4 执行点唯一化；`01` 去 DOM 化；`01` L28/L47 改 `"2.8"` |
+| 显式留白 | `09` §6 navigate 未命中不注入 `$context.route`；`07` §8 页面级 `reload` 目标由 Renderer/Host 自决；`04` §2 `sort` 排序语义由业务 API 实现方自决 |
+| 本地门禁 | `release:check` 421 / fixture **仍** `7aacf133…`；`check:links` 267 / 771；`validate:conformance` 19 suites；MCP 134 tests；`release:check:mcp` / `release:check:validator` 绿 |
+| 发布 | tag `v2.8.2` / `mcp-v2.8.2` 由发布流程在合并后执行（out-of-this-change，同 [docs/RELEASE.md](../../RELEASE.md) 规则） |
+
+**说明：** 纯文档修订 PATCH：不改 Schema / DSL / fixtures，合法输入、默认值与可观测结果不变。
+
+---
+
+## 0080 — 2026-08-13 — v2.8.0 正式身份纠偏与当前线入口
+
+**主题：** 正式 `v2.8.0` 被误记为 H4 预备 commit `593f625` / content `40690917…`；制品内当前线指针与提案状态滞后（V379–V385）。以 **2.8.1 PATCH** 固化，**不**改写 `v2.8.0`。
+**性质：** 2×P1 + 5×P2 **in-repo 全部关闭**。主类型=发布完整性；次类型=实现/契约漂移。消费者重 pin 仍为 out-of-repo。
+
+| 文件 | 说明 |
+|---|---|
+| [0080-2026-08-13-review.md](./0080-2026-08-13-review.md) | 审计报告 — V379–V385（in-repo 关闭） |
+| [0080-2026-08-13-checklist.md](./0080-2026-08-13-checklist.md) | 跟踪清单 — 修复、2.8.1 发布与归档门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| V379–V385 | 正式 pin 纠偏、conformance/release-goals/MCP/提案/CHANGELOG/审计索引 in-repo 闭合 |
+| 本地门禁 | `release:check` 421 / fixture **仍** `7aacf133…`；content `25d13328…` · artifact `3e40808c…` |
+| 发布 | PR [#36](https://github.com/magicvr/schema-ui-docs/pull/36) → `main` `ceb099f`；tag `v2.8.1` Protocol Release [31656294289](https://github.com/magicvr/schema-ui-docs/actions/runs/31656294289) success；tag `mcp-v2.8.1` MCP CD [31656355623](https://github.com/magicvr/schema-ui-docs/actions/runs/31656355623) success |
+| 正式 2.8.1 | artifact `sha256:3e40808c…`；content `sha256:25d13328…`；fixture `7aacf133…`；GHCR index `sha256:9d0f3377…`（`2.8.1` / `2.8` / `latest` / `ceb099f` 同 digest） |
+
+**说明：** **未**改写 `v2.8.0` / `mcp-v2.8.0`。生产消费者仍 pin `593f625`（out-of-repo）。
+
+---
+
 ## 0079 — 2026-08-13 — v2.8.0 Host/App 互操作发布闭环
 
-**主题：** H1–H4 全量闭环与 A-001/A-002 独立审计（V375–V378；F1–F7）。落盘时将 H4 commit `593f625` 记为正式 tag；实际 `v2.8.0` 随后打在 `521cff8`（见活跃审计 0080 / V379）。
+**主题：** H1–H4 全量闭环与 A-001/A-002 独立审计（V375–V378；F1–F7）。落盘时将 H4 commit `593f625` 记为正式 tag；实际 `v2.8.0` 随后打在 `521cff8`（见归档 [0080](./0080-2026-08-13-review.md) / V379）。
 **性质：** 2×P2 + 2×P3（A-001）与 A-002 F1–F7 **当时关闭**。主类型=发布完整性 + 实现/契约漂移。
 
 | 文件 | 说明 |

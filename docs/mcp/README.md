@@ -49,11 +49,11 @@ ghcr.io/<github-owner-lowercase>/schema-ui-mcp
 
 将 `<github-owner-lowercase>` 换成仓库所有者的小写登录名或 org（例如 `ghcr.io/acme/schema-ui-mcp`）。
 
-当前版本示例（版本号以 `mcp/package.json` 与**已发布** `mcp-v*` tag 为准；应与协议线一致，例如协议 `2.8` → MCP `2.8.x`。工作树 MCP 为 `2.8.1`（捆绑协议 `2.8.1`）；已发布稳定接入仍可 pin 正式 **`2.8.0`** / **`mcp-v2.8.0`**，不要只用 `latest`）：
+当前版本示例（版本号以 `mcp/package.json` 与**已发布** `mcp-v*` tag 为准；应与协议线一致，例如协议 `2.8` → MCP `2.8.x`。工作树 MCP 为 `2.8.2`（捆绑协议 `2.8.2`）；已发布稳定接入仍可 pin 正式 **`2.8.0`** / **`mcp-v2.8.0`**，不要只用 `latest`）：
 
 ```bash
-docker pull ghcr.io/<owner>/schema-ui-mcp:2.8.1
-docker run --rm -i ghcr.io/<owner>/schema-ui-mcp:2.8.1
+docker pull ghcr.io/<owner>/schema-ui-mcp:2.8.2
+docker run --rm -i ghcr.io/<owner>/schema-ui-mcp:2.8.2
 ```
 
 若包为 private，需先登录：
@@ -75,7 +75,7 @@ MCP 客户端配置示例（稳定接入请 pin **完整版本**，不要只用 
         "run",
         "--rm",
         "-i",
-        "ghcr.io/<owner>/schema-ui-mcp:2.8.1"
+        "ghcr.io/<owner>/schema-ui-mcp:2.8.2"
       ]
     }
   }
@@ -86,7 +86,7 @@ MCP 客户端配置示例（稳定接入请 pin **完整版本**，不要只用 
 
 | Tag | 用途 |
 |---|---|
-| `2.8.1` | 固定版本（工作树 / 发版后稳定接入示例；MAJOR.MINOR = 协议线） |
+| `2.8.2` | 固定版本（工作树 / 发版后稳定接入示例；MAJOR.MINOR = 协议线） |
 | `2.8` | 当前 `2.8.x` 最新稳定 PATCH（与协议 `2.8` 线对应；随稳定 `mcp-v*` 更新） |
 | `latest` | 最新**稳定**发布；**不建议**写入生产接入配置 |
 | `<commit-sha>` | 精确追踪一次 CD 构建产物 |
@@ -104,19 +104,19 @@ MCP 使用 stdio transport，Docker 启动参数需要保留 `-i`，不需要 `-
 从仓库根目录构建镜像：
 
 ```bash
-docker build -f mcp/Dockerfile -t schema-ui-mcp:2.8.1 .
+docker build -f mcp/Dockerfile -t schema-ui-mcp:2.8.2 .
 ```
 
 作为 stdio MCP server 启动：
 
 ```bash
-docker run --rm -i schema-ui-mcp:2.8.1
+docker run --rm -i schema-ui-mcp:2.8.2
 ```
 
 Docker smoke test：
 
 ```bash
-npm --prefix mcp run smoke:docker -- schema-ui-mcp:2.8.1
+npm --prefix mcp run smoke:docker -- schema-ui-mcp:2.8.2
 ```
 
 镜像接入示例固定使用完整版本 tag，不使用 `latest`。`mcp/package.json` 中的 MCP SDK 依赖也应固定为明确版本，而不是使用 `latest` 作为包清单策略，避免后续刷新 lockfile 时无意引入 SDK 行为漂移。
