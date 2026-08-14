@@ -83,10 +83,13 @@ actions:
       id: create-entry-form
       props:
         submitAction: createEntry
-        fields:
-          - { id: dictKey, label: 类型键, type: input, readOnly: true }
-          - { id: entryKey, label: 条目键, type: input, required: true }
-          - { id: label, label: 标签, type: input, required: true }
+      children:
+        - type: input
+          props: { field: dictKey, label: 类型键, readOnly: true }
+        - type: input
+          props: { field: entryKey, label: 条目键, required: true }
+        - type: input
+          props: { field: label, label: 标签, required: true }
 
 body:
   type: table

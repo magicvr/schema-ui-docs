@@ -12,7 +12,7 @@ applies_to: schema-ui-protocol v2.9
 
 ## 1. `datasources` 声明（页面级预声明）
 
-> **页面级 params：** `datasources.*.params` 与节点级 `data.params` 使用同一套整值替换语法（见 §3.1），但页面级声明**永远非表单上下文**，因此 `$deps.*` 在其内为静态拒绝。页面级 params 仅允许字面量；含 `$` 的值必须以 `DATA_PARAMS_VARIABLE` 或 `NON_FORM_DATA_PARAMS` 拒绝。该规则由 L3a 统一执行（见 [02-reaction-expression.md §10.7](./02-reaction-expression.md#107-deps-出现在非表单-dataparams--optionssourceparams--datasourcesparams-中)）。
+> **页面级 params：** `datasources.*.params` 与节点级 `data.params` 使用同一套整值替换语法（见 §3.1），但页面级声明**永远非表单上下文**，因此 `$deps.*` 在其内为静态拒绝。页面级 params 仅允许字面量或完整单个 `$context.route.query.*` / `$context.route.params.*`（since 2.9 / ADR-0039，capability `data.route-binding`）；含 `$` 的其他值必须以 `DATA_PARAMS_VARIABLE` 或 `NON_FORM_DATA_PARAMS` 拒绝。该规则由 L3a 统一执行（见 [02-reaction-expression.md §10.7](./02-reaction-expression.md#107-deps-出现在非表单-dataparams--optionssourceparams--datasourcesparams-中)）。
 
 ```yaml
 datasources:
@@ -73,7 +73,7 @@ data:
 
 **不支持**字符串模板拼接（如 `prefix-$deps.ownerId`、`$deps.ownerId-suffix`）、转义、表达式求值或其他变量命名空间。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 或 `$context.route.(query|params).*` 时，静态校验以 `DATA_PARAMS_VARIABLE` 拒绝。
 
-引用的 `$deps.*` 或 `$context.route.*` 值在运行时为 `null` 或 `undefined` 时，该参数作为 tombstone **从最终请求的 query 中删除**（包括删除已有 URL 或更早参数来源中的同名 key；不传空字符串、不传字面量 `"null"`）。目的是让业务 API 实现方能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
+引用的 `$deps.*` 或 `$context.route.(query|params).*` 值在运行时为 `null` 或 `undefined` 时，该参数作为 tombstone **从最终请求的 query 中删除**（包括删除已有 URL 或更早参数来源中的同名 key；不传空字符串、不传字面量 `"null"`）。目的是让业务 API 实现方能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
 
 ```yaml
 data:
@@ -317,7 +317,7 @@ data:
 
 **请求：** `GET <optionsSource.url>?<params>`。`params` key 必须非空，值仅允许 string / finite number / boolean / null 标量，或**完整单个** `$deps.<path>` 整值替换（规则与 §3.1 相同，仅在表单上下文有效），或**完整单个** `$context.route.query.*` / `$context.route.params.*` 整值替换（since 2.9 / ADR-0039，任意上下文）。禁止对象、数组和模板拼接。最终 URL 使用 §3.1.1 的公共序列化算法。
 
-**空值删除规则（关键约定）：** 当 `params` 中某个值引用的 `$deps.*`（或 since 2.9 的 `$context.route.*`）在运行时为 `null` 或 `undefined` 时，该参数从最终 query 中删除，包括删除 URL 里已有的同名 key；不传空字符串、不传字面量 `"null"`。这与 `table`/`chart` 等其他场景下 `$deps` 参数的处理方式保持统一。
+**空值删除规则（关键约定）：** 当 `params` 中某个值引用的 `$deps.*`（或 since 2.9 的 `$context.route.query.*` / `$context.route.params.*`）在运行时为 `null` 或 `undefined` 时，该参数从最终 query 中删除，包括删除 URL 里已有的同名 key；不传空字符串、不传字面量 `"null"`。这与 `table`/`chart` 等其他场景下 `$deps` 参数的处理方式保持统一。
 
 ```yaml
 # 前端字段 provinceId 尚未选择（值为 null）时：

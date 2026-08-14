@@ -134,7 +134,7 @@
     "form.controls.readonly": {
       "sinceProtocolVersion": "2.9",
       "dependsOn": [],
-      "mandatorySuites": ["component-format"],
+      "mandatorySuites": ["component-format", "request-construction"],
       "deprecatedSince": null,
       "removedIn": null
     }

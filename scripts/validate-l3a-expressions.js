@@ -415,7 +415,7 @@ function validateExpression(expr, exprPath, context) {
         violations.push({
           path: exprPath,
           rule: 'FORBIDDEN_CONTEXT_NAMESPACE',
-          message: `$context.${contextRoot} 不得用于本挂载点；MVP 仅允许 form/recordView 的 recordSource path/query 绑定（02 §11.3）`,
+          message: `$context.${contextRoot} 不得用于本挂载点；仅允许 form/recordView 的 recordSource path/query 绑定与 params 值替换（02 §11.3 / ADR-0039）`,
         });
       }
     }

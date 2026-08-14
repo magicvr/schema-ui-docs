@@ -845,6 +845,92 @@
       "expected": {
         "error": "SCENARIO_METADATA_MISMATCH"
       }
+    },
+    {
+      "id": "admin-lifecycle-route-filter-inner-page",
+      "protocolVersion": "2.9",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/admin-list-route-filter-lifecycle.md",
+        "scenarioMeta": {
+          "pageId": "dict_entries",
+          "protocolVersion": "2.9"
+        },
+        "steps": [
+          {
+            "kind": "request",
+            "input": {
+              "kind": "dataRef",
+              "dataRef": {
+                "source": "api",
+                "method": "GET",
+                "url": "/api/data-dictionary/entries",
+                "params": {
+                  "dictKey": "$context.route.query.dictKey"
+                }
+              },
+              "route": {
+                "query": {
+                  "dictKey": "ORDER_STATUS"
+                },
+                "params": {}
+              }
+            }
+          },
+          {
+            "kind": "request",
+            "input": {
+              "kind": "formAction",
+              "action": {
+                "method": "POST",
+                "url": "/api/data-dictionary/entries",
+                "bodyMapping": {
+                  "dictKey": "dictKey",
+                  "label": "label"
+                }
+              },
+              "formValues": {
+                "dictKey": "ORDER_STATUS",
+                "label": "paid"
+              },
+              "formProjection": {
+                "dictKey": {
+                  "value": "ORDER_STATUS",
+                  "readonly": true
+                },
+                "label": {
+                  "value": "paid"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "dict_entries",
+        "protocolVersion": "2.9",
+        "steps": [
+          {
+            "ok": true,
+            "request": {
+              "method": "GET",
+              "url": "/api/data-dictionary/entries?dictKey=ORDER_STATUS",
+              "body": null
+            }
+          },
+          {
+            "ok": true,
+            "request": {
+              "method": "POST",
+              "url": "/api/data-dictionary/entries",
+              "body": {
+                "dictKey": "ORDER_STATUS",
+                "label": "paid"
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 }

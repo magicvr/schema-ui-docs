@@ -53,8 +53,10 @@ dist/protocol/manifest.json
 独立前端和后端仓库应固定协议 tag 或制品 SHA-256，直接消费同一份 Schema 和 fixtures；不得复制后维护
 私有期望结果。JavaScript、Python、Java、.NET 等消费者使用同一个制品，不要求安装或运行 MCP。
 
-当前跨实现消费规则与 fixture 分类见 [`conformance/README.md`](./conformance/README.md)。从 `2.7` 升级到
-`2.9` 请按 [`docs/migrations/2.8-to-2.9.md`](./docs/migrations/2.8-to-2.9.md) 执行；从 `2.6` 请先按
+当前跨实现消费规则与 fixture 分类见 [`conformance/README.md`](./conformance/README.md)。从 `2.8` 升级到
+`2.9` 请按 [`docs/migrations/2.8-to-2.9.md`](./docs/migrations/2.8-to-2.9.md)
+执行；从 `2.7` 升级到 `2.8` 请先按
+[`docs/migrations/2.7-to-2.8.md`](./docs/migrations/2.7-to-2.8.md) 执行；从 `2.6` 请先按
 [`docs/migrations/2.6-to-2.7.md`](./docs/migrations/2.6-to-2.7.md) 执行；从 `2.5` 请先按
 [`docs/migrations/2.5-to-2.6.md`](./docs/migrations/2.5-to-2.6.md) 执行；从 `2.4` 请先按
 [`docs/migrations/2.4-to-2.5.md`](./docs/migrations/2.4-to-2.5.md) 执行；从 `2.3` 请先按

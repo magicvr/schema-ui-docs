@@ -370,11 +370,11 @@ visibleWhen:
 |---|---|---|---|---|
 | 表单字段 `reactions` | ✅ | ✅（`dateRangePicker` 额外允许 `.start` / `.end`） | ✅ | ❌ |
 | 表单字段 `visibleWhen` | ✅ | ❌ | ✅ | ❌ |
-| 表单上下文内 `data.params` | ✅（仅值替换） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9 / ADR-0039）；`$context.user` / `features` ❌ | ❌ |
-| 非表单上下文 `data.params` | ❌（静态校验拒绝） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9 / ADR-0039）；`$context.user` / `features` ❌ | ❌ |
-| 表单上下文内 `optionsSource.params` | ✅（仅值替换，同 `data.params`） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9）；`$context.user` / `features` ❌ | ❌ |
-| 非表单上下文 `optionsSource.params` | ❌（静态校验拒绝） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9）；`$context.user` / `features` ❌ | ❌ |
-| 页面级 `datasources.*.params` | ❌（静态校验拒绝，永远非表单上下文） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9）；`$context.user` / `features` ❌ | ❌ |
+| 表单上下文内 `data.params` | ✅（仅值替换） | ❌ | `$context.route.query.*` / `params.*` ✅（仅值替换，since 2.9 / ADR-0039）；`$context.user` / `features` ❌ | ❌ |
+| 非表单上下文 `data.params` | ❌（静态校验拒绝） | ❌ | `$context.route.query.*` / `params.*` ✅（仅值替换，since 2.9 / ADR-0039）；`$context.user` / `features` ❌ | ❌ |
+| 表单上下文内 `optionsSource.params` | ✅（仅值替换，同 `data.params`） | ❌ | `$context.route.query.*` / `params.*` ✅（仅值替换，since 2.9）；`$context.user` / `features` ❌ | ❌ |
+| 非表单上下文 `optionsSource.params` | ❌（静态校验拒绝） | ❌ | `$context.route.query.*` / `params.*` ✅（仅值替换，since 2.9）；`$context.user` / `features` ❌ | ❌ |
+| 页面级 `datasources.*.params` | ❌（静态校验拒绝，永远非表单上下文） | ❌ | `$context.route.query.*` / `params.*` ✅（仅值替换，since 2.9）；`$context.user` / `features` ❌ | ❌ |
 | 非表单节点 `visibleWhen` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ |
 | 节点 `permissions.*` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ |
 | 表格列 `scope: form` 表达式（仅表格位于 `form.children` 内） | ✅ | ❌（无绑定对象） | ✅ | ❌ |

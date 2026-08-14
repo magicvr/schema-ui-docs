@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-08-14
 applies_to: schema-ui-protocol v2.9
 ---
@@ -8,7 +8,7 @@ applies_to: schema-ui-protocol v2.9
 
 ## 状态
 
-**Proposed（2026-08-14）。** 本 ADR 为 P-2 协议增补（下游 `schema-ui-core` 工作区 11 目标 15
+**Accepted（2026-08-14，审计 0082 A-001 self + A-002 grok 独立复核后）。** 本 ADR 为 P-2 协议增补（下游 `schema-ui-core` 工作区 11 目标 15
 GOAL-015 D-002 门禁）：「条目页按类型过滤」要求独立 table 的 dataSource 能把当前页路由 query
 （`?dictKey=…`）注入请求参数。随 v2.9.0 MINOR 发布，capability `data.route-binding`。
 

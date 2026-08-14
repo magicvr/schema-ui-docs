@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-08-14
 applies_to: schema-ui-protocol v2.9
 ---
@@ -8,7 +8,7 @@ applies_to: schema-ui-protocol v2.9
 
 ## 状态
 
-**Proposed（2026-08-14）。** 本 ADR 增补表单字段只读声明（P-2 同批，下游 GOAL-015「dictKey
+**Accepted（2026-08-14，审计 0082 A-001 self + A-002 grok 独立复核后）。** 本 ADR 增补表单字段只读声明（P-2 同批，下游 GOAL-015「dictKey
 字段只读、显示类型名、提交仍传类型键」所需）。随 v2.9.0 MINOR 发布，capability
 `form.controls.readonly`。
 

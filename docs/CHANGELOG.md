@@ -24,12 +24,12 @@
   since 2.9）。用户不可编辑但值仍参与提交投影（`bodyMapping`）；与 reaction 驱动的
   `disabled` 状态（排除提交投影）语义区分；`defaultValue` / `recordSource` 回填 /
   reactions 写入照常生效；`required` 校验照常应用。
-- 规范投影：`02` §2/§10.7/§11.3/附录 A、`03` 表单控件、`04` §3.1/§3.2/§9、`06` L3a、
-  `08` §2.3/§2.5.1/§3.4；`node.schema.json` / `page.schema.json` /
+- 规范投影：`02` §2/§10.7/§11.3/附录 A、`03` 表单控件、`04` §3.1/§3.2/§9、`06` L2/L3a、
+  `08` §2.3/§2.5.2/§3.4；`node.schema.json` / `page.schema.json` /
   `component-registry.json` / `capability-registry.json` 同步。
 - conformance：request-construction +6（路由绑定正例/tombstone/混合/readOnly 投影包含）、
-  version-negotiation +6（2.9 版本与 capability 向量）；全部算法 fixtures 随制品线升 `2.9`
-  （fixture digest `b6609b46…`）。
+  version-negotiation +6（2.9 版本与 capability 向量）、scenarios +1（内页路由过滤闭环）；
+  全部算法 fixtures 随制品线升 `2.9`（fixture digest `89baddbc…`）。
 
 ## v2.8.2 — 2026-08-13（审计 0081：下游消费边界审计与角色命名）
 
