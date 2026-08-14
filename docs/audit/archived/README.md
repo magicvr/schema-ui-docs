@@ -6,6 +6,34 @@
 
 ---
 
+## 0082 — 2026-08-14 — v2.9 数据源路由绑定 + 表单字段只读 发布评审
+
+**主题：** v2.9.0 MINOR 原子一致性发布评审。ADR-0039（`data.route-binding`：params 的
+`$context.route.query.*` / `params.*` 整值绑定，tombstone 删除）与 ADR-0040
+（`form.controls.readonly`：字段只读、值仍参与提交投影）的决策逐条核对；A-001 self 发现
+V394–V398，A-002 grok 独立审计（round 1 conditional → F-001~F-003/R-001~R-004/O-005~O-006
+全部处置 → round 2 **pass**，BLOCKING_COUNT=0）。
+**性质：** 0×P0 / 0×P1 / 2×P2（V394–V395）+ A-002 3×P1 / 4×P2 in-repo 全部关闭；P3 备注
+（V396–V398、O-007）不阻断。主类型=发布评审；次类型=实现/契约漂移。
+
+| 文件 | 说明 |
+|---|---|
+| [0082-2026-08-14-review.md](./0082-2026-08-14-review.md) | 审计报告 — V394–V398 + A-002 处置表与 round 2 复核 |
+| [0082-2026-08-14-checklist.md](./0082-2026-08-14-checklist.md) | 跟踪清单 — v2.9 发布闭环门禁 |
+
+**关闭证据：**
+
+| 项 | 结果 |
+|---|---|
+| A-001 | ADR-0039/0040 决策逐条核对一致；V394/V395（P2）整改；V396–V398（P3）备注 |
+| A-002 | grok 4.6 · xhigh：round 1 conditional（3×P1+4×P2+O-005/O-006）→ 全部处置 → round 2 **pass**（BLOCKING_COUNT=0） |
+| 本地门禁 | `release:check` 434 / fixture `89baddbc…`；`check:links` 274 / 783；`validate:scenarios` 12 页 L0–L4；`validate:conformance` 19 suites；`test:conformance:all` 41 entries（JS+Python）；MCP 138 tests；`release:check:mcp` / `release:check:validator` 绿 |
+
+**说明：** MINOR 发布（ADR-0039/0040 accepted）。正式 2.9.0 资产与 GHCR digest 以 tag 后
+GitHub Release 为准（见发布闭环记录）。
+
+---
+
 ## 0081 — 2026-08-13 — 下游消费边界审计与角色命名
 
 **主题：** 协议对"哪些遵循协议、哪些下游自决"的边界总体明确，但存在结构性缺口：消费方角色从未命名，"后端"一词三重指代（页面生产方 / 业务 API 实现方 / manifest 生产方）；附带校验执行点不唯一、DOM 词汇、文案边界不一致与 `"2.7"` 版本残留（V386–V393）。以 **ADR-0038 + 2.8.2 PATCH** 固化（纯文档修订，机器契约未变）。
