@@ -33,7 +33,8 @@ last_updated: 2026-08-13
 | [v2.5.md](./v2.5.md) | `v2.5` accept / 发布门禁（已发布线） |
 | [v2.6.md](./v2.6.md) | `v2.6` accept / 发布门禁（F1 表单控件面 A+B） |
 | [v2.7.md](./v2.7.md) | `v2.7` accept / 发布门禁（表单进阶：cascader / checkboxGroup / richText / password / defaultValue） |
-| [v2.8.md](./v2.8.md) | `v2.8` accept / 发布门禁（Host/App 互操作：bootstrap / failure-recovery / conformance-claim；**当前线**） |
+| [v2.9.md](./v2.9.md) | `v2.9` accept / 发布门禁（dataSource 路由绑定 + 表单字段只读；**当前线**） |
+| [v2.8.md](./v2.8.md) | `v2.8` accept / 发布门禁（Host/App 互操作：bootstrap / failure-recovery / conformance-claim） |
 | [next-admin-lifecycle.md](./next-admin-lifecycle.md) | Admin 生命周期轨道：已交付 2.1–2.7、残留 D.1 backlog（规划，非语义权威；Host/App 平行轨道见 `v2.8.md`） |
 
 历史发布门禁路径曾为 `docs/09-…`–`docs/16-…`（与核心规范同级编号）。自整理起统一放在本目录，避免被误读为协议章节。应用级规范正文现为连续编号的 [`docs/09-app-manifest.md`](../09-app-manifest.md)（v2.5 发布时曾短暂使用 `17-app-manifest.md`）。

@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "canonical-object-key-sort",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "canonicalize",
@@ -19,7 +19,7 @@
     },
     {
       "id": "canonical-non-ascii-key-byte-order",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "canonicalize",
@@ -34,7 +34,7 @@
     },
     {
       "id": "canonical-string-array-sort",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "canonicalize",
@@ -52,7 +52,7 @@
     },
     {
       "id": "canonical-object-array-sort",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "canonicalize",
@@ -73,7 +73,7 @@
     },
     {
       "id": "canonical-minimal-escaping",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "canonicalize",
@@ -87,7 +87,7 @@
     },
     {
       "id": "canonical-nested-mixed",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "canonicalize",
@@ -109,7 +109,7 @@
     },
     {
       "id": "claim-digest-disordered-claim",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "claimDigest",
@@ -176,7 +176,7 @@
     },
     {
       "id": "claim-digest-canonical-order-invariant",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "claimDigest",
@@ -235,12 +235,12 @@
     },
     {
       "id": "registry-valid",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateRegistry",
         "registry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
@@ -272,12 +272,12 @@
     },
     {
       "id": "registry-removed-not-after-deprecated",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateRegistry",
         "registry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "legacy.feature": {
               "sinceProtocolVersion": "2.0",
@@ -300,12 +300,12 @@
     },
     {
       "id": "registry-removed-without-deprecated",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateRegistry",
         "registry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "legacy.feature": {
               "sinceProtocolVersion": "2.0",
@@ -328,12 +328,12 @@
     },
     {
       "id": "registry-unknown-key",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateRegistry",
         "registry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
@@ -357,12 +357,12 @@
     },
     {
       "id": "registry-dependency-cycle",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateRegistry",
         "registry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "cap.a": {
               "sinceProtocolVersion": "2.8",
@@ -398,12 +398,12 @@
     },
     {
       "id": "registry-unregistered-dependency",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateRegistry",
         "registry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "cap.a": {
               "sinceProtocolVersion": "2.8",
@@ -428,12 +428,12 @@
     },
     {
       "id": "registry-invalid-capability-id",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateRegistry",
         "registry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "Host.bootstrap": {
               "sinceProtocolVersion": "2.8",
@@ -456,12 +456,12 @@
     },
     {
       "id": "registry-invalid-since-version",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateRegistry",
         "registry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "app.manifest": {
               "sinceProtocolVersion": "2.5.1",
@@ -484,7 +484,7 @@
     },
     {
       "id": "validate-claim-ok",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -538,7 +538,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -572,7 +572,7 @@
     },
     {
       "id": "validate-claim-unknown-version",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -620,7 +620,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -643,7 +643,7 @@
     },
     {
       "id": "validate-claim-unknown-capability",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -691,7 +691,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -714,7 +714,7 @@
     },
     {
       "id": "validate-claim-removed-in-listed-version",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -768,7 +768,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -800,7 +800,7 @@
     },
     {
       "id": "validate-claim-removed-in-below-versions-ok",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -854,7 +854,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -886,7 +886,7 @@
     },
     {
       "id": "validate-claim-dependency-not-closed",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -934,7 +934,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -968,7 +968,7 @@
     },
     {
       "id": "validate-claim-artifact-mismatch",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -1016,7 +1016,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -1039,7 +1039,7 @@
     },
     {
       "id": "validate-claim-fixture-mismatch",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -1087,7 +1087,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -1110,7 +1110,7 @@
     },
     {
       "id": "validate-claim-suite-incomplete",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -1159,7 +1159,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -1193,7 +1193,7 @@
     },
     {
       "id": "validate-claim-evidence-build-mismatch",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -1241,7 +1241,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -1264,7 +1264,7 @@
     },
     {
       "id": "validate-claim-evidence-unverifiable",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -1312,7 +1312,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -1338,7 +1338,7 @@
     },
     {
       "id": "validate-claim-invalid-versions-list",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -1384,7 +1384,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -1407,7 +1407,7 @@
     },
     {
       "id": "validate-claim-invalid-evidence-empty",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -1448,7 +1448,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",
@@ -1471,7 +1471,7 @@
     },
     {
       "id": "validate-claim-transitive-dependency-missing",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-conformance-claim",
       "input": {
         "operation": "validateClaim",
@@ -1519,7 +1519,7 @@
         },
         "options": {
           "registry": {
-            "protocolVersion": "2.8",
+            "protocolVersion": "2.9",
             "capabilities": {
               "app.manifest": {
                 "sinceProtocolVersion": "2.5",

@@ -33,6 +33,8 @@
  *      - 2.4 字段（recordView）要求 protocolVersion >= "2.4" 且 record.view.load
  *      - 2.6 字段（textarea/switch/checkbox/radio/select.mode:multiple）要求 protocolVersion >= "2.6" 且 form.controls.extended（ADR-0028）
  *      - 2.7 字段（cascader/checkboxGroup/richText/password/defaultValue）要求 protocolVersion >= "2.7" 且 form.controls.advanced（ADR-0029–0033）
+ *      - 2.9 字段（表单控件 readOnly）要求 protocolVersion >= "2.9" 且 form.controls.readonly（ADR-0040）
+ *      - 2.9 参数值（data.params / optionsSource.params / datasources.*.params 的 $context.route 整值绑定）要求 protocolVersion >= "2.9" 且 data.route-binding（ADR-0039）
  *
  * 用法：
  *   node scripts/validate-l2-components.js <file-or-glob> [--json]
@@ -69,6 +71,7 @@ const FLOOR_24 = '2.4';
 const FLOOR_25 = '2.5';
 const FLOOR_26 = '2.6';
 const FLOOR_27 = '2.7';
+const FLOOR_29 = '2.9';
 const PERMISSION_INHERITANCE_CAPABILITY = 'permissions.inheritance';
 const RECORD_VIEW_LOAD_CAPABILITY = 'record.view.load';
 const TABLE_SORT_CAPABILITY = 'table.sort';
@@ -80,6 +83,15 @@ const FORM_DEFAULT_VALUE_TYPES = new Set([
   'input', 'inputNumber', 'textarea', 'switch', 'checkbox', 'radio', 'select',
   'datePicker', 'upload', 'cascader', 'checkboxGroup', 'richText', 'password',
 ]);
+// ADR-0040: readOnly 适用于全部有 field 的表单字段控件（含双 field 的 dateRangePicker）
+const FORM_READONLY_TYPES = new Set([
+  'input', 'inputNumber', 'textarea', 'switch', 'checkbox', 'radio', 'select',
+  'datePicker', 'dateRangePicker', 'upload', 'cascader', 'checkboxGroup', 'richText', 'password',
+]);
+// ADR-0039: data.params / optionsSource.params / datasources.*.params 的整值路由绑定
+const ROUTE_PARAM_REFERENCE = /^\$context\.route\.(query|params)\.[A-Za-z_][A-Za-z0-9_]*$/;
+const DATA_ROUTE_BINDING_CAPABILITY = 'data.route-binding';
+const FORM_CONTROLS_READONLY_CAPABILITY = 'form.controls.readonly';
 const RESERVED_TABLE_QUERY_KEYS = new Set(['page', 'pageSize', 'sort']);
 const PERMISSION_CASCADE_NODE_TYPES = new Set(['section', 'grid', 'form', 'tabs', 'table']);
 const PERMISSION_CASCADE_KEYS = new Set(['edit', 'delete']);
@@ -116,6 +128,15 @@ function isPlainObject(value) {
 
 const PROTOCOL_RELATIVE_URL = /^\/(?!\/)[^\s\\]*$/;
 const RESERVED_ROW_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+
+/** ADR-0039：params 值中是否含完整单个 $context.route.(query|params).* 整值绑定（递归） */
+function paramsContainRouteBinding(params) {
+  if (!params || typeof params !== 'object' || Array.isArray(params)) return false;
+  return Object.values(params).some((value) => {
+    if (value && typeof value === 'object') return paramsContainRouteBinding(value);
+    return typeof value === 'string' && ROUTE_PARAM_REFERENCE.test(value);
+  });
+}
 
 function isValidUnicodeScalarString(value) {
   for (let index = 0; index < value.length; index += 1) {
@@ -2193,6 +2214,15 @@ function validateProtocolVersionFloor(doc, violations) {
     if (node.props && Object.prototype.hasOwnProperty.call(node.props, 'defaultValue')) {
       requireFloor(`${nodePath}.props.defaultValue`, 'props.defaultValue', FLOOR_27);
     }
+    if (node.props && Object.prototype.hasOwnProperty.call(node.props, 'readOnly')) {
+      requireFloor(`${nodePath}.props.readOnly`, 'props.readOnly', FLOOR_29);
+    }
+    if (paramsContainRouteBinding(node.data && node.data.params)) {
+      requireFloor(`${nodePath}.data.params`, 'data.params route binding', FLOOR_29);
+    }
+    if (paramsContainRouteBinding(node.props && node.props.optionsSource && node.props.optionsSource.params)) {
+      requireFloor(`${nodePath}.props.optionsSource.params`, 'optionsSource.params route binding', FLOOR_29);
+    }
     if (node.type === 'table' && node.props) {
       if (node.props.selection !== undefined) {
         requireFloor(`${nodePath}.props.selection`, 'table.props.selection', FLOOR_22);
@@ -2278,6 +2308,14 @@ function validateProtocolVersionFloor(doc, violations) {
       }
     }
   }
+  // ADR-0039: 页面级 datasources.*.params 的路由绑定同样要求 2.9
+  if (doc.datasources && typeof doc.datasources === 'object' && !Array.isArray(doc.datasources)) {
+    for (const [sourceId, dataRef] of Object.entries(doc.datasources)) {
+      if (paramsContainRouteBinding(dataRef && dataRef.params)) {
+        requireFloor(`datasources.${sourceId}.params`, 'datasources.*.params route binding', FLOOR_29);
+      }
+    }
+  }
 
   for (const req of requirements) {
     const floor = parseProtocolVersion(req.floor);
@@ -2352,6 +2390,27 @@ function validateRequiredCapabilities(doc, violations) {
         FORM_CONTROLS_ADVANCED_CAPABILITY,
         `${nodePath}.props.defaultValue`,
         'props.defaultValue',
+      );
+    }
+    if (node.props && Object.prototype.hasOwnProperty.call(node.props, 'readOnly')) {
+      requireCapability(
+        FORM_CONTROLS_READONLY_CAPABILITY,
+        `${nodePath}.props.readOnly`,
+        'props.readOnly',
+      );
+    }
+    if (paramsContainRouteBinding(node.data && node.data.params)) {
+      requireCapability(
+        DATA_ROUTE_BINDING_CAPABILITY,
+        `${nodePath}.data.params`,
+        'data.params route binding',
+      );
+    }
+    if (paramsContainRouteBinding(node.props && node.props.optionsSource && node.props.optionsSource.params)) {
+      requireCapability(
+        DATA_ROUTE_BINDING_CAPABILITY,
+        `${nodePath}.props.optionsSource.params`,
+        'optionsSource.params route binding',
       );
     }
     if (node.type === 'table' && node.props) {
@@ -2434,6 +2493,19 @@ function validateRequiredCapabilities(doc, violations) {
   };
 
   if (doc.body) scanNode(doc.body, 'body');
+
+  // ADR-0039: 页面级 datasources.*.params 的路由绑定要求 capability
+  if (doc.datasources && typeof doc.datasources === 'object' && !Array.isArray(doc.datasources)) {
+    for (const [sourceId, dataRef] of Object.entries(doc.datasources)) {
+      if (paramsContainRouteBinding(dataRef && dataRef.params)) {
+        requireCapability(
+          DATA_ROUTE_BINDING_CAPABILITY,
+          `datasources.${sourceId}.params`,
+          'datasources.*.params route binding',
+        );
+      }
+    }
+  }
 
   if (doc.actions && typeof doc.actions === 'object' && !Array.isArray(doc.actions)) {
     for (const [actionId, actionDef] of Object.entries(doc.actions)) {

@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.8
+last_updated: 2026-08-14
+applies_to: schema-ui-protocol v2.9
 ---
 
 # 核心协议规范：Node 结构定义

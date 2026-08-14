@@ -1,7 +1,7 @@
 ---
 status: example
-protocol_version: v2.8
-last_updated: 2026-07-10
+protocol_version: v2.9
+last_updated: 2026-08-14
 ---
 
 # 场景示例：表单 + 基础联动
@@ -17,7 +17,7 @@ last_updated: 2026-07-10
 meta:
   pageId: order_create
   title: 新建订单
-  protocolVersion: "2.8"
+  protocolVersion: "2.9"
 
 body:
   type: form

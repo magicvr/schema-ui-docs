@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.8
+last_updated: 2026-08-14
+applies_to: schema-ui-protocol v2.9
 ---
 
 # 联动表达式引擎语法规范
@@ -32,7 +32,7 @@ applies_to: schema-ui-protocol v2.8
 | `$self` | 当前字段自身的当前值（字段级）；`dateRangePicker` 自身 reactions 中可受控访问 `$self.start` / `$self.end`；当前列对应单元格的原始数据值（`scope: row` 列表达式） | 表单字段 `reactions`、表格列 `scope: row` 表达式 | `$self` |
 | `$context.user.*` | 当前用户身份信息（只读快照，最小字段集见 §11.1） | 条件表达式挂载点：`reactions` / `visibleWhen` / `permissions` / 表格列与操作表达式；**不含** `data.params` / `optionsSource.params` / `datasources.*.params` 值替换（见附录 A / §10.7） | `$context.user.roles` |
 | `$context.features.*` | 功能开关映射表（只读快照，最小字段集见 §11.2） | 同上（条件表达式挂载点，不含 params 值替换） | `$context.features.newDashboard` |
-| `$context.route.*` | 当前页路由只读快照（§11.3，since 2.1 / ADR-0021；2.4 扩展 ADR-0024） | **已知** `$context` 根；**禁止**出现在普通 `reactions` / `visibleWhen` / `permissions`（L3a：`FORBIDDEN_CONTEXT_NAMESPACE`，非「未知根」；审计 0063 / V279）。MVP 仅用于 `form.props.recordSource` 与 `recordView.props.recordSource` 的 path/query 整值绑定 | `$context.route.query.orderId` |
+| `$context.route.*` | 当前页路由只读快照（§11.3，since 2.1 / ADR-0021；2.4 扩展 ADR-0024；2.9 扩展 ADR-0039） | **已知** `$context` 根；**禁止**出现在普通 `reactions` / `visibleWhen` / `permissions`（L3a：`FORBIDDEN_CONTEXT_NAMESPACE`，非「未知根」；审计 0063 / V279）。绑定位置：`form.props.recordSource` 与 `recordView.props.recordSource` 的 path/query 整值绑定；since 2.9 另允许 `data.params` / `optionsSource.params` / `datasources.*.params` 的完整单个整值绑定（ADR-0039，capability `data.route-binding`） | `$context.route.query.orderId` |
 | `$selection.keys` | 当前页选中 rowKey 有序数组（since 2.2 / ADR-0022） | **仅** `table.toolbar[].batchMapping.body` 某字段的整值；**禁止** reactions / visibleWhen / permissions / params（L3a 视为未知变量；L2 另约束 batchMapping） | `$selection.keys` |
 | `$selection.count` | 规范化后选中个数（= `keys.length`） | **仅** `batchMapping.query` 或 `body` 的标量字段；禁止 path 与表达式挂载点 | `$selection.count` |
 | `$row.<字段名>` | 当前行的原始数据对象（未经格式化处理） | 表格 `columns`/`actions` 中 `scope: row` 表达式 | `$row.level` |
@@ -241,7 +241,7 @@ L3a 对 `$deps.*` 做精确包含匹配：`dependencies` 必须声明所引用�
 
 ### 10.7 `$deps` 出现在非表单 `data.params` / `optionsSource.params` / `datasources.*.params` 中
 
-`data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做**完整单个参数值替换**，规则完全一致：参数值要么是不含 `$` 的普通字面量，要么整段精确匹配单个 `$deps.<path>`；禁止 `prefix-$deps.ownerId` 一类模板拼接。若节点不处于表单上下文（或 `datasources.*.params`——页面级声明永远非表单上下文），出现 `$deps.*` 时，静态校验直接拒绝。三者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.*`，也不要求声明 `dependencies` 数组。规则递归作用于对象和数组中的所有值，不能通过数组元素绕过变量限制。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 时，以 `DATA_PARAMS_VARIABLE` 拒绝。
+`data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 中的 `$deps.*` 仅用于读取当前表单字段值并做**完整单个参数值替换**，规则完全一致：参数值要么是不含 `$` 的普通字面量，要么整段精确匹配单个 `$deps.<path>`；禁止 `prefix-$deps.ownerId` 一类模板拼接。若节点不处于表单上下文（或 `datasources.*.params`——页面级声明永远非表单上下文），出现 `$deps.*` 时，静态校验直接拒绝。三者都不是条件表达式，不支持 `$row.*`、`$parentRow.*`、`$self` 或 `$context.user.*` / `$context.features.*`，也不要求声明 `dependencies` 数组。**例外（since 2.9 / ADR-0039）：** 三者均允许完整单个 `$context.route.query.*` / `$context.route.params.*` 整值替换（任意上下文；页面级 `datasources.*.params` 同样允许）；缺失键按 ADR-0010 tombstone 删除。规则递归作用于对象和数组中的所有值，不能通过数组元素绕过变量限制。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 或 `$context.route.(query|params).*` 时，以 `DATA_PARAMS_VARIABLE` 拒绝。
 
 ### 10.8 `contains` 右操作数字面量约束
 
@@ -301,11 +301,12 @@ visibleWhen:
 | `$context.route.query.<name>` | `string` | 当前页 query；值一律字符串；缺失键为 `undefined` |
 | `$context.route.params.<name>` | `string` | 可选；宿主路由 path 参数（如 `/orders/:orderId`） |
 
-**MVP 使用边界：**
+**绑定位置（since 2.9 / ADR-0039 扩展）：**
 
 - 允许作为 `form.props.recordSource` 与 `recordView.props.recordSource` 的 `path` / `query` 映射值中的**整值替换**（单个 `$context.route.query.*` 或 `$context.route.params.*`）；
-- **默认禁止**出现在普通 `reactions` / `visibleWhen` / `permissions` / `data.params`（L2/L3a 若遇到应拒绝，直至后续 ADR 放开）；
-- 不是安全边界；记录 id 必须由业务 API 实现方鉴权。
+- since 2.9 允许作为 `data.params` / `select.props.optionsSource.params` / 页面级 `datasources.*.params` 参数值的**完整单个整值替换**（任意上下文；缺失键按 ADR-0010 tombstone 从最终 query 删除，与 `$deps` 空值语义一致；使用时声明 capability `data.route-binding` 且 `protocolVersion >= "2.9"`）；
+- **默认禁止**出现在普通 `reactions` / `visibleWhen` / `permissions`（L2/L3a 若遇到应拒绝）；
+- 不是安全边界；记录 id 与筛选参数必须由业务 API 实现方鉴权。
 
 完整加载回填语义见 [ADR-0021](./decisions/0021-record-navigation-and-form-load.md)、[ADR-0024](./decisions/0024-record-view.md) 与 [03-component-registry.md](./03-component-registry.md) `form.recordSource` / `recordView`。
 
@@ -369,11 +370,11 @@ visibleWhen:
 |---|---|---|---|---|
 | 表单字段 `reactions` | ✅ | ✅（`dateRangePicker` 额外允许 `.start` / `.end`） | ✅ | ❌ |
 | 表单字段 `visibleWhen` | ✅ | ❌ | ✅ | ❌ |
-| 表单上下文内 `data.params` | ✅（仅值替换） | ❌ | ❌ | ❌ |
-| 非表单上下文 `data.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ |
-| 表单上下文内 `optionsSource.params` | ✅（仅值替换，同 `data.params`） | ❌ | ❌ | ❌ |
-| 非表单上下文 `optionsSource.params` | ❌（静态校验拒绝） | ❌ | ❌ | ❌ |
-| 页面级 `datasources.*.params` | ❌（静态校验拒绝，永远非表单上下文） | ❌ | ❌ | ❌ |
+| 表单上下文内 `data.params` | ✅（仅值替换） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9 / ADR-0039）；`$context.user` / `features` ❌ | ❌ |
+| 非表单上下文 `data.params` | ❌（静态校验拒绝） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9 / ADR-0039）；`$context.user` / `features` ❌ | ❌ |
+| 表单上下文内 `optionsSource.params` | ✅（仅值替换，同 `data.params`） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9）；`$context.user` / `features` ❌ | ❌ |
+| 非表单上下文 `optionsSource.params` | ❌（静态校验拒绝） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9）；`$context.user` / `features` ❌ | ❌ |
+| 页面级 `datasources.*.params` | ❌（静态校验拒绝，永远非表单上下文） | ❌ | `$context.route.*` ✅（仅值替换，since 2.9）；`$context.user` / `features` ❌ | ❌ |
 | 非表单节点 `visibleWhen` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ |
 | 节点 `permissions.*` | ❌（静态校验拒绝） | ❌ | ✅ | ❌ |
 | 表格列 `scope: form` 表达式（仅表格位于 `form.children` 内） | ✅ | ❌（无绑定对象） | ✅ | ❌ |

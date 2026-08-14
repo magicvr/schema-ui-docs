@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "classify-403-forbidden",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -21,7 +21,7 @@
     },
     {
       "id": "classify-401-anonymous-auth-required",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -38,7 +38,7 @@
     },
     {
       "id": "classify-401-authenticated-reauth",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -55,7 +55,7 @@
     },
     {
       "id": "classify-426-upgrade-required",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -72,7 +72,7 @@
     },
     {
       "id": "classify-429-rate-limited",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -89,7 +89,7 @@
     },
     {
       "id": "classify-timeout",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -106,7 +106,7 @@
     },
     {
       "id": "classify-offline",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -123,7 +123,7 @@
     },
     {
       "id": "classify-503-unavailable",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -140,7 +140,7 @@
     },
     {
       "id": "classify-404-not-elevated",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -153,7 +153,7 @@
     },
     {
       "id": "classify-422-not-elevated",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -166,7 +166,7 @@
     },
     {
       "id": "classify-non-host-scope-null",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "classify",
@@ -179,7 +179,7 @@
     },
     {
       "id": "map-maintenance",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -193,7 +193,7 @@
     },
     {
       "id": "map-upgrade-required",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -207,7 +207,7 @@
     },
     {
       "id": "map-reauth-required",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -221,7 +221,7 @@
     },
     {
       "id": "map-account-locked",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -235,7 +235,7 @@
     },
     {
       "id": "map-negotiation-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -249,7 +249,7 @@
     },
     {
       "id": "map-document-failed-timeout",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -264,7 +264,7 @@
     },
     {
       "id": "map-document-failed-protocol",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -279,7 +279,7 @@
     },
     {
       "id": "map-manifest-capability-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -293,7 +293,7 @@
     },
     {
       "id": "map-manifest-integrity-failed",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -307,7 +307,7 @@
     },
     {
       "id": "map-ready-no-failure",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "mapBootstrapResult",
@@ -317,7 +317,7 @@
     },
     {
       "id": "validate-valid-maintenance",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -354,7 +354,7 @@
     },
     {
       "id": "validate-kind-hostcode-mismatch",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -378,7 +378,7 @@
     },
     {
       "id": "validate-scope-kind-incompatible",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -402,7 +402,7 @@
     },
     {
       "id": "validate-forbidden-reauth-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -431,7 +431,7 @@
     },
     {
       "id": "validate-account-locked-only-home-support",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -460,7 +460,7 @@
     },
     {
       "id": "validate-account-locked-home-support-valid",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -491,7 +491,7 @@
     },
     {
       "id": "validate-render-failed-no-auto-loop",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -519,7 +519,7 @@
     },
     {
       "id": "validate-render-failed-reload-support-valid",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -553,7 +553,7 @@
     },
     {
       "id": "validate-missing-message-key",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -575,7 +575,7 @@
     },
     {
       "id": "validate-message-params-html-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -602,7 +602,7 @@
     },
     {
       "id": "validate-protocol-rejected-valid",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateFailure",
@@ -617,7 +617,7 @@
           },
           "diagnostics": {
             "protocolCode": "UNSUPPORTED_PROTOCOL_VERSION",
-            "protocolVersion": "2.8"
+            "protocolVersion": "2.9"
           },
           "recoveryActions": [
             {
@@ -633,7 +633,7 @@
     },
     {
       "id": "intent-valid-tab-kept",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -662,7 +662,7 @@
     },
     {
       "id": "intent-sensitive-keys-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -693,7 +693,7 @@
     },
     {
       "id": "intent-case-insensitive-sensitive-key-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -722,7 +722,7 @@
     },
     {
       "id": "intent-unlisted-key-dropped",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -754,7 +754,7 @@
     },
     {
       "id": "intent-registered-extension-kept",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -787,7 +787,7 @@
     },
     {
       "id": "intent-invalid-extension-pattern-dropped",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -818,7 +818,7 @@
     },
     {
       "id": "intent-absolute-url-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -843,7 +843,7 @@
     },
     {
       "id": "intent-fragment-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -868,7 +868,7 @@
     },
     {
       "id": "intent-expired-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -893,7 +893,7 @@
     },
     {
       "id": "intent-missing-nonce-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",
@@ -917,7 +917,7 @@
     },
     {
       "id": "intent-non-string-query-value-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-failure",
       "input": {
         "operation": "validateReturnIntent",

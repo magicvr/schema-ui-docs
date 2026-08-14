@@ -189,12 +189,28 @@ function applyRequestInterceptor(request, interceptor) {
   }
   return { ok: true, request: candidate };
 }
-function buildDataRefRequest(dataRef) {
+function buildDataRefRequest(input) {
+  const dataRef = input.dataRef;
   const method = dataRef.method === undefined ? 'GET' : dataRef.method;
   if (method !== 'GET') return failure('DATA_REF_METHOD_NOT_READ_ONLY', 'dataRef.method');
   const urlError = validateProtocolUrl(dataRef.url, 'dataRef.url');
   if (urlError) return urlError;
-  const serialized = serializeQuery(dataRef.url, [Object.entries(dataRef.params || {})]);
+  // ADR-0039: whole-value $context.route.(query|params).* bindings resolve against
+  // the route snapshot; a missing key resolves to null (ADR-0010 tombstone delete).
+  const entries = [];
+  for (const [key, value] of Object.entries(dataRef.params || {})) {
+    if (typeof value === 'string' && value.includes('$')) {
+      const resolved = resolveRouteValue(value, input.route);
+      if (resolved.found && resolved.value !== undefined) {
+        entries.push([key, resolved.value]);
+        continue;
+      }
+      entries.push([key, null]);
+      continue;
+    }
+    entries.push([key, value]);
+  }
+  const serialized = serializeQuery(dataRef.url, [entries]);
   if (!serialized.ok) return serialized;
   const request = {
     method,
@@ -563,7 +579,7 @@ function buildOutcomeNavigate(input) {
 
 function buildRequest(input) {
   let result;
-  if (input.kind === 'dataRef') result = buildDataRefRequest(input.dataRef);
+  if (input.kind === 'dataRef') result = buildDataRefRequest(input);
   else if (input.kind === 'rowAction') result = buildRowActionRequest(input);
   else if (input.kind === 'rowNavigate') result = buildRowNavigate(input);
   else if (input.kind === 'recordSource') result = buildRecordSourceRequest(input);

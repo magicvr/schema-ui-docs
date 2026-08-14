@@ -5,6 +5,31 @@
 - MINOR：新增字段/组件类型，向后兼容
 - PATCH：文档修订、示例补充；在 `0.x` 阶段，也可承载不改变 `meta.protocolVersion` 的向后兼容契约补齐（如补充既有场景的错误处理、认证钩子、机器可读 Schema 同步）
 
+## v2.9.0 — 2026-08-14（dataSource 路由绑定 + 表单字段只读）
+
+> **版本说明：** MINOR 发布。新增两个可选能力：`data.route-binding`（`data.params` /
+> `optionsSource.params` / `datasources.*.params` 的 `$context.route.query.*` /
+> `$context.route.params.*` 整值绑定）与 `form.controls.readonly`（表单字段 `readOnly` 声明）。
+> 均为 additive：未声明新 capability 的既有页面行为完全不变。
+
+**协议变更（ADR-0039 / ADR-0040 accepted）：**
+
+- **ADR-0039 accepted：** 数据源 params 的 `$context.route` 整值绑定（capability
+  `data.route-binding`，since 2.9）。独立 table/chart/statCard 的 dataSource 可声明式读取
+  当前页路由 query/params 过滤（如条目内页 `dictKey`）；缺失键按 ADR-0010 tombstone 删除，
+  与 `$deps` 空值语义一致；页面级 `datasources.*.params` 同步开放。`reactions` /
+  `visibleWhen` / `permissions` 中的 `$context.route` 仍禁止（`FORBIDDEN_CONTEXT_NAMESPACE`
+  不变）。
+- **ADR-0040 accepted：** 表单字段 `readOnly` 声明（capability `form.controls.readonly`，
+  since 2.9）。用户不可编辑但值仍参与提交投影（`bodyMapping`）；与 reaction 驱动的
+  `disabled` 状态（排除提交投影）语义区分；`defaultValue` / `recordSource` 回填 /
+  reactions 写入照常生效；`required` 校验照常应用。
+- 规范投影：`02` §2/§10.7/§11.3/附录 A、`03` 表单控件、`04` §3.1/§3.2/§9、`06` L3a、
+  `08` §2.3/§2.5.1/§3.4；`node.schema.json` / `page.schema.json` /
+  `component-registry.json` / `capability-registry.json` 同步。
+- conformance：request-construction +6（路由绑定正例/tombstone/混合/readOnly 投影包含）、
+  version-negotiation +6（2.9 版本与 capability 向量）；全部算法 fixtures 随制品线升 `2.9`。
+
 ## v2.8.2 — 2026-08-13（审计 0081：下游消费边界审计与角色命名）
 
 > **版本说明：** PATCH。页面 `meta.protocolVersion` 继续为 `"2.8"`；schemas、versioned fixtures 与核心

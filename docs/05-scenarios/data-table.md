@@ -1,7 +1,7 @@
 ---
 status: example
-protocol_version: v2.8
-last_updated: 2026-07-09
+protocol_version: v2.9
+last_updated: 2026-08-14
 ---
 
 # 场景示例：数据表格（自动分页 + 格式化）
@@ -15,7 +15,7 @@ last_updated: 2026-07-09
 meta:
   pageId: order_list
   title: 订单列表
-  protocolVersion: "2.8"
+  protocolVersion: "2.9"
 
 body:
   type: table

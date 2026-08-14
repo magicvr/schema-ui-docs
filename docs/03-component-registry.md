@@ -1,8 +1,8 @@
 ---
 status: living-document
 owner: 前端组件库团队
-last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.8
+last_updated: 2026-08-14
+applies_to: schema-ui-protocol v2.9
 ---
 
 # 组件类型（type）注册表
@@ -512,6 +512,17 @@ body:
 ### 静态 `defaultValue`（since 2.7 / ADR-0033）
 
 单字段表单控件可选 props。类型须匹配 wire（L2 `DEFAULT_VALUE_WIRE_MISMATCH`）。初值序：类型空值 → `defaultValue` → `recordSource` 覆盖 → reactions 覆盖。出现即要求 `"2.7"` + `form.controls.advanced`。
+
+### 字段只读 `readOnly`（since 2.9 / ADR-0040）
+
+**全部**有 `field` 的表单字段控件可选 props（含 `dateRangePicker` 双 field）。`readOnly: true` 语义：
+
+- 用户不可编辑（不提供编辑/选择/上传交互入口），以只读形态呈现当前值；
+- 值仍参与 `values` 与提交投影（`bodyMapping` / 无 bodyMapping 时全量提交）——与 reaction 驱动的 `disabled` 状态（排除提交投影）区分；
+- `defaultValue` / `recordSource` 回填 / reactions 写入照常生效（只约束用户编辑）；
+- `required` 校验照常应用（值缺失仍阻断提交，fail-closed）。
+
+出现即要求 `"2.9"` + `form.controls.readonly`（L2 双重门控）。search form 允许 `readOnly`（固定筛选参数）。
 
 ### `inputNumber`
 数字输入控件。

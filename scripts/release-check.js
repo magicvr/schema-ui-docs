@@ -27,7 +27,7 @@ const releaseMode = process.argv.includes('--release');
  * in the same commit. CI fails if printed digest ≠ this value.
  */
 const EXPECTED_FIXTURE_DIGEST =
-  'sha256:7aacf1332ec66a16db8c79c5f3af37d241bd69b88103e503fe4d91984dd138a2';
+  'sha256:b6609b46f65a7fc4c6a33f32f714e272b93e1ebdd5fad7b99bafc13f07c3da8c';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -209,6 +209,22 @@ const releaseTargets = {
       'bootstrap',
     ],
   },
+  '2.9': {
+    releaseGoalsPath: 'docs/release-goals/v2.9.md',
+    migrationPath: 'docs/migrations/2.8-to-2.9.md',
+    migrationRequiredTopics: [
+      'protocolVersion',
+      'legacy adapter',
+      'query',
+      'pageSize',
+      'requestMapping',
+      'actions.upload',
+      'data.route-binding',
+      '$context.route',
+      'readOnly',
+      'form.controls.readonly',
+    ],
+  },
 };
 const releaseTarget = releaseTargets[protocolVersion];
 assert.ok(releaseTarget, `Missing release target definition for protocolVersion ${protocolVersion}`);
@@ -307,6 +323,9 @@ const expectedVersionedCaseCountByProtocol = {
   // 2.8: 316 +4 app-manifest (returnIntentQueryKeys) +5 version-negotiation
   //      +23 host-bootstrap +43 host-failure +30 host-conformance-claim = 421
   '2.8': 421,
+  // 2.9: 421 +6 request-construction (5 dataRef route binding + 1 readonly projection)
+  //      +6 version-negotiation (2.9 版本/capability 向量) = 433
+  '2.9': 433,
 };
 const expectedVersionedCaseCount = expectedVersionedCaseCountByProtocol[protocolVersion];
 assert.ok(

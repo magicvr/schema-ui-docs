@@ -1,7 +1,7 @@
 ---
 status: example
 protocol_version: v2.6
-last_updated: 2026-07-28
+last_updated: 2026-08-14
 capabilities:
   - form.controls.extended
   - form.record.load

@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前端架构组
-last_updated: 2026-07-28
-applies_to: schema-ui-protocol v2.8
+last_updated: 2026-08-14
+applies_to: schema-ui-protocol v2.9
 ---
 
 # Renderer（前端渲染器）实现规范
@@ -169,6 +169,7 @@ body:
 - `$deps.*` 的引用声明在 `data.params` 中的结构与 `reactions` 的依赖机制复用同一套解析器，但**仅做完整单个参数值替换，不做条件判断**；禁止字符串模板拼接。
 - **传输位置与序列化规则：** `data.params` 对所有 method 均编码为 URL query，不隐式生成请求体。key 必须非空，最终值只允许 string / finite number / boolean / null；对象和数组静态拒绝。`null` / `undefined` 删除最终 query 中的同名 key。已有 query、排序、UTF-8 与 RFC 3986 编码统一遵循 [04-datasource-contract.md §3.1.1](./04-datasource-contract.md#311-query-字节级序列化) / [ADR-0010](./decisions/0010-query-serialization.md)。
 - **作用域边界：** `$deps.*` 在 `data.params` 中的引用仅在表单上下文有效，且必须是完整单个 `$deps.*` 值。非表单上下文（独立 `table`/`chart`）的 `data.params` 中出现 `$deps.*` 时，静态校验直接拒绝，与 `visibleWhen` 的非表单约束一致（详见 [04-datasource-contract.md §3.2](./04-datasource-contract.md#32-dataparams--optionssourceparams-中-deps-的作用域边界)）。
+- **路由绑定（since 2.9 / ADR-0039）：** `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 另允许完整单个 `$context.route.query.<name>` / `$context.route.params.<name>` 整值绑定（任意上下文）。Renderer 以实例初始化时注入的路由快照求值：键缺失或值为 `undefined` 时按 tombstone 删除该 query key（与 `$deps` 空值规则一致，见 [04 §3.1](./04-datasource-contract.md#31-dataparams--optionssourceparams--datasourcesparams-中-deps-的空值省略规则)）；路由快照未注入（如 navigate 未命中注册表）时一律按缺失处理。路由绑定值属于 ADR-0011 来源 2（静态 params 层），后来源可覆盖、tombstone 删除规则不变。页面使用路由绑定须声明 capability `data.route-binding` 且 `protocolVersion >= "2.9"`。
 
 ### 2.4 表格搜索、分页与排序状态
 
@@ -248,6 +249,17 @@ body:
 - 401/403 走全局认证边界（§2.6 / `onAuthFailure`），不单独发明详情鉴权通道。
 - `recordView` **禁止**用 DataRef（`data`）替代主记录加载；**不**复用 `form.record.load` 能力键。
 - 页面须声明对应 capability；`recordView` 另须 `meta.protocolVersion >= "2.4"`（L2 双重门控）。
+
+#### 2.5.1 字段只读 `readOnly`（since 2.9 / ADR-0040）
+
+表单字段声明 `props.readOnly: true` 时，Renderer 必须：
+
+- 不提供该字段的编辑/选择/上传等交互入口，以只读形态呈现当前值（含 `switch` / `checkbox` / `upload` 等非文本控件）；
+- 字段值照常进入 `values` 与提交投影（`bodyMapping` / 无 bodyMapping 时全量提交）——与 reaction 驱动的 `disabled` 状态（排除提交投影）语义区分；
+- 不限制协议驱动的值写入：`defaultValue`、`recordSource` 回填、reactions `fulfill.value` / `otherwise.value` 照常生效；
+- `required` 校验照常应用（值缺失时阻断提交，fail-closed）。
+
+静态 `readOnly` 与 `permissions.edit=false` / permissionCascade 的只读/禁用呈现按 OR 合成；静态 `readOnly` 不改变 form 级 `edit=false` 的提交可执行性语义。页面声明任一 `readOnly` 字段须 `protocolVersion >= "2.9"` 且 capability `form.controls.readonly`（L2 双重门控）。
 
 ### 2.6 请求初始化配置（since 0.2.5）
 
@@ -336,6 +348,8 @@ Renderer 不自动发现、选择或串联 adapter。本协议只定义 adapter 
 | `table.sort` | 表格列 `sortable` / `sortField` 与 `defaultSort` | ADR-0027 |
 | `form.controls.extended` | `textarea` / `switch` / `checkbox` / `radio` / `select.mode: multiple` | ADR-0028 |
 | `form.controls.advanced` | `cascader` / `checkboxGroup` / `richText` / `password` / `defaultValue` | ADR-0029–0033 |
+| `data.route-binding` | `data.params` / `optionsSource.params` / `datasources.*.params` 的 `$context.route.query.*` / `$context.route.params.*` 整值绑定 | ADR-0039 |
+| `form.controls.readonly` | 表单字段 `readOnly` 声明（只读可见、值仍参与提交投影） | ADR-0040 |
 | `host.bootstrap` | bootstrap document、确定性启动生命周期、auth 归一化、manifest identity/缓存 | ADR-0035 / [10](./10-host-interoperability.md) |
 | `host.failure-recovery` | Host failure result、分类/优先级、retry、return intent、A11y 最低义务 | ADR-0036 / [10](./10-host-interoperability.md) |
 | `host.conformance-claim` | conformance claim、capability registry、evidence 制品 | ADR-0037 / [10](./10-host-interoperability.md) |
@@ -500,7 +514,7 @@ Renderer 在加载页面配置时，应覆盖 [02-reaction-expression.md §10](.
 - `scope: row` **仅**允许挂载在表格 `columns[]` / `actions[]` 的表达式上；普通表单字段 Node 声明 `scope: row` 时静态拒绝（`ROW_SCOPE_MOUNT`）。
 - 独立表格（非 `form.children` 上下文）的列/操作在 `scope: form` 下不能使用 `$deps.*`。
 - 表格 `columns[]` / `actions[]` 上的 `reactions`（无论 `scope: form` 或 `scope: row`）其 `fulfill` / `otherwise` 仅允许 `visible` / `disabled`，禁止 `required` / `value`。
-- `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许非空 key 和 string / finite number / boolean / null 标量，或完整单个 `$deps.*` 值替换（禁止对象、数组和模板拼接）；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.*`。
+- `data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 仅允许非空 key 和 string / finite number / boolean / null 标量，或完整单个 `$deps.*` 值替换（禁止对象、数组和模板拼接），或完整单个 `$context.route.query.*` / `$context.route.params.*` 值替换（since 2.9 / ADR-0039，任意上下文）；非表单上下文中的 `$deps.*` 必须静态拒绝，且不得使用 `$row.*` / `$parentRow.*` / `$self` / `$context.user.*` / `$context.features.*`。
 - `contains` 的右操作数仅允许字符串、数字、布尔或 `null` 字面量，拒绝变量与分组表达式（见 [02-reaction-expression.md §10.8](./02-reaction-expression.md#108-contains-右操作数字面量约束)）。
 
 其中，`table.props.columns[]` / `actions[]` 内嵌的 `visibleWhen` / `reactions` / `permissions` 对象属于组件 DSL 内的协议结构，CI 的 L2 校验应先保证其结构合法；Renderer 的 L3a 校验再检查表达式语法、变量声明与作用域隔离。无法通过的配置直接拒绝渲染，并在开发环境给出明确的校验错误信息。

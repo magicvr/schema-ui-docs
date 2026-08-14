@@ -1,8 +1,8 @@
 ---
 status: stable
 owner: 前后端架构组
-last_updated: 2026-08-13
-applies_to: schema-ui-protocol v2.8
+last_updated: 2026-08-14
+applies_to: schema-ui-protocol v2.9
 ---
 
 # 数据源 / API 契约规范
@@ -68,11 +68,12 @@ data:
 `data.params`、`select.optionsSource.params` 和页面级 `datasources.*.params` 中的参数值仅允许：
 
 1. **不含 `$` 的标量字面量**（string / finite number / boolean / null；对象、数组、`NaN`、`Infinity` 静态拒绝）；
-2. **完整单个 `$deps.<path>` 值替换**——整段字符串必须精确匹配合法 `$deps.*` 引用（如 `$deps.ownerId`、`$deps.customer.id`）。
+2. **完整单个 `$deps.<path>` 值替换**——整段字符串必须精确匹配合法 `$deps.*` 引用（如 `$deps.ownerId`、`$deps.customer.id`）；
+3. **完整单个 `$context.route.query.<name>` / `$context.route.params.<name>` 值替换**（since 2.9 / ADR-0039，capability `data.route-binding`）——整段字符串必须精确匹配 `$context.route.(query|params).<单段标识符>`；任意上下文可用（含页面级 `datasources.*.params`）；运行时以当前页路由快照求值，键缺失或为 `undefined` 时按 tombstone 删除（同规则 4）。
 
-**不支持**字符串模板拼接（如 `prefix-$deps.ownerId`、`$deps.ownerId-suffix`）、转义、表达式求值或其他变量命名空间。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 时，静态校验以 `DATA_PARAMS_VARIABLE` 拒绝。
+**不支持**字符串模板拼接（如 `prefix-$deps.ownerId`、`$deps.ownerId-suffix`）、转义、表达式求值或其他变量命名空间。字符串中任意位置出现 `$` 却不能完整匹配单个 `$deps.*` 或 `$context.route.(query|params).*` 时，静态校验以 `DATA_PARAMS_VARIABLE` 拒绝。
 
-引用的 `$deps.*` 值在运行时为 `null` 或 `undefined` 时，该参数作为 tombstone **从最终请求的 query 中删除**（包括删除已有 URL 或更早参数来源中的同名 key；不传空字符串、不传字面量 `"null"`）。目的是让业务 API 实现方能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
+引用的 `$deps.*` 或 `$context.route.*` 值在运行时为 `null` 或 `undefined` 时，该参数作为 tombstone **从最终请求的 query 中删除**（包括删除已有 URL 或更早参数来源中的同名 key；不传空字符串、不传字面量 `"null"`）。目的是让业务 API 实现方能明确区分"参数未提供"与"参数值为空字符串"两种不同语义：
 
 ```yaml
 data:
@@ -95,13 +96,13 @@ DataRef、`select.optionsSource.params` 和行级 `requestMapping.query` 必须�
 
 ### 3.2 `data.params` / `optionsSource.params` / `datasources.*.params` 中 `$deps.*` 的作用域边界
 
-`data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 中的 `$deps.*` 引用**仅在表单上下文有效**，语义为「取当前表单中同名 `field` 的当前值」，且必须是参数值的**整值替换**（见 §3.1）。非表单上下文（独立 `table`/`chart` 等节点的 `data.params`，或表单外误用的 `optionsSource.params`）中出现 `$deps.*` 时，Renderer 的静态校验应直接拒绝——与 `visibleWhen` 的非表单约束（[02-reaction-expression.md §10.1](./02-reaction-expression.md#101-非表单--表单-visiblewhen-的变量白名单)）保持一致。页面级 `datasources.*.params` 永远非表单上下文，其内出现 `$deps.*` 时以 `NON_FORM_DATA_PARAMS` 静态拒绝。
+`data.params`、`select.props.optionsSource.params` 与页面级 `datasources.*.params` 中的 `$deps.*` 引用**仅在表单上下文有效**，语义为「取当前表单中同名 `field` 的当前值」，且必须是参数值的**整值替换**（见 §3.1）。非表单上下文（独立 `table`/`chart` 等节点的 `data.params`，或表单外误用的 `optionsSource.params`）中出现 `$deps.*` 时，Renderer 的静态校验应直接拒绝——与 `visibleWhen` 的非表单约束（[02-reaction-expression.md §10.1](./02-reaction-expression.md#101-非表单--表单-visiblewhen-的变量白名单)）保持一致。页面级 `datasources.*.params` 永远非表单上下文，其内出现 `$deps.*` 时以 `NON_FORM_DATA_PARAMS` 静态拒绝。**`$context.route.query.*` / `$context.route.params.*`（since 2.9 / ADR-0039）不受本边界限制**：任意上下文（含页面级 `datasources.*.params`）均允许完整单个整值绑定。
 
-| 上下文 | `$deps.*` 在 `data.params` / `optionsSource.params` / `datasources.*.params` 中 | 说明 |
-|---|---|---|
-| 表单内（`form` 子节点） | ✅ 允许 | 搜索表单字段值驱动 API 参数 / 远程选项是核心使用场景 |
-| 表单外（独立 `table`/`chart` 等） | ❌ 静态校验拒绝 | 无表单字段可依赖，`$deps.*` 永远是 `undefined`，属于配置错误 |
-| 页面级 `datasources.*.params` | ❌ 静态校验拒绝（`NON_FORM_DATA_PARAMS`） | 永远非表单上下文；仅允许字面量 |
+| 上下文 | `$deps.*` 在 `data.params` / `optionsSource.params` / `datasources.*.params` 中 | `$context.route.query.*` / `params.*`（since 2.9） | 说明 |
+|---|---|---|---|
+| 表单内（`form` 子节点） | ✅ 允许 | ✅ 允许（完整单个整值） | 搜索表单字段值驱动 API 参数 / 远程选项是核心使用场景；路由绑定同样可用 |
+| 表单外（独立 `table`/`chart` 等） | ❌ 静态校验拒绝 | ✅ 允许（完整单个整值） | `$deps` 无表单字段可依赖；路由绑定读取当前页路由快照 |
+| 页面级 `datasources.*.params` | ❌ 静态校验拒绝（`NON_FORM_DATA_PARAMS`） | ✅ 允许（完整单个整值） | 永远非表单上下文；字面量与路由绑定均可 |
 
 > **设计理由：** 不存在跨组件数据依赖的场景——如果未来需要「一个 `chart` 依赖另一个 `chart` 的筛选结果」，应通过独立的 ADR 设计专门的参数传递机制，而非复用表单字段的 `$deps` 语义。此处保持与 `visibleWhen`、`permissions.*` 一致的策略：在不该出现 `$deps` 的位置使用它就是错误，在解析阶段暴露优于静默忽略。
 
@@ -314,9 +315,9 @@ data:
 
 配合 `select` 组件的 `props.optionsSource`（见 [03-component-registry.md](./03-component-registry.md)）使用。
 
-**请求：** `GET <optionsSource.url>?<params>`。`params` key 必须非空，值仅允许 string / finite number / boolean / null 标量，或**完整单个** `$deps.<path>` 整值替换（禁止对象、数组和模板拼接；规则与 §3.1 相同，仅在表单上下文有效）。最终 URL 使用 §3.1.1 的公共序列化算法。
+**请求：** `GET <optionsSource.url>?<params>`。`params` key 必须非空，值仅允许 string / finite number / boolean / null 标量，或**完整单个** `$deps.<path>` 整值替换（规则与 §3.1 相同，仅在表单上下文有效），或**完整单个** `$context.route.query.*` / `$context.route.params.*` 整值替换（since 2.9 / ADR-0039，任意上下文）。禁止对象、数组和模板拼接。最终 URL 使用 §3.1.1 的公共序列化算法。
 
-**空值删除规则（关键约定）：** 当 `params` 中某个值引用的 `$deps.*` 在运行时为 `null` 或 `undefined` 时，该参数从最终 query 中删除，包括删除 URL 里已有的同名 key；不传空字符串、不传字面量 `"null"`。这与 `table`/`chart` 等其他场景下 `$deps` 参数的处理方式保持统一。
+**空值删除规则（关键约定）：** 当 `params` 中某个值引用的 `$deps.*`（或 since 2.9 的 `$context.route.*`）在运行时为 `null` 或 `undefined` 时，该参数从最终 query 中删除，包括删除 URL 里已有的同名 key；不传空字符串、不传字面量 `"null"`。这与 `table`/`chart` 等其他场景下 `$deps` 参数的处理方式保持统一。
 
 ```yaml
 # 前端字段 provinceId 尚未选择（值为 null）时：

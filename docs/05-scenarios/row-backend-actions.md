@@ -1,7 +1,7 @@
 ---
 status: example
-protocol_version: v2.8
-last_updated: 2026-07-09
+protocol_version: v2.9
+last_updated: 2026-08-14
 ---
 
 # 场景示例：表格行级后端动作
@@ -19,7 +19,7 @@ last_updated: 2026-07-09
 meta:
   pageId: order_operations
   title: 订单操作台
-  protocolVersion: "2.8"
+  protocolVersion: "2.9"
   requiredCapabilities:
     - actions.row.request
 

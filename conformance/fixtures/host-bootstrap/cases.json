@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "normal-ready-anonymous",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -35,7 +35,7 @@
           "state": "anonymous"
         },
         "manifest": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "requiredCapabilities": [
             "app.manifest"
           ]
@@ -60,7 +60,7 @@
     },
     {
       "id": "normal-ready-authenticated",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -99,7 +99,7 @@
           "provenance": "host-session-adapter"
         },
         "manifest": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "requiredCapabilities": [
             "app.manifest"
           ]
@@ -126,7 +126,7 @@
     },
     {
       "id": "maintenance-terminal",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -172,7 +172,7 @@
     },
     {
       "id": "upgrade-required-terminal",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -218,7 +218,7 @@
     },
     {
       "id": "degraded-narrowed-ready",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -253,14 +253,14 @@
           "state": "anonymous"
         },
         "manifest": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "requiredCapabilities": [
             "app.manifest"
           ]
         },
         "integrity": null,
         "capabilityRegistry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
@@ -315,7 +315,7 @@
     },
     {
       "id": "degraded-manifest-capability-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -349,14 +349,14 @@
           "state": "anonymous"
         },
         "manifest": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "requiredCapabilities": [
             "app.manifest"
           ]
         },
         "integrity": null,
         "capabilityRegistry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
@@ -397,7 +397,7 @@
     },
     {
       "id": "degraded-unregistered-disabled-capability",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -431,14 +431,14 @@
           "state": "anonymous"
         },
         "manifest": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "requiredCapabilities": [
             "app.manifest"
           ]
         },
         "integrity": null,
         "capabilityRegistry": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "capabilities": {
             "app.manifest": {
               "sinceProtocolVersion": "2.5",
@@ -464,7 +464,7 @@
     },
     {
       "id": "reauth-required-terminal",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -509,7 +509,7 @@
     },
     {
       "id": "account-locked-terminal",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -554,7 +554,7 @@
     },
     {
       "id": "unsupported-bootstrap-version",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -599,7 +599,7 @@
     },
     {
       "id": "invalid-host-support-empty",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -642,7 +642,7 @@
     },
     {
       "id": "invalid-host-support-duplicates",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -688,7 +688,7 @@
     },
     {
       "id": "required-capabilities-missing-host-bootstrap",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -733,7 +733,7 @@
     },
     {
       "id": "required-capabilities-duplicates",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -779,7 +779,7 @@
     },
     {
       "id": "missing-required-capability",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -827,7 +827,7 @@
     },
     {
       "id": "manifest-integrity-mismatch",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -859,7 +859,7 @@
           "state": "anonymous"
         },
         "manifest": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "requiredCapabilities": [
             "app.manifest"
           ]
@@ -881,7 +881,7 @@
     },
     {
       "id": "manifest-integrity-ok",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": {
@@ -913,7 +913,7 @@
           "state": "anonymous"
         },
         "manifest": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "requiredCapabilities": [
             "app.manifest"
           ]
@@ -941,7 +941,7 @@
     },
     {
       "id": "fetch-failed-rate-limited",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": null,
@@ -976,7 +976,7 @@
     },
     {
       "id": "fetch-failed-protocol",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": null,
@@ -1011,7 +1011,7 @@
     },
     {
       "id": "fetch-failed-unknown-classification-defaults-unavailable",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": null,
@@ -1046,7 +1046,7 @@
     },
     {
       "id": "fallback-404-ready",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": null,
@@ -1065,7 +1065,7 @@
           "state": "anonymous"
         },
         "manifest": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "requiredCapabilities": [
             "app.manifest"
           ]
@@ -1090,7 +1090,7 @@
     },
     {
       "id": "fallback-404-reauth",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": null,
@@ -1123,7 +1123,7 @@
     },
     {
       "id": "fallback-404-manifest-capability-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "host-bootstrap",
       "input": {
         "document": null,
@@ -1142,7 +1142,7 @@
           "state": "anonymous"
         },
         "manifest": {
-          "protocolVersion": "2.8",
+          "protocolVersion": "2.9",
           "requiredCapabilities": [
             "host.bootstrap"
           ]
