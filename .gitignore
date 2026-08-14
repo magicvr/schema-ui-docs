@@ -39,6 +39,10 @@ mcp/src/**/*.js
 mcp/tests/**/*.js
 dist/
 
+# --- grok 审计 scratch（prompt 与 raw 输出）---
+_audit-*
+_probe*
+
 # --- 临时目录 / 生成文件 ---
 .tmp/
 .tmp-audit-check/
