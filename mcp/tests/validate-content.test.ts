@@ -27,6 +27,10 @@ import {
   recordViewMissingCapabilityYaml,
   recordViewKeyNotInMappingYaml,
   recordViewMissingRecordSourceYaml,
+  routeBindingOn28Yaml,
+  routeBindingMissingCapabilityYaml,
+  readOnlyOn28Yaml,
+  readOnlyMissingCapabilityYaml,
   nodeParamsResponseMappingOnlyYaml,
   nodeParamsResponseMappingYaml,
   nodePermissionSelfYaml,
@@ -165,6 +169,72 @@ describe('validate_content', () => {
         message: expect.stringMatching(/recordSource|必填/),
       }),
     ]));
+  });
+
+  it('reports params route binding on protocolVersion 2.8 as PROTOCOL_VERSION_TOO_LOW (ADR-0039)', () => {
+    const result = validateContent({
+      content: routeBindingOn28Yaml,
+      format: 'yaml',
+      filename: 'audit-0039-route-binding-on-28.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'meta.protocolVersion',
+        message: expect.stringMatching(/PROTOCOL_VERSION_TOO_LOW|route binding|2\.9/),
+      }),
+    ]));
+  });
+
+  it('reports params route binding without data.route-binding capability (ADR-0039)', () => {
+    const result = validateContent({
+      content: routeBindingMissingCapabilityYaml,
+      format: 'yaml',
+      filename: 'audit-0039-route-binding-missing-cap.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'meta.requiredCapabilities',
+        message: expect.stringMatching(/data\.route-binding/),
+      }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/04-datasource-contract.md');
+  });
+
+  it('reports readOnly on protocolVersion 2.8 as PROTOCOL_VERSION_TOO_LOW (ADR-0040)', () => {
+    const result = validateContent({
+      content: readOnlyOn28Yaml,
+      format: 'yaml',
+      filename: 'audit-0040-readonly-on-28.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'meta.protocolVersion',
+        message: expect.stringMatching(/PROTOCOL_VERSION_TOO_LOW|readOnly|2\.9/),
+      }),
+    ]));
+  });
+
+  it('reports readOnly without form.controls.readonly capability (ADR-0040)', () => {
+    const result = validateContent({
+      content: readOnlyMissingCapabilityYaml,
+      format: 'yaml',
+      filename: 'audit-0040-readonly-missing-cap.yaml',
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.layers.L2).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: 'meta.requiredCapabilities',
+        message: expect.stringMatching(/form\.controls\.readonly/),
+      }),
+    ]));
+    expect(result.suggestedDocs).toContain('docs/03-component-registry.md');
   });
 
   it('reports invalid table embedded expression objects through L2', () => {

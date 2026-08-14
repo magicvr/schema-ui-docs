@@ -290,7 +290,7 @@ visibleWhen:
 
 ### 11.3 `$context.route` 最小字段集（since 2.1 / ADR-0021）
 
-> **L3a 报错语义（V279）：** `route` 属于协议白名单根命名空间。在 expression 挂载点（`reactions` / `visibleWhen` / `permissions` / toolbar 条件）使用 `$context.route.*` 时，校验器须报「本挂载点禁止 / 仅 recordSource 绑定」，**不得**报「未知 $context 根」。未知根（非 `user`/`features`/`route`）仍使用 `UNKNOWN_CONTEXT_NAMESPACE`。
+> **L3a 报错语义（V279，2.9 更新）：** `route` 属于协议白名单根命名空间。在 expression 挂载点（`reactions` / `visibleWhen` / `permissions` / toolbar 条件）使用 `$context.route.*` 时，校验器须报「本挂载点禁止 / 仅 recordSource 绑定或 params 值替换（ADR-0039）」，**不得**报「未知 $context 根」。未知根（非 `user`/`features`/`route`）仍使用 `UNKNOWN_CONTEXT_NAMESPACE`。
 
 
 宿主在 Renderer 实例初始化时注入的**只读路由快照**（与 `user`/`features` 相同：路由变化须重挂载）。

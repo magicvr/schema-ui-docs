@@ -676,3 +676,78 @@ body:
         label: 单号
 `;
 
+/** ADR-0039（2.9）：params 路由绑定挂在 2.8 → PROTOCOL_VERSION_TOO_LOW */
+export const routeBindingOn28Yaml = `
+meta:
+  pageId: audit_0039_route_binding_on_28
+  title: bad route binding on 2.8
+  protocolVersion: "2.8"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination: { mode: server, pageSize: 20 }
+    columns:
+      - { field: key, label: 键 }
+  data:
+    source: api
+    url: /api/entries
+    params:
+      dictKey: $context.route.query.dictKey
+`;
+
+/** ADR-0039（2.9）：2.9 页面 params 路由绑定缺 data.route-binding capability */
+export const routeBindingMissingCapabilityYaml = `
+meta:
+  pageId: audit_0039_route_binding_missing_cap
+  title: bad route binding without capability
+  protocolVersion: "2.9"
+body:
+  type: table
+  props:
+    rowKey: id
+    pagination: { mode: server, pageSize: 20 }
+    columns:
+      - { field: key, label: 键 }
+  data:
+    source: api
+    url: /api/entries
+    params:
+      dictKey: $context.route.query.dictKey
+`;
+
+/** ADR-0040（2.9）：readOnly 挂在 2.8 → PROTOCOL_VERSION_TOO_LOW */
+export const readOnlyOn28Yaml = `
+meta:
+  pageId: audit_0040_readonly_on_28
+  title: bad readOnly on 2.8
+  protocolVersion: "2.8"
+body:
+  type: form
+  props:
+    submitAction: save
+  children:
+    - type: input
+      props: { field: dictKey, label: 类型键, readOnly: true }
+`;
+
+/** ADR-0040（2.9）：2.9 页面 readOnly 缺 form.controls.readonly capability */
+export const readOnlyMissingCapabilityYaml = `
+meta:
+  pageId: audit_0040_readonly_missing_cap
+  title: bad readOnly without capability
+  protocolVersion: "2.9"
+  actions:
+    save:
+      type: request
+      method: POST
+      url: /api/entries
+body:
+  type: form
+  props:
+    submitAction: save
+  children:
+    - type: input
+      props: { field: dictKey, label: 类型键, readOnly: true }
+`;
+

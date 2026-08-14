@@ -28,7 +28,8 @@
   `08` §2.3/§2.5.1/§3.4；`node.schema.json` / `page.schema.json` /
   `component-registry.json` / `capability-registry.json` 同步。
 - conformance：request-construction +6（路由绑定正例/tombstone/混合/readOnly 投影包含）、
-  version-negotiation +6（2.9 版本与 capability 向量）；全部算法 fixtures 随制品线升 `2.9`。
+  version-negotiation +6（2.9 版本与 capability 向量）；全部算法 fixtures 随制品线升 `2.9`
+  （fixture digest `b6609b46…`）。
 
 ## v2.8.2 — 2026-08-13（审计 0081：下游消费边界审计与角色命名）
 

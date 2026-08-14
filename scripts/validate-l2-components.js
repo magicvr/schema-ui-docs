@@ -83,11 +83,6 @@ const FORM_DEFAULT_VALUE_TYPES = new Set([
   'input', 'inputNumber', 'textarea', 'switch', 'checkbox', 'radio', 'select',
   'datePicker', 'upload', 'cascader', 'checkboxGroup', 'richText', 'password',
 ]);
-// ADR-0040: readOnly 适用于全部有 field 的表单字段控件（含双 field 的 dateRangePicker）
-const FORM_READONLY_TYPES = new Set([
-  'input', 'inputNumber', 'textarea', 'switch', 'checkbox', 'radio', 'select',
-  'datePicker', 'dateRangePicker', 'upload', 'cascader', 'checkboxGroup', 'richText', 'password',
-]);
 // ADR-0039: data.params / optionsSource.params / datasources.*.params 的整值路由绑定
 const ROUTE_PARAM_REFERENCE = /^\$context\.route\.(query|params)\.[A-Za-z_][A-Za-z0-9_]*$/;
 const DATA_ROUTE_BINDING_CAPABILITY = 'data.route-binding';

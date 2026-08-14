@@ -250,7 +250,7 @@ body:
 - `recordView` **禁止**用 DataRef（`data`）替代主记录加载；**不**复用 `form.record.load` 能力键。
 - 页面须声明对应 capability；`recordView` 另须 `meta.protocolVersion >= "2.4"`（L2 双重门控）。
 
-#### 2.5.1 字段只读 `readOnly`（since 2.9 / ADR-0040）
+### 2.5.2 字段只读 `readOnly`（since 2.9 / ADR-0040）
 
 表单字段声明 `props.readOnly: true` 时，Renderer 必须：
 
