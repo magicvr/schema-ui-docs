@@ -187,14 +187,26 @@ def apply_request_interceptor(request, interceptor):
 
 
 
-def build_data_ref_request(data_ref):
+def build_data_ref_request(input_value):
+    data_ref = input_value["dataRef"]
     if data_ref.get("method", "GET") != "GET":
         return failure("DATA_REF_METHOD_NOT_READ_ONLY", "dataRef.method")
     url_error = validate_protocol_url(data_ref["url"], "dataRef.url")
     if url_error:
         return url_error
-    params = [[key, value] for key, value in (data_ref.get("params") or {}).items()]
-    serialized = serialize_query(data_ref["url"], [params])
+    # ADR-0039: whole-value $context.route.(query|params).* bindings resolve against
+    # the route snapshot; a missing key resolves to None (ADR-0010 tombstone delete).
+    entries = []
+    for key, value in (data_ref.get("params") or {}).items():
+        if isinstance(value, str) and "$" in value:
+            found, resolved = resolve_route_value(value, input_value.get("route"))
+            if found and resolved is not None:
+                entries.append([key, resolved])
+                continue
+            entries.append([key, None])
+            continue
+        entries.append([key, value])
+    serialized = serialize_query(data_ref["url"], [entries])
     if not serialized["ok"]:
         return serialized
     request = {
@@ -548,7 +560,7 @@ def build_outcome_navigate(input_value):
 def build_request(input_value):
     kind = input_value.get("kind")
     if kind == "dataRef":
-        result = build_data_ref_request(input_value["dataRef"])
+        result = build_data_ref_request(input_value)
     elif kind == "rowAction":
         result = build_row_action_request(input_value)
     elif kind == "rowNavigate":

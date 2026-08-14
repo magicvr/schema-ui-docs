@@ -3,7 +3,7 @@
   "$id": "https://internal/schema-ui/capability-registry.json",
   "title": "Schema-UI Capability Registry",
   "description": "机器可读 capability 登记表（ADR-0037 / spec 10 §4.4）。claim 校验器必须从本文件读取 capability ID、版本、依赖与 mandatory suite 映射；Markdown 仅补充语义说明。registry ID 唯一，依赖图必须无环。claim 校验时，对 claim support.pageVersions / support.manifestVersions 的每个元素 v，任一被列出 capability 的 removedIn 非空且 removedIn ≤ v，该 capability 在该 claim 中按未登记处理（UNKNOWN_CLAIM_CAPABILITY）。mandatorySuites 是「claim 声明该 capability 时必须全部 pass 的 suite」；claim 的 suites[] 必须覆盖所有被列出 capability 的 mandatorySuites 并集。",
-  "protocolVersion": "2.8",
+  "protocolVersion": "2.9",
   "capabilities": {
     "actions.upload": {
       "sinceProtocolVersion": "0.2.6",
@@ -121,6 +121,20 @@
       "sinceProtocolVersion": "2.8",
       "dependsOn": ["app.manifest"],
       "mandatorySuites": ["host-conformance-claim"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "data.route-binding": {
+      "sinceProtocolVersion": "2.9",
+      "dependsOn": [],
+      "mandatorySuites": ["request-construction"],
+      "deprecatedSince": null,
+      "removedIn": null
+    },
+    "form.controls.readonly": {
+      "sinceProtocolVersion": "2.9",
+      "dependsOn": [],
+      "mandatorySuites": ["component-format", "request-construction"],
       "deprecatedSince": null,
       "removedIn": null
     }

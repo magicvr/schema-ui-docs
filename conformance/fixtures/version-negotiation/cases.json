@@ -1388,6 +1388,174 @@
         ],
         "missingCapabilities": []
       }
+    },
+    {
+      "id": "supported-v29-version",
+      "protocolVersion": "2.9",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.9"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.9"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.9",
+        "supportedVersions": [
+          "2.9"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "unsupported-v29-on-v28-renderer",
+      "protocolVersion": "2.9",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.9"
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.8"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "UNSUPPORTED_PROTOCOL_VERSION",
+        "pageVersion": "2.9",
+        "supportedVersions": [
+          "2.8"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "supported-data-route-binding-capability",
+      "protocolVersion": "2.9",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.9",
+          "requiredCapabilities": [
+            "data.route-binding"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.9"
+          ],
+          "supportedCapabilities": [
+            "data.route-binding"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.9",
+        "supportedVersions": [
+          "2.9"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "missing-data-route-binding-capability",
+      "protocolVersion": "2.9",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.9",
+          "requiredCapabilities": [
+            "data.route-binding"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.9"
+          ],
+          "supportedCapabilities": []
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "MISSING_REQUIRED_CAPABILITY",
+        "pageVersion": "2.9",
+        "supportedVersions": [
+          "2.9"
+        ],
+        "missingCapabilities": [
+          "data.route-binding"
+        ]
+      }
+    },
+    {
+      "id": "supported-form-controls-readonly-capability",
+      "protocolVersion": "2.9",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.9",
+          "requiredCapabilities": [
+            "form.controls.readonly"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.9"
+          ],
+          "supportedCapabilities": [
+            "form.controls.readonly"
+          ]
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "code": "OK",
+        "pageVersion": "2.9",
+        "supportedVersions": [
+          "2.9"
+        ],
+        "missingCapabilities": []
+      }
+    },
+    {
+      "id": "missing-form-controls-readonly-capability",
+      "protocolVersion": "2.9",
+      "category": "version-negotiation",
+      "input": {
+        "pageMeta": {
+          "protocolVersion": "2.9",
+          "requiredCapabilities": [
+            "form.controls.readonly"
+          ]
+        },
+        "rendererSupport": {
+          "supportedVersions": [
+            "2.9"
+          ],
+          "supportedCapabilities": []
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "code": "MISSING_REQUIRED_CAPABILITY",
+        "pageVersion": "2.9",
+        "supportedVersions": [
+          "2.9"
+        ],
+        "missingCapabilities": [
+          "form.controls.readonly"
+        ]
+      }
     }
   ]
 }

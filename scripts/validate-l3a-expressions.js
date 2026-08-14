@@ -20,7 +20,7 @@
  *      - table.toolbar Trigger 一律按非表单上下文校验（仅 $context.*；审计 0062 / V268）
  *      - 表格 actions 任意 scope 不能出现 $self
  *      - 表格列/操作 scope:form 使用 $deps.* 时要求表格位于 form 上下文
- *      - data.params / optionsSource.params / datasources.*.params 仅允许字面量或完整单个 $deps.* 值替换（禁止模板拼接），且 $deps.* 仅允许出现在表单上下文
+ *      - data.params / optionsSource.params / datasources.*.params 仅允许字面量、完整单个 $deps.* 值替换（仅表单上下文）或完整单个 $context.route.query.* / $context.route.params.* 值替换（since 2.9 / ADR-0039，任意上下文），禁止模板拼接
  *   4. $deps.* 中使用的字段必须在 dependencies 中声明
  *
  * 用法：
@@ -415,7 +415,7 @@ function validateExpression(expr, exprPath, context) {
         violations.push({
           path: exprPath,
           rule: 'FORBIDDEN_CONTEXT_NAMESPACE',
-          message: `$context.${contextRoot} 不得用于本挂载点；MVP 仅允许 form/recordView 的 recordSource path/query 绑定（02 §11.3）`,
+          message: `$context.${contextRoot} 不得用于本挂载点；仅允许 form/recordView 的 recordSource path/query 绑定与 params 值替换（02 §11.3 / ADR-0039）`,
         });
       }
     }
@@ -772,8 +772,10 @@ function scanNode(node, nodePath, violations, parentIsForm, formFields = null) {
 }
 
 function scanDataParams(params, paramsPath, violations, hasFormContext, paramsLabel, formFields = null) {
-  // 与 requestMapping 一致：字符串只要包含 $，就必须完整匹配单个 $deps.* 值替换
+  // 与 requestMapping 一致：字符串只要包含 $，就必须完整匹配单个合法整值替换
   const depsRefPattern = /^\$deps\.[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/;
+  // ADR-0039：路由绑定（$context.route.query.* / params.*，任意上下文）
+  const routeRefPattern = /^\$context\.route\.(query|params)\.[A-Za-z_][A-Za-z0-9_]*$/;
 
   for (const [key, value] of Object.entries(params)) {
     const valuePath = Array.isArray(params) ? `${paramsPath}[${key}]` : `${paramsPath}.${key}`;
@@ -784,7 +786,7 @@ function scanDataParams(params, paramsPath, violations, hasFormContext, paramsLa
 
     if (typeof value !== 'string') continue;
 
-    // 不含 $ 的普通字面量直接放行；含 $ 时必须是完整单个 $deps.*
+    // 不含 $ 的普通字面量直接放行；含 $ 时必须是完整单个合法整值替换
     if (!value.includes('$')) continue;
 
     if (depsRefPattern.test(value)) {
@@ -806,10 +808,15 @@ function scanDataParams(params, paramsPath, violations, hasFormContext, paramsLa
       continue;
     }
 
+    if (routeRefPattern.test(value)) {
+      // ADR-0039：$context.route.query.* / params.* 整值绑定，任意上下文放行
+      continue;
+    }
+
     violations.push({
       path: valuePath,
       rule: 'DATA_PARAMS_VARIABLE',
-      message: `${paramsLabel} 仅允许字面量或完整单个 $deps.* 值替换，不支持模板拼接或其他变量（$row.* / $parentRow.* / $self / $context.*）`,
+      message: `${paramsLabel} 仅允许字面量、完整单个 $deps.*（仅表单上下文）或完整单个 $context.route.query.* / $context.route.params.*（since 2.9）值替换，不支持模板拼接或其他变量（$row.* / $parentRow.* / $self / $context.user.* / $context.features.*）`,
     });
   }
 }

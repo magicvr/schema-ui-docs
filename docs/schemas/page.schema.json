@@ -75,7 +75,7 @@
         },
         "params": {
           "type": "object",
-          "description": "【可选】URL query 参数映射，对所有 HTTP method 均不隐式进入请求体；key 必须非空，值只允许 string/finite number/boolean/null 标量（禁止对象和数组）。页面级 datasources 无 form 上下文，完整 $deps.* 会由 L3a 以 NON_FORM_DATA_PARAMS 拒绝；见 ADR-0010、docs/04-datasource-contract.md §3.1 与 docs/08-renderer-spec.md §2.3",
+          "description": "【可选】URL query 参数映射，对所有 HTTP method 均不隐式进入请求体；key 必须非空，值只允许 string/finite number/boolean/null 标量（禁止对象和数组），或完整单个 $context.route.query.* / $context.route.params.* 整值替换（since 2.9，缺失按 tombstone 删除；使用时声明 data.route-binding 且 protocolVersion >= 2.9，见 ADR-0039）。页面级 datasources 无 form 上下文，完整 $deps.* 会由 L3a 以 NON_FORM_DATA_PARAMS 拒绝；见 ADR-0010、docs/04-datasource-contract.md §3.1 与 docs/08-renderer-spec.md §2.3",
           "propertyNames": { "type": "string", "minLength": 1 },
           "additionalProperties": {
             "type": ["string", "number", "boolean", "null"]

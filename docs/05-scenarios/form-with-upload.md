@@ -1,7 +1,7 @@
 ---
 status: example
-protocol_version: v2.8
-last_updated: 2026-07-11
+protocol_version: v2.9
+last_updated: 2026-08-14
 ---
 
 # 场景示例：表单内文件上传
@@ -18,7 +18,7 @@ last_updated: 2026-07-11
 meta:
   pageId: contract_upload
   title: 合同附件上传
-  protocolVersion: "2.8"
+  protocolVersion: "2.9"
   requiredCapabilities:
     - actions.upload
 

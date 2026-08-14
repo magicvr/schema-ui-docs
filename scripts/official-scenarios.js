@@ -17,6 +17,8 @@ const CONFORMANCE_SCENARIO_PATHS = [
   ...OFFICIAL_SCENARIO_PATHS,
   'docs/05-scenarios/admin-list-edit-lifecycle.md',
   'docs/05-scenarios/admin-list-detail-lifecycle.md',
+  // v2.9 / ADR-0039-0040：列表 → 内页路由过滤 + 只读上下文字段
+  'docs/05-scenarios/admin-list-route-filter-lifecycle.md',
 ];
 
 function extractAllYamlFences(markdown) {

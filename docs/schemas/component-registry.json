@@ -997,6 +997,12 @@
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
         },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
+        },
         "additionalProperties": false
       },
       "anyOf": [
@@ -1072,6 +1078,12 @@
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
         },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
+        },
         "additionalProperties": false
       },
       "anyOf": [
@@ -1144,6 +1156,12 @@
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
         },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
+        },
         "additionalProperties": false
       },
       "anyOf": [
@@ -1215,6 +1233,12 @@
           "required": false,
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
         },
         "additionalProperties": false
       },
@@ -1322,6 +1346,12 @@
           "required": false,
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
         },
         "additionalProperties": false
       },
@@ -1433,6 +1463,12 @@
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
         },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
+        },
         "additionalProperties": false
       },
       "anyOf": [
@@ -1527,6 +1563,12 @@
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
         },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
+        },
         "additionalProperties": false
       },
       "anyOf": [
@@ -1608,6 +1650,12 @@
           "minimum": 1,
           "required": false,
           "since": "0.2"
+        },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
         },
         "additionalProperties": false
       },
@@ -1716,6 +1764,12 @@
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
         },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
+        },
         "additionalProperties": false
       },
       "anyOf": [
@@ -1804,7 +1858,7 @@
         "optionsSource": {
           "type": "object",
           "since": "0.2",
-          "description": "与 options 二选一，远程动态选项。params key 必须非空，值仅允许 string/finite number/boolean/null 或完整单个 $deps.<path> 整值替换（禁止对象、数组和模板拼接）；值为 null/undefined 时删除该参数，见 ADR-0010 与 docs/04-datasource-contract.md §3.1",
+          "description": "与 options 二选一，远程动态选项。params key 必须非空，值仅允许 string/finite number/boolean/null 或完整单个 $deps.<path> 整值替换（禁止对象、数组和模板拼接）；值为 null/undefined 时删除该参数，见 ADR-0010 与 docs/04-datasource-contract.md §3.1；since 2.9 另允许完整单个 $context.route.query.* / $context.route.params.* 整值绑定（任意上下文，缺失按 tombstone 删除；使用时声明 data.route-binding 且 protocolVersion >= 2.9，见 ADR-0039）",
           "properties": {
             "url": {
               "type": "string"
@@ -1879,6 +1933,12 @@
           "required": false,
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
         },
         "additionalProperties": false
       },
@@ -1972,6 +2032,12 @@
           "required": false,
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
         },
         "options": {
           "type": "array",
@@ -2101,6 +2167,12 @@
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
         },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
+        },
         "options": {
           "type": "array",
           "required": true,
@@ -2221,6 +2293,12 @@
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
         },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
+        },
         "additionalProperties": false
       },
       "anyOf": [
@@ -2295,6 +2373,12 @@
           "required": false,
           "since": "2.7",
           "description": "【ADR-0033】静态初值；类型须匹配字段 wire；使用时声明 form.controls.advanced 且 protocolVersion >= 2.7；recordSource 覆盖本值"
+        },
+        "readOnly": {
+          "type": "boolean",
+          "required": false,
+          "since": "2.9",
+          "description": "【ADR-0040】只读字段：用户不可编辑（不提供编辑/交互入口），但值仍参与 values 与提交投影（bodyMapping）；recordSource 回填与 reactions 写入不受限；使用时声明 form.controls.readonly 且 protocolVersion >= 2.9"
         },
         "additionalProperties": false
       },

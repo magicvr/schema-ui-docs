@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "nested-ancestor-and-form-local-tightens",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -89,7 +89,7 @@
     },
     {
       "id": "local-permission-cannot-loosen-ancestor",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -164,7 +164,7 @@
     },
     {
       "id": "table-actions-toolbar-inherit-columns-stay-local",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -269,7 +269,7 @@
     },
     {
       "id": "tabs-content-is-a-cascade-edge",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -345,7 +345,7 @@
     },
     {
       "id": "modal-and-navigated-pages-start-new-roots",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -468,7 +468,7 @@
     },
     {
       "id": "default-form-participates-search-form-does-not",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -556,7 +556,7 @@
     },
     {
       "id": "existing-container-permission-is-local-without-cascade",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -619,7 +619,7 @@
     },
     {
       "id": "all-approved-intent-mounts-participate",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -711,7 +711,7 @@
     },
     {
       "id": "capability-is-required-for-intent",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -742,7 +742,7 @@
     },
     {
       "id": "version-floor-is-required-for-cascade",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -782,7 +782,7 @@
     },
     {
       "id": "cascade-type-and-keys-fail-closed",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -828,7 +828,7 @@
     },
     {
       "id": "missing-source-and-forbidden-intent-mounts-fail-closed",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -888,7 +888,7 @@
     },
     {
       "id": "visible-when-blocks-before-permission-and-confirm",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -953,7 +953,7 @@
     },
     {
       "id": "permission-denial-blocks-before-confirm-and-request",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -1018,7 +1018,7 @@
     },
     {
       "id": "disabled-or-selection-blocks-before-confirm",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -1085,7 +1085,7 @@
     },
     {
       "id": "confirm-cancellation-stops-action-after-all-gates-pass",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {
@@ -1153,7 +1153,7 @@
     },
     {
       "id": "action-executes-only-after-confirmation",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "permissions-inheritance",
       "input": {
         "page": {

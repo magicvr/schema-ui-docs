@@ -4,13 +4,13 @@
   "cases": [
     {
       "id": "official-data-table",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/data-table.md",
         "scenarioMeta": {
           "pageId": "order_list",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": [
           {
@@ -47,7 +47,7 @@
       },
       "expected": {
         "pageId": "order_list",
-        "protocolVersion": "2.8",
+        "protocolVersion": "2.9",
         "steps": [
           {
             "state": {
@@ -75,13 +75,13 @@
     },
     {
       "id": "official-grid-dashboard",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/grid-dashboard.md",
         "scenarioMeta": {
           "pageId": "dashboard_sales",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": [
           {
@@ -122,7 +122,7 @@
       },
       "expected": {
         "pageId": "dashboard_sales",
-        "protocolVersion": "2.8",
+        "protocolVersion": "2.9",
         "steps": [
           {
             "ok": true,
@@ -153,13 +153,13 @@
     },
     {
       "id": "official-form-with-reactions",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/form-with-reactions.md",
         "scenarioMeta": {
           "pageId": "order_create",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": [
           {
@@ -194,7 +194,7 @@
       },
       "expected": {
         "pageId": "order_create",
-        "protocolVersion": "2.8",
+        "protocolVersion": "2.9",
         "steps": [
           {
             "ok": true,
@@ -226,13 +226,13 @@
     },
     {
       "id": "official-row-backend-actions",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/row-backend-actions.md",
         "scenarioMeta": {
           "pageId": "order_operations",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": [
           {
@@ -277,7 +277,7 @@
       },
       "expected": {
         "pageId": "order_operations",
-        "protocolVersion": "2.8",
+        "protocolVersion": "2.9",
         "steps": [
           {
             "ok": true,
@@ -308,13 +308,13 @@
     },
     {
       "id": "official-search-form-table",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/search-form-table.md",
         "scenarioMeta": {
           "pageId": "order_search",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": [
           {
@@ -343,7 +343,7 @@
       },
       "expected": {
         "pageId": "order_search",
-        "protocolVersion": "2.8",
+        "protocolVersion": "2.9",
         "steps": [
           {
             "state": {
@@ -364,13 +364,13 @@
     },
     {
       "id": "official-form-with-upload",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/form-with-upload.md",
         "scenarioMeta": {
           "pageId": "contract_upload",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": [
           {
@@ -433,7 +433,7 @@
       },
       "expected": {
         "pageId": "contract_upload",
-        "protocolVersion": "2.8",
+        "protocolVersion": "2.9",
         "steps": [
           {
             "ok": true,
@@ -481,13 +481,13 @@
     },
     {
       "id": "unknown-official-scenario-path-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/not-official.md",
         "scenarioMeta": {
           "pageId": "missing",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": []
       },
@@ -497,13 +497,13 @@
     },
     {
       "id": "official-scenario-metadata-mismatch-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/data-table.md",
         "scenarioMeta": {
           "pageId": "wrong-page",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": []
       },
@@ -513,13 +513,13 @@
     },
     {
       "id": "admin-lifecycle-list-row-navigate",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/admin-list-edit-lifecycle.md",
         "scenarioMeta": {
           "pageId": "order_list_lifecycle",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": [
           {
@@ -581,7 +581,7 @@
       },
       "expected": {
         "pageId": "order_list_lifecycle",
-        "protocolVersion": "2.8",
+        "protocolVersion": "2.9",
         "steps": [
           {
             "ok": true,
@@ -614,13 +614,13 @@
     },
     {
       "id": "admin-lifecycle-edit-load-submit",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/admin-list-edit-lifecycle.md",
         "scenarioMeta": {
           "pageId": "order_edit_lifecycle",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": [
           {
@@ -702,7 +702,7 @@
       },
       "expected": {
         "pageId": "order_edit_lifecycle",
-        "protocolVersion": "2.8",
+        "protocolVersion": "2.9",
         "steps": [
           {
             "ok": true,
@@ -750,13 +750,13 @@
     },
     {
       "id": "admin-lifecycle-detail-load",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/admin-list-detail-lifecycle.md",
         "scenarioMeta": {
           "pageId": "order_detail_lifecycle",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": [
           {
@@ -808,7 +808,7 @@
       },
       "expected": {
         "pageId": "order_detail_lifecycle",
-        "protocolVersion": "2.8",
+        "protocolVersion": "2.9",
         "steps": [
           {
             "ok": true,
@@ -832,18 +832,104 @@
     },
     {
       "id": "admin-lifecycle-wrong-page-rejected",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "scenarios",
       "input": {
         "scenarioPath": "docs/05-scenarios/admin-list-edit-lifecycle.md",
         "scenarioMeta": {
           "pageId": "not_a_page",
-          "protocolVersion": "2.8"
+          "protocolVersion": "2.9"
         },
         "steps": []
       },
       "expected": {
         "error": "SCENARIO_METADATA_MISMATCH"
+      }
+    },
+    {
+      "id": "admin-lifecycle-route-filter-inner-page",
+      "protocolVersion": "2.9",
+      "category": "scenarios",
+      "input": {
+        "scenarioPath": "docs/05-scenarios/admin-list-route-filter-lifecycle.md",
+        "scenarioMeta": {
+          "pageId": "dict_entries",
+          "protocolVersion": "2.9"
+        },
+        "steps": [
+          {
+            "kind": "request",
+            "input": {
+              "kind": "dataRef",
+              "dataRef": {
+                "source": "api",
+                "method": "GET",
+                "url": "/api/data-dictionary/entries",
+                "params": {
+                  "dictKey": "$context.route.query.dictKey"
+                }
+              },
+              "route": {
+                "query": {
+                  "dictKey": "ORDER_STATUS"
+                },
+                "params": {}
+              }
+            }
+          },
+          {
+            "kind": "request",
+            "input": {
+              "kind": "formAction",
+              "action": {
+                "method": "POST",
+                "url": "/api/data-dictionary/entries",
+                "bodyMapping": {
+                  "dictKey": "dictKey",
+                  "label": "label"
+                }
+              },
+              "formValues": {
+                "dictKey": "ORDER_STATUS",
+                "label": "paid"
+              },
+              "formProjection": {
+                "dictKey": {
+                  "value": "ORDER_STATUS",
+                  "readonly": true
+                },
+                "label": {
+                  "value": "paid"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "pageId": "dict_entries",
+        "protocolVersion": "2.9",
+        "steps": [
+          {
+            "ok": true,
+            "request": {
+              "method": "GET",
+              "url": "/api/data-dictionary/entries?dictKey=ORDER_STATUS",
+              "body": null
+            }
+          },
+          {
+            "ok": true,
+            "request": {
+              "method": "POST",
+              "url": "/api/data-dictionary/entries",
+              "body": {
+                "dictKey": "ORDER_STATUS",
+                "label": "paid"
+              }
+            }
+          }
+        ]
       }
     }
   ]

@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "v24-compat-no-sort-fields-click-ignored",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -52,7 +52,7 @@
     },
     {
       "id": "l2-missing-capability",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "operation": "validate",
@@ -102,7 +102,7 @@
     },
     {
       "id": "l2-version-too-low",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "operation": "validate",
@@ -140,7 +140,7 @@
     },
     {
       "id": "l2-sort-key-duplicate",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "operation": "validate",
@@ -185,7 +185,7 @@
     },
     {
       "id": "default-sort-init-request",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -240,7 +240,7 @@
     },
     {
       "id": "default-sort-desc-first-click-clears",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -302,7 +302,7 @@
     },
     {
       "id": "three-state-null-to-asc",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -368,7 +368,7 @@
     },
     {
       "id": "three-state-asc-to-desc",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -430,7 +430,7 @@
     },
     {
       "id": "three-state-desc-to-clear",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -492,7 +492,7 @@
     },
     {
       "id": "sort-field-maps-to-backend-key",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -554,7 +554,7 @@
     },
     {
       "id": "non-sortable-column-no-change",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -616,7 +616,7 @@
     },
     {
       "id": "unknown-sort-key-no-request",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -675,7 +675,7 @@
     },
     {
       "id": "search-keeps-sort-resets-page",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
@@ -743,7 +743,7 @@
     },
     {
       "id": "selection-cleared-on-sort-click",
-      "protocolVersion": "2.8",
+      "protocolVersion": "2.9",
       "category": "table-sort",
       "input": {
         "meta": {
